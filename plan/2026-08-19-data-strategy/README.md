@@ -9,9 +9,9 @@
 | File | Purpose |
 |---|---|
 | [`01-requirements-and-findings.md`](01-requirements-and-findings.md) | Data requirements derived from the proposal, and what empirical profiling of the three named sources actually found |
-| [`02-data-catalog.md`](02-data-catalog.md) | Catalog of all candidate sources — named, alternative and supplementary — with verified size, schema, licence and PII status |
+| [`docs/data/data-catalog.md`](../../docs/data/data-catalog.md) | Catalog of all candidate sources — moved to `docs/` during the acquisition phase, where it is maintained alongside the per-source dataset cards |
 | [`03-acquisition-action-plan.md`](03-acquisition-action-plan.md) | Sequenced action plan to download, view and validate each source |
-| [`scripts/`](scripts/) | Runnable fetch and profiling scripts referenced by the action plan |
+| [`04-acquisition-implementation.md`](04-acquisition-implementation.md) | What the acquisition phase actually built, and where it deviated from this plan |
 
 ## Method note
 

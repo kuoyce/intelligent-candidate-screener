@@ -26,25 +26,28 @@ No Hugging Face token is needed — every HF source in the catalog is public and
 
 ## Phase 1 — Download (≈1 hour, ~400 MB)
 
-Run `uv run python plan/2026-08-19-data-strategy/scripts/fetch_sources.py --all`, or step by step:
+Run `uv run python -m candidate_screener.data.fetch --all`, or step by step:
 
 | # | Source | Command / action | Size | Blocking? |
 |---|---|---|---|---|
-| 1.1 | A1 fit dataset | `fetch_sources.py --source fit` | 12 MB | No |
-| 1.2 | A2 Djinni JDs | `fetch_sources.py --source djinni-jd` | ~146 MB | No |
-| 1.3 | A2 Djinni CVs | `fetch_sources.py --source djinni-cv` | ~250 MB | No |
-| 1.4 | B2 SkillSpan | `fetch_sources.py --source skillspan` | small | No |
-| 1.5 | B1 DataTurks | `fetch_sources.py --source dataturks` (GitHub raw) | 1.2 MB | No |
-| 1.6 | C1 Kaggle PDFs | `kaggle datasets download -d snehaanbhawal/resume-dataset` | ~700 MB | Account available; **not on the critical path** |
-| 1.7 | C2 HTML fallback | `fetch_sources.py --source livecareer` | ~40 MB | No |
-| 1.8 | C3 ResumeAtlas | `fetch_sources.py --source resume-atlas` | 24 MB | No |
-| 1.9 | D2 skill frequencies | `fetch_sources.py --source data-jobs` | ~90 MB | No |
+| 1.1 | A1 fit dataset | `fetch --source fit` | 12 MB | No |
+| 1.2 | A2 Djinni JDs | `fetch --source djinni-jd` | ~146 MB | No |
+| 1.3 | A2 Djinni CVs | `fetch --source djinni-cv` | ~250 MB | No |
+| 1.4 | B2 SkillSpan | `fetch --source skillspan` | small | No |
+| 1.5 | B1 DataTurks | `fetch --source dataturks` (GitHub raw) | 1.2 MB | No |
+| 1.6 | C1 Kaggle PDFs | `kaggle datasets download -d snehaanbhawal/resume-dataset` | 118 MB | Account available; **not on the critical path** |
+| 1.7 | C2 HTML fallback | `fetch --source livecareer` | ~40 MB | No |
+| 1.8 | C3 ResumeAtlas | `fetch --source resume-atlas` | 24 MB | No |
+| 1.9 | D2 skill frequencies | `fetch --source data-jobs` | ~90 MB | No |
 | 1.10 | D1 ESCO | **DONE** — v1.2.1 CSV bundle in place at `data/raw/esco_dataset-v1.2.1-classification/` | ~50 MB | Complete |
 
 Everything except 1.6 and 1.10 runs unattended with no credentials.
 
-**Status 19 Aug 2026:** 1.1, 1.2, 1.3, 1.4, 1.5 and 1.10 are complete (429 MB in `data/raw/`).
-Outstanding: 1.6 (PDFs, do before the ingestion component in §8 weeks 3–4), 1.7–1.9 (run on demand).
+**Status 19 Aug 2026 — Phase 1 COMPLETE.** All eleven adopted sources are on disk (676 MB in
+`data/raw/`) and pass `verify --all` against the row counts recorded here. Step 1.6 (the Kaggle
+PDFs) came in ahead of schedule at 118 MB — 2,484 PDFs, not the ~700 MB estimated. Per-file
+sizes and SHA-256 digests are recorded in `docs/data/acquisition-manifest.json`; the phase is
+written up in [`04-acquisition-implementation.md`](04-acquisition-implementation.md).
 
 **ESCO contents — Verified:** `skills_en.csv` 13,960 skills (10,734 skill/competence + 3,221
 knowledge) carrying **~86,694 alternative labels** for alias normalisation; `occupations_en.csv`
@@ -53,13 +56,14 @@ hard-requirement checks; `digitalSkillsCollection_en.csv` 1,284 digital skills. 
 skill/knowledge division maps directly onto SkillSpan's `tags_skill` / `tags_knowledge` layers —
 use one label scheme across both.
 
-## Phase 2 — View and validate (≈2 hours)
+## Phase 2 — View and validate (≈2 hours) — **COMPLETE**
 
 ```bash
-uv run python plan/2026-08-19-data-strategy/scripts/profile_sources.py --all
+uv run python -m candidate_screener.data.verify  --all   # bytes: files, rows, digests
+uv run python -m candidate_screener.data.profile --all   # meaning: the Verified figures
 ```
 
-This reproduces every **Verified** figure in `02-data-catalog.md`. Treat it as an acceptance
+This reproduces every **Verified** figure in `docs/data/data-catalog.md`. Treat it as an acceptance
 test on the download — if the numbers drift, a publisher has re-uploaded and the catalog needs
 re-verification.
 
@@ -73,6 +77,10 @@ Per-source checks to eyeball in Jupyter afterwards:
 | B2 | Confirm the BIO tag inventory and decide the `tags_skill` / `tags_knowledge` → project-label mapping |
 | C1/C2 | Open 3 PDFs and 3 HTML records; note the failure modes the parser must survive |
 | C3 | Confirm the text really is pre-normalised, then set it aside for clustering only |
+
+Each row above is now an executed notebook under `notebooks/` — see
+[`04-acquisition-implementation.md`](04-acquisition-implementation.md) for the mapping and for
+the four findings the viewing step added.
 
 ## Phase 3 — Build the derived artefacts (≈2–3 days)
 

@@ -1,0 +1,454 @@
+{
+  "generated": "2026-08-19T11:57:29+00:00",
+  "hashed": true,
+  "total_bytes": 676041173,
+  "sources": {
+    "fit": {
+      "catalog_id": "A1",
+      "title": "cnamuangtoun/resume-job-description-fit",
+      "tier": 1,
+      "licence": "None declared (accepted \u2014 decision D7)",
+      "pii": "Livecareer-style resumes; names largely stripped, employers/schools remain",
+      "locator": "cnamuangtoun/resume-job-description-fit",
+      "path": "raw/fit",
+      "present": true,
+      "artifacts": [
+        {
+          "glob": "*-train-*.parquet",
+          "files": 1,
+          "bytes": 9764751,
+          "rows": 6241,
+          "rows_expected": 6241,
+          "entries": [
+            {
+              "path": "fit/default-train-0000.parquet",
+              "bytes": 9764751,
+              "rows": 6241,
+              "sha256": "680ea3f8f85b827354d4d6af4612919e28349f3b4eb2d1201b269e5fa4ce279e"
+            }
+          ]
+        },
+        {
+          "glob": "*-test-*.parquet",
+          "files": 1,
+          "bytes": 2561549,
+          "rows": 1759,
+          "rows_expected": 1759,
+          "entries": [
+            {
+              "path": "fit/default-test-0000.parquet",
+              "bytes": 2561549,
+              "rows": 1759,
+              "sha256": "a468fb42383e79808cd035a0722f20ffa2581101be225f00525c3583cde4f327"
+            }
+          ]
+        }
+      ],
+      "problems": [],
+      "bytes": 12326300
+    },
+    "djinni-jd": {
+      "catalog_id": "A2",
+      "title": "lang-uk/recruitment-dataset-job-descriptions-english (Djinni)",
+      "tier": 1,
+      "licence": "MIT",
+      "pii": "Pre-anonymized by the publishers",
+      "locator": "lang-uk/recruitment-dataset-job-descriptions-english",
+      "path": "raw/djinni-jd",
+      "present": true,
+      "artifacts": [
+        {
+          "glob": "*-train-*.parquet",
+          "files": 1,
+          "bytes": 145859589,
+          "rows": 141897,
+          "rows_expected": 141897,
+          "entries": [
+            {
+              "path": "djinni-jd/default-train-0000.parquet",
+              "bytes": 145859589,
+              "rows": 141897,
+              "sha256": "71dddaf0d9660f34ddf946953b67f54f1e7d60e22dcf9a4b8139b6378b18aab9"
+            }
+          ]
+        }
+      ],
+      "problems": [],
+      "bytes": 145859589
+    },
+    "djinni-cv": {
+      "catalog_id": "A2",
+      "title": "lang-uk/recruitment-dataset-candidate-profiles-english (Djinni)",
+      "tier": 1,
+      "licence": "MIT",
+      "pii": "Pre-anonymized by the publishers",
+      "locator": "lang-uk/recruitment-dataset-candidate-profiles-english",
+      "path": "raw/djinni-cv",
+      "present": true,
+      "artifacts": [
+        {
+          "glob": "*-train-*.parquet",
+          "files": 1,
+          "bytes": 237415736,
+          "rows": 210250,
+          "rows_expected": 210250,
+          "entries": [
+            {
+              "path": "djinni-cv/default-train-0000.parquet",
+              "bytes": 237415736,
+              "rows": 210250,
+              "sha256": "a7b1378e0b231507c377659bf2c80fa4ba60c4e31e1107b13425d103879ecc3b"
+            }
+          ]
+        }
+      ],
+      "problems": [],
+      "bytes": 237415736
+    },
+    "dataturks": {
+      "catalog_id": "B1",
+      "title": "DataTurks \u2014 Entity Recognition in Resumes",
+      "tier": 2,
+      "licence": "None declared",
+      "pii": "DIRECT \u2014 `Name` and `Email Address` are annotated classes, plus residual emails/phones",
+      "locator": "DataTurks-Engg/Entity-Recognition-In-Resumes-SpaCy",
+      "path": "raw/dataturks",
+      "present": true,
+      "artifacts": [
+        {
+          "glob": "traindata.json",
+          "files": 1,
+          "bytes": 1106139,
+          "rows": 200,
+          "rows_expected": 200,
+          "entries": [
+            {
+              "path": "dataturks/traindata.json",
+              "bytes": 1106139,
+              "rows": 200,
+              "sha256": "7ba87e4497e950e0e5dc3f3900d5ff8782d127fda4acea880531cde70c0385fa"
+            }
+          ]
+        },
+        {
+          "glob": "testdata.json",
+          "files": 1,
+          "bytes": 111557,
+          "rows": 20,
+          "rows_expected": 20,
+          "entries": [
+            {
+              "path": "dataturks/testdata.json",
+              "bytes": 111557,
+              "rows": 20,
+              "sha256": "4b72985a7fe745345e3ed616aec8f2e76c6101cd2091951ce983b86f759e4fc0"
+            }
+          ]
+        }
+      ],
+      "problems": [],
+      "bytes": 1217696
+    },
+    "skillspan": {
+      "catalog_id": "B2",
+      "title": "jjzha/skillspan",
+      "tier": 1,
+      "licence": "CC-BY-4.0",
+      "pii": "Pre-anonymized (entities replaced with placeholders)",
+      "locator": "jjzha/skillspan",
+      "path": "raw/skillspan",
+      "present": true,
+      "artifacts": [
+        {
+          "glob": "*-train-*.parquet",
+          "files": 1,
+          "bytes": 325740,
+          "rows": 4800,
+          "rows_expected": 4800,
+          "entries": [
+            {
+              "path": "skillspan/default-train-0000.parquet",
+              "bytes": 325740,
+              "rows": 4800,
+              "sha256": "f0bde686637c5779e0f33befe639b18cf5d587bcfeb635471da9b8cb516432cc"
+            }
+          ]
+        },
+        {
+          "glob": "*-validation-*.parquet",
+          "files": 1,
+          "bytes": 160208,
+          "rows": 3174,
+          "rows_expected": 3174,
+          "entries": [
+            {
+              "path": "skillspan/default-validation-0000.parquet",
+              "bytes": 160208,
+              "rows": 3174,
+              "sha256": "1d328d654f0495f27ceeb04d1189e0371c95c896930378a6462bfdb37d5df4d5"
+            }
+          ]
+        },
+        {
+          "glob": "*-test-*.parquet",
+          "files": 1,
+          "bytes": 165547,
+          "rows": 3569,
+          "rows_expected": 3569,
+          "entries": [
+            {
+              "path": "skillspan/default-test-0000.parquet",
+              "bytes": 165547,
+              "rows": 3569,
+              "sha256": "6459b0c11eaf31c767cc756b8740870b33a97c2f5fe58007297d609e43fce52e"
+            }
+          ]
+        }
+      ],
+      "problems": [],
+      "bytes": 651495
+    },
+    "green": {
+      "catalog_id": "B3",
+      "title": "jjzha/green",
+      "tier": 2,
+      "licence": "CC-BY-4.0",
+      "pii": "Pre-anonymized",
+      "locator": "jjzha/green",
+      "path": "raw/green",
+      "present": true,
+      "artifacts": [
+        {
+          "glob": "*-train-*.parquet",
+          "files": 1,
+          "bytes": 913011,
+          "rows": 8669,
+          "rows_expected": 8669,
+          "entries": [
+            {
+              "path": "green/default-train-0000.parquet",
+              "bytes": 913011,
+              "rows": 8669,
+              "sha256": "65a511e310eaf2c9379d4483f57467cd175b28443560ccc9634c04d6d9a326f6"
+            }
+          ]
+        },
+        {
+          "glob": "*-validation-*.parquet",
+          "files": 1,
+          "bytes": 102382,
+          "rows": 964,
+          "rows_expected": 964,
+          "entries": [
+            {
+              "path": "green/default-validation-0000.parquet",
+              "bytes": 102382,
+              "rows": 964,
+              "sha256": "c2c3a5dee904fe035049b701ec66be99638604aab8902849d4d546b92b8bf86d"
+            }
+          ]
+        },
+        {
+          "glob": "*-test-*.parquet",
+          "files": 1,
+          "bytes": 41956,
+          "rows": 335,
+          "rows_expected": 335,
+          "entries": [
+            {
+              "path": "green/default-test-0000.parquet",
+              "bytes": 41956,
+              "rows": 335,
+              "sha256": "b4b7ef7dcbdec4af1b9b6776b7eda0afdb338dea6edd82733ea5f3768fe46782"
+            }
+          ]
+        }
+      ],
+      "problems": [],
+      "bytes": 1057349
+    },
+    "livecareer-pdf": {
+      "catalog_id": "C1",
+      "title": "Kaggle snehaanbhawal/resume-dataset (PDF corpus)",
+      "tier": 1,
+      "licence": "Kaggle-hosted, publisher terms",
+      "pii": "Livecareer-style resumes; treat as personal data even though names are largely stripped",
+      "locator": "snehaanbhawal/resume-dataset",
+      "path": "raw/snehaanbhawal-resume-dataset",
+      "present": true,
+      "artifacts": [
+        {
+          "glob": "Resume.csv",
+          "files": 1,
+          "bytes": 56273235,
+          "rows": 2484,
+          "rows_expected": 2484,
+          "entries": [
+            {
+              "path": "snehaanbhawal-resume-dataset/Resume.csv",
+              "bytes": 56273235,
+              "rows": 2484,
+              "sha256": "816a7cd985a9a41e3ce8d1e83cb7e1beb1e854a89c1cf1fd0d75494faaa0559d"
+            }
+          ]
+        },
+        {
+          "glob": "data/**/*.pdf",
+          "files": 2484,
+          "bytes": 62016120,
+          "rows": null,
+          "rows_expected": null,
+          "entries": []
+        }
+      ],
+      "problems": [],
+      "bytes": 118289355
+    },
+    "livecareer": {
+      "catalog_id": "C2",
+      "title": "opensporks/resumes",
+      "tier": 1,
+      "licence": "None declared",
+      "pii": "As C1",
+      "locator": "opensporks/resumes",
+      "path": "raw/livecareer",
+      "present": true,
+      "artifacts": [
+        {
+          "glob": "*-train-*.parquet",
+          "files": 1,
+          "bytes": 19980725,
+          "rows": 2484,
+          "rows_expected": 2484,
+          "entries": [
+            {
+              "path": "livecareer/default-train-0000.parquet",
+              "bytes": 19980725,
+              "rows": 2484,
+              "sha256": "248216f406ff445a38c261c6cfd91b07c278abf9353aefa923c12be148cde9fa"
+            }
+          ]
+        }
+      ],
+      "problems": [],
+      "bytes": 19980725
+    },
+    "resume-atlas": {
+      "catalog_id": "C3",
+      "title": "ahmedheakl/resume-atlas",
+      "tier": 2,
+      "licence": "MIT",
+      "pii": "Pre-normalised text; no direct identifiers observed",
+      "locator": "ahmedheakl/resume-atlas",
+      "path": "raw/resume-atlas",
+      "present": true,
+      "artifacts": [
+        {
+          "glob": "*-train-*.parquet",
+          "files": 1,
+          "bytes": 23616823,
+          "rows": 13389,
+          "rows_expected": 13389,
+          "entries": [
+            {
+              "path": "resume-atlas/default-train-0000.parquet",
+              "bytes": 23616823,
+              "rows": 13389,
+              "sha256": "d8061929a1905ad0cff81fcfba3940e5c29de708697c8eee06fa7e5c2a735d5c"
+            }
+          ]
+        }
+      ],
+      "problems": [],
+      "bytes": 23616823
+    },
+    "esco": {
+      "catalog_id": "D1",
+      "title": "ESCO v1.2.1 classification (CSV bundle)",
+      "tier": 1,
+      "licence": "European Commission ESCO terms of use",
+      "pii": "None",
+      "locator": "https://esco.ec.europa.eu/en/use-esco/download",
+      "path": "raw/esco_dataset-v1.2.1-classification",
+      "present": true,
+      "artifacts": [
+        {
+          "glob": "skills_en.csv",
+          "files": 1,
+          "bytes": 9302000,
+          "rows": 13960,
+          "rows_expected": 13960,
+          "entries": [
+            {
+              "path": "esco_dataset-v1.2.1-classification/skills_en.csv",
+              "bytes": 9302000,
+              "rows": 13960,
+              "sha256": "d03b10efca94b4bcfa260a992cfde89c375f0fa12095d6662a663cfd2f9f2950"
+            }
+          ]
+        },
+        {
+          "glob": "occupations_en.csv",
+          "files": 1,
+          "bytes": 3047703,
+          "rows": 3043,
+          "rows_expected": 3043,
+          "entries": [
+            {
+              "path": "esco_dataset-v1.2.1-classification/occupations_en.csv",
+              "bytes": 3047703,
+              "rows": 3043,
+              "sha256": "8034348d84b6d1dd24a5bcf9609186ecbba0a85457ee2eacd65bddec33a51b4a"
+            }
+          ]
+        },
+        {
+          "glob": "occupationSkillRelations_en.csv",
+          "files": 1,
+          "bytes": 27986628,
+          "rows": 126051,
+          "rows_expected": 126051,
+          "entries": [
+            {
+              "path": "esco_dataset-v1.2.1-classification/occupationSkillRelations_en.csv",
+              "bytes": 27986628,
+              "rows": 126051,
+              "sha256": "e1a46511f0ef4d505f106f1d41f528ef76d289f93e59d4d0cbaac38986102c44"
+            }
+          ]
+        }
+      ],
+      "problems": [],
+      "bytes": 40336331
+    },
+    "data-jobs": {
+      "catalog_id": "D2",
+      "title": "lukebarousse/data_jobs",
+      "tier": 2,
+      "licence": "Apache-2.0",
+      "pii": "None",
+      "locator": "lukebarousse/data_jobs",
+      "path": "raw/data-jobs",
+      "present": true,
+      "artifacts": [
+        {
+          "glob": "*-train-*.parquet",
+          "files": 1,
+          "bytes": 75289774,
+          "rows": 785741,
+          "rows_expected": 785741,
+          "entries": [
+            {
+              "path": "data-jobs/default-train-0000.parquet",
+              "bytes": 75289774,
+              "rows": 785741,
+              "sha256": "4f8365f86ac184fc6b212e1f30f754087b3fd2ae55a6606cac8356b77c679d97"
+            }
+          ]
+        }
+      ],
+      "problems": [],
+      "bytes": 75289774
+    }
+  }
+}

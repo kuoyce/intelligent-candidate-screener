@@ -1,13 +1,14 @@
 # `data/` — acquisition guide
 
 Nothing in this directory is committed except this file. Everything below reconstructs the
-~483 MB working set. See `plan/2026-08-19-data-strategy/02-data-catalog.md` for what each source
-is, its licence and its known defects.
+**676 MB** working set. See [`docs/data/data-catalog.md`](../docs/data/data-catalog.md) for
+what each source is, its licence and its known defects, and
+[`docs/data/cards/`](../docs/data/cards/) for the per-source detail.
 
 ## 1. Automated (no credentials)
 
 ```bash
-uv run python plan/2026-08-19-data-strategy/scripts/fetch_sources.py --all
+uv run python -m candidate_screener.data.fetch --all
 ```
 
 Pulls A1 (fit pairs), A2 (Djinni JDs + CVs), B1 (DataTurks), B2 (SkillSpan), B3 (green),
@@ -46,25 +47,40 @@ Expected: `skills_en.csv` (13,960 rows), `occupations_en.csv` (3,043),
 ## 4. Verify
 
 ```bash
-uv run python plan/2026-08-19-data-strategy/scripts/profile_sources.py --all
+uv run python -m candidate_screener.data.verify  --all   # files, row counts, SHA-256 digests
+uv run python -m candidate_screener.data.profile --all   # the Verified figures in the catalog
 ```
 
-This reproduces every figure marked **Verified** in the data catalog and acts as an acceptance
-test on the download. If the numbers drift, a publisher has re-uploaded and the catalog needs
-re-verifying before the numbers are trusted.
+`verify` is an acceptance test: it fails if a row count drifts from the figure recorded in
+`candidate_screener.data.sources`, which means a publisher has re-uploaded and every number in
+the catalog needs re-checking before it is trusted. It writes
+`docs/data/acquisition-manifest.json`; `profile` writes `docs/data/profile-metrics.json`.
 
 ## Expected layout
 
+Verified 19 Aug 2026 — every figure below is asserted by `verify --all`:
+
 ```
-data/raw/
-  fit/                                    12 MB   A1  resume–JD fit pairs
-  djinni-jd/                             140 MB   A2  141,897 IT job descriptions
-  djinni-cv/                             227 MB   A2  210,250 anonymized CVs
-  skillspan/                             648 KB   B2  skill/knowledge spans
-  dataturks/                             1.2 MB   B1  220 resumes, entity spans
-  esco_dataset-v1.2.1-classification/     50 MB   D1  skills taxonomy (manual)
-  snehaanbhawal-resume-dataset/           54 MB   C1  2,484 resumes + PDFs (manual)
+data/
+  raw/
+    fit/                                  12.3 MB   A1  8,000 resume–JD fit pairs
+    djinni-jd/                           145.9 MB   A2  141,897 IT job descriptions
+    djinni-cv/                           237.4 MB   A2  210,250 anonymized CVs
+    dataturks/                             1.2 MB   B1  220 resumes, 3,556 entity spans
+    skillspan/                             0.7 MB   B2  11,543 sentences, 9,617 spans
+    green/                                 1.1 MB   B3  9,968 sentences (held in reserve)
+    snehaanbhawal-resume-dataset/        118.3 MB   C1  2,484 resumes + 2,484 PDFs (manual)
+    livecareer/                           20.0 MB   C2  2,484 resumes as HTML
+    resume-atlas/                         23.6 MB   C3  13,389 resumes (pre-normalised)
+    esco_dataset-v1.2.1-classification/   40.3 MB   D1  13,960 skills (manual)
+    data-jobs/                            75.3 MB   D2  785,741 postings, skills only
+  interim/     parsed / de-identified / repaired
+  processed/   model-ready splits and pools
+  vocab/       ESCO + skill-frequency extracts
 ```
+
+`interim/`, `processed/` and `vocab/` are populated in Phase 3 and are empty apart from
+`interim/c1_a1_contamination.csv`, written by `profile --check livecareer`.
 
 ## Handling notes
 

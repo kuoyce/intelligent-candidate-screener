@@ -2,6 +2,22 @@
 
 **Compiled:** 19 August 2026 · **Verified** = downloaded and profiled directly; **Card claim** = taken from the publisher's description, unconfirmed.
 
+**Acquisition status: complete.** All eleven adopted sources are on disk (676 MB) and pass
+`verify --all`. Per-source dataset cards are in [`cards/`](cards/); per-file sizes and
+SHA-256 digests in [`acquisition-manifest.json`](acquisition-manifest.json); the measured
+figures behind every **Verified** claim below in
+[`profile-metrics.json`](profile-metrics.json). Reproduce with:
+
+```bash
+uv run python -m candidate_screener.data.fetch   --all
+uv run python -m candidate_screener.data.verify  --all
+uv run python -m candidate_screener.data.profile --all
+```
+
+Four figures below were **superseded during acquisition** — B2's span volume, C1's
+contamination count, D1's tech coverage and D2's skill vocabulary. Each is marked
+*Superseded 19 Aug 2026* in place.
+
 Legend — **Tier 1** adopt, **Tier 2** adopt with stated caveats, **Tier 3** evaluated and rejected (recorded so the decision is traceable).
 
 ---
@@ -55,6 +71,7 @@ nDCG@10. See `01-requirements-and-findings.md` §2.7 and the protocol in
 | Role | In-domain end-to-end evaluation set; replaces the "200+ self-collected JDs" plan |
 | Caveats | **No fit labels** and no interaction/match table (Verified — only four datasets exist in the org). Ukrainian/EE IT market — see Q5 |
 | Join key | **Verified** `Primary Keyword` has 45 JD-side and 41 CV-side values, **41 of 41 shared**. Largest shared families are `JavaScript, Java, DevOps, .NET, QA Automation, Node.js, PHP, Python, Project Manager` — squarely the project's target domain |
+| Length | **Verified** median **JD 1,629 chars, CV 751 chars** — the CVs are ~7× shorter than A1's resumes (5,134), a transfer risk for anything tuned on A1. Add to §10 |
 
 **Why this solves R4.** It is IT-domain, both-sided, licence-clean and needs no scraping or
 consent process. `Primary Keyword` (role family) is present on *both* CVs and JDs, and with
@@ -81,7 +98,7 @@ inventing the pairs from nothing.
 | Schema | `text` (resume+JD concatenated), `ats_score` (18.3–90.7), `original_label` |
 | Licence | Apache-2.0 |
 | **Reject because** | **Verified** 97.2% of rows are `cnamuangtoun` resume+JD concatenated — not an independent signal. The `[SEP]` separator its card documents is **absent from all 6,374 rows**, so the resume/JD boundary is unrecoverable from the file. Its score is itself an embedding-similarity output, making retrieval "calibration" circular |
-| If retained anyway | The boundary is recoverable by prefix-matching against A1 (`scripts/profile_sources.py --recover-ats-boundary`). The circularity objection is unaffected |
+| If retained anyway | The boundary is recoverable by prefix-matching against A1 (`profile --recover-ats-boundary`). The circularity objection is unaffected |
 
 ---
 
@@ -111,7 +128,8 @@ inventing the pairs from nothing.
 | Licence | **CC-BY-4.0** (Verified) |
 | PII | Pre-anonymized — entities replaced with placeholders such as `<ORGANIZATION>` |
 | Provenance | Zhang et al., *SkillSpan: Hard and Soft Skill Extraction from English Job Postings* (NAACL 2022) |
-| Role | The volume and quality that DataTurks lacks — ~26× more skill supervision, peer-reviewed guidelines, clean licence |
+| Role | The volume and quality that DataTurks lacks — **~20× more skill supervision** (measured), peer-reviewed guidelines, clean licence |
+| **Verified size** | *Superseded 19 Aug 2026:* **11,543 sentences** (4,800 / 3,174 / 3,569), 176,296 tokens, **4,381 skill spans + 5,236 knowledge spans = 9,617 total**. The card's ">12.5K spans" and the earlier "~26×" estimate are replaced by these counts — see [card](cards/B2-skillspan.md) |
 | Caveats | Annotated on **job postings, not resumes** — a documented domain shift. Distinguishes *skill* from *knowledge* spans, which must be mapped onto the project's label scheme |
 
 ### B3 · `jjzha/green` — **Tier 2, supplementary**
@@ -135,7 +153,7 @@ CC-BY-4.0, but **Danish** (Verified `language:da`). Out of scope per §5.4 (Engl
 | Size | **Verified** 2,484 resumes across 24 categories; 120 `INFORMATION-TECHNOLOGY`, 118 `ENGINEERING`, 120 `BUSINESS-DEVELOPMENT` |
 | Schema | `ID`, `Resume_str`, `Resume_html`, `Category`; **PDFs on disk** in per-category folders, filename = `ID` |
 | Provenance | Scraped from livecareer.com. **Verified — it is NOT A1's upstream source:** 0 exact matches against A1's 643 resumes, and only **40 (6.2%)** share substantial text. Same site and formatting, largely different documents |
-| Contamination | Those **40 overlapping resumes must be excluded** from any NER training or distractor pool built off this corpus, or they leak into the A1 benchmark. Small and identifiable — script the exclusion |
+| Contamination | *Superseded 19 Aug 2026:* the overlap criterion is now defined and scripted. **0 exact matches**; **44 resumes at ≥0.70 8-gram containment** (6.8% of A1's 643 uniques), 2 at ≥0.90. The exclusion list is written to `data/interim/c1_a1_contamination.csv` by `profile --check livecareer` and **must be excluded** from any NER training set or distractor pool built off this corpus |
 | Licence | Kaggle-hosted, publisher terms; verify on the page before redistributing |
 | Status | **ACQUIRED 19 Aug 2026** — `data/raw/snehaanbhawal-resume-dataset/`, **Verified 2,484 PDFs** + `Resume.csv` (median HTML 15,025 chars, text 5,886 chars). WSL `Zone.Identifier` markers removed |
 | Role | The only identified source giving **real PDFs**, satisfying §5.2's parsing/robustness claims |
@@ -178,6 +196,7 @@ CC-BY-4.0, but **Danish** (Verified `language:da`). Out of scope per §5.4 (Engl
 | Role | Skill normalisation, alias resolution, hard-requirement checks (§4.5) |
 | Alignment | ESCO's skill/knowledge division maps directly onto SkillSpan's `tags_skill` / `tags_knowledge` — use one scheme across both |
 | Caveats | EU labour-market taxonomy; tech-tool coverage is thinner than a scraped tech vocabulary, hence the D2 frequency join. Confirm derived extracts may be committed (Q11) |
+| **Coverage — measured** | *Superseded 19 Aug 2026:* of D2's 100 most-frequent tech skills, ESCO matches **33 exactly** (47% of posting volume) and 55 under relaxed word matching. `aws`, `azure`, `docker`, `kubernetes`, `snowflake`, `pytorch`, `terraform`, `jira` and ~37 others are **absent entirely**. ESCO alone is insufficient for this domain — see [card](cards/D1-esco.md) |
 
 ### D2 · `lukebarousse/data_jobs` — **Tier 2, skill vocabulary only**
 
@@ -188,6 +207,8 @@ CC-BY-4.0, but **Danish** (Verified `language:da`). Out of scope per §5.4 (Engl
 | Schema | **Verified** `job_title_short`, `job_title`, `job_skills`, `job_type_skills`, location, salary, dates |
 | **Correction to its framing** | **Verified — there is NO job-description text column.** It cannot serve as a JD corpus |
 | Role | Excellent **tech-role skill frequency** source to weight and extend the ESCO vocabulary toward data/software roles |
+| **Verified vocabulary** | *Superseded 19 Aug 2026:* **252 distinct skills**; top: `sql` 384,849 · `python` 380,909 · `aws` 145,381 · `azure` 132,527 · `r` 130,892 |
+| **Handling trap** | `job_skills` is a **stringified list**, not a list — iterating a cell yields characters and silently produces a 37-symbol vocabulary. Parse via `candidate_screener.data.profile.parse_skill_cell` |
 
 ### D3 · `datastax/linkedin_job_listings` — **Tier 3, avoid**
 
