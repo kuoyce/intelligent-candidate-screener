@@ -1,0 +1,17 @@
+[project]
+name = "intelligent-candidate-screener"
+version = "0.1.0"
+description = "Intelligent Candidate Screening System — NUS ISS PLP Practice Module, Group 2"
+requires-python = ">=3.12"
+dependencies = [
+    "datasets>=5.0.1",
+    "huggingface-hub>=1.28.0",
+    "pandas>=3.0.5",
+    "pyarrow>=25.0.1",
+    "requests>=2.34.2",
+]
+
+[dependency-groups]
+dev = [
+    "jupyterlab>=4.6.3",
+]
