@@ -1,0 +1,323 @@
+{
+  "generated": "2026-08-19T11:50:52+00:00",
+  "checks": {
+    "fit": {
+      "splits": {
+        "train": {
+          "rows": 6241,
+          "unique_resumes": 642,
+          "unique_jds": 280,
+          "label_share": {
+            "No Fit": 0.5036,
+            "Potential Fit": 0.2493,
+            "Good Fit": 0.2471
+          },
+          "resumes_per_jd": {
+            "mean": 22.3,
+            "median": 14,
+            "max": 111
+          },
+          "jds_with_5plus_resumes": 256,
+          "jds_with_good_fit": 115,
+          "good_per_jd_median": 10,
+          "resume_chars_median": 5134,
+          "jd_chars_median": 2384
+        },
+        "test": {
+          "rows": 1759,
+          "unique_resumes": 477,
+          "unique_jds": 71,
+          "label_share": {
+            "No Fit": 0.4872,
+            "Good Fit": 0.2604,
+            "Potential Fit": 0.2524
+          },
+          "resumes_per_jd": {
+            "mean": 24.8,
+            "median": 20,
+            "max": 89
+          },
+          "jds_with_5plus_resumes": 69,
+          "jds_with_good_fit": 28,
+          "good_per_jd_median": 18,
+          "resume_chars_median": 5080,
+          "jd_chars_median": 2401
+        }
+      },
+      "resume_leakage_test_in_train": 476,
+      "resume_leakage_pct": 99.8,
+      "jd_overlap": 0,
+      "conflicting_label_pairs": 6,
+      "good_fit_per_test_jd": {
+        "n_queries": 28,
+        "min": 1,
+        "q1": 3,
+        "median": 18,
+        "q3": 24,
+        "max": 48,
+        "mean": 16.4
+      },
+      "pct_queries_recall10_reachable_at_0.9": 42.9,
+      "pct_queries_recall20_reachable_at_0.9": 60.7,
+      "pct_queries_recall50_reachable_at_0.9": 100.0
+    },
+    "djinni": {
+      "jds": 141897,
+      "cvs": 210250,
+      "primary_keyword": {
+        "jd_side": 45,
+        "cv_side": 41,
+        "shared": 41
+      },
+      "top_shared_families": {
+        "JavaScript": 17903,
+        "Java": 8712,
+        "DevOps": 7979,
+        ".NET": 7826,
+        "Other": 7536,
+        "QA Automation": 7047,
+        "Marketing": 6933,
+        "QA": 6774,
+        "Node.js": 6416,
+        "PHP": 5740,
+        "Python": 5735,
+        "Project Manager": 4618
+      },
+      "cv_side_family_counts": {
+        "JavaScript": 33980,
+        "QA": 25089,
+        "Design": 15068,
+        "Project Manager": 12499,
+        "Java": 11463,
+        ".NET": 9388,
+        "Marketing": 8984,
+        "Python": 7588,
+        "PHP": 6947,
+        "QA Automation": 5756,
+        "Other": 5395,
+        "Node.js": 4896
+      },
+      "english_level": {
+        "upper": 78146,
+        "intermediate": 64915,
+        "fluent": 43102,
+        "pre": 18197,
+        "basic": 5269,
+        "no_english": 136
+      },
+      "jd_chars_median": 1629,
+      "cv_chars_median": 751
+    },
+    "dataturks": {
+      "docs": 220,
+      "spans": 3556,
+      "broken_offsets": 222,
+      "broken_offsets_pct": 6.2,
+      "entities": {
+        "Companies worked at": 729,
+        "Designation": 521,
+        "Skills": 472,
+        "Location": 430,
+        "College Name": 330,
+        "Degree": 298,
+        "Graduation Year": 254,
+        "Email Address": 252,
+        "Name": 224,
+        "Years of Experience": 44,
+        "UNKNOWN": 2
+      },
+      "residual_emails": 5,
+      "residual_phone_like": 17,
+      "doc_chars_median": 2924
+    },
+    "skillspan": {
+      "splits": {
+        "train": {
+          "sentences": 4800,
+          "tokens": 93453,
+          "layers": {
+            "tags_skill": {
+              "B": 2221,
+              "I": 7850,
+              "O": 83382,
+              "spans": 2221
+            },
+            "tags_knowledge": {
+              "B": 2969,
+              "I": 2596,
+              "O": 87888,
+              "spans": 2969
+            }
+          },
+          "sources": {
+            "tech": 3133,
+            "house": 1667
+          }
+        },
+        "validation": {
+          "sentences": 3174,
+          "tokens": 40057,
+          "layers": {
+            "tags_skill": {
+              "B": 1070,
+              "I": 3797,
+              "O": 35190,
+              "spans": 1070
+            },
+            "tags_knowledge": {
+              "B": 1093,
+              "I": 913,
+              "O": 38051,
+              "spans": 1093
+            }
+          },
+          "sources": {
+            "tech": 2156,
+            "house": 1018
+          }
+        },
+        "test": {
+          "sentences": 3569,
+          "tokens": 42786,
+          "layers": {
+            "tags_skill": {
+              "B": 1090,
+              "I": 3136,
+              "O": 38560,
+              "spans": 1090
+            },
+            "tags_knowledge": {
+              "B": 1174,
+              "I": 914,
+              "O": 40698,
+              "spans": 1174
+            }
+          },
+          "sources": {
+            "tech": 2286,
+            "house": 1283
+          }
+        }
+      },
+      "total_skill_spans": 4381,
+      "total_knowledge_spans": 5236
+    },
+    "livecareer": {
+      "csv_rows": 2484,
+      "pdf_files": 2484,
+      "pdf_categories": 24,
+      "categories": {
+        "INFORMATION-TECHNOLOGY": 120,
+        "BUSINESS-DEVELOPMENT": 120,
+        "ADVOCATE": 118,
+        "CHEF": 118,
+        "FINANCE": 118,
+        "ENGINEERING": 118,
+        "ACCOUNTANT": 118,
+        "FITNESS": 117
+      },
+      "html_chars_median": 15025,
+      "text_chars_median": 5886,
+      "hf_mirror_rows": 2484,
+      "pdf_bytes_median": 23685,
+      "a1_uniques": 643,
+      "a1_exact_matches": 0,
+      "a1_overlap_by_threshold": {
+        "0.9": 2,
+        "0.7": 44,
+        "0.5": 65
+      },
+      "contamination_threshold": 0.7,
+      "contaminated_resumes": 44,
+      "contaminated_pct_of_a1": 6.8,
+      "exclusion_list": "data/interim/c1_a1_contamination.csv"
+    },
+    "resume-atlas": {
+      "rows": 13389,
+      "categories": 43,
+      "uppercase_chars_in_sample": 0,
+      "punctuation_chars_in_sample": 0,
+      "top_categories": {
+        "Education": 410,
+        "Electrical Engineering": 384,
+        "Mechanical Engineer": 384,
+        "Consultant": 368,
+        "Civil Engineer": 364,
+        "Sales": 364,
+        "Management": 361,
+        "Human Resources": 360
+      }
+    },
+    "esco": {
+      "skills": 13960,
+      "occupations": 3043,
+      "occupation_skill_links": 126051,
+      "skill_type": {
+        "skill/competence": 10734,
+        "knowledge": 3221
+      },
+      "alt_labels": 86694,
+      "relation_type": {
+        "essential": 67600,
+        "optional": 58451
+      },
+      "digital_skills": 25
+    },
+    "data-jobs": {
+      "rows": 785741,
+      "columns": [
+        "job_title_short",
+        "job_title",
+        "job_location",
+        "job_via",
+        "job_schedule_type",
+        "job_work_from_home",
+        "search_location",
+        "job_posted_date",
+        "job_no_degree_mention",
+        "job_health_insurance",
+        "job_country",
+        "salary_rate",
+        "salary_year_avg",
+        "salary_hour_avg",
+        "company_name",
+        "job_skills",
+        "job_type_skills"
+      ],
+      "description_text_columns": [],
+      "distinct_skills": 252,
+      "top_skills": {
+        "sql": 384849,
+        "python": 380909,
+        "aws": 145381,
+        "azure": 132527,
+        "r": 130892,
+        "tableau": 127213,
+        "excel": 127018,
+        "spark": 114609,
+        "power bi": 98147,
+        "java": 85612,
+        "sas": 83404,
+        "hadoop": 64842,
+        "scala": 56886,
+        "snowflake": 55015,
+        "databricks": 53182,
+        "gcp": 50727,
+        "git": 50226,
+        "kafka": 49926,
+        "airflow": 45254,
+        "oracle": 45221
+      },
+      "top_titles": {
+        "Data Analyst": 196075,
+        "Data Engineer": 186241,
+        "Data Scientist": 172286,
+        "Business Analyst": 49063,
+        "Software Engineer": 44929,
+        "Senior Data Engineer": 44563,
+        "Senior Data Scientist": 36957,
+        "Senior Data Analyst": 29216
+      }
+    }
+  }
+}
