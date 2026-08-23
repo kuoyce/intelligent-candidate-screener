@@ -1,0 +1,8 @@
+resume_id,jd_id,rows,labels,shipped_splits,resolution
+r_282df938bf67,j_afad5d1e324c,2,Good Fit | No Fit,train,dropped_conflicting
+r_32bf2b58800b,j_f24119b3bc39,2,No Fit | Potential Fit,train,dropped_conflicting
+r_43533037feee,j_ef4c6efe5843,2,No Fit | Potential Fit,train,dropped_conflicting
+r_4f8f48127ce6,j_18106689e541,2,Good Fit | No Fit,train,dropped_conflicting
+r_6498a56ea424,j_a8efe3c321b0,2,No Fit,train,deduplicated_kept_one
+r_7377edfe0097,j_488868b4d9df,2,Good Fit | No Fit,train,dropped_conflicting
+r_efd3000203d1,j_d0fab2ddc183,2,Good Fit | No Fit,train,dropped_conflicting

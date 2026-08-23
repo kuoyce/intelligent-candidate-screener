@@ -48,6 +48,20 @@ closed, and both change the work:
 
 Q8–Q11, Q13 and Q15 are closed by D14–D18 above.
 
+**Q17 — new, 23 Aug 2026.** Task 3.2 measured the test-side relevance density at **6 Good Fit
+per JD**, not the 18 the corpus-wide figure gave. The "do not report Recall@10" rule (D9) was
+derived from 18 and may no longer hold. Re-derive the attainability curve on the actual test
+pool **inside task 3.3**, before any result exists — the rule is currently stated in the
+catalog, the A1 card and the README. See
+[`05-implementation.md` §3.5](05-implementation.md).
+
+## Progress
+
+| Task | Status |
+|---|---|
+| 3.2 leak-free split | **Done** 23 Aug 2026 — 30% hold-out, seed 0, no val fold. [`05-implementation.md`](05-implementation.md) |
+| 3.1, 3.3, 3.4, 3.5 | Not started |
+
 ## Critical path
 
 ```

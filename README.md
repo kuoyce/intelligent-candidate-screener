@@ -4,8 +4,9 @@ NUS ISS PLP Practice Module, Group 2. A resume–job-description screening syste
 resumes in their original formats, extract structured evidence, and rank candidates against a
 job description with the evidence shown back to the recruiter.
 
-**Current phase: data acquisition — complete.** All eleven adopted sources are downloaded,
-verified and documented. Modelling has not started.
+**Current phase: derived artefacts (Phase 3) — in progress.** All eleven adopted sources are
+downloaded, verified and documented; the leak-free evaluation split is built. Modelling has
+not started.
 
 ## Layout
 
@@ -43,13 +44,24 @@ Two sources need a human: the Kaggle PDF corpus (account + API token) and ESCO
 uv run jupyter lab notebooks/       # the EDA
 ```
 
+## Build the derived artefacts
+
+```bash
+uv run python -m candidate_screener.data.build  --all --seed 0   # splits, pools, vocabulary
+uv run python -m candidate_screener.data.verify --derived        # acceptance test on them
+```
+
+Builders are pure functions of (`data/raw/`, seed). Nothing built is committed; what *is*
+committed is the manifest naming each document by content hash, so the artefacts are
+reconstructible byte-for-byte — see [`docs/data/manifests/`](docs/data/manifests/).
+
 ## Where to look
 
 | Question | Read |
 |---|---|
 | What data do we have, under what licence, with what defects? | [`docs/data/data-catalog.md`](docs/data/data-catalog.md) and [`docs/data/cards/`](docs/data/cards/) |
 | Why these sources, and what did profiling change? | [`plan/2026-08-19-data-strategy/01-requirements-and-findings.md`](plan/2026-08-19-data-strategy/01-requirements-and-findings.md) |
-| What happens next with the data? | [`plan/2026-08-19-data-strategy/03-acquisition-action-plan.md`](plan/2026-08-19-data-strategy/03-acquisition-action-plan.md) §3 |
+| What happens next with the data? | [`plan/2026-08-23-derived-artefacts/`](plan/2026-08-23-derived-artefacts/README.md) — Phase 3, supersedes the acquisition plan's §3 |
 | What was actually built, and where did it deviate? | [`plan/2026-08-19-data-strategy/04-acquisition-implementation.md`](plan/2026-08-19-data-strategy/04-acquisition-implementation.md) |
 | How should an agent work in this repo? | [`AGENTS.md`](AGENTS.md) |
 
@@ -59,7 +71,9 @@ uv run jupyter lab notebooks/       # the EDA
    every confidence interval must be computed against the document counts.
 2. **Its shipped split leaks 99.8% of test resumes into train.** The project re-splits so that
    resumes *and* JDs are disjoint, and results are therefore not comparable to published
-   numbers on the shipped split.
+   numbers on the shipped split. That evaluation is **31 queries**, not 659 pairs — and which
+   31 you get moves by a factor of two across random seeds, so the seed is fixed and
+   committed.
 3. **Recall@10 > 0.90 is unreachable for 57% of queries by construction** — the median query
    has 18 relevant resumes. The adopted metrics are Recall@50, Precision@10 and nDCG@10.
 

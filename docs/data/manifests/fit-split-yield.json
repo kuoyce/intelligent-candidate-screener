@@ -1,0 +1,68 @@
+{
+  "seed": 0,
+  "test_frac": 0.3,
+  "val_frac": 0.0,
+  "note_not_comparable": "Results on this split are NOT comparable to any published number on the shipped cnamuangtoun train/test partition. That partition leaks 99.8% of its test resumes into train; this one is doubly disjoint. The incomparability is the accepted price of removing the leakage and must be stated wherever Stage 1-4 results appear.",
+  "note_discarded": "Discarded pairs share exactly one document with another split. They are unusable by construction, not a bug: keeping them would leak a resume or a JD across the train/test boundary.",
+  "note_determinism": "No timestamps are written into any manifest \u2014 the git history is the timestamp \u2014 so `build --seed N` is byte-reproducible and a diff is a real change in the data, not a re-run.",
+  "pooling": {
+    "pooled_rows": 8000,
+    "unique_resumes": 643,
+    "unique_jds": 351,
+    "duplicate_pairs": 7,
+    "conflicting_pairs": 6,
+    "rows_dropped": 13,
+    "usable_pairs": 7987,
+    "label_counts": {
+      "No Fit": 3993,
+      "Potential Fit": 1998,
+      "Good Fit": 1996
+    },
+    "shipped_split_was_jd_disjoint": true,
+    "shipped_test_resumes_also_in_train": 476
+  },
+  "counts": {
+    "train": {
+      "pairs": 3990,
+      "resumes": 446,
+      "jds": 245,
+      "jds_with_good_fit": 90,
+      "good_fit_pairs": 953,
+      "good_fit_per_jd_median": 11
+    },
+    "val": {
+      "pairs": 0,
+      "resumes": 0,
+      "jds": 0,
+      "jds_with_good_fit": 0,
+      "good_fit_pairs": 0,
+      "good_fit_per_jd_median": 0
+    },
+    "test": {
+      "pairs": 659,
+      "resumes": 158,
+      "jds": 100,
+      "jds_with_good_fit": 31,
+      "good_fit_pairs": 182,
+      "good_fit_per_jd_median": 6
+    },
+    "discarded": {
+      "pairs": 3338,
+      "resumes": 569,
+      "jds": 334,
+      "jds_with_good_fit": 116,
+      "good_fit_pairs": 861,
+      "good_fit_per_jd_median": 6
+    }
+  },
+  "documents": {
+    "resumes": {
+      "train": 450,
+      "test": 193
+    },
+    "jds": {
+      "train": 246,
+      "test": 105
+    }
+  }
+}

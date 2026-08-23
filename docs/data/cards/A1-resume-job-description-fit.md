@@ -41,9 +41,21 @@ Good Fit resumes per test JD: min 1, Q1 3, **median 18**, Q3 24, max 48.
 
 ## How it must be used
 
-- Do **not** report on the shipped split. Use the doubly-disjoint re-split
-  (action plan §3.2, hold-out 25%) and state that results are not comparable to published
-  numbers on the shipped split.
+- Do **not** report on the shipped split. Use the doubly-disjoint re-split — **built, at a
+  30% hold-out, seed 0**: [`docs/data/manifests/fit-split.csv`](../manifests/fit-split.csv),
+  rebuilt with `python -m candidate_screener.data.build --task fit-split`.
+  **Results on it are not comparable to any published number on the shipped split.** State
+  that wherever Stage 1–4 results appear; it is the accepted price of removing the leakage.
+- **The evaluation is 100 test JDs, 31 of them carrying a Good Fit, over 659 pairs** — *n* is
+  31, not 659, for anything reported per query. 3,990 pairs remain for training; 3,338 cross
+  pairs are discarded by construction. The predecessor plan's 25% recommendation was
+  superseded once the yield was measured across seeds: see
+  [`fit-split-survey.json`](../manifests/fit-split-survey.json).
+- **Pooling the shipped splits is what the re-split starts from** (D16): 642 train + 477 test
+  unique resumes dedupe to 643, so there was no partition worth preserving. Pooling also
+  surfaced 7 duplicate pairs — 6 labelled two ways — all inside the shipped *train* set;
+  they are dropped and logged in
+  [`fit-pair-conflicts.csv`](../manifests/fit-pair-conflicts.csv), leaving 7,987 usable.
 - Retrieval pools are constructed from it (action plan §3.3), padded to N = 100 with
   distractors; report **Recall@50, Precision@10, nDCG@10** with *n* and a bootstrap CI.
 - **Do not report Recall@10** — with a median of 18 relevant resumes per query it is capped

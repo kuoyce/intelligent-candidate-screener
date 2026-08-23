@@ -8,7 +8,7 @@ criterion that `verify --derived` checks, so "done" is machine-checkable rather 
 | Order | Task | Depends on | Effort | Gated on |
 |---|---|---|---|---|
 | Start now, in parallel | **3.4a** annotation guide | — | ½ day | — |
-| 1 | **3.2** leak-free split | — | ½ day | Q13 answered from its own output |
+| 1 | ~~**3.2** leak-free split~~ **DONE** | — | ½ day | Q13 answered from its own output |
 | 2 | **3.3** retrieval pools | 3.2 | ½ day | Q8 sign-off |
 | 3 | **3.5** vocabulary | — | ½ day | — |
 | 4 | **3.1** DataTurks repair | — | ½–1 day | — |
@@ -42,6 +42,14 @@ and explained; re-running at seed 0 is byte-identical.
 
 **Decision surfaced for sign-off:** the hold-out fraction, once step 3's table shows what a
 three-way split costs the train set. Q8 and Q13 are closed by D16.
+
+> **DONE 23 Aug 2026 — see [`05-implementation.md`](05-implementation.md).** Built at a **30%**
+> hold-out, seed 0, **no val fold**. The predecessor's yield table did not reproduce and its
+> 25% recommendation was superseded on measurement: 25% yields 24 JDs with a Good Fit, 30%
+> yields 31. A val fold costs ~1,000–1,400 training pairs for 10–11 scoreable queries, so
+> D16's stated fallback — doubly-disjoint CV inside train — is taken. New **Q17**: the
+> test-side density falls from 18 to 6 Good Fit per JD, which may reinstate Recall@10; decide
+> in 3.3.
 
 ---
 

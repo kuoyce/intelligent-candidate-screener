@@ -114,6 +114,15 @@ are discarded — that is the cost of a genuinely leak-free evaluation.
 while being genuinely leak-free on both axes, and retains 4,218 training pairs. Below 20% the
 evaluation set collapses; above 30% the training set starts to hurt. Open question Q8 confirms.
 
+> **Superseded 23 Aug 2026 — the table above does not reproduce, and 25% is the wrong
+> fraction.** The sampling mechanism behind these figures was never recorded, so the
+> implementation could not reproduce them and did not reverse-engineer a seed that would.
+> Measured by committed code: **25% yields 24 JDs with a Good Fit, not 30; 30% yields 31.**
+> Across 20 seeds a 25% hold-out ranges 15–32, so a single draw was never evidence for
+> choosing a fraction. **The built split is 30%, seed 0.** See
+> [`plan/2026-08-23-derived-artefacts/05-implementation.md`](../2026-08-23-derived-artefacts/05-implementation.md)
+> and `docs/data/manifests/fit-split-survey.json`.
+
 Fix the seed, and commit the split manifest (resume id → split, JD id → split) so every stage and
 every team member scores identical data.
 
