@@ -56,9 +56,17 @@ Good Fit resumes per test JD: min 1, Q1 3, **median 18**, Q3 24, max 48.
   surfaced 7 duplicate pairs — 6 labelled two ways — all inside the shipped *train* set;
   they are dropped and logged in
   [`fit-pair-conflicts.csv`](../manifests/fit-pair-conflicts.csv), leaving 7,987 usable.
-- Retrieval pools are constructed from it (action plan §3.3), padded to N = 100 with
-  distractors; report **Recall@50, Precision@10, nDCG@10** with *n* and a bootstrap CI.
-- **Do not report Recall@10** — with a median of 18 relevant resumes per query it is capped
-  at 0.56 for the median query and unreachable above 0.90 for 57% of queries.
+- Retrieval pools are **built**: [`docs/data/manifests/pools.csv`](../manifests/pools.csv),
+  100 queries over a 193-resume candidate universe, nested variants N20 ⊂ N100 ⊂ Nfull with
+  N100 primary. *n* is **31** queries under the strict definition and **64** under the graded
+  one — report which, always.
+- **Recall@10 is reinstated; Recall@50 is retired** (Q17, 23 Aug 2026). The "median 18
+  relevant" figure is the *shipped* split's. On the leak-free split the test-side median is
+  **6**, Recall@10 reaches 0.90 for 93.5% of queries, and Recall@50 saturates at a ceiling of
+  1.0 for every query. Adopted: **Recall@10, Precision@5, nDCG@10**, each with *n* and a
+  bootstrap CI.
+- **Pool distractors are unjudged.** A1 judges a median of 4 resumes per test JD, so a 100-deep
+  pool is ~96% assumed non-relevant and precision is biased downward by construction. The pools
+  compare systems; they do not estimate production precision.
 
 Explored in [`notebooks/02-fit-benchmark-eda.ipynb`](../../../notebooks/02-fit-benchmark-eda.ipynb).

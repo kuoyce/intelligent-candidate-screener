@@ -51,11 +51,18 @@ Legend — **Tier 1** adopt, **Tier 2** adopt with stated caveats, **Tier 3** ev
 **Relevance density (Verified)** — Good Fit resumes per test JD: median **18**, Q1 3, Q3 24, max 48.
 
 Two consequences. Pools are natively only ~14–25 candidates, so they **must** be padded with
-distractors (max 477 unique test resumes) — pool N = 100 is the adopted setting. And because the
-median JD has 18 relevant resumes, **Recall@10 is capped at 0.56 for the median query and is
-unreachable above 0.90 for 57% of queries**; the adopted metrics are Recall@50, Precision@10 and
-nDCG@10. See `01-requirements-and-findings.md` §2.7 and the protocol in
-`03-acquisition-action-plan.md` §3.3.
+distractors — pool N = 100 is the adopted setting. And because the median JD has 18 relevant
+resumes, **Recall@10 is capped at 0.56 for the median query** on this, the *shipped*, split.
+
+> **Superseded 23 Aug 2026 by task 3.3 (Q17).** The density above is the shipped split's. The
+> leak-free split holds resumes out, so each query keeps only its held-out judgements and the
+> test-side median falls from 18 to **6 Good Fit per JD**. Measured on the built pools,
+> **Recall@10 reaches 0.90 for 93.5% of queries and 1.0 for 87%** — so the ban on Recall@10 is
+> lifted and it becomes the primary recall metric. In the same move **Recall@50 is retired**:
+> at 6 relevant in a 100-deep pool every query's ceiling is 1.0 and the metric saturates, and
+> over the N20 variant it is not even defined. The candidate universe is **193** test resumes,
+> not 477. See [`docs/data/manifests/pools-yield.json`](manifests/pools-yield.json) and
+> [`plan/2026-08-23-derived-artefacts/05-implementation.md`](../../plan/2026-08-23-derived-artefacts/05-implementation.md).
 
 ### A2 · `lang-uk/recruitment-dataset-*` (Djinni) — **Tier 1, in-domain evaluation (R4)**
 

@@ -119,8 +119,79 @@ def check_fit_split() -> list[tuple[bool, str]]:
     return results
 
 
-#: Task -> its acceptance checks. 3.1, 3.3, 3.4 and 3.5 register here as they land.
-CHECKS = {"fit-split": check_fit_split}
+def check_pools() -> list[tuple[bool, str]]:
+    from candidate_screener.data import pools as pl
+    from candidate_screener.evaluation import metrics as mx
+
+    if not pl.POOL_MANIFEST.exists():
+        return [(False, "pools.csv missing — run `build --task pools`")]
+    pools = pd.read_csv(pl.POOL_MANIFEST)
+    results: list[tuple[bool, str]] = []
+
+    # 1. Every query is in the evaluation split — a pool over a training JD would
+    #    score a model on documents it was fitted on.
+    manifest = pd.read_csv(fs.SPLIT_MANIFEST)
+    test_jds = set(manifest[(manifest.doc_type == "jd") & (manifest.split == "test")].doc_id)
+    test_resumes = set(manifest[(manifest.doc_type == "resume") & (manifest.split == "test")].doc_id)
+    stray_q = set(pools.query_jd_id) - test_jds
+    stray_c = set(pools.candidate_resume_id) - test_resumes
+    results.append((not stray_q and not stray_c,
+                    f"provenance: {len(stray_q)} queries and {len(stray_c)} candidates "
+                    f"outside the test split"))
+
+    # 2. No distractor carries a label against its own query — that would score a
+    #    judged document as an assumed non-relevant one.
+    judged = pd.read_parquet(fs.FIT_OUT / "test.parquet")
+    judged_pairs = set(zip(judged.jd_id, judged.resume_id))
+    distractors = pools[pools.source == "distractor"]
+    mislabelled = sum((q, c) in judged_pairs for q, c in
+                      zip(distractors.query_jd_id, distractors.candidate_resume_id))
+    results.append((mislabelled == 0,
+                    f"distractors: {len(distractors)} rows, {mislabelled} of them actually judged"))
+
+    # 3. Pool depth matches the variant, allowing the documented overshoot where a
+    #    query carries more judgements than the target depth.
+    problems = []
+    for variant, target in pl.VARIANTS.items():
+        size = pools[pools.pool_variant == variant].groupby("query_jd_id").size()
+        judged_n = (pools[(pools.pool_variant == variant) & (pools.source == "labelled")]
+                    .groupby("query_jd_id").size())
+        expected = judged_n.combine(pd.Series(target, index=size.index), max) if target else None
+        if target is None:
+            ok = size.nunique() == 1
+        else:
+            ok = bool((size == expected.reindex(size.index)).all())
+        if not ok:
+            problems.append(f"{variant} sizes {size.min()}-{size.max()}")
+    results.append((not problems,
+                    f"depth: {'; '.join(problems) if problems else 'every pool matches its variant'}"))
+
+    # 4. Variants are nested, so a sensitivity run differs only by depth.
+    sets = {v: set(zip(g.query_jd_id, g.candidate_resume_id))
+            for v, g in pools.groupby("pool_variant")}
+    nested = sets["N20"] <= sets["N100"] <= sets["Nfull"]
+    results.append((nested, f"nesting: N20 subset of N100 subset of Nfull is {nested}"))
+
+    # 5. The metric guards fire — the reporting discipline is code, not convention.
+    scores = mx.random_scores(pools, 0)
+    guards = []
+    try:
+        mx.score(pools, scores, "N20", "Recall", 50, "strict")
+        guards.append("Recall@50 on N20 was allowed")
+    except ValueError:
+        pass
+    try:
+        mx.Figure("x", "strict", "N100", 0.5, 0, 0.1, 0.9)
+        guards.append("a figure with n=0 was constructible")
+    except ValueError:
+        pass
+    results.append((not guards,
+                    f"metric guards: {'; '.join(guards) if guards else 'k>depth and n=0 both refused'}"))
+    return results
+
+
+#: Task -> its acceptance checks. 3.1, 3.4 and 3.5 register here as they land.
+CHECKS = {"fit-split": check_fit_split, "pools": check_pools}
 
 
 def main(tasks: list[str] | None = None) -> int:

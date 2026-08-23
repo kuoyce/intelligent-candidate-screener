@@ -74,8 +74,11 @@ reconstructible byte-for-byte — see [`docs/data/manifests/`](docs/data/manifes
    numbers on the shipped split. That evaluation is **31 queries**, not 659 pairs — and which
    31 you get moves by a factor of two across random seeds, so the seed is fixed and
    committed.
-3. **Recall@10 > 0.90 is unreachable for 57% of queries by construction** — the median query
-   has 18 relevant resumes. The adopted metrics are Recall@50, Precision@10 and nDCG@10.
+3. **Every metric ceiling is a property of the split, not of the corpus.** On the shipped split
+   the median query has 18 relevant resumes and Recall@10 is unreachable; on the leak-free split
+   it has 6, and Recall@10 reaches 0.90 for 93.5% of queries while Recall@50 saturates. The
+   adopted metrics are **Recall@10, Precision@5 and nDCG@10**, each reported with its *n* and a
+   bootstrap CI — enforced in `candidate_screener.evaluation.metrics`, not by convention.
 
 ## Data handling rules
 

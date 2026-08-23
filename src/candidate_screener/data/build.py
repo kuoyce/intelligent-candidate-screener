@@ -11,7 +11,7 @@ from __future__ import annotations
 
 import argparse
 
-from candidate_screener.data import fit_split
+from candidate_screener.data import fit_split, pools
 
 #: The hold-out fraction signed off on 23 Aug 2026 — see `fit-split-survey.json`.
 #: 30% yields 31 test JDs carrying a Good Fit against 24 at 25%; the val fold was
@@ -23,8 +23,12 @@ def build_fit_split(seed: int) -> None:
     fit_split.print_build(fit_split.build(FIT_TEST_FRAC, FIT_VAL_FRAC, seed))
 
 
-#: Task -> builder. 3.1, 3.3, 3.4 and 3.5 register here as they land.
-TASKS = {"fit-split": build_fit_split}
+def build_pools(seed: int) -> None:
+    pools.print_report(pools.build(seed))
+
+
+#: Task -> builder, in dependency order. 3.1, 3.4 and 3.5 register as they land.
+TASKS = {"fit-split": build_fit_split, "pools": build_pools}
 
 
 def main() -> int:

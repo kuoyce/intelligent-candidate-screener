@@ -60,7 +60,8 @@ catalog, the A1 card and the README. See
 | Task | Status |
 |---|---|
 | 3.2 leak-free split | **Done** 23 Aug 2026 — 30% hold-out, seed 0, no val fold. [`05-implementation.md`](05-implementation.md) |
-| 3.1, 3.3, 3.4, 3.5 | Not started |
+| 3.3 retrieval pools | **Done** 23 Aug 2026 — 100 queries, N20/N100/Nfull, metrics guarded. Q17 closed: Recall@10 reinstated, Recall@50 retired |
+| 3.1, 3.4, 3.5 | Not started |
 
 ## Critical path
 

@@ -9,7 +9,7 @@ criterion that `verify --derived` checks, so "done" is machine-checkable rather 
 |---|---|---|---|---|
 | Start now, in parallel | **3.4a** annotation guide | — | ½ day | — |
 | 1 | ~~**3.2** leak-free split~~ **DONE** | — | ½ day | Q13 answered from its own output |
-| 2 | **3.3** retrieval pools | 3.2 | ½ day | Q8 sign-off |
+| 2 | ~~**3.3** retrieval pools~~ **DONE** | 3.2 | ½ day | Q8 sign-off |
 | 3 | **3.5** vocabulary | — | ½ day | — |
 | 4 | **3.1** DataTurks repair | — | ½–1 day | — |
 | 5 | **3.4b** annotation run | 3.4a | **1.5–2 team-days** | People |
@@ -66,6 +66,16 @@ three-way split costs the train set. Q8 and Q13 are closed by D16.
 **Acceptance:** every query is in the evaluation split; no distractor carries a label against its
 own query; pool sizes match `pool_variant`; the metric module rejects Recall@10 with an
 explanatory error rather than computing it.
+
+> **DONE 23 Aug 2026 — see [`05-implementation.md`](05-implementation.md) §3A.** 100 queries
+> over a 193-resume universe (not 477 — that was the shipped split's count), nested variants
+> N20 ⊂ N100 ⊂ Nfull. **Q17 closed and it reversed this section's metric set:** the test-side
+> density is 6, not 18, so Recall@10 reaches 0.90 for 93.5% of queries and is reinstated,
+> while Recall@50 saturates and is retired. Adopted: **Recall@10, Precision@5, nDCG@10**. The
+> guard is general — *any* k deeper than the pool is refused — which is what makes it survive
+> Q17 flipping which k was safe. New **Q18**: ~96% of a 100-deep pool is assumed non-relevant,
+> so precision is biased downward; decide after the Stage 1 baseline whether a judging wave
+> over system top-k is warranted.
 
 ---
 

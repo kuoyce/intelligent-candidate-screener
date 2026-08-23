@@ -1,6 +1,6 @@
 # Phase 3 — Implementation Record
 
-**Branch:** `feat/derived-artefacts` · **Covers:** task 3.2 only. 3.1, 3.3, 3.4 and 3.5 are
+**Branch:** `feat/derived-artefacts` · **Covers:** tasks 3.2 and 3.3. 3.1, 3.4 and 3.5 are
 not started.
 
 ## 1. What was built
@@ -120,6 +120,90 @@ This is **not** actioned here. It changes a metric decision (D9) recorded in thr
 and belongs to task 3.3, which should re-derive the attainability curve on the actual test
 pool before anything is edited. Flagged so it is not discovered after the first results exist.
 
+## 3A. Task 3.3 — retrieval pools
+
+### Built
+
+```
+src/candidate_screener/data/pools.py            the pools
+src/candidate_screener/evaluation/metrics.py    Recall / Precision / nDCG, bootstrap CI, guards
+docs/data/manifests/                            pools.csv, pools-yield.json
+data/processed/pools/pools.parquet              (git-ignored)
+```
+
+```bash
+uv run python -m candidate_screener.data.pools        --feasibility   # writes nothing
+uv run python -m candidate_screener.evaluation.metrics --sanity       # random-ranker floor
+```
+
+**100 queries over a 193-resume candidate universe.** Variants are nested — N20 ⊂ N100 ⊂ Nfull
+— so a sensitivity run differs from the primary run by depth alone. `N` is a floor, not a cap:
+one query judged against 29 resumes keeps all 29 in its N20 pool rather than losing a
+judgement to hit a round number.
+
+| Variant | Pool size | Judged per pool (median) | Queries w/ relevant (strict / graded) |
+|---|---|---|---|
+| N20 | 20–29 | 4 | 31 / 64 |
+| **N100** | 100 | 4 | 31 / 64 |
+| Nfull | 193 | 4 | 31 / 64 |
+
+### Q17 is answered, and it reverses D9's metric set
+
+The ban on Recall@10 rested on a median of 18 relevant resumes per query. That is the
+**shipped** split's density. The leak-free split holds resumes out, so each query keeps only
+its held-out judgements. Measured on the built N100 pools:
+
+| | Relevant/query (median) | Recall@10 reaches 0.90 | Recall@50 reaches 0.90 |
+|---|---|---|---|
+| strict (`Good`), *n*=31 | 6 | **93.5%** of queries | 100% |
+| graded (`Good ∪ Potential`), *n*=64 | 4 | **93.8%** of queries | 100% |
+
+**Recall@10 is reinstated as the primary recall metric. Recall@50 is retired** — with 6
+relevant documents in a 100-deep pool every query's ceiling is 1.0, so it saturates and
+separates nothing; over N20 it is not even defined. Precision@10 is capped at 0.6 for the
+median strict query, so **Precision@5** is the better-behaved precision figure.
+
+**Adopted: Recall@10, Precision@5, nDCG@10** — each with its *n* and a bootstrap CI, under
+both relevance definitions. This is D9 operating as written ("decided from the data, not by
+preference"); it is nonetheless a reversal of a rule stated in three documents, all now
+updated with a superseded-notice rather than a silent edit.
+
+### The reporting discipline is code, not convention
+
+At *n* = 31 the interval is the finding, so three rules are enforced by the module:
+
+- A `Figure` **cannot be constructed without its query count** — `n=0` raises.
+- A `k` deeper than the shallowest pool raises, rather than silently collapsing to
+  `k = pool depth`. `Recall@50` over N20 is refused with an explanatory error.
+- Queries carrying no relevant document are **excluded, not scored as zero** — that would
+  report the pool's label sparsity as a property of the system.
+
+Bootstrap resamples **queries**, not pairs: resampling 659 correlated judgements as if they
+were independent observations would produce an interval several times too narrow.
+
+### The floor: a random ranker on N100
+
+Not a result — the number every later system must beat, and the metric code's own self-test.
+
+| Metric | strict (*n*=31) | graded (*n*=64) |
+|---|---|---|
+| Recall@10 | 0.128 [0.061, 0.212] | 0.074 [0.043, 0.110] |
+| Precision@5 | 0.071 [0.039, 0.110] | 0.044 [0.022, 0.066] |
+| nDCG@10 | 0.084 [0.047, 0.128] | 0.057 [0.034, 0.084] |
+
+These match the analytic expectation for a random ranker (Recall@10 ≈ 10/100, Precision@10 ≈
+6/100), which is the check that the metric code is doing what it claims. Note the interval
+width — Recall@10's CI spans a factor of three. **At this sample size the CI is the result**,
+and any Stage 1–4 comparison that ignores it is reading noise.
+
+### Open, carried into modelling
+
+**The distractor assumption is now doing most of the work.** A1 judges a median of 4 resumes
+per test JD, so a 100-deep pool is ~96% assumed non-relevant, and precision is biased downward
+by construction. This was always stated as a limitation; the leak-free split makes it larger,
+not smaller. The pools are a comparison instrument between systems, not an estimate of
+production precision, and the manifest header says so.
+
 ## 4. Deviations from the design spec
 
 | # | Deviation | Why |
@@ -131,6 +215,10 @@ pool before anything is edited. Flagged so it is not discovered after the first 
 | W5 | Task 3.2 lives in `fit_split.py` with its own CLI, with `build.py` / `verify_derived.py` as thin registries | The survey is analysis and must be runnable without writing an artefact; the builders are a pipeline. Later tasks register in one line each |
 | W6 | No manifest carries a `generated` timestamp, unlike `acquisition-manifest.json` | Byte-reproducibility is an acceptance check. With a timestamp every re-run diffs and the check tests nothing. The git history is the timestamp |
 | W7 | `fit-c4-overlap.csv` written — not in the spec's file list | The spec asks `verify --derived` to guard against the rejected C4 derivatives. A pass/fail alone is not applyable; the IDs and their splits are |
+| W8 | Metrics are **Recall@10, Precision@5, nDCG@10**, not the spec's Recall@50 / Precision@10 / nDCG@10 | §3A above — measured on the built pools. Recall@50 saturates and Recall@10 no longer does |
+| W9 | The third pool variant is **Nfull = 193**, not N477 | 477 was the shipped test split's resume count. The leak-free split holds out 193 |
+| W10 | The metric guard refuses **any k deeper than the pool**, rather than special-casing Recall@10 | The general rule catches the specific one, and survives Q17 reversing which k is safe |
+| W11 | Metrics live in a new `candidate_screener.evaluation` package, not under `data/` | Building an artefact and scoring one are different jobs with different lifetimes; the split keeps `data/` about data |
 
 ## 5. Open questions
 
@@ -138,10 +226,14 @@ pool before anything is edited. Flagged so it is not discovered after the first 
 |---|---|---|
 | Q14 | Pool depth in-domain, and whether to collect rankings | **Open** — recommendation in `02-work-plan.md`; belongs to 3.4 |
 | Q16 | Where more labelled in-domain data comes from if a later stage runs short | **Deferred by design** (D18) |
-| **Q17** | *New.* Does the test-side density of 6 Good Fit per JD reinstate Recall@10? | **Open** — §3.5 above; decide inside task 3.3, before results exist |
+| ~~Q17~~ | Does the test-side density of 6 Good Fit per JD reinstate Recall@10? | **Closed** — yes. Recall@10 reinstated, Recall@50 retired, Precision@5 adopted. §3A above; catalog, A1 card and README updated |
+| **Q18** | *New.* With ~96% of a 100-deep pool assumed non-relevant, is the downward precision bias acceptable for Stage 1–4 comparison, or does a judging wave over system top-k output belong in the plan (as Q14 proposes in-domain)? | **Open** — decide once the Stage 1 baseline exists and the size of the bias can be seen |
 
 ## 6. Next
 
-Task **3.3** (retrieval pools) is unblocked and is the compute critical path to the first
-reportable number. Task **3.4a** (the annotation guide) remains the longest human lead and can
-run in parallel.
+The compute critical path to the first reportable number is **clear**: the split and the pools
+exist, the metrics are implemented and guarded, and the random-ranker floor is measured. What
+remains is a system to score.
+
+Task **3.4a** (the annotation guide) is now the longest lead and is human-gated. Tasks **3.1**
+(DataTurks repair) and **3.5** (vocabulary) are independent and can run in any order.

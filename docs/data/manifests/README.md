@@ -37,3 +37,30 @@ a pair whose two documents were assigned to different splits — and is counted 
 exists so that if the rejected C4 derivatives are ever re-imported as extra training data,
 the exclusion can be *applied* rather than remembered — the same people would otherwise be
 trained on and scored in test at once.
+
+## Task 3.3 — the retrieval pools
+
+| File | What it is |
+|---|---|
+| `pools.csv` | `query_jd_id, candidate_resume_id, relevance, source, pool_variant` — the authoritative pools. 100 queries over a 193-resume candidate universe |
+| `pools-yield.json` | Seed, per-variant pool sizes, queries carrying a relevant document, and the Recall@k ceiling that settles Q17 |
+
+Variants are **nested — N20 ⊂ N100 ⊂ Nfull** — so a sensitivity run differs from the primary
+run by depth alone, never by which distractors were drawn. `N` is a *floor*: a query judged
+against more resumes than `N` keeps all of them, because discarding a human judgement to hit a
+round number is the wrong trade.
+
+> **Distractors are UNJUDGED and assumed non-relevant.** A1 judges a median of 4 resumes per
+> test JD, so a 100-deep pool is ~96% assumption. A relevant resume sitting among the
+> distractors is scored as a false positive, which biases precision **downward** by
+> construction. These pools compare systems against each other; they do not estimate
+> production precision. State this wherever a pool-derived figure appears.
+
+`relevance` and `source` are separate columns on purpose: a judged `No Fit` and an unjudged
+distractor both score as non-relevant, but only one of them is evidence.
+
+**Reporting is enforced in code**, in `candidate_screener.evaluation.metrics`: a `Figure`
+cannot be constructed without its query count, and a `k` deeper than the shallowest pool raises
+rather than silently collapsing to `k = pool depth`. Queries with no relevant document are
+excluded, not scored as zero — that would report the pool's label sparsity as a property of
+the system.
