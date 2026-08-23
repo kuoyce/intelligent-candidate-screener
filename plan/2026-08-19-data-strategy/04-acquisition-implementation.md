@@ -133,6 +133,10 @@ Phase 3 decisions — but two now have evidence attached:
 | Q11 | May derived ESCO extracts be committed? | **Open, now urgent** — notebook 06's committed outputs already contain small ESCO label samples (see assumption A4), and §3.5's `data/vocab/skills.csv` is a derived extract |
 | **Q12** | *New.* Does the 7× length gap between Djinni CVs and A1 resumes need a mitigation (e.g. length-normalised scoring), or is it reported as a limitation only? | **Open** — affects §3.4 and §10 |
 
+**Update 23 Aug 2026.** Q8–Q12 are all closed — see
+[`plan/2026-08-23-derived-artefacts/README.md`](../2026-08-23-derived-artefacts/README.md) for
+decisions D14–D18 and the questions (Q14, Q16) that replaced them.
+
 ## 7. Next step
 
 Phase 3.4 remains the critical path: it is the only step gated on human effort rather than

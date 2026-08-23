@@ -49,3 +49,8 @@ Confirmed 19 Aug 2026, closing open questions Q1–Q7:
 
 All seven opening questions are resolved. Remaining items are tracked in
 [`01-requirements-and-findings.md` §6](01-requirements-and-findings.md#6-open-questions).
+
+**Update 23 Aug 2026.** Q8–Q11, Q13 and Q15 were closed by decisions D14–D18 in
+[`plan/2026-08-23-derived-artefacts/`](../2026-08-23-derived-artefacts/README.md), which
+supersedes this plan for Phase 3. Q12 is closed by measurement (length carries no label signal in
+A1; concatenating Djinni's CV fields halves the gap). Q14 and Q16 are new and tracked there.

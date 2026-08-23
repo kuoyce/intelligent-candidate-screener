@@ -1,0 +1,70 @@
+# Phase 3 — Derived Artefacts
+
+**Date:** 23 August 2026
+**Status:** Draft for approval
+**Predecessor:** [`plan/2026-08-19-data-strategy/`](../2026-08-19-data-strategy/) — Phases 0–2 and 4 complete, merged to `main` (`d5fb992`)
+**Scope:** Build the five derived artefacts that Stage 1–4 modelling consumes. No modelling in this phase.
+
+## Contents
+
+| File | Purpose |
+|---|---|
+| [`01-design-spec.md`](01-design-spec.md) | What each artefact is: schema, identity scheme, determinism and commit policy |
+| [`02-work-plan.md`](02-work-plan.md) | Sequenced tasks with acceptance criteria and effort |
+
+## Why this phase exists
+
+Acquisition proved the sources are usable. It also proved three things that make the derived
+artefacts mandatory rather than optional:
+
+- The shipped A1 split leaks **476 of 477 test resumes into train** (99.8%). Nothing can be
+  reported on it, so a leak-free split must be built before any baseline is run.
+- A1's 8,000 rows are a cross-product of **643 resumes × 351 JDs**. Every confidence interval
+  must be computed against the document count, which means the pool manifests have to record
+  document identity, not row index.
+- R3 (candidate pools) and R4 (in-domain evaluation) have **no source that ships them**. They
+  are constructed here or they do not exist.
+
+## Inherited decisions
+
+D1–D13 from the predecessor plan stand unchanged. Two questions carried into this phase are now
+closed, and both change the work:
+
+| # | Decision | Closes | Consequence |
+|---|---|---|---|
+| **D14** | The 200-pair in-domain set is **not stratified by role family**. Sample without family constraint and let annotation decide | **Q9** | Simplifies 3.4 and unblocks it immediately. **Cost, stated for the record:** results cannot be broken down by role family, and the sample will be dominated by the largest families in proportion to their supply. §10 gains a limitation line. See [`02-work-plan.md` §3.4](02-work-plan.md#34--in-domain-evaluation-set-200-pairs) |
+| **D15** | **Derived** ESCO extracts may be committed. Raw data may not, and no notebook or script may dump bulk source text — samples only | **Q11** | `data/vocab/*.csv` becomes a committed, versioned artefact. Enforced by an explicit commit policy and an output cap — see [`01-design-spec.md` §5](01-design-spec.md#5-commit-policy-d15) |
+| **D16** | **Pool A1's shipped train and test, then split three ways.** The published split is discarded entirely, not re-partitioned | **Q8, Q13** | Confirms the existing design — the yield table was already computed over all 8,000 pooled pairs. Pooling is the only coherent option: 642 train + 477 test unique resumes dedupe to **643**, because 476 are the same documents. Q13 is closed to **three-way**; task 3.2 now sizes the val fold rather than choosing between two-way and three-way |
+| **D17** | The in-domain set uses **A1's 3-class scheme** (`Good` / `Potential` / `No Fit`) | **Q10** | Public and in-domain results are interpretable together. Doubles as graded relevance for nDCG: `Good`=2, `Potential`=1, `No`=0 |
+| **D18** | A2 may supplement the baseline **for unlabelled domain-adaptive pretraining only**. It never contributes fit labels, and the in-domain evaluation documents are excluded from the pretraining corpus | **Q15** | Forces an **eval holdout region** to be reserved *before* pretraining runs — excluding the 200 selected pairs is not sufficient. See [`01-design-spec.md` §3.4](01-design-spec.md#34-dataprocessedindomain--djinni-evaluation-set-decisions-d3-d4-d11-d12-d14) |
+
+## Open questions
+
+| # | Question | Status | Blocks |
+|---|---|---|---|
+| Q12 | Does the 7× length gap between Djinni CVs (751 chars median) and A1 resumes (5,134) need mitigation? | **Evidence gathered, recommendation pending sign-off** — see [`02-work-plan.md` §Q12](02-work-plan.md#q12--the-length-gap-recommendation) | 3.4 interpretation, §10 |
+| **Q14** | *New.* Pool depth. 40 JDs × 5 CVs cannot support **Precision@10** — the in-domain pool is 5 deep. Accept P@5 / nDCG@5 in-domain, or re-shape the budget? | **Recommendation pending sign-off** — see [`02-work-plan.md` §Q14](02-work-plan.md#q14--pool-depth-and-whether-to-collect-rankings) | 3.4 sampling design |
+| **Q16** | *New, carried forward.* If later stages need more in-domain **labelled** data than 200 pairs, do we annotate more Djinni pairs, or partition A2 into a labelled training slice and a held-out evaluation slice? | **Deferred by design** — not needed to start Phase 3; revisit when a stage is actually short of data. Any answer must keep the evaluation slice **document-disjoint** from everything trained on, which the holdout region under D18 already makes possible | Stages 2–4, if they run short |
+
+Q8–Q11, Q13 and Q15 are closed by D14–D18 above.
+
+## Critical path
+
+```
+3.2 split ──► 3.3 pools ──► Stage 1 baseline
+3.1 DataTurks repair ──────► Stage 2 extraction
+3.5 vocabulary ────────────► Stages 2–4
+3.4 in-domain set (human-gated, 1.5–2 team-days) ──► end-to-end evaluation
+```
+
+3.2 → 3.3 is the compute critical path and gates the first reportable number. 3.4 is the only
+human-gated step and is now unblocked by D14, so it runs in parallel from day one. 3.1 and 3.5
+are independent and can be done in any order.
+
+## Explicit assumptions
+
+| # | Assumption | If wrong |
+|---|---|---|
+| A5 | Phase 3 is modelling-free. Building the artefacts and validating them is the deliverable; the Stage 1 baseline belongs to the next phase | Baseline work moves onto this branch; nothing here needs undoing |
+| A6 | A1 documents carry no stable publisher ID, so identity is minted as a content hash (see [`01-design-spec.md` §2](01-design-spec.md#2-document-identity)) | If a publisher ID surfaces later, manifests are regenerable from the same seed |
+| A7 | `data/interim/` and `data/processed/` stay git-ignored; only manifests and `data/vocab/` are committed | Adjust the commit policy in §5; no artefact changes |
