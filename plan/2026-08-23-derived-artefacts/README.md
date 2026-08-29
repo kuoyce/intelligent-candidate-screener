@@ -44,7 +44,7 @@ closed, and both change the work:
 | # | Question | Status | Blocks |
 |---|---|---|---|
 | Q12 | Does the 7× length gap between Djinni CVs (751 chars median) and A1 resumes (5,134) need mitigation? | **Evidence gathered, recommendation pending sign-off** — see [`02-work-plan.md` §Q12](02-work-plan.md#q12--the-length-gap-recommendation) | 3.4 interpretation, §10 |
-| **Q14** | *New.* Pool depth. 40 JDs × 5 CVs cannot support **Precision@10** — the in-domain pool is 5 deep. Accept P@5 / nDCG@5 in-domain, or re-shape the budget? | **Recommendation pending sign-off** — see [`02-work-plan.md` §Q14](02-work-plan.md#q14--pool-depth-and-whether-to-collect-rankings) | 3.4 sampling design |
+| **Q14** | *New.* Pool depth. 40 JDs × 5 CVs cannot support **Precision@10** — the in-domain pool is 5 deep. Accept P@5 / nDCG@5 in-domain, or re-shape the budget? | **Wave 1 open** (recommendation in [`02-work-plan.md` §Q14](02-work-plan.md#q14--pool-depth-and-whether-to-collect-rankings)); **wave 2 superseded 29 Aug 2026** — merged with Q18's judging wave in [`plan/2026-08-29-unified-judging-wave/`](../2026-08-29-unified-judging-wave/README.md) | 3.4 sampling design |
 
 Q8–Q11, Q13 and Q15 are closed by D14–D18 above. **Q16 is closed by D19**, 29 Aug 2026 — partition,
 not more annotation alone: A2 is split into a document-disjoint `train`/`eval` region, and labelled
@@ -68,10 +68,13 @@ catalog, the A1 card and the README. See
 
 **Successor:** [`plan/2026-08-29-baseline-repeatability/`](../2026-08-29-baseline-repeatability/README.md)
 — Phase 4 takes the 3.2 split and the 3.3 metric discipline and applies both to the first
-scored system. Q18 (pool precision bias) remains open here — now analysed and decomposed in
-[`plan/2026-08-29-pool-precision-bias/`](../2026-08-29-pool-precision-bias/README.md), which requests decisions Q26 and Q27; Q24 (scoring
-the baseline on the 3.3 pools) is raised there and deliberately deferred back to a phase after
-it.
+scored system. Q18 (pool precision bias) remains open here — analysed and decomposed in
+[`plan/2026-08-29-pool-precision-bias/`](../2026-08-29-pool-precision-bias/README.md), and its remedy designed in
+[`plan/2026-08-29-unified-judging-wave/`](../2026-08-29-unified-judging-wave/README.md) (Phase 5), which also takes over **Q14's wave 2**:
+the two are one annotation instrument, differing only in which pairs are selected. Q24 (scoring
+the baseline on the 3.3 pools) is raised in Phase 4 and deliberately deferred; Q26/Q27 remain
+open; **Q31 is closed by D23** — the wave covers all 100 test queries, so widening *n* is an
+objective of the wave rather than a byproduct.
 
 ## Critical path
 

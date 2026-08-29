@@ -191,6 +191,11 @@ written supports P@5 and nDCG@5 only. Three ways to spend the same budget:
 | (b) 20 JD × 10 | 20 | P@10, nDCG@10 | Halves *n*; CI widens ~1.4× — at *n*=20 the interval swamps the finding |
 | **(c) Two waves — recommended** | 40, rising | P@5 now, **P@10 later** | One extra annotation session, no wasted judgements |
 
+> **Superseded in part, 29 Aug 2026.** Wave 1 below stands unchanged. **Wave 2 is now owned by**
+> [`plan/2026-08-29-unified-judging-wave/`](../2026-08-29-unified-judging-wave/README.md), which merges it with the
+> A1-pool judging wave Q18 asks for — the same act of judgement over a different corpus. D22
+> there fixes it to run **once, after the last stage is frozen**.
+
 **Option (c).** Wave 1 is 40 × 5 now: it yields κ, the calibration data, and P@5 / nDCG@5. Wave 2
 runs after the Stage-1 baseline exists and judges the *union of each system's top-10* for the same
 40 JDs — TREC-style pooling, which is what P@10 actually requires. Because system variants overlap

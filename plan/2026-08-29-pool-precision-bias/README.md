@@ -7,6 +7,11 @@ figure below is yet reproducible from the package (see *Provenance*).
 [`plan/2026-08-23-derived-artefacts/05-implementation.md`](../2026-08-23-derived-artefacts/05-implementation.md)
 §5 and left open there.
 **Blocks:** any reported Precision@k on the task 3.3 pools, for every stage.
+**Superseded in part, 29 Aug 2026:** step 4 below is now designed in
+[`plan/2026-08-29-unified-judging-wave/`](../2026-08-29-unified-judging-wave/README.md), which merges it with
+Q14's in-domain wave 2 into one instrument. D20–D22 there close Q28–Q30; **Q26 is re-scoped by
+D22** — it no longer gates whether the wave runs, only how the pre-wave figures are treated. D23
+widens the wave to all 100 test queries, so *n* is no longer fixed at 64/31.
 
 ## Why this document exists
 
@@ -121,7 +126,7 @@ Cheapest first. Steps 1–2 are mechanical and need no annotator time; step 3 is
 | 1 | **Record Q18a.** Add the attainable-ceiling computation to `evaluation/metrics.py` so it is reproducible, emit it into the pools manifest, and report it beside every Precision@k figure | Small | Sign-off on Q27 |
 | 2 | **Run Q18b.** Score an existing system over the N100 pools and count how many top-5 slots are filled by unjudged distractors, per query | Small — one scoring pass, no judgement | Q24 unblocked |
 | 3 | **Fix the decision rule *before* looking at step 3's output** | — | **Q26** |
-| 4 | **Judge a bounded sample:** only the distractors that actually reached some system's top-5 | **≤155 pairs strict, ≤320 graded**, per system, deduplicated across systems — and only the subset that is not already judged | Annotator time, `docs/annotation-guide.md` (task 3.4a) |
+| 4 | **Judge a bounded sample** — now designed as [Phase 5](../2026-08-29-unified-judging-wave/02-work-plan.md#56--wave-2-the-judging-run), widened to all 100 test queries by D21/D23: only the distractors that actually reached some system's top-5 | **≤155 pairs strict, ≤320 graded**, per system, deduplicated across systems — and only the subset that is not already judged | Annotator time, `docs/annotation-guide.md` (task 3.4a) |
 
 Step 4's bound is the useful surprise. Judging the pools is infeasible; judging **only what a
 system actually surfaced** is smaller than task 3.4's planned 200-pair in-domain wave, and it
