@@ -24,6 +24,8 @@ uv sync                                          # install
 uv run python -m candidate_screener.data.verify --all
 uv run python -m candidate_screener.baselines.run --seed 0    # fit + freeze the baseline
 uv run python -m candidate_screener.baselines.run --check     # assert it still reproduces
+uv run python -m candidate_screener.evaluation.retrieval --seed 0   # the same baseline, ranked
+uv run python -m candidate_screener.data.build --all --seed 0       # splits, pools, annotation queue
 uv run pytest                                                 # unit + regression suite
 uv run jupyter nbconvert --to notebook --execute --inplace notebooks/0X-*.ipynb
 ```
@@ -49,10 +51,36 @@ leveraged to streamline development and ensure maintainability.
 | Exploration and visualisation | `notebooks/NN-topic.ipynb`, numbered in reading order |
 | Plans and their implementation records | `plan/{date}-{plan_name}/` |
 | Data documentation | `docs/data/` — the catalog, and one card per adopted source |
+| The annotation instrument | `src/candidate_screener/annotation/` + `docs/annotation-guide.md` |
 
 Do **not** put runnable scripts under `plan/`. A plan is a record of a decision; code that
 outlives the decision belongs in the package. (This was deviation V1 of the acquisition
 phase.)
+
+## Evaluation and annotation
+
+Two rules that were each bought with a phase of work.
+
+**Every Precision@k figure travels with its ceiling** *(decision D26, closing Q18)*. The pools
+carry a judged-supply ceiling — many queries have fewer than *k* judged-relevant resumes, so a
+perfect ranker scores below 1.0 by construction. `metrics.attainable_ceiling` computes it; the
+ceiling is a property of the **split**, identical at N20/N100/Nfull, so it cannot be mitigated
+by choosing another variant. Precision@5 tops out at **0.7806** strict / **0.7188** graded. A
+system at 0.45 is at 58% of attainable, not 45%. **Recall@10 is the headline retrieval metric**
+— its ceiling is 0.983 and it is what the proposal's success measures name.
+
+Q18 is closed as a **standing limitation**, not by a judging wave. 83.2% of the baseline's
+top-5 slots are unjudged distractors, so the bias is large; what makes it tolerable is that the
+unjudged share *falls* with system quality (random 94.0%, BM25 86.6%, TF-IDF 83.2%), so the
+pools rank systems in the right order.
+
+**Manual annotation is capped at one session** *(decision D25)* — ~250 judgements, ~2.5
+team-days, out of a ~30 team-day project. Adding an annotation wave is a budget decision, not a
+methodological one, and it needs the same arithmetic doing again. The deferred wave's design is
+in `plan/2026-08-29-unified-judging-wave/`.
+
+Nothing reaches an annotator without passing `annotation.redact`, and nothing an annotator sees
+carries `selection_reason` — a reader who knows which pairs already have a label anchors on it.
 
 ## Data rules
 

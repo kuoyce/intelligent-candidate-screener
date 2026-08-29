@@ -1,17 +1,38 @@
 # Q18 — Pool precision bias: findings, and what still has to be decided
 
 **Date:** 29 August 2026
-**Status:** **Open, awaiting sign-off.** Analysis only — nothing here is implemented, and no
-figure below is yet reproducible from the package (see *Provenance*).
+**Status:** **Closed 29 August 2026 by D26** — as a *standing limitation*, which is one of the
+three closes this document itself listed. Every figure below is now reproducible from the
+package, and Q18a/Q18b are both measured. See *Provenance* and *How this closed*.
 **Origin:** Q18, raised in
 [`plan/2026-08-23-derived-artefacts/05-implementation.md`](../2026-08-23-derived-artefacts/05-implementation.md)
 §5 and left open there.
 **Blocks:** any reported Precision@k on the task 3.3 pools, for every stage.
-**Superseded in part, 29 Aug 2026:** step 4 below is now designed in
-[`plan/2026-08-29-unified-judging-wave/`](../2026-08-29-unified-judging-wave/README.md), which merges it with
-Q14's in-domain wave 2 into one instrument. D20–D22 there close Q28–Q30; **Q26 is re-scoped by
-D22** — it no longer gates whether the wave runs, only how the pre-wave figures are treated. D23
-widens the wave to all 100 test queries, so *n* is no longer fixed at 64/31.
+**Resolved 29 Aug 2026.** Step 4 below — the judging wave — was designed in
+[`plan/2026-08-29-unified-judging-wave/`](../2026-08-29-unified-judging-wave/README.md) (D20–D23) and then
+**deferred by D25** on cost against the proposal's success measures. Steps 1 and 2 were run
+instead: the ceiling is in code (`metrics.attainable_ceiling`) and the exposure is measured
+(`evaluation.retrieval`). **Q26 is dissolved, Q27 is closed, Q24 is closed.**
+
+## How this closed
+
+| Sub-question | Outcome |
+|---|---|
+| **Q18a** — how much precision is lost to judged supply? | **Answered and pinned.** `metrics.attainable_ceiling` reproduces all four figures and `tests/test_metrics.py` asserts depth-invariance. Emitted into `pools-yield.json` |
+| **Q18b** — how many unjudged distractors reach the top-k? | **Measured.** 83.2% of TF-IDF's 500 top-5 slots, [78.6, 87.4]. `output/baselines/retrieval-metrics.json` |
+| **Q18c** — what fraction of those are genuinely relevant? | **Deliberately not measured (D26).** It needs a human, and the wave that would supply one costs 4–6 team-days against a metric no proposal target names |
+
+**The argument in "the current defence may not hold" resolves against itself.** It reasoned
+that the penalty *grows* with system quality, compressing or inverting the ranking. Measured,
+the unjudged share falls monotonically as quality rises — random 94.0%, BM25 86.6%, TF-IDF
+83.2% — because a better system puts *more* judged documents at the top. The failure mode that
+would have made the pools unfit for comparison is not present in the observed direction. That is
+the evidence this document, reasoning from argument alone, could not have had.
+
+**What is conceded.** The bias is *large* — a raw Precision@5 of 0.142 against an 83% unjudged
+top-5 is a floor, not an estimate. D26 does not claim otherwise. It reports the floor with its
+ceiling beside it, and headlines **Recall@10**, whose own ceiling is 0.983 and which is the
+metric the proposal's success measures actually name.
 
 ## Why this document exists
 
@@ -126,7 +147,7 @@ Cheapest first. Steps 1–2 are mechanical and need no annotator time; step 3 is
 | 1 | **Record Q18a.** Add the attainable-ceiling computation to `evaluation/metrics.py` so it is reproducible, emit it into the pools manifest, and report it beside every Precision@k figure | Small | Sign-off on Q27 |
 | 2 | **Run Q18b.** Score an existing system over the N100 pools and count how many top-5 slots are filled by unjudged distractors, per query | Small — one scoring pass, no judgement | Q24 unblocked |
 | 3 | **Fix the decision rule *before* looking at step 3's output** | — | **Q26** |
-| 4 | **Judge a bounded sample** — now designed as [Phase 5](../2026-08-29-unified-judging-wave/02-work-plan.md#56--wave-2-the-judging-run), widened to all 100 test queries by D21/D23: only the distractors that actually reached some system's top-5 | **≤155 pairs strict, ≤320 graded**, per system, deduplicated across systems — and only the subset that is not already judged | Annotator time, `docs/annotation-guide.md` (task 3.4a) |
+| ~~4~~ | ~~**Judge a bounded sample.**~~ **Deferred by D25** to an optional week-11 batch. The design survives in [Phase 5](../2026-08-29-unified-judging-wave/02-work-plan.md#56--the-session-d25) for whoever runs it | — | — |
 
 Step 4's bound is the useful surprise. Judging the pools is infeasible; judging **only what a
 system actually surfaced** is smaller than task 3.4's planned 200-pair in-domain wave, and it
@@ -137,9 +158,9 @@ implied a cost that the top-k restriction does not carry.
 
 | # | Question | Why it cannot be defaulted |
 |---|---|---|
-| **Q26** | What contamination rate makes the bias unacceptable? Fix X **before** step 2's output is seen | Choosing the threshold after seeing the number is how a null result gets talked into significance. It must be pre-registered |
-| **Q27** | Is Precision@k reported raw, ceiling-normalised, or both — and does the ceiling enter `pools-yield.json` as a committed figure? | It changes every published precision number by ~22%, and the project's convention is that a figure travels with what bounds it *(cf. `Figure` refusing to exist without its n)* |
-| **Q24** | Unblock the scoring pass in step 2? | Already open from Phase 4, deliberately deferred there. Q18b cannot proceed without it |
+| ~~Q26~~ | What contamination rate makes the bias unacceptable? | **Dissolved by D26.** Q26 was the gate on *whether to run a wave*. Under a standing limitation there is no wave and no "pre-wave" figure to retract — the figures are final and carry the limitation. The pre-registration argument was right and is retained above for whoever revives the wave |
+| ~~Q27~~ | Raw, ceiling-normalised, or both — and does the ceiling enter `pools-yield.json`? | **Closed by D26: both, and yes.** Every precision row in `retrieval-metrics.json` carries `value`, `ceiling` and `pct_of_attainable`; `pools-yield.json` carries the ceilings and the unwinnable-slot arithmetic |
+| ~~Q24~~ | Unblock the scoring pass in step 2? | **Closed by D27**, run 29 Aug 2026. It cost no annotator time and had been deferred twice — which is most of why Q18 stayed open |
 
 ## Provenance
 
@@ -148,10 +169,16 @@ Every figure above was measured on 29 Aug 2026 from `docs/data/manifests/pools.c
 "queries with no relevant document are excluded, not scored as zero" rule `metrics.score`
 enforces — so *n* = 31 (strict) and 64 (graded) match the counts already reported elsewhere.
 
-**These figures are not yet reproducible from the package.** They were computed ad hoc, which is
-exactly what step 1 fixes; per the *Where code goes* rule the computation was not committed
-under `plan/`. Until step 1 lands, treat them as measured-but-unpinned, and re-derive before
-citing them in a report.
+**These figures are now reproducible from the package** *(step 1 landed 29 Aug 2026,
+`bfafc9c`)*:
+
+```bash
+uv run python -m candidate_screener.data.pools --feasibility   # ceilings + slot arithmetic
+uv run pytest tests/test_metrics.py                            # the four figures, pinned to 4 dp
+```
+
+`metrics.attainable_ceiling` uses the same exclude-zero-relevant rule `score` enforces, so its
+*n* matches by construction rather than by coincidence.
 
 The random-ranker comparison points (Precision@5 strict 0.071 [0.039, 0.110] n=31; graded 0.044
 [0.022, 0.066] n=64) come from `uv run python -m candidate_screener.evaluation.metrics --sanity`
@@ -161,6 +188,6 @@ and are already reproducible.
 
 | # | Assumption | If wrong |
 |---|---|---|
-| A13 | The judged labels themselves are correct. This document treats the A1 judgements as ground truth and asks only about the *unjudged* remainder | If A1's labels are noisy, the ceiling is soft rather than hard and step 4 should sample judged documents too |
+| A13 | The judged labels themselves are correct. This document treats the A1 judgements as ground truth and asks only about the *unjudged* remainder | If A1's labels are noisy, the ceiling is soft rather than hard and step 4 should sample judged documents too. **Now testable:** 50 already-judged A1 pairs, stratified 15/15/20 across the three classes, are in the session queue blind (`annotation/queue.py`). This is the one assumption here that gets measured |
 | A14 | "Contamination" is estimable from a top-k sample without re-judging the whole pool. The quantity of interest is the rate *among surfaced distractors*, not among all distractors | If a system's surfaced distractors are unrepresentative in a way that matters, the sample needs stratifying by rank |
 | A15 | One system's exposure generalises well enough to set policy for Stages 1–4 | If Stage 3/4 systems surface distinctly different distractors, step 2 repeats per stage — cheap, since it is one scoring pass |

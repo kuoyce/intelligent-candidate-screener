@@ -44,7 +44,12 @@ closed, and both change the work:
 | # | Question | Status | Blocks |
 |---|---|---|---|
 | Q12 | Does the 7× length gap between Djinni CVs (751 chars median) and A1 resumes (5,134) need mitigation? | **Evidence gathered, recommendation pending sign-off** — see [`02-work-plan.md` §Q12](02-work-plan.md#q12--the-length-gap-recommendation) | 3.4 interpretation, §10 |
-| **Q14** | *New.* Pool depth. 40 JDs × 5 CVs cannot support **Precision@10** — the in-domain pool is 5 deep. Accept P@5 / nDCG@5 in-domain, or re-shape the budget? | **Wave 1 open** (recommendation in [`02-work-plan.md` §Q14](02-work-plan.md#q14--pool-depth-and-whether-to-collect-rankings)); **wave 2 superseded 29 Aug 2026** — merged with Q18's judging wave in [`plan/2026-08-29-unified-judging-wave/`](../2026-08-29-unified-judging-wave/README.md) | 3.4 sampling design |
+| ~~Q14~~ | Pool depth. 40 JDs × 5 CVs cannot support **Precision@10** — the in-domain pool is 5 deep | **Closed 29 Aug 2026.** Wave 1 is **built** — 200 pairs, 40 JDs × 5 CVs banded by lexical score, `indomain-pairs.csv`. In-domain metrics are **P@5 / nDCG@5**, as option (a). Wave 2 is **deferred by D25**; its design survives in [`plan/2026-08-29-unified-judging-wave/`](../2026-08-29-unified-judging-wave/README.md) | — |
+
+**Q18 is closed 29 Aug 2026 by D26** — as a standing limitation, with the attainable ceiling
+recorded in code and Recall@10 as the headline retrieval metric. **Q24 is closed by D27**
+(the scoring pass ran), **Q27 by D26**, and **Q26 is dissolved**. See
+[`plan/2026-08-29-pool-precision-bias/`](../2026-08-29-pool-precision-bias/README.md) §"How this closed".
 
 Q8–Q11, Q13 and Q15 are closed by D14–D18 above. **Q16 is closed by D19**, 29 Aug 2026 — partition,
 not more annotation alone: A2 is split into a document-disjoint `train`/`eval` region, and labelled
@@ -64,17 +69,24 @@ catalog, the A1 card and the README. See
 | 3.2 leak-free split | **Done** 23 Aug 2026 — 30% hold-out, seed 0, no val fold. [`05-implementation.md`](05-implementation.md) |
 | 3.3 retrieval pools | **Done** 23 Aug 2026 — 100 queries, N20/N100/Nfull, metrics guarded. Q17 closed: Recall@10 reinstated, Recall@50 retired |
 | 3.4 preliminary — A2 train/eval partition + data-science shortlist | **Done** 29 Aug 2026 — D19 closes Q16. 352,147 A2 documents partitioned (25% eval / 75% train); a 675-pair data-science shortlist drawn from the train region. The 200-pair unstratified in-domain set (D14) itself is not yet built. [`05-implementation.md` §3B](05-implementation.md) |
-| 3.1, the remainder of 3.4, 3.5 | Not started |
+| 3.4a annotation guide | **Done** 29 Aug 2026 — `docs/annotation-guide.md`. This was the task Phase 3 called *"the real blocker"*, and it stayed unwritten through four commits of evaluation-design work |
+| 3.4b in-domain set (200 pairs) | **Built** 29 Aug 2026 — 40 JDs × 5 CVs from A2's eval region (D19), banded high/mid/low by lexical score, `indomain-pairs.csv` + `indomain-holdout.csv` (7,441 documents reserved, D18). **Labelling not yet run**: ~2.5 team-days, one session, with 50 blind A1 recheck pairs (D25) |
+| 3.1, 3.5 | Not started |
 
-**Successor:** [`plan/2026-08-29-baseline-repeatability/`](../2026-08-29-baseline-repeatability/README.md)
+**Successors:** [`plan/2026-08-29-baseline-repeatability/`](../2026-08-29-baseline-repeatability/README.md)
 — Phase 4 takes the 3.2 split and the 3.3 metric discipline and applies both to the first
-scored system. Q18 (pool precision bias) remains open here — analysed and decomposed in
+scored system. Q18 (pool precision bias) was analysed and decomposed in
 [`plan/2026-08-29-pool-precision-bias/`](../2026-08-29-pool-precision-bias/README.md), and its remedy designed in
-[`plan/2026-08-29-unified-judging-wave/`](../2026-08-29-unified-judging-wave/README.md) (Phase 5), which also takes over **Q14's wave 2**:
-the two are one annotation instrument, differing only in which pairs are selected. Q24 (scoring
-the baseline on the 3.3 pools) is raised in Phase 4 and deliberately deferred; Q26/Q27 remain
-open; **Q31 is closed by D23** — the wave covers all 100 test queries, so widening *n* is an
-objective of the wave rather than a byproduct.
+[`plan/2026-08-29-unified-judging-wave/`](../2026-08-29-unified-judging-wave/README.md) (Phase 5), which merged it with
+**Q14's wave 2**: the two are one annotation instrument, differing only in which pairs are
+selected.
+
+**All of it closed 29 Aug 2026**, and not by running the wave. **D27** ran the scoring pass
+(Q24, deferred twice) and **D26** closed Q18 as a standing limitation — the attainable ceiling
+recorded in code, Recall@10 as the headline. **D25** then capped annotation at one ~250-pair
+session and deferred the wave, on the ground that no proposal success measure is Precision@k
+while the wave would have cost 6–8.5 of ~30 team-days. Q26 dissolves with the wave; Q27 is
+closed by D26; Q31 was closed by D23, whose *scope* D25 supersedes.
 
 ## Critical path
 
@@ -82,7 +94,7 @@ objective of the wave rather than a byproduct.
 3.2 split ──► 3.3 pools ──► Stage 1 baseline
 3.1 DataTurks repair ──────► Stage 2 extraction
 3.5 vocabulary ────────────► Stages 2–4
-3.4 in-domain set (human-gated, 1.5–2 team-days) ──► end-to-end evaluation
+3.4a guide ──► 3.4b set built ──► one session (~2.5 team-days, D25) ──► end-to-end evaluation
 ```
 
 3.2 → 3.3 is the compute critical path and gates the first reportable number. 3.4 is the only

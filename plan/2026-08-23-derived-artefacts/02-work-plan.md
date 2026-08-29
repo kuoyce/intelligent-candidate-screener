@@ -7,12 +7,12 @@ criterion that `verify --derived` checks, so "done" is machine-checkable rather 
 
 | Order | Task | Depends on | Effort | Gated on |
 |---|---|---|---|---|
-| Start now, in parallel | **3.4a** annotation guide | — | ½ day | — |
+| Start now, in parallel | ~~**3.4a** annotation guide~~ **DONE** 29 Aug 2026 | — | ½ day | — |
 | 1 | ~~**3.2** leak-free split~~ **DONE** | — | ½ day | Q13 answered from its own output |
 | 2 | ~~**3.3** retrieval pools~~ **DONE** | 3.2 | ½ day | Q8 sign-off |
 | 3 | **3.5** vocabulary | — | ½ day | — |
 | 4 | **3.1** DataTurks repair | — | ½–1 day | — |
-| 5 | **3.4b** annotation run | 3.4a | **1.5–2 team-days** | People |
+| 5 | **3.4b** sampling **DONE** 29 Aug 2026; the labelling run **not started** | 3.4a | **~2.5 team-days** *(D25: 250 pairs, one session, including the 50 A1 recheck)* | People |
 
 3.2 → 3.3 is the compute critical path to the first reportable number. 3.4 is the only
 human-gated step; D14 unblocked it, so its guide is written first and the labelling run starts
@@ -83,6 +83,11 @@ explanatory error rather than computing it.
 
 ### 3.4a — Annotation guide *(do this first; it is the real blocker)*
 
+> **DONE 29 Aug 2026 — `docs/annotation-guide.md`.** It carried this label from the day the
+> plan was written and stayed unwritten through four commits of evaluation-design work; that
+> is the single clearest symptom of the pattern D25 exists to stop. It now also covers the A1
+> corpus (**A16**) and the blinding, absorbing task 5.3 of the Phase 5 plan.
+
 Write `docs/annotation-guide.md`: Good / Potential / No Fit definitions matching A1's 3-class
 scheme (Q10 — proposed yes), 3 worked examples per class drawn from Djinni, an explicit
 tie-breaking rule, and a written instruction on what **not** to consider (company prestige,
@@ -118,6 +123,23 @@ team-adjudicated judgement, not recruiter ground truth.
 
 **Acceptance:** 200 pairs, 60 double-labelled, κ reported with its interpretation band, every
 adjudicated disagreement logged.
+
+> **Sampling DONE 29 Aug 2026 (`0b1d81e`)** — `annotation/sample.py`, steps 1–4 and 9.
+> 200 pairs, 40 JDs, 200 CVs, drawn from `region == eval` (D19); `indomain-holdout.csv`
+> reserves **7,441 documents** — the whole candidate pool per JD, not the 200 drawn pairs
+> (D18). Realised family mix recorded as an observation (D14): Java 20, QA/Sales/JavaScript/
+> Node.js/DevOps 15 each, and 14 more families.
+>
+> **Steps 5–8 — the labelling run — are not started.** Under **D25** they run as one session
+> of ~250 judgements together with 50 blind A1 recheck pairs, before Stage 2 rather than after
+> Stage 4. `docs/data/manifests/judging-queue.csv` is the key; the redacted dispatch file is
+> git-ignored under `data/processed/indomain/`.
+>
+> One deviation from step 3: **experience bands cover `0-1`, `2-3` and `4-6` only.** The JD
+> side ships five `Exp Years` categories that map to three bands and has no `7+` — a property
+> of how Djinni collected the field, already recorded in `a2_finetune.JD_EXP_TO_BAND`, not a
+> sampling error. The set therefore spans junior to mid-senior, not the full seniority range,
+> and that is a limitation for §10.
 
 **Open:** Q12 — whether the 7× CV/resume length gap (751 vs 5,134 median chars) needs a
 length-normalised scoring mitigation or is reported as a limitation only. Decide once the first
@@ -189,12 +211,16 @@ written supports P@5 and nDCG@5 only. Three ways to spend the same budget:
 |---|---|---|---|
 | (a) 40 JD × 5 | 40 | P@5, nDCG@5 | CI as good as this budget allows |
 | (b) 20 JD × 10 | 20 | P@10, nDCG@10 | Halves *n*; CI widens ~1.4× — at *n*=20 the interval swamps the finding |
-| **(c) Two waves — recommended** | 40, rising | P@5 now, **P@10 later** | One extra annotation session, no wasted judgements |
+| ~~**(c) Two waves**~~ | ~~40, rising~~ | ~~P@5 now, **P@10 later**~~ | **Not taken.** D25 defers wave 2; the in-domain set is 40 × 5 and its metrics are **P@5 / nDCG@5**, i.e. option (a) |
 
-> **Superseded in part, 29 Aug 2026.** Wave 1 below stands unchanged. **Wave 2 is now owned by**
-> [`plan/2026-08-29-unified-judging-wave/`](../2026-08-29-unified-judging-wave/README.md), which merges it with the
-> A1-pool judging wave Q18 asks for — the same act of judgement over a different corpus. D22
-> there fixes it to run **once, after the last stage is frozen**.
+> **Resolved 29 Aug 2026 — option (a), not (c).** Wave 1 below is built and stands unchanged.
+> **Wave 2 is deferred by D25**: its design lives in
+> [`plan/2026-08-29-unified-judging-wave/`](../2026-08-29-unified-judging-wave/README.md), merged there with the A1-pool
+> judging wave Q18 asked for, and it is an optional week-11 batch rather than a scheduled step.
+> **In-domain metrics are P@5 and nDCG@5.** P@10 in-domain is not reported, because the pool is
+> 5 deep and `metrics.score`'s depth guard refuses it — which is the guard working, not a gap.
+> The **top-1 shortlist pick** below is kept: it is 30 seconds per JD and it is the only thing
+> that breaks ties inside the `Good` class, which nDCG@5 cannot.
 
 **Option (c).** Wave 1 is 40 × 5 now: it yields κ, the calibration data, and P@5 / nDCG@5. Wave 2
 runs after the Stage-1 baseline exists and judges the *union of each system's top-10* for the same

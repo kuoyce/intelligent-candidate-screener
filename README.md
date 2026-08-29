@@ -65,6 +65,7 @@ reconstructible byte-for-byte — see [`docs/data/manifests/`](docs/data/manifes
 ```bash
 uv run python -m candidate_screener.baselines.run --seed 0   # fit, score, write the record
 uv run python -m candidate_screener.baselines.run --check    # assert it still reproduces
+uv run python -m candidate_screener.evaluation.retrieval --seed 0  # the same model, ranked over the pools
 uv run pytest                                                # unit + regression suite
 ```
 
@@ -102,6 +103,28 @@ corpora and the golden check skips, visibly, when `data/` is absent.
    it has 6, and Recall@10 reaches 0.90 for 93.5% of queries while Recall@50 saturates. The
    adopted metrics are **Recall@10, Precision@5 and nDCG@10**, each reported with its *n* and a
    bootstrap CI — enforced in `candidate_screener.evaluation.metrics`, not by convention.
+4. **Precision@k on the pools is capped below 1.0, and Recall@10 is not.** Many queries have
+   fewer than *k* judged-relevant resumes, so a perfect ranker cannot fill the top *k*:
+   Precision@5 tops out at **0.7806** strict, Recall@10 at 0.983. The cap is a property of the
+   split — identical at every pool depth — so every precision figure is reported with its
+   ceiling beside it *(D26)*. TF-IDF's Recall@10 is **0.298** [0.216, 0.391] against the
+   proposal's 0.80 target; that gap is the finding, not a defect to tune away before reporting.
+
+## The annotation session
+
+One session, ~250 judgements, ~2.5 team-days *(decision D25)* — 200 in-domain Djinni pairs and
+50 already-judged A1 pairs mixed in blind to test whether A1's own labels hold up. Read
+[`docs/annotation-guide.md`](docs/annotation-guide.md) first.
+
+```bash
+uv run python -m candidate_screener.data.build --task indomain judging-queue --seed 0
+# dispatch:  data/processed/indomain/judging-queue.csv   (git-ignored, redacted, blind)
+# key:       docs/data/manifests/judging-queue.csv       (committed, ids only, no text)
+# labels:    docs/data/manifests/judgements.csv          (committed, header until the session runs)
+```
+
+The dispatch file carries three columns and nothing else. An annotator who could see why a pair
+was selected would know which ones already have a label and would anchor on the expected answer.
 
 ## Data handling rules
 

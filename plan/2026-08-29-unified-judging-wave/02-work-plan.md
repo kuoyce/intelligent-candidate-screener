@@ -1,29 +1,41 @@
 # Work Plan — Phase 5
 
+> **Revised 29 August 2026 by D25–D27, before approval.** The judging wave is deferred; the
+> session is 250 pairs, not the union of every system's top-k. Tasks 5.1, 5.2, 5.3 and 5.5 are
+> **done** (`bfafc9c`, `0b1d81e`); 5.4's queue is built and awaits people; 5.6 is now one
+> ~2.5 team-day session gated on people rather than on Stage 4. The original sizing is kept
+> below, struck where superseded, because the reasoning is the audit trail.
+
 Effort is wall-clock for one person unless marked **team**. Tasks 5.1–5.5 need **no annotator
-time** and can run now; 5.6 is the only human-gated step and D22 puts it after the last stage.
+time** and can run now; 5.6 is the only human-gated step.
 
 ## Sequencing
 
 | Order | Task | Depends on | Effort | Gated on |
 |---|---|---|---|---|
 | 1 | **5.1** judgement layer + overlay | — | ½ day | — |
-| 2 | **5.2** record the attainable ceiling | 5.1 | ½ day | **Q27** |
+| 2 | **5.2** record the attainable ceiling | 5.1 | ½ day | ~~Q27~~ **closed by D26** |
 | 3 | **5.3** extend the annotation guide | 3.4a | ¼ day | 3.4a exists |
 | 4 | **5.4** wave 1 — A1 recheck | 5.1, 5.3 | **½ team-day** | People |
 | 5 | **5.5** queue builder + sizing pass | 5.1 | ½ day | **Q24** |
-| 6 | **5.6** wave 2 — the judging run | all above, **Stage 4 frozen** | **4–6 team-days** | **D22**, people |
-| 7 | **5.7** re-report and supersede | 5.6 | ½ day | **Q26** |
+| 6 | **5.6** ~~wave 2~~ **the session** | all above | **~2.5 team-days** | people *(was: D22 + Stage 4 frozen)* |
+| 7 | **5.7** re-report | 5.6 | ½ day | — *(was: Q26, dissolved by D26)* |
 
-The plan's shape follows from D22: everything mechanical happens now, the human step happens
-once, at the end, and nothing between them is wasted.
+The plan's shape followed from D22: everything mechanical now, one human step at the end.
+**Under D25 the human step moves to the front instead** — it no longer needs any system's
+top-k, so nothing is gained by waiting for Stage 4, and the in-domain set is wanted *before*
+Stage 2 rather than after Stage 4. That reordering is the largest practical effect of D25.
 
 ---
 
 ## 5.1 — The judgement layer and the overlay
 
-1. `annotation/layer.py`: load `judgements.csv`, `apply(pools, judgements) -> pools'` returning a
-   new frame with `relevance` updated and `label_source` added. Never mutates its input.
+1. ~~`annotation/layer.py` and the overlay `apply(pools, judgements) -> pools'`.~~
+   **Dropped 29 Aug 2026.** The overlay existed to fold a wave's *new* relevance judgements
+   into the pools. The A1 recheck compares against labels that already exist and changes no
+   relevance, and D25 defers the wave, so nothing consumes an overlay. Writing one now would be
+   untested machinery guarding a case that does not occur — YAGNI, with the reason recorded so
+   that whoever runs the wave knows it was a deferral and not an oversight.
 2. Write the empty `judgements.csv` with its committed header, so the schema exists before any
    label does — a schema settled after labels exist is a migration.
 3. Register the six `verify --derived` checks from [`01-design-spec.md` §6](01-design-spec.md#6-determinism-and-commit-policy).
@@ -44,7 +56,8 @@ hoc, deliberately not committed under `plan/`. This is the task that fixes that.
    ranker could reach given judged-relevant supply, using the same exclude-zero-relevant rule
    `score` enforces, so its *n* matches.
 2. Emit it into `pools-yield.json`, **per view** (A1-only and A1+ours) once the layer is
-   non-empty. Q27 decides whether it also normalises the reported figure.
+   non-empty — **under D25 there is only the A1-only view**, since no new A1 relevance
+   judgement is collected. D26 settles the reporting: raw *and* ceiling, both.
 3. Reproduce the ad-hoc numbers as a regression test: P@5 strict **0.7806**, graded **0.7188**;
    P@10 strict **0.5677**, graded **0.4734**; and the depth-invariance property — identical at
    N20, N100 and Nfull, which is what proves it is a property of the split rather than of pool
@@ -55,7 +68,14 @@ hoc, deliberately not committed under `plan/`. This is the task that fixes that.
 variants; `Figure` still refuses to exist without its *n*; the Q18 doc's *Provenance* section is
 updated from "measured-but-unpinned" to a command.
 
-**Gated on Q27** — whether Precision@k is reported raw, normalised, or both.
+**Q27 closed by D26: both.** `retrieval-metrics.json` carries `value`, `ceiling` and
+`pct_of_attainable` on every precision row; `pools-yield.json` carries the ceilings and the
+unwinnable-slot arithmetic (34/155 strict at k=5, 90/320 graded).
+
+> **Done 29 Aug 2026 (`bfafc9c`).** All four ceilings reproduce to 4 dp and depth-invariance
+> holds across N20/N100/Nfull. `attainable_ceiling` refuses nDCG with the reason — it
+> normalises by an ideal from the same pool, so a perfect ranker reaches 1.0 at any density.
+> Recall@10's ceiling is **0.983**, which is the measurement D26 headlines it on.
 
 ---
 
@@ -114,14 +134,19 @@ the Q18 ceiling is soft rather than hard, and 5.6's design should sample judged 
 `surfaced_by`, `best_rank` or `selection_reason`; rebuilding at the same seed and the same scores
 is byte-identical; the union-vs-sum ratio is recorded in `judging-report.json`.
 
-**Gated on Q24** for the Stage 1 scores. A Stage-1-only run gives a lower bound on the union and
-is enough to budget from; the true union needs all stages, hence D22.
+> **Done 29 Aug 2026 (`0b1d81e`), at a different size.** Under D25 the queue is the 250-pair
+> session, not the top-k union: 200 in-domain pairs plus 50 blind A1 recheck pairs. Steps 2–4
+> above sized the deferred wave and are retained for whoever runs it. **Q24 is closed by D27** —
+> `evaluation.retrieval` scored the baseline over the pools, and the answer is in
+> `output/baselines/retrieval-metrics.json`.
 
 ---
 
-## 5.6 — Wave 2: the judging run
+## 5.6 — The session *(D25)*
 
-**Blocked by D22 until the last stage is frozen.** One session, both corpora, one guide.
+**No longer blocked by Stage 4.** One session, both corpora, one guide, ~250 judgements —
+200 in-domain (task 3.4b) and 50 blind A1 recheck. Run it **before Stage 2**, since nothing in
+it depends on a system's output any more.
 
 1. Dispatch the shuffled, blinded, de-identified queue.
 2. Double-label 30% for κ, matching task 3.4's protocol.
@@ -134,26 +159,30 @@ is enough to budget from; the true union needs all stages, hence D22.
 corpus (**A16**); zero pairs judged twice by the same annotator; the region-isolation check passes
 on the appended layer.
 
-**Effort is an estimate until 5.5 runs.** The 4–6 team-day figure comes from Phase 3's own implied
-rate — 260 judgements in 1.5–2 team-days, so ~130–175 per team-day — widened for D23's ~180 extra
-A1 judgements. **A1 pairs will run slower than that rate**, since it was derived from 1,525-char
-Djinni CVs and A1 resumes are 5,134. Re-budget from 5.5's measured union, not from this line.
+**Effort: ~2.5 team-days for 250 judgements.** Phase 3's implied rate is ~130–175 per team-day
+(260 judgements in 1.5–2 team-days), which puts 250 at 1.5–2 team-days. The estimate is widened
+to 2.5 because **the 50 A1 pairs will run slower than that rate** — it was derived from
+1,525-char Djinni CVs and A1 resumes are 5,134 — and because adjudication is included.
 
 ---
 
 ## 5.7 — Re-report and supersede
 
-1. Recompute every A1 figure under **both views** (A1-only, A1+ours) and both relevance
-   definitions.
-2. Report the **contamination rate** — of the distractors that reached a top-k, the fraction our
-   annotators marked relevant. This is Q18b/c, finally measured.
-3. Report the **ceiling shift** and the **change in *n*** (D23). Two rules, neither optional:
-   every figure carries the *n* **of its own view** — A1-only and A1+ours may differ — and the
-   queries newly made scoreable are reported as a **named stratum**, never pooled silently into
-   the headline. They became scoreable because a system under test surfaced something relevant,
-   which is not how the other 64 got there.
-4. Apply Q26's pre-registered rule to decide whether the pre-wave figures are revised or
-   retracted. **Fix Q26 before step 2's output is read.**
+1. Recompute every A1 figure under both relevance definitions. **There is only one view under
+   D25** — A1-only — because no new A1 relevance judgement is collected; the recheck re-judges
+   pairs that already carry a label. The A1-only / A1+ours dual-reporting rule (D20) stays
+   written down for whoever runs the deferred wave.
+2. ~~Report the contamination rate.~~ **Not measured, by decision (D26).** What *is* measured
+   and recorded is the **exposure**: 83.2% of TF-IDF's top-5 slots are unjudged, falling
+   monotonically with system quality (random 94.0%, BM25 86.6%). That bounds the bias and shows
+   it does not invert the ranking; the fraction genuinely relevant needs the deferred wave.
+3. **The A13 result — the finding to watch.** Agreement and κ against A1's own labels on the
+   50 recheck pairs, per class. Every ceiling figure in the Q18 analysis assumes A1's labels are
+   correct. If ours diverge materially, the ceiling is *soft* rather than hard, and D26's
+   limitation line has to say so rather than presenting 0.7806 as a hard bound.
+4. ~~Apply Q26's pre-registered rule.~~ **Q26 is dissolved by D26** — under a standing
+   limitation there are no pre-wave figures to retract. The figures are final and carry the
+   limitation.
 5. Supersede in place, per the repo convention — `docs/data/data-catalog.md`, the A1 card,
    `pools-yield.json`, and every stage report — marking each corrected figure *Superseded
    {date}* rather than deleting it.
