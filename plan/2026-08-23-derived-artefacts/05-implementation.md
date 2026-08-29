@@ -1,7 +1,8 @@
 # Phase 3 — Implementation Record
 
-**Branch:** `feat/derived-artefacts` · **Covers:** tasks 3.2 and 3.3. 3.1, 3.4 and 3.5 are
-not started.
+**Branch:** `feat/derived-artefacts` · **Covers:** tasks 3.2, 3.3, and a preliminary of 3.4
+(the A2 train/eval partition and a data-science labelling shortlist, D19). 3.1, the 200-pair
+in-domain set itself, and 3.5 are not started.
 
 ## 1. What was built
 
@@ -9,10 +10,13 @@ not started.
 src/candidate_screener/data/
   ids.py             content-addressed document identity (design spec §2)
   fit_split.py       task 3.2 — pooling, the doubly-disjoint split, the yield survey
+  a2_finetune.py     task 3.4 preliminary — A2 train/eval partition (D19) + data-science shortlist
   build.py           `build --all --seed 0`; a registry the later tasks join
   verify_derived.py  `verify --derived`; the acceptance checks, likewise a registry
 docs/data/manifests/ fit-split.csv, fit-split-yield.json, fit-split-survey.json,
-                     fit-pair-conflicts.csv, fit-c4-overlap.csv, README.md
+                     fit-pair-conflicts.csv, fit-c4-overlap.csv,
+                     a2-partition.csv, a2-partition-report.json,
+                     a2-datascience-shortlist.csv, a2-shortlist-report.json, README.md
 data/processed/fit/  train.parquet, test.parquet   (git-ignored)
 ```
 
@@ -204,6 +208,59 @@ by construction. This was always stated as a limitation; the leak-free split mak
 not smaller. The pools are a comparison instrument between systems, not an estimate of
 production precision, and the manifest header says so.
 
+## 3B. Task 3.4 preliminary — A2 train/eval partition and data-science shortlist
+
+### Why this exists
+
+Q16 asked what happens once a stage needs more *labelled* A2 data than the 200-pair in-domain
+set, and was deferred by design. It stopped being deferred this session: labelled A2 pairs are
+now wanted for supervised fine-tuning as well as evaluation, which conflicts with D18 ("A2 …
+never contributes fit labels"). **D19** resolves this the way Q16's own text anticipated —
+partition A2 at document level into a training-eligible region and an evaluation-eligible
+region *before either is sampled* — reusing `fit_split.assign_documents` (the same
+sort-permute-slice draw already applied to A1 under D8) rather than re-deriving it.
+
+### Built
+
+```
+uv run python -m candidate_screener.data.a2_finetune --partition --seed 0
+uv run python -m candidate_screener.data.a2_finetune --shortlist --seed 0
+uv run python -m candidate_screener.data.verify --derived --task a2-partition a2-shortlist
+```
+
+**Partition** — every JD `id` and CV `id` (352,147 documents total) independently assigned to
+`train` or `eval`, seed 0, `eval_fraction=0.25` (an assumption, not a specification — see D19):
+
+| | eval | train |
+|---|---|---|
+| JD (141,897) | 35,474 | 106,423 |
+| CV (210,250) | 52,562 | 157,688 |
+
+**Shortlist** — within `region == train` only, filtered to `Primary Keyword ∈ {Data Science,
+Data Engineer, Data Analyst}` (verified: no separate `AI Engineer`/`ML Engineer` keyword
+exists — those titles fold into `Data Science`), banded by experience (`0-1`/`2-3`/`4-6`; JD
+`Exp Years`'s categorical scale tops out at `5y`, so no JD populates a `7+` cell), 15 JDs × 5
+CVs per (keyword, band) cell:
+
+| Keyword | Pairs | JDs | CVs |
+|---|---|---|---|
+| Data Analyst | 225 | 45 | 204 |
+| Data Engineer | 225 | 45 | 170 |
+| Data Science | 225 | 45 | 208 |
+| **Total** | **675** | **135** | **582** |
+
+All acceptance checks pass: partition identity (0 unresolved, no repeats) and disjointness (0
+documents in >1 region); shortlist eval-region isolation (0 stray JDs/CVs), keyword scope, and
+pair-id uniqueness; both manifests reproduce byte-for-byte from their recorded seed.
+
+### Deviation from the approved session plan
+
+The plan additionally proposed adding a `MANIFESTS` constant to `config.py`. Implementation
+found `fit_split.py` already defines `MANIFESTS = DOCS_DATA / "manifests"` locally and
+`pools.py` imports it from there rather than from `config.py`. `a2_finetune.py` follows the
+existing convention (`from candidate_screener.data.fit_split import MANIFESTS`) instead of
+adding a second definition — `config.py` is unchanged.
+
 ## 4. Deviations from the design spec
 
 | # | Deviation | Why |
@@ -225,7 +282,7 @@ production precision, and the manifest header says so.
 | # | Question | Status |
 |---|---|---|
 | Q14 | Pool depth in-domain, and whether to collect rankings | **Open** — recommendation in `02-work-plan.md`; belongs to 3.4 |
-| Q16 | Where more labelled in-domain data comes from if a later stage runs short | **Deferred by design** (D18) |
+| ~~Q16~~ | Where more labelled in-domain data comes from if a later stage runs short | **Closed 29 Aug 2026 by D19** — partition A2 into document-disjoint `train`/`eval` regions before sampling either; labelled `train`-region pairs may be used for fine-tuning. §3B above |
 | ~~Q17~~ | Does the test-side density of 6 Good Fit per JD reinstate Recall@10? | **Closed** — yes. Recall@10 reinstated, Recall@50 retired, Precision@5 adopted. §3A above; catalog, A1 card and README updated |
 | **Q18** | *New.* With ~96% of a 100-deep pool assumed non-relevant, is the downward precision bias acceptable for Stage 1–4 comparison, or does a judging wave over system top-k output belong in the plan (as Q14 proposes in-domain)? | **Open — analysed 29 Aug 2026 in [`plan/2026-08-29-pool-precision-bias/`](../2026-08-29-pool-precision-bias/README.md).** The stated closing condition ("once the Stage 1 baseline exists") is now met and does **not** close it: the question is three quantities, one of which (the contamination rate) is not computable at all. A second, previously unrecorded bias was found — a judged-supply ceiling capping Precision@5 at 0.781 strict / 0.719 graded regardless of pool depth. Decisions Q26/Q27 requested |
 

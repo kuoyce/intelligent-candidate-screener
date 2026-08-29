@@ -86,7 +86,22 @@ label against *q*.
   the interval is the finding.
 - **Stated limitation:** unlabelled distractors are *assumed* non-relevant.
 
-### 3.4 `data/processed/indomain/` — Djinni evaluation set *(decisions D3, D4, D11, D12, D14)*
+### 3.4 `data/processed/indomain/` — Djinni evaluation set *(decisions D3, D4, D11, D12, D14, D19)*
+
+**Preliminary, built 29 Aug 2026 (D19, closes Q16):** before the 200-pair set itself, A2 is
+partitioned at document level into `train`/`eval` regions, and a data-science-scoped
+labelling shortlist is drawn from `train` — see `05-implementation.md` §3B. These two
+manifests exist independently of the 200-pair build below and gate it:
+
+| File | Committed? | Schema |
+|---|---|---|
+| `docs/data/manifests/a2-partition.csv` | **Yes** | `doc_id, doc_type {jd,cv}, region {train,eval}` |
+| `docs/data/manifests/a2-partition-report.json` | **Yes** | `seed, eval_fraction, counts` |
+| `docs/data/manifests/a2-datascience-shortlist.csv` | **Yes** | `pair_id, jd_id, cv_id, primary_keyword, exp_band` |
+| `docs/data/manifests/a2-shortlist-report.json` | **Yes** | `seed, keywords, jds_per_cell, per_jd, summary` |
+
+Task 3.4's own 200-pair set (below) **must sample only from `region == eval`** in
+`a2-partition.csv` — that is the guarantee D19 exists to provide.
 
 | File | Committed? | Schema |
 |---|---|---|
@@ -95,7 +110,7 @@ label against *q*.
 | `data/processed/indomain/pairs.parquet` | No | The above joined to JD/CV text for the annotation UI |
 | `docs/annotation-guide.md` | **Yes** | Class definitions, worked examples, tie-breaking rule |
 
-**Eval holdout region (D18) — reserve this before any pretraining run.** A2 may be used for
+**Eval holdout region (D18, narrowed by D19) — reserve this before any pretraining run.** A2 may be used for
 unlabelled domain-adaptive pretraining, but excluding only the 200 selected pairs is **not
 sufficient**, for two reasons:
 

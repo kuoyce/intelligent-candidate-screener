@@ -64,3 +64,29 @@ cannot be constructed without its query count, and a `k` deeper than the shallow
 rather than silently collapsing to `k = pool depth`. Queries with no relevant document are
 excluded, not scored as zero — that would report the pool's label sparsity as a property of
 the system.
+
+## Task 3.4 preliminary — A2 train/eval partition and data-science shortlist (D19)
+
+A2 (Djinni) ships its own publisher `id` on both tables, so unlike A1 these manifests use it
+directly — `doc_id` is not a content hash here.
+
+| File | What it is |
+|---|---|
+| `a2-partition.csv` | `doc_id, doc_type {jd,cv}, region {train,eval}` — every A2 JD and CV id, independently assigned. **The** guarantee: task 3.4's 200-pair evaluation set must sample only `region == eval`; any fine-tuning label must come only from `region == train` |
+| `a2-partition-report.json` | Seed, `eval_fraction` (0.25 — an assumption, not a specification; re-cuttable via `--eval-fraction` until the first document is labelled), per-region counts |
+| `a2-datascience-shortlist.csv` | `pair_id, jd_id, cv_id, primary_keyword, exp_band` — candidate pairs for a data-science-focused labelling pass, drawn only from `region == train`, banded by experience |
+| `a2-shortlist-report.json` | Seed, keyword scope, sampling parameters, per-cell summary |
+
+> **Why this exists.** D18 restricted A2 to unlabelled pretraining — "never contributes fit
+> labels." Q16 asked what happens once a stage needs more *labelled* A2 data than the 200-pair
+> set, and deferred the answer. That point arrived: labelled A2 pairs are wanted for
+> fine-tuning as well as evaluation. **D19** answers Q16 by partitioning A2 at document level
+> before either side is sampled — the same doubly-disjoint discipline `fit-split.csv` already
+> applies to A1 (D8), reused via `fit_split.assign_documents` rather than re-derived. D18 is
+> narrowed, not lifted: the "never contributes fit labels" restriction now applies to
+> `region == eval` only.
+
+The shortlist filters to `Primary Keyword ∈ {Data Science, Data Engineer, Data Analyst}` —
+the only bucket `AI Engineer`/`ML Engineer`-titled rows fold into, verified via `Position`
+substring matching. It does **not** stratify or otherwise change task 3.4's own 200-pair
+build, which stays unstratified across all 41 role families per D14.

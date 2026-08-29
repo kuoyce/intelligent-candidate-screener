@@ -11,12 +11,17 @@ from __future__ import annotations
 
 import argparse
 
-from candidate_screener.data import fit_split, pools
+from candidate_screener.data import a2_finetune, fit_split, pools
 
 #: The hold-out fraction signed off on 23 Aug 2026 — see `fit-split-survey.json`.
 #: 30% yields 31 test JDs carrying a Good Fit against 24 at 25%; the val fold was
 #: dropped in favour of doubly-disjoint CV inside train (D16's stated fallback).
 FIT_TEST_FRAC, FIT_VAL_FRAC = 0.30, 0.0
+
+#: A2 eval-region reservation (D19) — matches the A1 precedent since no fraction was
+#: specified when this task was scoped. Re-cuttable via `a2_finetune --eval-fraction`
+#: up until the first document is labelled.
+A2_EVAL_FRACTION = 0.25
 
 
 def build_fit_split(seed: int) -> None:
@@ -27,8 +32,22 @@ def build_pools(seed: int) -> None:
     pools.print_report(pools.build(seed))
 
 
-#: Task -> builder, in dependency order. 3.1, 3.4 and 3.5 register as they land.
-TASKS = {"fit-split": build_fit_split, "pools": build_pools}
+def build_a2_partition(seed: int) -> None:
+    a2_finetune.print_partition(a2_finetune.build_partition(A2_EVAL_FRACTION, seed))
+
+
+def build_a2_shortlist(seed: int) -> None:
+    a2_finetune.print_shortlist(a2_finetune.build(
+        a2_finetune.DATASCIENCE_KEYWORDS, jds_per_cell=15, per_jd=5, seed=seed))
+
+
+#: Task -> builder, in dependency order. 3.1 and 3.5 register as they land.
+TASKS = {
+    "fit-split": build_fit_split,
+    "pools": build_pools,
+    "a2-partition": build_a2_partition,
+    "a2-shortlist": build_a2_shortlist,
+}
 
 
 def main() -> int:

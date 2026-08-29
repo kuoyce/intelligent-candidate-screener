@@ -18,6 +18,7 @@ import json
 import pandas as pd
 
 from candidate_screener.config import PROCESSED
+from candidate_screener.data import a2_finetune as a2
 from candidate_screener.data import fit_split as fs
 from candidate_screener.data.ids import normalise
 
@@ -190,8 +191,77 @@ def check_pools() -> list[tuple[bool, str]]:
     return results
 
 
-#: Task -> its acceptance checks. 3.1, 3.4 and 3.5 register here as they land.
-CHECKS = {"fit-split": check_fit_split, "pools": check_pools}
+def check_a2_partition() -> list[tuple[bool, str]]:
+    results: list[tuple[bool, str]] = []
+    if not a2.PARTITION_MANIFEST.exists():
+        return [(False, "a2-partition.csv missing — run `build --task a2-partition`")]
+    manifest = pd.read_csv(a2.PARTITION_MANIFEST)
+
+    # 1. Every doc_id is assigned exactly once and resolves to a real A2 id.
+    from candidate_screener.data.profile import load_split
+    jd_ids = set(load_split("djinni-jd", "train")["id"])
+    cv_ids = set(load_split("djinni-cv", "train")["id"])
+    universe = {"jd": jd_ids, "cv": cv_ids}
+    unresolved = sum(len(set(g.doc_id) - universe[t]) for t, g in manifest.groupby("doc_type"))
+    results.append((unresolved == 0 and manifest.doc_id.is_unique,
+                    f"identity: {len(manifest)} manifest ids, {unresolved} unresolved, "
+                    f"{'no' if manifest.doc_id.is_unique else 'DUPLICATE'} repeats"))
+
+    # 2. eval/train is the only guarantee this artefact exists to provide (D19/Q16):
+    #    zero doc_ids in more than one region.
+    multi = int((manifest.groupby("doc_id").region.nunique() > 1).sum())
+    results.append((multi == 0, f"disjointness: {multi} documents assigned to >1 region"))
+
+    # 3. Determinism: rebuild in memory at the recorded seed/fraction and diff.
+    if not a2.PARTITION_REPORT.exists():
+        return results + [(False, "a2-partition-report.json missing — cannot check determinism")]
+    report = json.loads(a2.PARTITION_REPORT.read_text(encoding="utf-8"))
+    seed, eval_fraction = report["seed"], report["eval_fraction"]
+    jd_region, cv_region = a2.partition_ids(sorted(jd_ids), sorted(cv_ids), eval_fraction, seed)
+    rebuilt = pd.concat([
+        pd.DataFrame({"doc_id": jd_region.index, "doc_type": "jd", "region": jd_region.to_numpy()}),
+        pd.DataFrame({"doc_id": cv_region.index, "doc_type": "cv", "region": cv_region.to_numpy()}),
+    ]).sort_values(["doc_type", "doc_id"], kind="stable").reset_index(drop=True)
+    same = rebuilt.equals(manifest.reset_index(drop=True))
+    results.append((same, f"determinism: rebuild at seed={seed} eval_fraction={eval_fraction:.0%} "
+                          f"{'reproduces' if same else 'DIFFERS FROM'} the committed manifest"))
+    return results
+
+
+def check_a2_shortlist() -> list[tuple[bool, str]]:
+    results: list[tuple[bool, str]] = []
+    if not a2.SHORTLIST_MANIFEST.exists():
+        return [(False, "a2-datascience-shortlist.csv missing — run `build --task a2-shortlist`")]
+    if not a2.PARTITION_MANIFEST.exists():
+        return [(False, "a2-partition.csv missing — the shortlist cannot be checked without it")]
+
+    shortlist = pd.read_csv(a2.SHORTLIST_MANIFEST)
+    partition = pd.read_csv(a2.PARTITION_MANIFEST)
+    train_jds = set(partition[(partition.doc_type == "jd") & (partition.region == "train")].doc_id)
+    train_cvs = set(partition[(partition.doc_type == "cv") & (partition.region == "train")].doc_id)
+
+    # Every shortlisted pair must draw from the training region only — this is the
+    # entire point of D19: a fine-tuning label must never land in the eval region.
+    stray_jd = set(shortlist.jd_id) - train_jds
+    stray_cv = set(shortlist.cv_id) - train_cvs
+    results.append((not stray_jd and not stray_cv,
+                    f"eval-region isolation: {len(stray_jd)} JDs and {len(stray_cv)} CVs "
+                    f"outside the training region"))
+
+    results.append((shortlist.primary_keyword.isin(a2.DATASCIENCE_KEYWORDS).all(),
+                    f"scope: every pair's primary_keyword is in {a2.DATASCIENCE_KEYWORDS}"))
+
+    results.append((shortlist.pair_id.is_unique, "identity: pair_id has no duplicates"))
+    return results
+
+
+#: Task -> its acceptance checks. 3.1 and 3.5 register here as they land.
+CHECKS = {
+    "fit-split": check_fit_split,
+    "pools": check_pools,
+    "a2-partition": check_a2_partition,
+    "a2-shortlist": check_a2_shortlist,
+}
 
 
 def main(tasks: list[str] | None = None) -> int:
