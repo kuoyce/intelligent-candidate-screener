@@ -156,6 +156,41 @@ def load_english() -> tuple[pd.DataFrame, pd.DataFrame]:
     return jd, cv
 
 
+def available_titles() -> pd.DataFrame:
+    """Every `Primary Keyword` reachable in the eval region, with its JD supply.
+
+    The 45 values in the raw corpus are **not** the 22 that batch 1 happens to cover:
+    batch 1 is an unstratified draw of 40 JDs (D14), so its title list is an observation
+    about what fell out, never a designed scope. 41 of the 45 survive the eval-region and
+    English filters. Anything a report needs covered has to arrive as a targeted batch,
+    and this is the list such a batch may name.
+    """
+    jd, _ = load_english()
+    counts = jd.groupby("Primary Keyword").size().sort_values(ascending=False)
+    return counts.rename("jds").reset_index().rename(
+        columns={"Primary Keyword": "title"})
+
+
+def validate_keywords(keywords: list[str] | None, known) -> None:
+    """Fail loudly on a title that does not exist, before a batch is frozen.
+
+    Without this an unmatched keyword scopes the batch to zero JDs, `choose_jds` returns
+    an empty frame, and the batch is appended to `indomain-batches.json` contributing
+    **no pairs at all** — no exception, no warning, a config that reads as though it
+    worked. That is the same signature as the three bugs that shipped in the classical
+    baseline, and the reason `AGENTS.md` requires a named invariant test for each.
+    """
+    if not keywords:
+        return
+    valid = sorted({k for k in pd.Series(list(known)).dropna()})
+    unknown = sorted(set(keywords) - set(valid))
+    if unknown:
+        raise ValueError(
+            f"unknown Primary Keyword(s) {unknown} — a batch scoped to a title that "
+            "does not exist draws zero JDs and appends a batch with no pairs in it. "
+            f"Valid titles: {valid}")
+
+
 # --- seeding ---------------------------------------------------------------
 
 def document_seed(doc_id: str, seed: int) -> np.random.SeedSequence:
@@ -247,6 +282,7 @@ def draw_batch(spec: dict, jd: pd.DataFrame, cv: pd.DataFrame,
     tightens a confidence interval.
     """
     stratum = stratum_of(spec)
+    validate_keywords(spec.get("keywords"), jd["Primary Keyword"].unique())
     scoped = jd if not spec.get("keywords") else jd[jd["Primary Keyword"].isin(spec["keywords"])]
 
     if spec.get("reuse_jds"):

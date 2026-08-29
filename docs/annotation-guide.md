@@ -132,22 +132,53 @@ averaged away.
 
 ## How the pairs reach you
 
-- **Shuffled, and context-free.** You will not see a rank, a score, a system name, or any
-  indication of why a pair was selected. Some pairs come from the in-domain sample; some
-  are documents that have been labelled before, mixed in to measure how consistently the
-  three classes are applied.
-- **This is method, not withholding.** If you knew which pairs had an existing label, you
-  would — entirely unconsciously — anchor on the answer you expected. The measurement only
-  works blind. You are being asked to judge the same way every time, which is exactly what
-  a shuffled, unlabelled queue makes possible.
-- **Judge each pair on its own.** Do not compare against the pair before it, and do not try
-  to keep a running balance of labels. There is no target distribution.
-- **You may skip a pair** if a document is unreadable, truncated, or in a language you
-  cannot read. Record the reason. A skipped pair is data; a guessed pair is noise.
+Most of the work happens in a small tool that runs on your own machine:
+
+```bash
+uv run python -m candidate_screener.annotation.ui --annotator <your name>
+```
+
+It opens a page listing the batches. Pick one and start; your name is stamped on every
+label you save. **You can stop at any point** — each screen is saved when you press *Save
+and next*, and re-running the command picks up exactly where you left off. There is no
+progress file to keep, no half-finished spreadsheet, and nothing to send anyone.
+
+One screen is **one job description and its candidates**. You give each candidate a label,
+answer the shortlist question, and move on.
+
+- **Label each candidate against the standard in this guide, not against the other four.**
+  This is the one habit the tool makes easy to lose. Three weak candidates on a screen make
+  the least weak of them look good; it is still a `No Fit` if it is a `No Fit`. The classes
+  have to mean the same thing on a screen full of strong candidates as on a screen full of
+  poor ones, or nothing can be compared across job descriptions afterwards. The **only**
+  comparison you are asked to make is the final shortlist pick.
+- **You will not see a rank, a score, a system name, or why a pair was selected.** This is
+  method, not withholding: if you knew which pairs something had already flagged as good,
+  you would anchor on the answer you expected, entirely unconsciously.
+- **You may skip a document** that is unreadable, truncated, or in a language you cannot
+  read — put the reason in the notes box. A skipped pair is data; a guessed pair is noise.
 - **Documents are redacted** — emails, phone numbers, URLs and long ID numbers appear as
   `[EMAIL]`, `[PHONE]`, `[URL]`, `[NUMBER]`. Names are **not** removed: a name is not a
-  regex. These are real people's documents. They are not to be redistributed, screenshotted,
-  or pasted anywhere outside the labelling session.
+  regex. These are real people's documents. They are not to be redistributed,
+  screenshotted, or pasted anywhere outside the labelling session. The tool listens only on
+  your own machine.
+
+### Second-opinion screens
+
+Sometimes a screen is headed **second opinion** and shows only two or three candidates
+instead of five. The other annotator has already labelled the rest of that job description,
+and these are the ones set aside for an independent second judgement — that overlap is how
+we measure whether the two of us apply the three classes the same way.
+
+You will not be shown their labels, and the shortlist question is not asked on these
+screens. A pick made over two candidates is not the same answer as a pick made over five,
+and the two would be indistinguishable afterwards.
+
+### The A1 recheck
+
+A separate set of about 50 pairs arrives as a plain shuffled file rather than through the
+tool. Those are US resumes against US job descriptions, and they are much longer — see
+*Two corpora, one scheme* above. Judge them by the same three classes.
 
 ## One extra question per job description
 
@@ -168,8 +199,12 @@ If nothing was Good or Potential, record "none" and move on.
 
 ## How the work is split
 
-**Two annotators, both covering every job title.** You split the queue between you by hand;
-you do not each take your own set of titles.
+**Two annotators, both covering every job title.** You do not each take your own set of
+titles. The tool splits the queue for you: it visits job descriptions in an order keyed to
+your name, so the two of you start in different places and rarely land on the same screen.
+If you do meet in the middle nothing breaks — you simply both label a job description that
+only needed one of you, which costs a screen out of the session's budget. Say hello before
+you start and agree who begins where if you are working at the same time.
 
 That is a deliberate choice and worth one sentence of why, because the alternative looks more
 efficient. If each person owned their own titles, then "DevOps scored lower than Data Science"

@@ -382,6 +382,59 @@ def check_judging_queue() -> list[tuple[bool, str]]:
         results.append(("relevance" not in judged.columns,
                         "judgement layer: carries no `relevance` column — it overlays "
                         "pools.csv, it does not become it (D20)"))
+        results += check_collected_labels(judged)
+    return results
+
+
+def check_collected_labels(judged: pd.DataFrame) -> list[tuple[bool, str]]:
+    """What the labelling UI wrote, checked against the manifest that defines the pairs.
+
+    `annotation.ui` appends rows here directly — there is no import step to inspect them
+    on the way in, which is the point (an import step is a second copy of the truth that
+    can disagree with the first). These checks are what replaces it, and the one that
+    earns its place is the stratum agreement: `stratum` is stamped onto the judgement at
+    labelling time *(D29)* so that editing a batch spec cannot re-stratify collected
+    labels, and the failure mode of stamping is a stale value silently disagreeing with
+    the pair it names. Every figure in the report is quoted per stratum, so a row filed
+    under the wrong one is not a rounding error.
+    """
+    from candidate_screener.annotation import session
+
+    results: list[tuple[bool, str]] = []
+    judged = judged[judged.pair_id.notna()]
+    if judged.empty:
+        return [(True, "collected labels: none yet — the session has not run")]
+
+    bad_label = sorted(set(judged.label.dropna()) - set(session.LABELS))
+    results.append((not bad_label, f"collected labels: {bad_label or 'no'} labels outside "
+                                   f"A1's 3-class scheme {list(session.LABELS)} (D17)"))
+
+    twice = judged.groupby(["pair_id", "annotator"]).size()
+    twice = twice[twice > 1]
+    results.append((twice.empty, f"collected labels: {len(twice)} pair(s) labelled twice "
+                                 "by the same annotator — an overlap of one person with "
+                                 "themselves is not an agreement measurement"))
+
+    indomain = judged[judged.corpus == "a2"]
+    if not indomain.empty:
+        pairs = session.load_pairs().set_index("pair_id")
+        unknown = sorted(set(indomain.pair_id) - set(pairs.index))
+        results.append((not unknown, f"collected labels: {len(unknown)} in-domain pair(s) "
+                                     "name no row in indomain-pairs.csv"))
+        known = indomain[indomain.pair_id.isin(pairs.index)]
+        for column in ("batch", "stratum"):
+            expected = known.pair_id.map(pairs[column]).astype(str)
+            drift = known[expected != known[column].astype(str)]
+            results.append((drift.empty, f"collected labels: {len(drift)} judgement(s) "
+                                         f"whose `{column}` disagrees with the manifest "
+                                         "(D29 — it is stamped, never recomputed)"))
+
+        picks = known[known.shortlist_pick.astype(str).isin(("1", "True", "true"))]
+        many = picks.groupby(["annotator", "query_id"]).size()
+        many = many[many > 1]
+        results.append((many.empty, f"collected labels: {len(many)} JD(s) where one "
+                                    "annotator recorded more than one top-1 shortlist "
+                                    "pick (Q14 asks for exactly one)"))
     return results
 
 

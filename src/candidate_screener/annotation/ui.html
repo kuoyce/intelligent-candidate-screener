@@ -1,0 +1,361 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Annotation — Good / Potential / No Fit</title>
+<style>
+  :root {
+    --bg: #fbfbfa; --panel: #fff; --line: #e3e3e0; --ink: #1a1a19; --dim: #6b6b66;
+    --good: #1a7f4b; --potential: #a8760a; --no: #9b3535; --accent: #2c5fa8;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.55
+         -apple-system, "Segoe UI", Roboto, sans-serif; }
+  header { position: sticky; top: 0; z-index: 5; background: var(--panel);
+           border-bottom: 1px solid var(--line); padding: 10px 18px;
+           display: flex; gap: 14px; align-items: center; flex-wrap: wrap; }
+  header b { font-size: 15px; } header .sp { flex: 1; }
+  main { padding: 18px; max-width: 1500px; margin: 0 auto; }
+  h2 { font-size: 17px; margin: 0 0 4px; }
+  .muted { color: var(--dim); font-size: 13px; }
+  button { font: inherit; padding: 7px 13px; border: 1px solid var(--line);
+           background: var(--panel); border-radius: 6px; cursor: pointer; }
+  button:hover { border-color: var(--accent); }
+  button.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+  button:disabled { opacity: .45; cursor: not-allowed; }
+  input, select { font: inherit; padding: 6px 8px; border: 1px solid var(--line);
+                  border-radius: 6px; background: var(--panel); color: inherit; }
+  table { border-collapse: collapse; width: 100%; background: var(--panel);
+          border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+  th, td { padding: 9px 12px; text-align: left; border-bottom: 1px solid var(--line);
+           font-size: 14px; vertical-align: top; }
+  th { background: #f4f4f2; font-weight: 600; }
+  tr:last-child td { border-bottom: 0; }
+  .tag { display: inline-block; padding: 1px 8px; border-radius: 20px; font-size: 12px;
+         border: 1px solid var(--line); }
+  .tag.generic { background: #eef3fb; border-color: #cfdcf1; }
+  .tag.targeted { background: #f6eefb; border-color: #e0cff1; }
+  .bar { height: 6px; background: #ececeb; border-radius: 4px; overflow: hidden;
+         min-width: 110px; }
+  .bar > i { display: block; height: 100%; background: var(--good); }
+  .split { display: grid; grid-template-columns: minmax(320px, 5fr) 7fr; gap: 16px;
+           align-items: start; }
+  @media (max-width: 980px) { .split { grid-template-columns: 1fr; } }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 8px;
+          padding: 14px 16px; margin-bottom: 14px; }
+  .jd { position: sticky; top: 60px; max-height: calc(100vh - 90px); overflow: auto; }
+  .doc { white-space: pre-wrap; font-size: 13.5px; line-height: 1.5; }
+  .cand h3 { margin: 0 0 8px; font-size: 14px; color: var(--dim); font-weight: 600; }
+  .choices { display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
+  .choices label { padding: 6px 12px; border: 1px solid var(--line); border-radius: 6px;
+                   cursor: pointer; font-size: 14px; background: var(--panel); }
+  .choices input { display: none; }
+  .choices label:has(input:checked) { color: #fff; border-color: transparent; }
+  .choices label.g:has(input:checked) { background: var(--good); }
+  .choices label.p:has(input:checked) { background: var(--potential); }
+  .choices label.n:has(input:checked) { background: var(--no); }
+  .titles { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+            gap: 4px 14px; max-height: 45vh; overflow: auto; padding: 6px 2px; }
+  .titles label { font-size: 14px; display: flex; gap: 7px; align-items: baseline; }
+  .err { background: #fdecec; border: 1px solid #f2c4c4; color: #7d2020;
+         padding: 10px 14px; border-radius: 8px; margin-bottom: 14px;
+         white-space: pre-wrap; font-size: 14px; }
+  .note { background: #fdf8ec; border: 1px solid #efe0bd; padding: 10px 14px;
+          border-radius: 8px; font-size: 13.5px; margin-bottom: 14px; }
+  [hidden] { display: none !important; }
+</style>
+
+<header>
+  <b>Annotation</b>
+  <span class="muted">in-domain set</span>
+  <label class="muted">annotator
+    <input id="who" size="12" placeholder="your name">
+  </label>
+  <span class="sp"></span>
+  <span id="crumb" class="muted"></span>
+  <button id="home-btn" hidden>Back to batches</button>
+</header>
+
+<main>
+  <div id="err" class="err" hidden></div>
+
+  <!-- 1. batches -->
+  <section id="home">
+    <h2>Batches</h2>
+    <p class="muted">Continue an existing batch, or create a new one. A batch is frozen
+      once created: a new batch draws from what earlier ones left, so it can never change
+      a pair you have already labelled.</p>
+    <table>
+      <thead><tr><th>Batch</th><th>Stratum</th><th>Scope</th><th>Pairs</th>
+        <th>Labels</th><th>Progress</th><th>Yours left</th><th></th></tr></thead>
+      <tbody id="batches"></tbody>
+    </table>
+    <p style="margin-top:16px">
+      <button id="continue-any" class="primary">Continue — next unlabelled</button>
+      <button id="new-btn">Create a new batch</button>
+    </p>
+  </section>
+
+  <!-- 2. new batch -->
+  <section id="new" hidden>
+    <h2>New batch</h2>
+    <div class="note"><b>Leave every title selected for a <i>generic</i> batch.</b>
+      Selecting all titles and selecting none mean the same thing — do not scope this draw
+      by role family. Pick a subset and the batch becomes <i>targeted</i>, which is a
+      separate reporting stratum: targeted batches pool with each other, and are never
+      averaged with generic.</div>
+    <div class="card">
+      <p><label>Job descriptions <input id="njds" type="number" value="20" min="1"
+        max="200" style="width:90px"></label>
+      &nbsp;&nbsp;<label>Candidates each <input id="perjd" type="number" value="5" min="1"
+        max="20" style="width:90px"></label>
+      &nbsp;&nbsp;<span id="cost" class="muted"></span></p>
+      <p><button id="all-on">Select all</button> <button id="all-off">Clear</button>
+        <span id="scope" class="muted"></span></p>
+      <div id="titles" class="titles"></div>
+    </div>
+    <button id="create" class="primary">Create batch</button>
+    <button id="cancel">Cancel</button>
+  </section>
+
+  <!-- 3. labelling -->
+  <section id="label" hidden>
+    <div class="split">
+      <div>
+        <div class="card jd">
+          <h2>Job description</h2>
+          <div class="muted" id="jd-meta" style="margin-bottom:10px"></div>
+          <div class="doc" id="jd-text"></div>
+        </div>
+      </div>
+      <div>
+        <div id="cands"></div>
+        <div class="note" id="partial" hidden><b>Second opinion.</b> Another annotator
+          has already labelled the rest of this job description. You are seeing only the
+          candidates set aside for a second, independent judgement — so the shortlist
+          question is not asked here: a pick made over part of the field is not
+          comparable to one made over all of it.</div>
+        <div class="card" id="pick-card">
+          <h2>Which would you shortlist first?</h2>
+          <p class="muted">Of the candidates you marked Good or Potential. One pick, no
+            ranking of the rest.</p>
+          <p><select id="pick" style="min-width:280px"></select></p>
+        </div>
+        <div class="card">
+          <p><label class="muted">Notes (optional)<br>
+            <input id="notes" size="60" placeholder="e.g. CV truncated"></label></p>
+          <p><button id="submit" class="primary">Save and next</button>
+            <span id="save-state" class="muted"></span></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="done" hidden>
+    <div class="card"><h2>Nothing left to label</h2>
+      <p class="muted">Every pair in scope has all the labels it needs from you. Create a
+        new batch to extend the set, or stop here — progress is already saved.</p>
+      <button id="done-home" class="primary">Back to batches</button></div>
+  </section>
+</main>
+
+<script>
+const $ = s => document.querySelector(s);
+const el = (t, c, x) => { const n = document.createElement(t);
+  if (c) n.className = c; if (x !== undefined) n.textContent = x; return n; };
+let STATE = null, GROUP = null, BATCH = null, LABELS = [];
+
+const who = () => $('#who').value.trim();
+function fail(msg) { $('#err').textContent = msg; $('#err').hidden = !msg; }
+function show(id) {
+  for (const s of ['home', 'new', 'label', 'done']) $('#' + s).hidden = (s !== id);
+  $('#home-btn').hidden = (id === 'home');
+  window.scrollTo(0, 0);
+}
+
+async function api(path, opts) {
+  const r = await fetch(path, opts);
+  const j = await r.json();
+  if (j.error) { fail(j.error); throw new Error(j.error); }
+  fail('');
+  return j;
+}
+
+// --- 1. batches ------------------------------------------------------------
+async function loadState() {
+  STATE = await api('/api/state?annotator=' + encodeURIComponent(who()));
+  LABELS = STATE.labels;
+  const t = $('#batches'); t.replaceChildren();
+  for (const b of STATE.overview.batches) {
+    const pct = b.labels_wanted ? Math.round(100 * b.labels_have / b.labels_wanted) : 0;
+    const tr = el('tr');
+    tr.append(el('td', '', String(b.batch)));
+    const st = el('td'); st.append(el('span', 'tag ' + b.stratum, b.stratum)); tr.append(st);
+    tr.append(el('td', 'muted', b.keywords ? b.keywords.join(', ')
+      : 'all families (' + b.titles.length + ' titles drawn)'));
+    tr.append(el('td', '', String(b.pairs)));
+    tr.append(el('td', '', b.labels_have + ' / ' + b.labels_wanted));
+    const pr = el('td'); const bar = el('div', 'bar'); const fill = el('i');
+    fill.style.width = pct + '%'; bar.append(fill); pr.append(bar);
+    pr.append(el('div', 'muted', pct + '%')); tr.append(pr);
+    tr.append(el('td', '', who() ? String(b.owed_by_me) : '—'));
+    const act = el('td'); const go = el('button', '', 'Continue');
+    go.disabled = !who() || !b.owed_by_me;
+    go.onclick = () => { BATCH = b.batch; nextGroup(); };
+    act.append(go); tr.append(act);
+    t.append(tr);
+  }
+  const tot = STATE.overview.totals;
+  $('#crumb').textContent = tot.labels_have + ' / ' + tot.labels_wanted +
+    ' labels' + (who() ? ' · ' + tot.owed_by_me + ' left for you' : '');
+  $('#continue-any').disabled = !who() || !tot.owed_by_me;
+  renderTitles();
+}
+
+// --- 2. new batch ----------------------------------------------------------
+function renderTitles() {
+  const box = $('#titles');
+  if (box.childElementCount) return;
+  for (const t of STATE.titles) {
+    const lab = el('label');
+    const cb = el('input'); cb.type = 'checkbox'; cb.value = t.title; cb.checked = true;
+    cb.onchange = scopeNote;
+    lab.append(cb, el('span', '', t.title), el('span', 'muted', ' ' + t.jds));
+    box.append(lab);
+  }
+  scopeNote();
+}
+const chosen = () => [...document.querySelectorAll('#titles input:checked')]
+  .map(c => c.value);
+
+function scopeNote() {
+  const n = chosen().length, all = STATE ? STATE.titles.length : 0;
+  const generic = n === 0 || n === all;
+  $('#scope').textContent = generic
+    ? 'all ' + all + ' titles → generic stratum'
+    : n + ' of ' + all + ' titles → targeted stratum';
+  $('#cost').textContent = 'creates ' +
+    (+$('#njds').value * +$('#perjd').value) + ' pairs to label';
+}
+
+// --- 3. labelling ----------------------------------------------------------
+async function nextGroup() {
+  if (!who()) return fail('Enter your name first — every label records who made it.');
+  const q = '/api/next?annotator=' + encodeURIComponent(who()) +
+    (BATCH === null ? '' : '&batch=' + BATCH);
+  const r = await api(q);
+  GROUP = r.group;
+  if (!GROUP) return show('done');
+  $('#jd-text').textContent = GROUP.jd_text;
+  $('#jd-meta').textContent = 'batch ' + GROUP.batch + ' · ' + GROUP.stratum + ' · ' +
+    GROUP.candidates.length + ' candidate(s) to judge' +
+    (GROUP.complete ? '' : ' · second opinion');
+  $('#partial').hidden = GROUP.complete;
+  $('#pick-card').hidden = !GROUP.complete;
+  const box = $('#cands'); box.replaceChildren();
+  GROUP.candidates.forEach((c, i) => {
+    const card = el('div', 'card cand');
+    card.append(el('h3', '', 'Candidate ' + (i + 1) + ' of ' + GROUP.candidates.length));
+    const ch = el('div', 'choices');
+    LABELS.forEach(L => {
+      const cls = L.startsWith('Good') ? 'g' : L.startsWith('Potential') ? 'p' : 'n';
+      const lab = el('label', cls);
+      const r = el('input'); r.type = 'radio'; r.name = 'c' + i; r.value = L;
+      r.onchange = refreshPick;
+      lab.append(r, document.createTextNode(L));
+      ch.append(lab);
+    });
+    card.append(ch, Object.assign(el('div', 'doc'), { textContent: c.text }));
+    card.dataset.cv = c.cv_id;
+    box.append(card);
+  });
+  $('#notes').value = ''; $('#save-state').textContent = '';
+  refreshPick(); show('label');
+}
+
+function currentLabels() {
+  const out = {};
+  document.querySelectorAll('#cands .cand').forEach((card, i) => {
+    const sel = card.querySelector('input[name="c' + i + '"]:checked');
+    if (sel) out[card.dataset.cv] = sel.value;
+  });
+  return out;
+}
+
+function refreshPick() {
+  const labels = currentLabels(), sel = $('#pick');
+  if (!GROUP.complete) {
+    const complete = Object.keys(labels).length === GROUP.candidates.length;
+    $('#submit').disabled = !complete;
+    $('#submit').textContent = complete ? 'Save and next'
+      : 'Label all ' + GROUP.candidates.length + ' to continue';
+    return;
+  }
+  const eligible = Object.entries(labels)
+    .filter(([, v]) => v !== 'No Fit')
+    .map(([cv]) => cv);
+  const previous = sel.value;
+  sel.replaceChildren();
+  const none = el('option', '', eligible.length
+    ? '— pick one —' : 'none (nothing Good or Potential)');
+  none.value = 'none'; sel.append(none);
+  GROUP.candidates.forEach((c, i) => {
+    if (!eligible.includes(c.cv_id)) return;
+    const o = el('option', '', 'Candidate ' + (i + 1) + ' — ' + labels[c.cv_id]);
+    o.value = c.cv_id; sel.append(o);
+  });
+  sel.value = eligible.includes(previous) ? previous : 'none';
+  const complete = Object.keys(labels).length === GROUP.candidates.length;
+  $('#submit').disabled = !complete;
+  $('#submit').textContent = complete ? 'Save and next'
+    : 'Label all ' + GROUP.candidates.length + ' to continue';
+}
+
+async function submit() {
+  $('#submit').disabled = true; $('#save-state').textContent = 'saving…';
+  try {
+    await api('/api/judge', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        annotator: who(), jd_id: GROUP.jd_id, batch: GROUP.batch,
+        stratum: GROUP.stratum, complete: GROUP.complete, labels: currentLabels(),
+        shortlist_pick: GROUP.complete ? $('#pick').value : 'none',
+        notes: $('#notes').value })
+    });
+    await loadState();
+    await nextGroup();
+  } catch (e) { $('#submit').disabled = false; $('#save-state').textContent = ''; }
+}
+
+// --- wiring ----------------------------------------------------------------
+$('#who').oninput = () => { localStorage.setItem('annotator', who()); loadState(); };
+$('#home-btn').onclick = () => { loadState(); show('home'); };
+$('#done-home').onclick = () => { BATCH = null; loadState(); show('home'); };
+$('#continue-any').onclick = () => { BATCH = null; nextGroup(); };
+$('#new-btn').onclick = () => show('new');
+$('#cancel').onclick = () => show('home');
+$('#all-on').onclick = () => { document.querySelectorAll('#titles input')
+  .forEach(c => c.checked = true); scopeNote(); };
+$('#all-off').onclick = () => { document.querySelectorAll('#titles input')
+  .forEach(c => c.checked = false); scopeNote(); };
+$('#njds').oninput = scopeNote; $('#perjd').oninput = scopeNote;
+$('#submit').onclick = submit;
+$('#create').onclick = async () => {
+  $('#create').disabled = true;
+  $('#create').textContent = 'Drawing… (~10 s, the whole campaign is replayed)';
+  try {
+    await api('/api/batch', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ titles: chosen(), n_jds: +$('#njds').value,
+                             per_jd: +$('#perjd').value })
+    });
+    await loadState(); show('home');
+  } finally { $('#create').disabled = false; $('#create').textContent = 'Create batch'; }
+};
+
+(async () => {
+  const saved = localStorage.getItem('annotator');
+  const r = await fetch('/api/state').then(x => x.json());
+  $('#who').value = r.default_annotator || saved || '';
+  await loadState();
+  show('home');
+})();
+</script>

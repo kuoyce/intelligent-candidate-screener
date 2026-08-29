@@ -26,6 +26,7 @@ uv run python -m candidate_screener.baselines.run --seed 0    # fit + freeze the
 uv run python -m candidate_screener.baselines.run --check     # assert it still reproduces
 uv run python -m candidate_screener.evaluation.retrieval --seed 0   # the same baseline, ranked
 uv run python -m candidate_screener.data.build --all --seed 0       # splits, pools, annotation queue
+uv run python -m candidate_screener.annotation.ui --annotator <name>   # the labelling UI
 uv run pytest                                                 # unit + regression suite
 uv run jupyter nbconvert --to notebook --execute --inplace notebooks/0X-*.ipynb
 ```
@@ -52,6 +53,7 @@ leveraged to streamline development and ensure maintainability.
 | Plans and their implementation records | `plan/{date}-{plan_name}/` |
 | Data documentation | `docs/data/` — the catalog, and one card per adopted source |
 | The annotation instrument | `src/candidate_screener/annotation/` + `docs/annotation-guide.md` |
+| The labelling UI | `annotation/session.py` (rules, tested) + `annotation/ui.py` + `ui.html` (transport) |
 
 Do **not** put runnable scripts under `plan/`. A plan is a record of a decision; code that
 outlives the decision belongs in the package. (This was deviation V1 of the acquisition
@@ -95,9 +97,25 @@ pooling them names a real population. Averaging the **two strata** does not, and
 `stratum` is stamped on the pair and on the judgement, never looked up from the spec, so editing
 a batch's title list cannot re-stratify collected labels.
 
-The session is two annotators, both covering every title, one queue split by hand, 30%
-double-labelled. Do not assign titles by expertise: it confounds annotator with title, and the
-confound reaches the pooled figure as well as the per-title ones.
+The session is two annotators, both covering every title, 30% double-labelled. Do not assign
+titles by expertise: it confounds annotator with title, and the confound reaches the pooled
+figure as well as the per-title ones.
+
+**In-domain labelling happens in a local UI; the A1 recheck does not** *(decision D30)*.
+`annotation.ui` serves one JD with its candidates and appends straight to `judgements.csv`,
+which is already the resume mechanism. The recheck keeps the shuffled flat dispatch file,
+because the in-domain set is uniformly 5 candidates per JD while the 50 recheck pairs spread
+over 32 A1 JDs as 1-4 each — on a JD-grouped screen a group of two is visibly a recheck, and
+**A13** depends on an annotator not being able to tell. Rules about what an annotator may see
+live in `session.py`, never in the request handler: `serve_group` redacts its own output and
+`assert_clean`s it, and a group carries no `lexical_band`, `selection_reason` or existing label.
+
+A batch's job titles come from `sample.available_titles()` — **41 reachable, of 45 in the raw
+corpus**. The generic batch's 22 titles are what an unstratified draw of 40 JDs happened to
+land on (D14), never a designed scope, so `indomain-report.json`'s `titles` array is an
+observation. A title a report needs covered arrives as a targeted batch. `validate_keywords`
+refuses an unknown one: unmatched keywords scope a batch to zero JDs and append a spec that
+produces no pairs at all, with no exception and no warning.
 
 ## Data rules
 

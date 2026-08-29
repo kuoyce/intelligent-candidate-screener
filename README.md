@@ -118,6 +118,8 @@ One session, ~250 judgements, ~2.5 team-days *(decision D25)* — 200 in-domain 
 
 ```bash
 uv run python -m candidate_screener.data.build --task indomain judging-queue --seed 0
+uv run python -m candidate_screener.annotation.ui --annotator <your name>   # label
+uv run python -m candidate_screener.annotation.queue --progress             # how far in
 # dispatch:  data/processed/indomain/judging-queue.csv   (git-ignored, redacted, blind)
 # key:       docs/data/manifests/judging-queue.csv       (committed, ids only, no text)
 # labels:    docs/data/manifests/judgements.csv          (committed, header until the session runs)
@@ -125,6 +127,18 @@ uv run python -m candidate_screener.data.build --task indomain judging-queue --s
 
 The dispatch file carries three columns and nothing else. An annotator who could see why a pair
 was selected would know which ones already have a label and would anchor on the expected answer.
+
+**The in-domain pairs are labelled in a local UI** *(decision D30)*: one screen per job
+description, three buttons per candidate, and the top-1 shortlist question asked once over a
+complete field — which the shuffled flat file could not do, since it scatters a JD's five
+candidates and carries no key to put them back together. Stop whenever; re-run to resume, since
+`judgements.csv` is the only progress there is. Creating a batch from the UI picks job titles
+from the **41** reachable in the corpus — the generic batch covers 22, which is what an
+unstratified draw of 40 JDs landed on rather than a designed scope.
+
+The 50 A1 recheck pairs stay on the flat file on purpose. In-domain groups are always five
+candidates; the recheck's spread over 32 A1 JDs as one to four each, so a JD-grouped screen
+would announce which pairs are rechecks through nothing but its size.
 
 ### Growing it, pausing it, re-scoping it *(D28)*
 
