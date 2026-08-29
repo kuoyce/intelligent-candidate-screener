@@ -101,14 +101,36 @@ The session is two annotators, both covering every title, 30% double-labelled. D
 titles by expertise: it confounds annotator with title, and the confound reaches the pooled
 figure as well as the per-title ones.
 
-**In-domain labelling happens in a local UI; the A1 recheck does not** *(decision D30)*.
-`annotation.ui` serves one JD with its candidates and appends straight to `judgements.csv`,
-which is already the resume mechanism. The recheck keeps the shuffled flat dispatch file,
-because the in-domain set is uniformly 5 candidates per JD while the 50 recheck pairs spread
-over 32 A1 JDs as 1-4 each — on a JD-grouped screen a group of two is visibly a recheck, and
-**A13** depends on an annotator not being able to tell. Rules about what an annotator may see
-live in `session.py`, never in the request handler: `serve_group` redacts its own output and
-`assert_clean`s it, and a group carries no `lexical_band`, `selection_reason` or existing label.
+**Labelling happens in a local UI, both corpora** *(decisions D30, D32)*. `annotation.ui`
+serves one query with its candidates and appends straight to `judgements.csv`, which is already
+the resume mechanism. In-domain groups are 10 candidates; A1 recheck groups are 1-4, and the
+two interleave. D30 first kept the recheck on the flat file so group size could not betray it;
+D32 reversed that, because the corpora were **already** distinguishable by length (A1 median
+5,134 chars against Djinni's 1,525) and the guide names both. What blinding still protects is
+which pairs carry a label and what it says: no `a1_label` and no `selection_reason` reach the
+page, and a short group gets no banner. The residual — a reader may infer that short groups are
+the rechecks — is a stated limitation on the A13 figure.
+
+Rules about what an annotator may see live in `session.py`, never in the request handler:
+`serve_group` redacts its own output and `assert_clean`s it, and a group carries no
+`lexical_band`, `selection_reason` or existing label. The shortlist question is gated by
+`Group.asks_shortlist` — never asked on a partial re-serve of a double-labelled JD, nor on any
+A1 group.
+
+**Every JD gets 10 candidates and 8 of them share its `Primary Keyword`** *(decision D31)*.
+The first cut drew 5 per JD from one undifferentiated 200-CV pool, and it measured nothing: a
+random pool over 41 role families lands on-category **5.0%** of the time, and the pilot labelled
+**28 of its first 30 pairs `No Fit`**. A set of obvious negatives costs the same human hours as
+one that discriminates and separates no two systems. The realised rate is now 80.0%. The 2
+off-category candidates are taken from the *top* of their pool, not at random — a near miss from
+the wrong family is the mistake a real system makes; a random CV is a `No Fit` everything already
+ranks last. A thin family (Rust has 40 CVs) cannot fill the quota, so the shortfall is taken
+off-category, flagged `keyword_match=False`, and counted as `jds_short_of_quota`.
+
+**A rebuild that would orphan a collected judgement is refused** — `sample.assert_labels_survive`.
+Appending a batch cannot orphan anything by construction; *editing* one can, and D31 did exactly
+that to batch 1. It was safe only because nothing but the pilot had been labelled, which is the
+kind of precondition that stops being true later.
 
 A batch's job titles come from `sample.available_titles()` — **41 reachable, of 45 in the raw
 corpus**. The generic batch's 22 titles are what an unstratified draw of 40 JDs happened to

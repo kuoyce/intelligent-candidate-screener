@@ -128,17 +128,22 @@ uv run python -m candidate_screener.annotation.queue --progress             # ho
 The dispatch file carries three columns and nothing else. An annotator who could see why a pair
 was selected would know which ones already have a label and would anchor on the expected answer.
 
-**The in-domain pairs are labelled in a local UI** *(decision D30)*: one screen per job
-description, three buttons per candidate, and the top-1 shortlist question asked once over a
-complete field — which the shuffled flat file could not do, since it scatters a JD's five
-candidates and carries no key to put them back together. Stop whenever; re-run to resume, since
-`judgements.csv` is the only progress there is. Creating a batch from the UI picks job titles
-from the **41** reachable in the corpus — the generic batch covers 22, which is what an
-unstratified draw of 40 JDs landed on rather than a designed scope.
+**Pairs are labelled in a local UI** *(decisions D30, D32)*: one screen per query, three
+buttons per candidate, and the top-1 shortlist question asked once over a complete field — which
+the shuffled flat file could not do, since it scatters a JD's candidates and carries no key to
+put them back together. Both corpora are served here and interleave: in-domain groups are 10
+candidates, A1 recheck groups 1 to 4. Stop whenever; re-run to resume, since `judgements.csv`
+is the only progress there is. Creating a batch picks job titles from the **41** reachable in
+the corpus — the generic batch covers 22, which is what an unstratified draw of 40 JDs landed
+on rather than a designed scope.
 
-The 50 A1 recheck pairs stay on the flat file on purpose. In-domain groups are always five
-candidates; the recheck's spread over 32 A1 JDs as one to four each, so a JD-grouped screen
-would announce which pairs are rechecks through nothing but its size.
+**Each JD gets 10 candidates, 8 of them from its own role family** *(decision D31)*. The first
+cut drew 5 from one undifferentiated pool, which put only **5.0%** of pairs in the JD's own
+family; a pilot labelled **28 of its first 30 pairs `No Fit`**. A set of obvious negatives costs
+the same hours as one that discriminates and tells you nothing about which system is better. The
+realised rate is now 80.0%, and every in-domain precision figure has to say that this pool is
+deliberately enriched — it is a comparison instrument between systems, not an estimate of
+production precision.
 
 ### Growing it, pausing it, re-scoping it *(D28)*
 

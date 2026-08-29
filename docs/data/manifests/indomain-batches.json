@@ -5,10 +5,11 @@
     {
       "batch": 1,
       "n_jds": 40,
-      "per_jd": 5,
+      "per_jd": 10,
       "seed": 0,
       "keywords": null,
-      "reuse_jds": false
+      "reuse_jds": false,
+      "same_keyword_min": 8
     }
   ]
 }

@@ -159,6 +159,16 @@ it depends on a system's output any more.
 corpus (**A16**); zero pairs judged twice by the same annotator; the region-isolation check passes
 on the appended layer.
 
+> **Resized 29 Aug 2026 by D31 — see `plan/2026-08-29-annotation-ui/`.** The session is now
+> **450 pairs / 588 judgements**, not 250/310: each JD carries 10 candidates instead of 5, 8 of
+> them in its own role family. The old sizing measured almost nothing — a pilot labelled 28 of
+> its first 30 pairs `No Fit`, because a uniform candidate pool over 41 role families put only
+> 5.0% of pairs in the JD's own family. **This roughly doubles D25's budget, to ~5-6 team-days**,
+> and that was the operator's explicit choice when shown the arithmetic. Halving it is one edit
+> (`n_jds: 40` to `20`) and is only possible while `judgements.csv` is empty — after that,
+> `sample.assert_labels_survive` refuses, because shrinking the campaign orphans collected
+> labels. The original sizing is kept below because the reasoning is the audit trail.
+
 **Effort: ~2.5 team-days for 250 judgements.** Phase 3's implied rate is ~130–175 per team-day
 (260 judgements in 1.5–2 team-days), which puts 250 at 1.5–2 team-days. The estimate is widened
 to 2.5 because **the 50 A1 pairs will run slower than that rate** — it was derived from

@@ -71,19 +71,49 @@ CV_FIELDS = ("Position", "CV", "Highlights", "Moreinfo", "Looking For")
 
 #: Bands are quantiles of the lexical score *within the JD's candidate pool*, so "high"
 #: means high relative to the candidates this JD could plausibly draw.
+#:
+#: Two patterns, because a JD's candidates now come from two pools *(decision D31)*.
+#: `SAME_BANDS` spreads the on-category candidates over the whole similarity range;
+#: `OTHER_BANDS` takes the off-category ones from the **top** of their pool, not at
+#: random. A random off-category CV is a trivial `No Fit` and separates no two systems —
+#: it is the pair that was making the set unusable. A lexically similar CV from a
+#: different role family is the mistake a screening system actually makes.
+SAME_BANDS = ("high", "high", "high", "mid", "mid", "mid", "low", "low")
+OTHER_BANDS = ("high", "mid")
+
+#: Superseded 29 Aug 2026 by `SAME_BANDS` / `OTHER_BANDS` (D31). Kept as the definition
+#: of the 5-per-JD draw that batch 1 was first cut with, since the plan record refers to
+#: it; nothing reads it any more.
 BANDS = ("high", "high", "mid", "mid", "low")
 
-#: The candidate pool each JD is banded over. The **whole** pool is held out from
-#: pretraining, not just the 5 drawn from it (D18).
+#: Candidates per JD, and how many must share the JD's `Primary Keyword` *(D31)*.
+#:
+#: The first cut was 5 per JD drawn from one undifferentiated pool, and it measured the
+#: wrong thing: only **5.0%** of the resulting pairs had a CV in the JD's own role family,
+#: because a 200-CV pool drawn at random from 52,562 CVs across 41 families lands
+#: on-category about that often. Almost every pair was a `No Fit` that no system would
+#: rank highly and no annotator had to think about — 200 judgements buying very little
+#: discrimination. 8 of 10 on-category puts the decisions where the difficulty is.
+PER_JD = 10
+SAME_KEYWORD_MIN = 8
+
+#: The pools each JD is banded over — on-category and off-category. Both are held out
+#: from pretraining in their entirety, not just the candidates drawn from them (D18).
+SAME_POOL_PER_JD = 200
+OTHER_POOL_PER_JD = 100
+
+#: Superseded by the two pool sizes above (D31).
 CANDIDATES_PER_JD = 200
 
 _LEXICAL_NOTE = (
-    "The 5 CVs per JD are banded by TF-IDF cosine against the JD, not drawn uniformly. "
-    "Consequence, and it must be stated wherever an in-domain precision figure appears: "
-    "this pool is NOT a uniform sample of the corpus, so in-domain absolute precision is "
-    "not an unbiased estimate of production precision. It is a comparison instrument "
-    "between systems. The alternative — a uniform draw — returns ~5 No Fit per JD and "
-    "makes P@5 identically zero for every system, which measures nothing at all."
+    "Each JD gets 10 CVs: 8 from its own Primary Keyword and 2 from another, both banded "
+    "by TF-IDF cosine against the JD rather than drawn uniformly (D31). Consequence, and "
+    "it must be stated wherever an in-domain precision figure appears: this pool is NOT a "
+    "uniform sample of the corpus, so in-domain absolute precision is not an unbiased "
+    "estimate of production precision — it is a comparison instrument between systems, "
+    "and it is deliberately enriched for on-category candidates. The alternative, a "
+    "uniform draw, put 5.0% of pairs in the JD's own role family and made almost every "
+    "pair a No Fit that no system ranks highly and no annotator has to think about."
 )
 
 #: The two reporting groups *(decision D29)*. **Coarser than a batch, on purpose.**
@@ -110,8 +140,8 @@ _STRATUM_NOTE = (
 
 #: Batch 1, frozen 29 Aug 2026. `keywords: null` is D14 — unstratified by role family.
 DEFAULT_CAMPAIGN: tuple[dict, ...] = (
-    {"batch": 1, "n_jds": 40, "per_jd": 5, "seed": 0, "keywords": None,
-     "reuse_jds": False},
+    {"batch": 1, "n_jds": 40, "per_jd": PER_JD, "seed": 0, "keywords": None,
+     "same_keyword_min": SAME_KEYWORD_MIN, "reuse_jds": False},
 )
 
 
@@ -231,13 +261,16 @@ def choose_jds(jd: pd.DataFrame, n_jds: int, seed: int,
 
 
 def band_candidates(jd_row: pd.Series, candidates: pd.DataFrame, seed,
-                    per_jd: int) -> pd.DataFrame:
+                    per_jd: int, bands: tuple[str, ...] = SAME_BANDS) -> pd.DataFrame:
     """Score `candidates` against one JD and take one CV per band, `per_jd` in total.
 
     The vectoriser is fitted on this JD's candidate pool plus the JD, and exists only to
     spread the draw. It is not a model, is not committed, and no figure is computed from
     it — it is a sampling instrument inside the package, where it can be tested.
     """
+    if candidates.empty or per_jd <= 0:
+        return candidates.head(0).assign(lexical_score=0.0, band="")
+
     corpus = pd.concat([candidates.cv_text, pd.Series([jd_row.jd_text])])
     vectorizer = TfidfVectorizer(min_df=1, stop_words="english", max_features=20_000)
     matrix = vectorizer.fit_transform(corpus)
@@ -248,7 +281,7 @@ def band_candidates(jd_row: pd.Series, candidates: pd.DataFrame, seed,
     thirds = np.array_split(np.arange(len(ranked)), 3)
     by_band = {"high": thirds[0], "mid": thirds[1], "low": thirds[2]}
 
-    wanted = [BANDS[i % len(BANDS)] for i in range(per_jd)]
+    wanted = [bands[i % len(bands)] for i in range(per_jd)]
     rng = np.random.default_rng(seed)
     taken: list[int] = []
     for band in wanted:
@@ -259,6 +292,51 @@ def band_candidates(jd_row: pd.Series, candidates: pd.DataFrame, seed,
             break
         taken.append(int(rng.choice(available)))
     return ranked.iloc[taken].assign(band=wanted[:len(taken)])
+
+
+def draw_pool(eligible: pd.DataFrame, size: int, seed) -> pd.DataFrame:
+    """A random slice of `eligible` to band over. Held out in full, not just the picks."""
+    if eligible.empty:
+        return eligible
+    order = np.random.default_rng(seed).permutation(len(eligible))
+    return eligible.iloc[order[:size]]
+
+
+def candidates_for_jd(jd_row: pd.Series, eligible: pd.DataFrame, seed,
+                      per_jd: int, same_min: int) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """`per_jd` candidates for one JD, `same_min` of them in its own role family *(D31)*.
+
+    Returns the picks and the full pools they were banded over, because D18 holds out the
+    pools rather than the picks — a model pretrained on a CV that was *considered* for a
+    query has still seen the evaluation neighbourhood.
+
+    **Supply is not guaranteed.** Three of the 41 role families have fewer than 100 CVs in
+    the eval region (Rust has 40), and a targeted batch can name one. When the on-category
+    pool cannot fill `same_min`, the shortfall is taken off-category and those pairs carry
+    `keyword_match=False` — the figure then says so, instead of the batch quietly becoming
+    the uniform draw this decision replaced. `summarise` reports the realised rate per
+    batch for exactly that reason.
+    """
+    sequence = seed if isinstance(seed, np.random.SeedSequence) \
+        else np.random.SeedSequence(seed)
+    pool_seed, same_seed, other_seed = sequence.spawn(3)
+    same = eligible[eligible["Primary Keyword"] == jd_row["Primary Keyword"]]
+    other = eligible[eligible["Primary Keyword"] != jd_row["Primary Keyword"]]
+
+    same_pool = draw_pool(same, SAME_POOL_PER_JD, pool_seed)
+    other_pool = draw_pool(other, OTHER_POOL_PER_JD, pool_seed)
+
+    take_same = min(same_min, len(same_pool))
+    picks = [band_candidates(jd_row, same_pool, same_seed, take_same, SAME_BANDS),
+             band_candidates(jd_row, other_pool, other_seed,
+                             per_jd - take_same, OTHER_BANDS)]
+    picks = [p for p in picks if len(p)]
+    if not picks:
+        return same_pool.head(0), pd.concat([same_pool, other_pool])
+    chosen = pd.concat(picks)
+    chosen = chosen.assign(
+        keyword_match=chosen["Primary Keyword"] == jd_row["Primary Keyword"])
+    return chosen, pd.concat([same_pool, other_pool])
 
 
 def stratum_of(spec: dict) -> str:
@@ -293,18 +371,23 @@ def draw_batch(spec: dict, jd: pd.DataFrame, cv: pd.DataFrame,
         chosen = choose_jds(scoped, spec["n_jds"], spec["seed"], exclude=used_jds)
 
     per_jd, batch = spec["per_jd"], spec["batch"]
+    same_min = spec.get("same_keyword_min", SAME_KEYWORD_MIN)
+    if same_min > per_jd:
+        raise ValueError(
+            f"batch {batch}: same_keyword_min={same_min} exceeds per_jd={per_jd} — a JD "
+            "cannot owe more on-category candidates than it has candidates")
+
     pair_rows, holdout_rows = [], []
     for _, jd_row in chosen.iterrows():
-        pool_seed, band_seed = document_seed(jd_row.id, spec["seed"]).spawn(2)
         eligible = cv[~cv["id"].isin(used_cvs)]
-        pool = eligible.iloc[np.random.default_rng(pool_seed).permutation(len(eligible))[
-            :CANDIDATES_PER_JD]]
+        picks, pool = candidates_for_jd(
+            jd_row, eligible, document_seed(jd_row.id, spec["seed"]), per_jd, same_min)
         if pool.empty:
             continue
         holdout_rows += [(c, "cv", f"candidate pool for jd {jd_row.id}") for c in pool["id"]]
         holdout_rows.append((jd_row.id, "jd", "in-domain evaluation query"))
 
-        for _, candidate in band_candidates(jd_row, pool, band_seed, per_jd).iterrows():
+        for _, candidate in picks.iterrows():
             pair_id = f"{jd_row.id}__{candidate['id']}"
             if pair_id in used_pairs:
                 continue
@@ -313,13 +396,13 @@ def draw_batch(spec: dict, jd: pd.DataFrame, cv: pd.DataFrame,
             pair_rows.append((
                 pair_id, batch, stratum, jd_row.id, candidate["id"],
                 jd_row["Primary Keyword"], jd_row.exp_band,
-                candidate["Primary Keyword"], candidate.band,
-                round(float(candidate.lexical_score), 6)))
+                candidate["Primary Keyword"], bool(candidate.keyword_match),
+                candidate.band, round(float(candidate.lexical_score), 6)))
         used_jds.add(jd_row.id)
 
     pairs = pd.DataFrame(pair_rows, columns=[
         "pair_id", "batch", "stratum", "jd_id", "cv_id", "primary_keyword", "exp_band",
-        "cv_primary_keyword", "lexical_band", "lexical_score"])
+        "cv_primary_keyword", "keyword_match", "lexical_band", "lexical_score"])
     holdout = pd.DataFrame(holdout_rows, columns=["doc_id", "doc_type", "reason"])
     return pairs, holdout
 
@@ -366,7 +449,19 @@ def summarise(pairs: pd.DataFrame, holdout: pd.DataFrame, specs: list[dict]) -> 
             "cvs": int(rows.cv_id.nunique()),
             "keywords": spec.get("keywords"),
             "reuse_jds": bool(spec.get("reuse_jds")),
-            "stratum": stratum_of(spec)}
+            "stratum": stratum_of(spec),
+            "per_jd": int(spec["per_jd"]),
+            "same_keyword_min": int(spec.get("same_keyword_min", SAME_KEYWORD_MIN)),
+            # Realised, not requested. A role family with a thin CV supply cannot fill
+            # its quota, and the shortfall has to be visible in the record rather than
+            # inferred from the spec (D31).
+            "on_category_pairs": int(rows.keyword_match.sum()) if len(rows) else 0,
+            "on_category_rate": round(float(rows.keyword_match.mean()), 4)
+            if len(rows) else 0.0,
+            "jds_short_of_quota": int(sum(
+                int(g.keyword_match.sum()) < int(spec.get("same_keyword_min",
+                                                          SAME_KEYWORD_MIN))
+                for _, g in rows.groupby("jd_id"))) if len(rows) else 0}
 
     # The reporting view. Batches are the operational record; figures are quoted per
     # stratum, and the two strata are never averaged together (D29).
@@ -379,13 +474,18 @@ def summarise(pairs: pd.DataFrame, holdout: pd.DataFrame, specs: list[dict]) -> 
             "pairs": int(len(rows)), "jds": int(rows.jd_id.nunique()),
             "batches": sorted(int(b) for b in rows.batch.unique()),
             "titles": sorted(rows.primary_keyword.unique().tolist()),
-            "title_count": int(rows.primary_keyword.nunique())}
+            "title_count": int(rows.primary_keyword.nunique()),
+            "on_category_rate": round(float(rows.keyword_match.mean()), 4)}
 
     return {
         "pairs": int(len(pairs)), "jds": int(pairs.jd_id.nunique()),
         "cvs": int(pairs.cv_id.nunique()),
         "strata": by_stratum, "batches": by_batch,
         "by_lexical_band": pairs.lexical_band.value_counts().to_dict(),
+        # D31's headline. The first cut of this set ran at 0.05 and almost every pair
+        # was a No Fit no system ranks highly and no annotator has to think about.
+        "on_category_rate": round(float(pairs.keyword_match.mean()), 4),
+        "candidates_per_jd_drawn": pairs.groupby("jd_id").size().value_counts().to_dict(),
         "by_exp_band": pairs.exp_band.value_counts().to_dict(),
         # D14 removed the sampling constraint but not the measurement — this is the
         # realised family mix, reported as an observation.
@@ -395,9 +495,42 @@ def summarise(pairs: pd.DataFrame, holdout: pd.DataFrame, specs: list[dict]) -> 
     }
 
 
+def assert_labels_survive(pairs: pd.DataFrame) -> None:
+    """Refuse a rebuild that would orphan a collected judgement *(D28, enforced)*.
+
+    Appending a batch cannot do this — batch *N* draws from what 1..*N*-1 left, which is
+    the property the whole campaign design rests on. **Changing an existing batch can**,
+    and that is not hypothetical: D31 re-cut batch 1 from 5 candidates per JD to 10, which
+    changed every `pair_id` in it. That re-cut was safe only because `judgements.csv` was
+    still empty, and "still empty" is exactly the kind of precondition that is true when
+    someone writes the change and false when someone repeats it a fortnight later.
+
+    So it is a check rather than a note in a plan file. A judgement whose `pair_id` no
+    longer names a row is not recoverable: the pair it described no longer exists.
+    """
+    from candidate_screener.annotation.queue import JUDGEMENTS
+
+    if not JUDGEMENTS.exists():
+        return
+    judged = pd.read_csv(JUDGEMENTS)
+    if judged.empty or "pair_id" not in judged:
+        return
+    orphaned = sorted(set(judged.pair_id.dropna().astype(str))
+                      - set(pairs.jd_id.astype(str) + "__" + pairs.cv_id.astype(str)))
+    if orphaned:
+        raise AssertionError(
+            f"this rebuild orphans {len(orphaned)} collected judgement(s) — e.g. "
+            f"{orphaned[0]}. Their pairs would no longer exist, and a judgement cannot "
+            "be re-pointed at a pair that was never drawn. Grow the set by APPENDING a "
+            "batch (`sample --add-batch`), which cannot disturb an earlier one; if you "
+            "genuinely mean to discard these labels, delete them from judgements.csv "
+            "first and say so in the plan record.")
+
+
 def build(specs: list[dict] | None = None) -> dict:
     specs = specs or load_campaign()
     pairs, holdout = build_campaign(specs)
+    assert_labels_survive(pairs)
 
     MANIFESTS.mkdir(parents=True, exist_ok=True)
     pairs.to_csv(PAIRS_MANIFEST, index=False, lineterminator="\n")
@@ -411,7 +544,10 @@ def build(specs: list[dict] | None = None) -> dict:
          "batches": sorted(specs, key=lambda s: s["batch"])}, indent=2) + "\n",
         encoding="utf-8")
 
-    report = {"cv_text_fields": list(CV_FIELDS), "candidates_per_jd": CANDIDATES_PER_JD,
+    report = {"cv_text_fields": list(CV_FIELDS),
+              "per_jd": PER_JD, "same_keyword_min": SAME_KEYWORD_MIN,
+              "pool_per_jd": {"same_keyword": SAME_POOL_PER_JD,
+                              "other_keyword": OTHER_POOL_PER_JD},
               "note_banding": _LEXICAL_NOTE, "note_stratum": _STRATUM_NOTE,
               "note_region": "Drawn only from region == eval in a2-partition.csv (D19).",
               "summary": summarise(pairs, holdout, specs)}
@@ -420,13 +556,17 @@ def build(specs: list[dict] | None = None) -> dict:
 
 
 def add_batch(n_jds: int, per_jd: int, seed: int | None, keywords: list[str] | None,
-              reuse_jds: bool) -> dict:
+              reuse_jds: bool, same_keyword_min: int | None = None) -> dict:
     """Append a batch and rebuild. Existing batches are untouched by construction."""
     specs = load_campaign()
     number = max((s["batch"] for s in specs), default=0) + 1
     specs.append({"batch": number, "n_jds": n_jds, "per_jd": per_jd,
                   "seed": number if seed is None else seed,
-                  "keywords": keywords, "reuse_jds": reuse_jds})
+                  "keywords": keywords,
+                  "same_keyword_min": min(
+                      SAME_KEYWORD_MIN if same_keyword_min is None else same_keyword_min,
+                      per_jd),
+                  "reuse_jds": reuse_jds})
     return build(specs)
 
 
@@ -444,6 +584,13 @@ def print_report(r: dict) -> None:
         print(f"      batch {number}  {b['pairs']:>4} pairs  {b['jds']:>3} JDs  "
               f"{b['stratum']:<9} [{scope}]"
               + ("  (deeper, same JDs)" if b["reuse_jds"] else ""))
+    print(f"  on-category     {s['on_category_rate']:.1%} of pairs share their JD's "
+          f"Primary Keyword (was 5.0% at 5-per-JD, D31)")
+    for number, b in s["batches"].items():
+        if b["jds_short_of_quota"]:
+            print(f"      batch {number}: {b['jds_short_of_quota']} JD(s) could not fill "
+                  f"{b['same_keyword_min']}/{b['per_jd']} on-category — thin role family")
+    print(f"  candidates/JD   {s['candidates_per_jd_drawn']}")
     print(f"  lexical bands   {s['by_lexical_band']}")
     print(f"  experience      {s['by_exp_band']}")
     print(f"  realised family mix (D14 — observed, not imposed):")
@@ -461,7 +608,11 @@ def main() -> int:
                     help="rebuild every batch in indomain-batches.json")
     ap.add_argument("--add-batch", action="store_true", help="append a batch and rebuild")
     ap.add_argument("--n-jds", type=int, default=20)
-    ap.add_argument("--per-jd", type=int, default=5)
+    ap.add_argument("--per-jd", type=int, default=PER_JD)
+    ap.add_argument("--same-keyword-min", type=int, default=None,
+                    help=f"how many of --per-jd must share the JD's Primary Keyword "
+                         f"(default {SAME_KEYWORD_MIN}); a thin role family may not "
+                         "supply this many, and the shortfall is reported, not hidden")
     ap.add_argument("--seed", type=int, default=None,
                     help="defaults to the batch number, so batches differ by default")
     ap.add_argument("--keywords", nargs="+", default=None,
@@ -476,7 +627,7 @@ def main() -> int:
 
     if args.add_batch:
         print_report(add_batch(args.n_jds, args.per_jd, args.seed,
-                               args.keywords, args.reuse_jds))
+                               args.keywords, args.reuse_jds, args.same_keyword_min))
     else:
         print_report(build())
     return 0

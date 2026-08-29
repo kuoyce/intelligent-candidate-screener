@@ -143,8 +143,14 @@ label you save. **You can stop at any point** — each screen is saved when you 
 and next*, and re-running the command picks up exactly where you left off. There is no
 progress file to keep, no half-finished spreadsheet, and nothing to send anyone.
 
-One screen is **one job description and its candidates**. You give each candidate a label,
-answer the shortlist question, and move on.
+One screen is **one job description and its candidates** — usually ten, sometimes fewer.
+You give each candidate a label, answer the shortlist question if it appears, and move on.
+
+Most of the ten will be from the job's own field. That is deliberate: an earlier version of
+this set drew candidates from the whole corpus and nearly everything was an obvious `No Fit`,
+which is quick to label and tells us nothing. Expect to have to think about most of them, and
+expect a couple per screen that look plausible at a glance and are from the wrong field
+entirely — those are there on purpose.
 
 - **Label each candidate against the standard in this guide, not against the other four.**
   This is the one habit the tool makes easy to lose. Three weak candidates on a screen make
@@ -163,22 +169,27 @@ answer the shortlist question, and move on.
   screenshotted, or pasted anywhere outside the labelling session. The tool listens only on
   your own machine.
 
-### Second-opinion screens
+### Screens with fewer candidates
 
-Sometimes a screen is headed **second opinion** and shows only two or three candidates
-instead of five. The other annotator has already labelled the rest of that job description,
-and these are the ones set aside for an independent second judgement — that overlap is how
-we measure whether the two of us apply the three classes the same way.
+Some screens show fewer than ten. There are two reasons, and you are told which only in the
+first case:
 
-You will not be shown their labels, and the shortlist question is not asked on these
-screens. A pick made over two candidates is not the same answer as a pick made over five,
-and the two would be indistinguishable afterwards.
+- A screen headed **second opinion** is one the other annotator has already worked through.
+  The candidates left are the ones set aside for an independent second judgement, which is
+  how we measure whether the two of us apply the three classes the same way. You will not be
+  shown their labels.
+- Otherwise it is simply a shorter set. Judge it exactly as you would a full one.
 
-### The A1 recheck
+**The shortlist question is not asked on short screens.** A pick made over two candidates is
+not the same answer as a pick made over ten, and afterwards the two would be
+indistinguishable.
 
-A separate set of about 50 pairs arrives as a plain shuffled file rather than through the
-tool. Those are US resumes against US job descriptions, and they are much longer — see
-*Two corpora, one scheme* above. Judge them by the same three classes.
+### Both corpora come through the tool
+
+Some screens are Ukrainian/EE tech roles with short CVs; others are US job descriptions with
+much longer resumes — see *Two corpora, one scheme* above. They are mixed together in an
+order that is different for each of you. Judge them all by the same three classes; the
+difference in length is a property of the corpus, never a reason to grade one harder.
 
 ## One extra question per job description
 

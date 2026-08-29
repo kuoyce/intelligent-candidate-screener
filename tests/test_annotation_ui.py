@@ -115,7 +115,11 @@ def test_a_served_group_carries_nothing_that_anchors():
     served = session.serve_group(pairs, empty_judgements(), "alice", jd, cv).as_dict()
 
     assert set(served) == {"jd_id", "batch", "stratum", "jd_text", "candidates",
-                           "complete"}
+                           "complete", "second_opinion", "asks_shortlist"}
+    # `corpus` and `selection_reason` stay on the dataclass so `record` can file the row,
+    # and must not be in what the page receives — `selection_reason` is the column that
+    # names which pairs already carry a label (D32).
+    assert "selection_reason" not in served and "corpus" not in served
     for candidate in served["candidates"]:
         assert set(candidate) == {"cv_id", "text"}
     assert "lexical" not in str(served) and "selection_reason" not in str(served)

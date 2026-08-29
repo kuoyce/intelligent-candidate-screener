@@ -107,9 +107,9 @@ def test_banding_spans_the_similarity_range_rather_than_taking_the_top_five():
     jd = pd.Series({"id": "jd_0",
                     "jd_text": "hiring a data engineer for python sql pipelines"})
     banded = sample.band_candidates(jd, synthetic_candidates(),
-                                    np.random.SeedSequence(0), len(sample.BANDS))
-    assert list(banded.band) == list(sample.BANDS)
-    assert banded.id.nunique() == len(sample.BANDS)      # no CV drawn twice
+                                    np.random.SeedSequence(0), len(sample.SAME_BANDS))
+    assert list(banded.band) == list(sample.SAME_BANDS)
+    assert banded.id.nunique() == len(sample.SAME_BANDS)      # no CV drawn twice
     assert banded[banded.band == "high"].lexical_score.min() >= \
         banded[banded.band == "low"].lexical_score.max()
 
@@ -250,7 +250,8 @@ def test_every_targeted_batch_pools_into_one_stratum():
         "stratum": [sample.stratum_of(s) for s in specs],
         "jd_id": list("jklm"), "cv_id": list("wxyz"),
         "primary_keyword": ["Java", "Data Science", "DevOps", "QA"],
-        "exp_band": ["0-1"] * 4, "lexical_band": ["high"] * 4})
+        "exp_band": ["0-1"] * 4, "lexical_band": ["high"] * 4,
+        "keyword_match": [True] * 4})
     holdout = pd.DataFrame({"doc_id": ["j"], "doc_type": ["jd"], "reason": ["q"]})
 
     summary = sample.summarise(pairs, holdout, specs)
@@ -292,3 +293,104 @@ def test_judged_pair_ids_reads_the_layer_and_nothing_else(tmp_path, monkeypatch)
 def test_judgement_schema_carries_the_batch():
     """Without it, a figure cannot be split by stratum after the fact."""
     assert "batch" in queue.JUDGEMENT_COLUMNS
+
+
+# --- on-category enrichment (D31) -----------------------------------------
+
+def mixed_corpus(per_family: int = 30) -> pd.DataFrame:
+    """CVs across three role families, so a draw can be on- or off-category."""
+    vocab = {"Data Engineer": "python sql airflow pipelines warehouse etl spark",
+             "JavaScript": "javascript react frontend css components node webpack",
+             "QA": "testing selenium regression defects automation qa cases"}
+    rows = []
+    for family, words in vocab.items():
+        terms = words.split()
+        for i in range(per_family):
+            rows.append({"id": f"{family[:2].lower()}_{i}",
+                         "Primary Keyword": family,
+                         "cv_text": " ".join(terms[i % len(terms):] + terms[:i % len(terms)])})
+    return pd.DataFrame(rows)
+
+
+def a_jd(family: str = "Data Engineer") -> pd.Series:
+    return pd.Series({"id": "jd_0", "Primary Keyword": family,
+                      "jd_text": "python sql airflow pipelines warehouse etl spark"})
+
+
+def test_eight_of_ten_candidates_share_the_jds_role_family():
+    """Mutation: draw all 10 from one undifferentiated pool, as the first cut did.
+
+    That is not a hypothetical: the first cut ran at **5.0%** on-category and the pilot
+    labelled 28 of its first 30 pairs `No Fit`. A set where almost every pair is an
+    obvious negative gives no system anything to be right or wrong about, and costs the
+    same human hours as one that does.
+    """
+    picks, pool = sample.candidates_for_jd(
+        a_jd(), mixed_corpus(), np.random.SeedSequence(0),
+        per_jd=sample.PER_JD, same_min=sample.SAME_KEYWORD_MIN)
+
+    assert len(picks) == sample.PER_JD
+    assert int(picks.keyword_match.sum()) == sample.SAME_KEYWORD_MIN
+    assert (picks[picks.keyword_match]["Primary Keyword"] == "Data Engineer").all()
+    assert not picks[~picks.keyword_match]["Primary Keyword"].eq("Data Engineer").any()
+    assert picks.id.nunique() == sample.PER_JD           # no CV drawn twice
+    assert set(picks.id) <= set(pool.id)                 # every pick is held out (D18)
+
+
+def test_the_off_category_pair_is_a_near_miss_not_a_random_cv():
+    """Mutation: give the off-category draw `("low", "low")`, or draw it uniformly.
+
+    An off-category CV picked at random is a trivial `No Fit` that every system already
+    ranks last — it separates nothing and wastes two of the ten slots. The two that are
+    kept off-category are taken from the *top* of their own pool, because a lexically
+    similar CV from the wrong role family is the mistake a screening system actually
+    makes.
+    """
+    assert sample.OTHER_BANDS[0] == "high"
+    picks, _ = sample.candidates_for_jd(
+        a_jd(), mixed_corpus(), np.random.SeedSequence(0),
+        per_jd=sample.PER_JD, same_min=sample.SAME_KEYWORD_MIN)
+    off = picks[~picks.keyword_match]
+    assert list(off.band) == list(sample.OTHER_BANDS)
+
+
+def test_a_thin_role_family_takes_the_shortfall_off_category_and_says_so():
+    """Three of the 41 families have fewer than 100 CVs in the eval region (Rust has 40),
+    and a targeted batch can name one. The quota must degrade visibly, not silently."""
+    thin = mixed_corpus()
+    thin = pd.concat([thin[thin["Primary Keyword"] != "Data Engineer"],
+                      thin[thin["Primary Keyword"] == "Data Engineer"].head(3)])
+
+    picks, _ = sample.candidates_for_jd(
+        a_jd(), thin, np.random.SeedSequence(0), per_jd=10, same_min=8)
+    assert len(picks) == 10
+    assert int(picks.keyword_match.sum()) == 3
+    assert "keyword_match" in picks, "the shortfall has to be readable off the pair"
+
+
+def test_a_batch_cannot_ask_for_more_on_category_than_it_has_candidates():
+    spec = {"batch": 9, "n_jds": 1, "per_jd": 5, "seed": 9, "keywords": None,
+            "same_keyword_min": 8, "reuse_jds": False}
+    jd = pd.DataFrame([{"id": "jd_0", "Primary Keyword": "QA", "exp_band": "0-1",
+                        "jd_text": "qa automation"}])
+    with pytest.raises(ValueError, match="exceeds per_jd"):
+        sample.draw_batch(spec, jd, mixed_corpus(), set(), set(), set())
+
+
+def test_a_rebuild_that_orphans_a_collected_label_is_refused(tmp_path, monkeypatch):
+    """Mutation: return early from `assert_labels_survive`.
+
+    D31 re-cut batch 1 from 5 candidates per JD to 10, which changed every `pair_id` in
+    it. That was safe only because `judgements.csv` was empty at the time — a precondition
+    that is true when someone writes the change and false when someone repeats it later.
+    """
+    judgements = tmp_path / "judgements.csv"
+    judgements.write_text("pair_id,annotator,label\njd_0__cv_gone,alice,No Fit\n")
+    monkeypatch.setattr(queue, "JUDGEMENTS", judgements)
+
+    survives = pd.DataFrame({"jd_id": ["jd_0"], "cv_id": ["cv_gone"]})
+    sample.assert_labels_survive(survives)               # still there: no complaint
+
+    orphans = pd.DataFrame({"jd_id": ["jd_0"], "cv_id": ["cv_other"]})
+    with pytest.raises(AssertionError, match="orphans 1 collected judgement"):
+        sample.assert_labels_survive(orphans)

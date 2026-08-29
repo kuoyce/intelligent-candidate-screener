@@ -26,13 +26,22 @@ in-domain pairs are labelled by both annotators so a kappa is computable. Which 
 pure function of `pair_id`, so appending a batch cannot re-designate a pair that has
 already been labelled once — the failure that made the one-shot sampler unusable.
 
-**The A1 recheck is deliberately not in this UI.** It stays on the flat dispatch file
-`queue.py` builds. The reason is measured, not stylistic: the in-domain set is uniformly
-5 candidates per JD, while the 50 recheck pairs spread over 32 A1 JDs as 1-4 each. On a
-screen that shows one query and its candidates, a group of two is visibly not an
-in-domain group, and the recheck's whole value is that an annotator cannot tell a
-rechecked pair from a fresh one (**A13**). A UI that grouped both would leak that
-distinction through its layout.
+**The A1 recheck runs in this UI too** *(decision D32, reversing D30's split)*. An A1
+group is however many recheck pairs that JD drew — 1 to 4 — against the in-domain set's
+10, and the group sizes therefore differ visibly.
+
+D30 kept the recheck on a flat file precisely to avoid that, on the grounds that **A13**
+needs an annotator not to be able to tell a rechecked pair from a fresh one. The
+reasoning was too strong. The two corpora were **already** distinguishable before any of
+this: A1 resumes run to a median of 5,134 characters against Djinni's 1,525, and the
+guide names both corpora and says some pairs carry existing labels. Group size adds
+little to what document length already announces.
+
+What blinding has to protect, and still does, is **which** pairs carry a label and
+**what** that label is. Neither reaches the screen: no `a1_label`, no `selection_reason`,
+and A1 groups are interleaved with in-domain ones in each annotator's own order. The
+residual — that a short group is probably a recheck — is recorded as a limitation on the
+A13 figure rather than argued away.
 """
 from __future__ import annotations
 
@@ -91,10 +100,33 @@ class Group:
     jd_text: str
     candidates: list[Candidate] = field(default_factory=list)
     complete: bool = True
+    corpus: str = "a2"
+    selection_reason: str = "indomain_banded"
+    second_opinion: bool = False
+
+    @property
+    def asks_shortlist(self) -> bool:
+        """Q14's per-JD question, asked only where it means something.
+
+        Two groups must not be asked. A **partial** in-domain group is the second
+        annotator's re-serve of a JD the first has finished, so the pick would be made
+        over part of the field and would be indistinguishable afterwards from one made
+        over all of it. An **A1 recheck** group is 1-4 resumes drawn from a 193-deep A1
+        pool, so "which would you shortlist first" is a question about a field the
+        annotator is not being shown.
+        """
+        return self.corpus == "a2" and self.complete
 
     def as_dict(self) -> dict:
+        # `corpus` and `selection_reason` are carried so `record` can file the row, and
+        # are NOT sent to the page: `selection_reason` is the column that would tell an
+        # annotator which pairs already carry a label, which is the one thing the recheck
+        # cannot survive. `second_opinion` is sent, because the page has to explain why a
+        # group is short; `complete` is sent, because it gates the shortlist question.
         return {"jd_id": self.jd_id, "batch": int(self.batch), "stratum": self.stratum,
                 "jd_text": self.jd_text, "complete": self.complete,
+                "second_opinion": self.second_opinion,
+                "asks_shortlist": self.asks_shortlist,
                 "candidates": [{"cv_id": c.cv_id, "text": c.text} for c in self.candidates]}
 
 
@@ -120,6 +152,36 @@ def load_pairs() -> pd.DataFrame:
     pairs = pd.read_csv(PAIRS_MANIFEST)
     pairs["pair_id"] = pairs.jd_id.astype(str) + "__" + pairs.cv_id.astype(str)
     return pairs
+
+
+#: Columns every servable unit carries, whichever corpus it came from.
+UNIT_COLUMNS = ("pair_id", "query_id", "doc_id", "batch", "stratum", "corpus",
+                "selection_reason")
+
+
+def load_units(seed: int = 0) -> pd.DataFrame:
+    """Everything labellable, both corpora, in one frame *(D32)*.
+
+    The A1 recheck is regenerated from its seed rather than stored, exactly as
+    `queue.build_queue` does it — one definition of which 50 pairs those are, so the UI
+    and the dispatch file cannot drift apart. It is skipped, with no error, when
+    `test.parquet` is absent: the in-domain half must stay labellable on a machine that
+    has not built the A1 split.
+    """
+    from candidate_screener.annotation import queue as judging
+
+    units = [load_pairs().assign(corpus="a2", selection_reason="indomain_banded")]
+    try:
+        recheck = judging.a1_recheck(judging.RECHECK_STRATA, seed)
+    except (FileNotFoundError, OSError):
+        recheck = None
+    if recheck is not None and len(recheck):
+        units.append(recheck.assign(
+            pair_id=recheck.query_id.astype(str) + "__" + recheck.doc_id.astype(str),
+            jd_id=recheck.query_id, cv_id=recheck.doc_id))
+    frame = pd.concat(units, ignore_index=True)
+    return frame[[c for c in frame.columns if c not in ("query_text", "candidate_text",
+                                                        "a1_label")]]
 
 
 def load_judgements() -> pd.DataFrame:
@@ -200,9 +262,17 @@ def serve_group(pairs: pd.DataFrame, judgements: pd.DataFrame, annotator: str,
     texts = redact.redact(texts)
     redact.assert_clean(texts, f"group for jd {jd_id}")
 
+    corpus = str(rows.corpus.iloc[0]) if "corpus" in rows else "a2"
+    complete = len(rows) == int((pairs.jd_id == jd_id).sum())
     return Group(jd_id=str(jd_id), batch=int(rows.batch.iloc[0]),
                  stratum=str(rows.stratum.iloc[0]), jd_text=texts.iloc[0],
-                 complete=len(rows) == int((pairs.jd_id == jd_id).sum()),
+                 complete=complete, corpus=corpus,
+                 selection_reason=str(rows.selection_reason.iloc[0])
+                 if "selection_reason" in rows else "indomain_banded",
+                 # Only an in-domain re-serve is a second opinion. A short A1 group gets
+                 # no banner: naming it would tell the annotator exactly which pairs
+                 # already carry a label, which is the disclosure D32 does not make.
+                 second_opinion=(corpus == "a2" and not complete),
                  candidates=[Candidate(str(c), t) for c, t
                              in zip(rows.cv_id, texts.iloc[1:])])
 
@@ -230,11 +300,13 @@ def record(annotator: str, group: Group, labels: dict[str, str],
     if bad:
         raise ValueError(f"not in A1's 3-class scheme {LABELS}: {bad}")
 
-    if not group.complete and shortlist_pick != NO_PICK:
+    if not group.asks_shortlist and shortlist_pick != NO_PICK:
         raise ValueError(
-            "this group is a partial re-serve of a double-labelled JD, so the shortlist "
-            "question was not asked — a pick made over a subset of the candidates is not "
-            "comparable to one made over the full set. Record it as 'none'.")
+            "the shortlist question was not asked on this group, so it carries no pick. "
+            "Either it is a partial re-serve of a double-labelled JD — where a pick made "
+            "over a subset is not comparable to one made over the full set — or it is an "
+            "A1 recheck group, drawn from a 193-deep pool the annotator never sees. "
+            "Record it as 'none'.")
 
     eligible = {c for c, v in labels.items() if v in SHORTLISTABLE}
     if shortlist_pick != NO_PICK and shortlist_pick not in eligible:
@@ -242,7 +314,7 @@ def record(annotator: str, group: Group, labels: dict[str, str],
             f"shortlist pick {shortlist_pick!r} is not among the candidates labelled "
             f"{' or '.join(SHORTLISTABLE)} ({sorted(eligible) or 'none'}). The pick "
             "breaks ties inside the relevant set; a pick outside it means nothing.")
-    if shortlist_pick == NO_PICK and eligible and group.complete:
+    if shortlist_pick == NO_PICK and eligible and group.asks_shortlist:
         raise ValueError(
             f"{len(eligible)} candidate(s) were labelled relevant, so 'none' is not an "
             "answer to which you would shortlist first — pick one.")
@@ -255,8 +327,8 @@ def record(annotator: str, group: Group, labels: dict[str, str],
         writer = csv.writer(handle, lineterminator="\n")
         for cv_id in served:
             writer.writerow([
-                f"{group.jd_id}__{cv_id}", group.batch, group.stratum, "a2",
-                group.jd_id, cv_id, "indomain_banded", annotator, labels[cv_id],
+                f"{group.jd_id}__{cv_id}", group.batch, group.stratum, group.corpus,
+                group.jd_id, cv_id, group.selection_reason, annotator, labels[cv_id],
                 "1" if cv_id == shortlist_pick else "0", notes])
     return len(served)
 
@@ -266,7 +338,7 @@ def record(annotator: str, group: Group, labels: dict[str, str],
 def batch_overview(annotator: str = "", fraction: float = DOUBLE_LABEL_FRACTION,
                    seed: int = 0) -> dict:
     """Every batch, what it covers, and how much of it is done."""
-    pairs, judgements = load_pairs(), load_judgements()
+    pairs, judgements = load_units(seed), load_judgements()
     specs = {int(s["batch"]): s for s in load_campaign()}
     counts = (judgements.groupby("pair_id").size() if len(judgements)
               else pd.Series(dtype=int))
@@ -279,11 +351,17 @@ def batch_overview(annotator: str = "", fraction: float = DOUBLE_LABEL_FRACTION,
     batches = []
     for number, rows in pairs.groupby("batch"):
         spec = specs.get(int(number), {})
+        # Batch 0 is the A1 recheck, which is not part of the in-domain campaign and has
+        # no spec and no Primary Keyword — it is listed so the page can show how much of
+        # it is left, not because it is a batch in D28's sense.
+        titles = (sorted(rows.primary_keyword.dropna().unique().tolist())
+                  if "primary_keyword" in rows else [])
         batches.append({
             "batch": int(number),
             "stratum": str(rows.stratum.iloc[0]),
+            "corpus": str(rows.corpus.iloc[0]),
             "keywords": spec.get("keywords"),
-            "titles": sorted(rows.primary_keyword.dropna().unique().tolist()),
+            "titles": titles,
             "pairs": int(len(rows)), "jds": int(rows.jd_id.nunique()),
             "labels_wanted": int(rows.wanted.sum()),
             "labels_have": int(rows.have.sum()),

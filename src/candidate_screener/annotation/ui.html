@@ -105,9 +105,11 @@
     <div class="card">
       <p><label>Job descriptions <input id="njds" type="number" value="20" min="1"
         max="200" style="width:90px"></label>
-      &nbsp;&nbsp;<label>Candidates each <input id="perjd" type="number" value="5" min="1"
+      &nbsp;&nbsp;<label>Candidates each <input id="perjd" type="number" value="10" min="1"
         max="20" style="width:90px"></label>
-      &nbsp;&nbsp;<span id="cost" class="muted"></span></p>
+      &nbsp;&nbsp;<label>of those, same role family <input id="samemin" type="number"
+        value="8" min="0" max="20" style="width:90px"></label></p>
+      <p class="muted" id="cost"></p>
       <p><button id="all-on">Select all</button> <button id="all-off">Clear</button>
         <span id="scope" class="muted"></span></p>
       <div id="titles" class="titles"></div>
@@ -190,7 +192,8 @@ async function loadState() {
     tr.append(el('td', '', String(b.batch)));
     const st = el('td'); st.append(el('span', 'tag ' + b.stratum, b.stratum)); tr.append(st);
     tr.append(el('td', 'muted', b.keywords ? b.keywords.join(', ')
-      : 'all families (' + b.titles.length + ' titles drawn)'));
+      : b.titles.length ? 'all families (' + b.titles.length + ' titles drawn)'
+      : 'US resumes, mixed in blind'));
     tr.append(el('td', '', String(b.pairs)));
     tr.append(el('td', '', b.labels_have + ' / ' + b.labels_wanted));
     const pr = el('td'); const bar = el('div', 'bar'); const fill = el('i');
@@ -232,8 +235,11 @@ function scopeNote() {
   $('#scope').textContent = generic
     ? 'all ' + all + ' titles → generic stratum'
     : n + ' of ' + all + ' titles → targeted stratum';
-  $('#cost').textContent = 'creates ' +
-    (+$('#njds').value * +$('#perjd').value) + ' pairs to label';
+  const per = +$('#perjd').value, same = Math.min(+$('#samemin').value, per);
+  $('#cost').textContent = 'creates ' + (+$('#njds').value * per) + ' pairs to label, ' +
+    same + ' of every ' + per + ' sharing the job description\'s own role family. ' +
+    'Drawing all ' + per + ' from the whole corpus instead lands about 5% on-category ' +
+    'and makes almost every pair an obvious No Fit.';
 }
 
 // --- 3. labelling ----------------------------------------------------------
@@ -247,9 +253,9 @@ async function nextGroup() {
   $('#jd-text').textContent = GROUP.jd_text;
   $('#jd-meta').textContent = 'batch ' + GROUP.batch + ' · ' + GROUP.stratum + ' · ' +
     GROUP.candidates.length + ' candidate(s) to judge' +
-    (GROUP.complete ? '' : ' · second opinion');
-  $('#partial').hidden = GROUP.complete;
-  $('#pick-card').hidden = !GROUP.complete;
+    (GROUP.second_opinion ? ' · second opinion' : '');
+  $('#partial').hidden = !GROUP.second_opinion;
+  $('#pick-card').hidden = !GROUP.asks_shortlist;
   const box = $('#cands'); box.replaceChildren();
   GROUP.candidates.forEach((c, i) => {
     const card = el('div', 'card cand');
@@ -282,7 +288,7 @@ function currentLabels() {
 
 function refreshPick() {
   const labels = currentLabels(), sel = $('#pick');
-  if (!GROUP.complete) {
+  if (!GROUP.asks_shortlist) {
     const complete = Object.keys(labels).length === GROUP.candidates.length;
     $('#submit').disabled = !complete;
     $('#submit').textContent = complete ? 'Save and next'
@@ -317,7 +323,7 @@ async function submit() {
       body: JSON.stringify({
         annotator: who(), jd_id: GROUP.jd_id, batch: GROUP.batch,
         stratum: GROUP.stratum, complete: GROUP.complete, labels: currentLabels(),
-        shortlist_pick: GROUP.complete ? $('#pick').value : 'none',
+        shortlist_pick: GROUP.asks_shortlist ? $('#pick').value : 'none',
         notes: $('#notes').value })
     });
     await loadState();
@@ -337,6 +343,7 @@ $('#all-on').onclick = () => { document.querySelectorAll('#titles input')
 $('#all-off').onclick = () => { document.querySelectorAll('#titles input')
   .forEach(c => c.checked = false); scopeNote(); };
 $('#njds').oninput = scopeNote; $('#perjd').oninput = scopeNote;
+$('#samemin').oninput = scopeNote;
 $('#submit').onclick = submit;
 $('#create').onclick = async () => {
   $('#create').disabled = true;
@@ -345,7 +352,8 @@ $('#create').onclick = async () => {
     await api('/api/batch', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ titles: chosen(), n_jds: +$('#njds').value,
-                             per_jd: +$('#perjd').value })
+                             per_jd: +$('#perjd').value,
+                             same_keyword_min: +$('#samemin').value })
     });
     await loadState(); show('home');
   } finally { $('#create').disabled = false; $('#create').textContent = 'Create batch'; }

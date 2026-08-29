@@ -13,9 +13,11 @@ creating a batch replays the whole campaign (~6 s: 141,897 JDs and 210,250 CVs l
 then a TF-IDF fit per JD), and a framework that re-executes the script on every widget
 interaction is the wrong shape for an action like that. Here it is one POST.
 
-**This UI covers the in-domain set only.** The A1 recheck stays on the flat dispatch file
-`queue.py` writes — see `session.py` for the measurement behind that, which is that a
-JD-grouped screen would leak which pairs are rechecks through its group size.
+**Both corpora are labelled here** *(D32, reversing D30)*. In-domain groups are 10
+candidates; A1 recheck groups are however many that JD drew, 1 to 4. The two are
+interleaved in each annotator's own order. `session.py` records what that costs and what
+it does not: no `a1_label` and no `selection_reason` reach the page, so which pairs carry
+an existing label — and what it says — is still not visible.
 
 Everything the server does with data is in `session.py`. This file is transport: parse a
 request, call a function, serialise the result. It holds no rule about what an annotator
@@ -33,6 +35,7 @@ from urllib.parse import parse_qs, urlparse
 
 import pandas as pd
 
+from candidate_screener.annotation import queue as judging
 from candidate_screener.annotation import sample, session
 
 PAGE = Path(__file__).with_name("ui.html")
@@ -45,9 +48,27 @@ MAX_NEW_JDS = 200
 
 @lru_cache(maxsize=1)
 def corpus_text() -> tuple[pd.Series, pd.Series]:
-    """JD and CV text, loaded once per process. ~3 s, so not once per request."""
+    """Query and document text for **both** corpora, loaded once per process (~3 s).
+
+    A1 ids (`j_…`, `r_…`) and Djinni ids (UUIDs) cannot collide, so one lookup each is
+    enough and the caller never has to know which corpus a group came from.
+    """
     jd, cv = sample.load_english()
-    return jd.set_index("id").jd_text, cv.set_index("id").cv_text
+    queries = [jd.set_index("id").jd_text]
+    documents = [cv.set_index("id").cv_text]
+    try:
+        recheck = judging.a1_recheck(judging.RECHECK_STRATA, 0)
+        queries.append(recheck.set_index("query_id").query_text.groupby(level=0).first())
+        documents.append(
+            recheck.set_index("doc_id").candidate_text.groupby(level=0).first())
+    except (FileNotFoundError, OSError):
+        pass                      # in-domain still labellable without the A1 split
+    return pd.concat(queries), pd.concat(documents)
+
+
+@lru_cache(maxsize=1)
+def units() -> pd.DataFrame:
+    return session.load_units()
 
 
 @lru_cache(maxsize=1)
@@ -58,12 +79,12 @@ def titles() -> list[dict]:
 def next_group(annotator: str, batch: int | None) -> dict | None:
     jd_text, cv_text = corpus_text()
     group = session.serve_group(
-        session.load_pairs(), session.load_judgements(), annotator,
-        jd_text, cv_text, batch=batch)
+        units(), session.load_judgements(), annotator, jd_text, cv_text, batch=batch)
     return group.as_dict() if group else None
 
 
-def create_batch(selected: list[str], n_jds: int, per_jd: int) -> dict:
+def create_batch(selected: list[str], n_jds: int, per_jd: int = sample.PER_JD,
+                 same_keyword_min: int | None = None) -> dict:
     """Append a batch. An empty or complete title selection means `generic` (D14).
 
     Selecting every title is not the same request as selecting none, but it is the same
@@ -80,7 +101,9 @@ def create_batch(selected: list[str], n_jds: int, per_jd: int) -> dict:
     keywords = None if not selected or set(selected) >= set(known) else sorted(selected)
     sample.validate_keywords(keywords, known)
     report = sample.add_batch(n_jds=n_jds, per_jd=per_jd, seed=None,
-                             keywords=keywords, reuse_jds=False)
+                              keywords=keywords, reuse_jds=False,
+                              same_keyword_min=same_keyword_min)
+    units.cache_clear()        # the manifest just grew; the cached frame is behind it
     return report["summary"]
 
 
@@ -117,6 +140,8 @@ class Handler(BaseHTTPRequestHandler):
             elif route.path == "/api/state":
                 self._send({"overview": session.batch_overview(who),
                             "titles": titles(),
+                            "per_jd": sample.PER_JD,
+                            "same_keyword_min": sample.SAME_KEYWORD_MIN,
                             "labels": list(session.LABELS),
                             "default_annotator": self.annotator})
             elif route.path == "/api/next":
@@ -132,9 +157,18 @@ class Handler(BaseHTTPRequestHandler):
         try:
             payload = self._body()
             if route.path == "/api/judge":
+                # `corpus` and `selection_reason` are looked up from the manifest, never
+                # taken from the request: they decide how the row is filed, and a page
+                # that could set them could file an A1 recheck as an in-domain pair.
+                rows = units()
+                mine = rows[rows.jd_id.astype(str) == str(payload["jd_id"])]
+                if mine.empty:
+                    raise ValueError(f"unknown query {payload['jd_id']!r}")
                 group = session.Group(
-                    jd_id=payload["jd_id"], batch=int(payload["batch"]),
-                    stratum=payload["stratum"], jd_text="",
+                    jd_id=payload["jd_id"], batch=int(mine.batch.iloc[0]),
+                    stratum=str(mine.stratum.iloc[0]), jd_text="",
+                    corpus=str(mine.corpus.iloc[0]),
+                    selection_reason=str(mine.selection_reason.iloc[0]),
                     complete=bool(payload.get("complete", True)),
                     candidates=[session.Candidate(c, "") for c in payload["labels"]])
                 written = session.record(
@@ -145,7 +179,8 @@ class Handler(BaseHTTPRequestHandler):
             elif route.path == "/api/batch":
                 self._send({"summary": create_batch(
                     payload.get("titles") or [], int(payload.get("n_jds", 20)),
-                    int(payload.get("per_jd", 5)))})
+                    int(payload.get("per_jd", sample.PER_JD)),
+                    int(payload.get("same_keyword_min", sample.SAME_KEYWORD_MIN)))})
             else:
                 self._send({"error": "not found"}, 404)
         except Exception as exc:
