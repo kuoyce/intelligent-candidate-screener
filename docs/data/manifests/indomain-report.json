@@ -8,12 +8,46 @@
   ],
   "candidates_per_jd": 200,
   "note_banding": "The 5 CVs per JD are banded by TF-IDF cosine against the JD, not drawn uniformly. Consequence, and it must be stated wherever an in-domain precision figure appears: this pool is NOT a uniform sample of the corpus, so in-domain absolute precision is not an unbiased estimate of production precision. It is a comparison instrument between systems. The alternative \u2014 a uniform draw \u2014 returns ~5 No Fit per JD and makes P@5 identically zero for every system, which measures nothing at all.",
-  "note_stratum": "A batch carrying `keywords` is a TARGETED sample and is not interchangeable with an unstratified one. Pooling its labels into a headline figure silently destroys D14's unstratified property for the whole set. Report a keyword-scoped batch as its own named stratum, always \u2014 the same rule D23's newly-scoreable queries carry.",
+  "note_stratum": "Two reporting strata, never pooled together (D29). `generic` is the unstratified sample (D14) and answers 'how does this system do on a typical posting'. `targeted` pools every keyword-scoped batch and answers 'how does it do on the families we chose to cover'. Both are true statements about a real population; their average is not. Batches within a stratum MAY be pooled \u2014 they differ only in which titles they cover.",
   "note_region": "Drawn only from region == eval in a2-partition.csv (D19).",
   "summary": {
     "pairs": 200,
     "jds": 40,
     "cvs": 200,
+    "strata": {
+      "generic": {
+        "pairs": 200,
+        "jds": 40,
+        "batches": [
+          1
+        ],
+        "titles": [
+          ".NET",
+          "Data Engineer",
+          "Design",
+          "DevOps",
+          "Golang",
+          "HR",
+          "Java",
+          "JavaScript",
+          "Lead Generation",
+          "Marketing",
+          "Node.js",
+          "Other",
+          "PHP",
+          "Project Manager",
+          "Python",
+          "QA",
+          "QA Automation",
+          "Ruby",
+          "SQL",
+          "Sales",
+          "Support",
+          "Sysadmin"
+        ],
+        "title_count": 22
+      }
+    },
     "batches": {
       "1": {
         "pairs": 200,
@@ -21,7 +55,7 @@
         "cvs": 200,
         "keywords": null,
         "reuse_jds": false,
-        "stratum": "unstratified (D14)"
+        "stratum": "generic"
       }
     },
     "by_lexical_band": {
@@ -30,30 +64,30 @@
       "low": 40
     },
     "by_exp_band": {
-      "2-3": 70,
-      "0-1": 65,
+      "0-1": 70,
+      "2-3": 65,
       "4-6": 65
     },
     "realised_family_mix": {
-      "Java": 20,
+      "JavaScript": 30,
+      "DevOps": 20,
       "QA": 15,
-      "Sales": 15,
-      "JavaScript": 15,
-      "Node.js": 15,
-      "DevOps": 15,
-      "Recruiter": 10,
-      "PHP": 10,
+      "Python": 15,
+      "Marketing": 10,
+      "Node.js": 10,
+      "HR": 10,
       "Other": 10,
-      "Design": 10,
-      "Product Manager": 5,
-      "C++": 5,
-      "Support": 5,
+      "Sales": 10,
+      "Java": 10,
+      "SQL": 5,
       "Ruby": 5,
-      "HR": 5
+      "Data Engineer": 5,
+      "Golang": 5,
+      "Sysadmin": 5
     },
     "holdout_documents": {
       "jd": 40,
-      "cv": 7459
+      "cv": 7445
     }
   }
 }

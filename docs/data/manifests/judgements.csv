@@ -1,1 +1,1 @@
-pair_id,batch,corpus,query_id,doc_id,selection_reason,annotator,label,shortlist_pick,notes
+pair_id,batch,stratum,corpus,query_id,doc_id,selection_reason,annotator,label,shortlist_pick,notes

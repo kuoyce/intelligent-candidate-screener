@@ -45,6 +45,7 @@ both now point here rather than each carrying half a design. Wave 1 of task 3.4b
 | **D25** | *New, and the one that changes this plan's shape.* Manual annotation is capped at **one session, ~250 judgements, ~2.5 team-days**: task 3.4b's 200 in-domain pairs plus ~50 blind A1 recheck pairs. The judging wave leaves the critical path | **The budget question** | Supersedes the *scope* of D22 and D23 — their reasoning stands on record, their schedule does not. See §"Why the wave was cut" |
 | **D26** | *New.* **Q18 closes as a standing limitation.** The attainable precision ceiling is recorded in code and reported beside every Precision@k, raw and normalised both; Recall@10 is the headline retrieval metric | **Q18, Q27**; dissolves **Q26** | One of the three closes the Q18 analysis itself listed. Implemented: `metrics.attainable_ceiling`, `metrics.ceilings`, emitted into `pools-yield.json` |
 | **D27** | *New.* The retrieval scoring pass over the 3.3 pools runs **now** | **Q24** | Implemented as `evaluation.retrieval`. It cost no annotator time and had been deferred twice. §"What Q24 actually returned". **Re-run deferred 29 Aug 2026** — see §"Q24 in the back pocket" |
+| **D29** | *New.* Reporting is by **stratum**, of which there are exactly two — `generic` and `targeted`. A stratum is **coarser than a batch**: every keyword-scoped batch pools into one `targeted` figure. The two strata are never averaged together | **How targeted work is reported** | Batches within a stratum differ only in which titles they cover, so pooling them describes a real population. §"Strata, and why they are coarser than batches" |
 | **D28** | *New.* The in-domain set is a **frozen, append-only batch campaign**, and the queue is rebuilt from what is *not yet judged* | **How the set grows and pauses** | Batch *N* draws from what 1..*N*-1 left, so appending cannot orphan a collected label. Resume granularity is the **pair**. §"Growing, pausing, re-scoping" |
 | ~~**D23**~~ | *Superseded in scope by D25, 29 Aug 2026.* The wave covers **all 100 test queries**, including the 36 that are currently unscoreable. Widening *n* is a first-class objective of the wave, not a byproduct | **Q31** | Supersedes D21's 64 within the same wave — D21's reasoning (graded, not strict) still governs the *relevance definition*; D23 governs *query coverage*. Upper bound rises to **500 top-5 slots per system** from 320. §"What D23 buys" below |
 
@@ -185,6 +186,66 @@ Two consequences that must not be lost:
    found independently with queries whose relevant set was found by the systems under test. Task
    5.7 reports the newly-scoreable queries as a **named stratum**, never silently pooled.
 
+## Strata, and why they are coarser than batches *(D29)*
+
+D28 made the set a batch campaign and reported per batch. That is finer than this project
+needs, and finer than is useful: the plan is to cover a **list of job titles as one piece of
+work**, with two annotators splitting it by hand.
+
+So there are two units, and they are not the same thing:
+
+| | What it is | Granularity |
+|---|---|---|
+| **Batch** | The operational record — which titles, drawn under which spec, added when | One per `--add-batch` |
+| **Stratum** | The reporting unit. Every figure is quoted in one | Exactly two, ever |
+
+**The test a pooled figure has to pass is whether you can name the population it describes.**
+
+- `generic` (batch 1, unstratified, D14) → *"how does this system do on a typical posting
+  from this board?"*
+- `targeted` (every keyword-scoped batch, pooled) → *"how does it do on the job families we
+  deliberately chose to cover?"*
+
+Both are sentences about a real population, so both are legitimate. Pooling **across** them
+is not: the result describes a mixture that exists nowhere and whose proportions are an
+accident of how much of each we happened to label. That prohibition is the part of the
+earlier rule that survives; the per-batch split does not.
+
+**Two mechanisms make it stick.** `stratum` is stamped onto the pair at draw time and onto
+the judgement at labelling time, never looked up from the spec at report time — otherwise
+widening a batch's title list later would retroactively re-stratify judgements already
+collected. And `verify --derived` prints the per-stratum counts and names the targeted
+batches on every run.
+
+**One reading to keep straight.** `generic` is not "the titles we did not target". It is an
+unstratified draw, so it contains DevOps and QA postings by chance, and a targeted batch on
+those titles is a *second, differently drawn* sample of an overlapping title space. The two
+strata share no pairs; they may share titles. `generic` means "typical posting", not
+"everything else".
+
+## The annotation protocol *(D29)*
+
+**Two annotators, both covering every title, working from one queue split by hand.**
+
+The alternative considered and rejected was assigning titles by expertise. It reads as the
+obvious efficiency and it costs more than it saves: with one person per title, "DevOps scores
+lower" has two indistinguishable explanations — the system is worse there, or that annotator
+is stricter — and the confound reaches the pooled `targeted` figure too, since pooling across
+titles would pool across people. It also breaks κ, because a random 30% double-label would
+almost never land on a pair two people had both seen.
+
+With both annotators covering everything, none of that arises and the original protocol is
+correct unchanged: **30% of in-domain pairs double-labelled, drawn at random**, κ reported per
+corpus, disagreements adjudicated with both original labels retained.
+
+The trade accepted, stated for the record: this buys breadth over diagnostic depth. Per-title
+κ is not measurable at this budget, and a systematic strictness difference between the two
+annotators would show up in the overall κ without being attributable. That is judged
+sufficient — the 30% overlap diagnoses whether agreement is acceptable, which is what the
+proposal's ≥85% target asks for.
+
+**Workload.** 250 pairs, of which 60 are double-labelled: **310 judgements, ~155 each.**
+
 ## Growing, pausing, re-scoping *(D28)*
 
 D25 fixed a budget. It did not say what happens when the budget is spent and more is wanted,
@@ -201,7 +262,7 @@ meeting.
 |---|---|---|
 | **More breadth** — new JDs | `sample --add-batch --n-jds 20` | Existing batches untouched; new JDs, new CVs |
 | **More depth** — same JDs, Q14's wave-2 shape | `sample --add-batch --reuse-jds --per-jd 5` | Existing pairs untouched; new candidates for JDs already in the set |
-| **Add job titles** | `sample --add-batch --keywords "Data Science" ...` | Recorded as a **targeted stratum**, and `verify --derived` names it |
+| **Add job titles** | `sample --add-batch --keywords "Data Science" ...` | Joins the **`targeted` stratum**, pooled with every other targeted batch (D29) |
 | **Stop halfway** | `queue --build` | Rebuilds only what is unjudged. It *is* the resume command |
 | **See where you are** | `queue --progress` | Per-batch counts, and which JDs are split across sittings |
 
@@ -214,11 +275,11 @@ Three properties make this hold, and they are not interchangeable:
 3. **`choose_jds` sorts before permuting** — otherwise a publisher re-upload that shuffled the
    parquet would select a different 40 JDs with every seed and count identical.
 
-**The obligation this creates.** A keyword-scoped batch is a *targeted* sample. Pooling its
-labels into a headline figure destroys D14's unstratified property for the whole set — the
-same trap as D23's newly-scoreable queries. `indomain-batches.json` carries the rule, the
-report labels each batch `unstratified (D14)` or `targeted`, and `verify --derived` names the
-targeted batches on every run.
+**The obligation this creates.** A keyword-scoped batch joins the `targeted` stratum, which is
+reported separately from `generic` and never averaged with it — the same trap as D23's
+newly-scoreable queries. Targeted batches *are* pooled with each other (D29).
+`indomain-batches.json` carries the rule, every pair and judgement carries its `stratum`, and
+`verify --derived` prints the per-stratum counts on every run.
 
 **What it does not solve.** The top-1 shortlist pick is asked once per JD after all its
 candidates are seen. A JD split across two sittings needs its pick recorded in the second;

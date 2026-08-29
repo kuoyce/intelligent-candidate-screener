@@ -225,18 +225,49 @@ def test_add_batch_numbers_and_defaults_its_seed():
     assert sample.DEFAULT_CAMPAIGN[0]["batch"] == 1
 
 
-def test_targeted_batches_are_labelled_as_a_distinct_stratum():
-    """Pooling a keyword-scoped batch into a headline destroys D14 for the whole set."""
-    pairs = pd.DataFrame({"pair_id": ["a", "b"], "batch": [1, 2], "jd_id": ["j", "k"],
-                          "cv_id": ["c", "d"], "primary_keyword": ["Java", "Data Science"],
-                          "exp_band": ["0-1", "2-3"], "lexical_band": ["high", "low"]})
+def test_stratum_is_generic_only_when_no_titles_were_imposed():
+    assert sample.stratum_of({"keywords": None}) == "generic"
+    assert sample.stratum_of({}) == "generic"
+    assert sample.stratum_of({"keywords": ["Data Science"]}) == "targeted"
+
+
+def test_every_targeted_batch_pools_into_one_stratum():
+    """D29. Batch is the operational unit; stratum is the reporting unit, and is coarser.
+
+    Three keyword-scoped batches are one `targeted` figure, because they are drawn the
+    same way and differ only in which titles they cover — so the pooled number describes a
+    real population: the families we chose to cover.
+    """
+    specs = [dict(BATCH_1)] + [
+        {"batch": n, "n_jds": 1, "per_jd": 5, "seed": n, "keywords": [k],
+         "reuse_jds": False}
+        for n, k in ((2, "Data Science"), (3, "DevOps"), (4, "QA"))]
+    # Derived from the specs, not written by hand — otherwise this tests `summarise`'s
+    # groupby and not the pooling decision, and a `stratum_of` that refused to pool
+    # (one stratum per title list) would still pass.
+    pairs = pd.DataFrame({
+        "pair_id": list("abcd"), "batch": [s["batch"] for s in specs],
+        "stratum": [sample.stratum_of(s) for s in specs],
+        "jd_id": list("jklm"), "cv_id": list("wxyz"),
+        "primary_keyword": ["Java", "Data Science", "DevOps", "QA"],
+        "exp_band": ["0-1"] * 4, "lexical_band": ["high"] * 4})
     holdout = pd.DataFrame({"doc_id": ["j"], "doc_type": ["jd"], "reason": ["q"]})
-    specs = [dict(BATCH_1),
-             {"batch": 2, "n_jds": 1, "per_jd": 5, "seed": 2,
-              "keywords": ["Data Science"], "reuse_jds": False}]
+
     summary = sample.summarise(pairs, holdout, specs)
-    assert summary["batches"]["1"]["stratum"] == "unstratified (D14)"
-    assert summary["batches"]["2"]["stratum"] == "targeted"
+    assert set(summary["strata"]) == {"generic", "targeted"}
+    assert summary["strata"]["targeted"]["batches"] == [2, 3, 4]
+    assert summary["strata"]["targeted"]["pairs"] == 3
+    assert summary["strata"]["generic"]["pairs"] == 1
+
+
+def test_stratum_is_stamped_on_the_pair_not_looked_up_from_the_spec():
+    """So that editing a batch's keywords later cannot re-stratify collected judgements.
+
+    A stratum recorded only in the config is a stratum that changes retroactively the
+    first time someone widens a batch's title list.
+    """
+    assert "stratum" in queue.JUDGEMENT_COLUMNS
+    assert "batch" in queue.JUDGEMENT_COLUMNS
 
 
 # --- resume (D28) ----------------------------------------------------------

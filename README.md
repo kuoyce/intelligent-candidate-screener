@@ -143,9 +143,15 @@ uv run python -m candidate_screener.annotation.queue  --progress                
 `queue --build` is the resume command: it emits only pairs with no row in `judgements.csv`, so
 a session that stops at pair 130 of 250 restarts with 120 and no bookkeeping.
 
-**A `--keywords` batch is a targeted stratum.** Pooling it into a headline destroys the
-unstratified property (D14) of the whole set; report it separately. `verify --derived` names
-the targeted batches on every run so this cannot be forgotten quietly.
+**Figures are quoted per stratum, and there are exactly two** *(D29)*. `generic` is the
+unstratified batch — *"a typical posting from this board"*. `targeted` pools **every**
+keyword-scoped batch — *"the job families we chose to cover"*. Batches within a stratum are
+pooled freely; the two strata are never averaged together, because their average describes a
+mixture that exists nowhere. `verify --derived` prints the per-stratum counts on every run.
+
+The session is **two annotators, both covering every title**, working from one queue split by
+hand, with 30% double-labelled for κ. Assigning titles by expertise was considered and
+rejected: it confounds annotator with title, and the confound reaches the pooled figure.
 
 ## Data handling rules
 

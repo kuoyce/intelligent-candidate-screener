@@ -166,11 +166,22 @@ consumes one.
 
 If nothing was Good or Potential, record "none" and move on.
 
+## How the work is split
+
+**Two annotators, both covering every job title.** You split the queue between you by hand;
+you do not each take your own set of titles.
+
+That is a deliberate choice and worth one sentence of why, because the alternative looks more
+efficient. If each person owned their own titles, then "DevOps scored lower than Data Science"
+would have two explanations that cannot be told apart — the system really is worse at DevOps,
+or that annotator is simply stricter. Covering everything between you means a difference
+between titles is a fact about the system, not about who happened to read them.
+
 ## Double labelling and adjudication
 
-60 of the 200 in-domain pairs (30%) are labelled by everyone; the remaining 140 are labelled
-once. This is what makes agreement measurable — Cohen's κ for two annotators, Fleiss' κ for
-three or more, **reported per corpus**.
+30% of the in-domain pairs are labelled by **both** of you; the rest are labelled once. This is
+what makes agreement measurable — Cohen's κ for two annotators — and it is **reported per
+corpus**, Djinni and A1 separately (**A16**).
 
 Where we disagree, we meet and adjudicate. **Both the original labels and the adjudicated
 one are kept.** The disagreements are not noise to be cleaned up: they are the most

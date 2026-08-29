@@ -6,6 +6,10 @@
     "1": 200,
     "0": 50
   },
+  "by_stratum": {
+    "generic": 200,
+    "a1_recheck": 50
+  },
   "by_selection_reason": {
     "indomain_banded": 200,
     "a1_recheck": 50
@@ -16,6 +20,8 @@
     "Good Fit": 15
   },
   "double_label_target": 60,
+  "annotators": 2,
+  "note_protocol": "Two annotators, both covering every title, working from this one queue split by hand (D29). 30% of the in-domain pairs are labelled by both, for kappa; the rest are single-labelled. Because both cover all titles, the double-labelled subset can be drawn at random \u2014 under an expertise split it could not, since a random draw would rarely land on a pair two people had both seen.",
   "note_blinding": "The dispatch file carries only queue_id, query_text, candidate_text. selection_reason and a1_label are in the committed key and the git-ignored full parquet, never in what an annotator opens.",
   "note_effort": "~250 judgements, ~2.5 team-days, one session (D25). The judging wave over system top-k (D22/D23, 4-6 team-days) is deferred; Q18 closes as a standing limitation under D26 instead."
 }

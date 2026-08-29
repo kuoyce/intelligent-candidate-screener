@@ -88,8 +88,16 @@ carries `selection_reason` — a reader who knows which pairs already have a lab
 draws from what 1..*N*-1 left, and that is the only thing keeping already-collected labels
 valid. `queue --build` is the resume command: it emits only pairs absent from `judgements.csv`.
 
-A batch carrying `keywords` is a **targeted stratum** and must be reported separately; pooling
-it into a headline destroys D14's unstratified property for the whole set.
+**Every figure is quoted per stratum, and there are exactly two** *(decision D29)*: `generic`
+(the unstratified draw, D14) and `targeted` (every keyword-scoped batch, pooled). A stratum is
+coarser than a batch on purpose — batches within one differ only in which titles they cover, so
+pooling them names a real population. Averaging the **two strata** does not, and is forbidden.
+`stratum` is stamped on the pair and on the judgement, never looked up from the spec, so editing
+a batch's title list cannot re-stratify collected labels.
+
+The session is two annotators, both covering every title, one queue split by hand, 30%
+double-labelled. Do not assign titles by expertise: it confounds annotator with title, and the
+confound reaches the pooled figure as well as the per-title ones.
 
 ## Data rules
 

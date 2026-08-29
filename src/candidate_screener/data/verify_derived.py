@@ -316,9 +316,21 @@ def check_indomain() -> list[tuple[bool, str]]:
         results.append(((cv_batches == 1).all(),
                         f"batch disjointness: {int((cv_batches > 1).sum())} CVs drawn by "
                         f"more than one batch"))
-        targeted = [b["batch"] for b in specs if b.get("keywords")]
-        results.append((True, f"strata: batches {targeted or 'none'} are TARGETED and must "
-                              f"be reported separately from the unstratified set (D14)"))
+        # D29: stratum is the reporting unit and is stamped on the pair, not looked up
+        # from the spec, so editing a spec cannot re-stratify collected judgements.
+        declared = {b["batch"]: sample.stratum_of(b) for b in specs}
+        mismatched = sum(sample.stratum_of(next(b for b in specs if b["batch"] == row.batch))
+                         != row.stratum for row in pairs.itertuples())
+        results.append((not mismatched,
+                        f"strata: {mismatched} pairs whose recorded stratum disagrees with "
+                        f"their batch spec"))
+        results.append((set(pairs.stratum) <= set(sample.STRATA),
+                        f"strata: every pair is in {sample.STRATA}"))
+        counts = pairs.stratum.value_counts().to_dict()
+        results.append((True, f"strata: {counts} — batches within a stratum MAY be pooled; "
+                              f"the two strata MAY NOT be averaged together (D29). "
+                              f"targeted = batches "
+                              f"{sorted(b for b, k in declared.items() if k == 'targeted') or 'none'}"))
     return results
 
 

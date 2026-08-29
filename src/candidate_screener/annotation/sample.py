@@ -86,11 +86,26 @@ _LEXICAL_NOTE = (
     "makes P@5 identically zero for every system, which measures nothing at all."
 )
 
+#: The two reporting groups *(decision D29)*. **Coarser than a batch, on purpose.**
+#:
+#: A batch is the operational unit — which titles, drawn under which spec, added when. A
+#: stratum is the reporting unit, and there are exactly two. Every targeted batch is drawn
+#: the same way and differs only in which titles it covers, so pooling them describes a
+#: real population: *"the job families we deliberately chose to cover."* That is a
+#: defensible sentence, which is the whole test a figure has to pass.
+#:
+#: What stays forbidden is pooling ACROSS the two. `generic` answers "how does this system
+#: do on a typical posting from this board"; `targeted` answers "how does it do on the
+#: families we care about". Averaging them yields a number describing a mixture that exists
+#: nowhere and that was created by an accident of how much of each we happened to label.
+STRATA = ("generic", "targeted")
+
 _STRATUM_NOTE = (
-    "A batch carrying `keywords` is a TARGETED sample and is not interchangeable with an "
-    "unstratified one. Pooling its labels into a headline figure silently destroys D14's "
-    "unstratified property for the whole set. Report a keyword-scoped batch as its own "
-    "named stratum, always — the same rule D23's newly-scoreable queries carry."
+    "Two reporting strata, never pooled together (D29). `generic` is the unstratified "
+    "sample (D14) and answers 'how does this system do on a typical posting'. `targeted` "
+    "pools every keyword-scoped batch and answers 'how does it do on the families we chose "
+    "to cover'. Both are true statements about a real population; their average is not. "
+    "Batches within a stratum MAY be pooled — they differ only in which titles they cover."
 )
 
 #: Batch 1, frozen 29 Aug 2026. `keywords: null` is D14 — unstratified by role family.
@@ -211,6 +226,16 @@ def band_candidates(jd_row: pd.Series, candidates: pd.DataFrame, seed,
     return ranked.iloc[taken].assign(band=wanted[:len(taken)])
 
 
+def stratum_of(spec: dict) -> str:
+    """`generic` if the batch imposed no title filter, `targeted` otherwise.
+
+    Recorded onto every pair rather than looked up from the spec at report time, so that
+    editing a batch's `keywords` later cannot silently re-stratify judgements already
+    collected under the old definition.
+    """
+    return "targeted" if spec.get("keywords") else "generic"
+
+
 def draw_batch(spec: dict, jd: pd.DataFrame, cv: pd.DataFrame,
                used_jds: set[str], used_cvs: set[str],
                used_pairs: set[str]) -> tuple[pd.DataFrame, pd.DataFrame]:
@@ -221,6 +246,7 @@ def draw_batch(spec: dict, jd: pd.DataFrame, cv: pd.DataFrame,
     is Q14's wave-2 shape). Depth is what Precision@10 would need; breadth is what
     tightens a confidence interval.
     """
+    stratum = stratum_of(spec)
     scoped = jd if not spec.get("keywords") else jd[jd["Primary Keyword"].isin(spec["keywords"])]
 
     if spec.get("reuse_jds"):
@@ -249,13 +275,14 @@ def draw_batch(spec: dict, jd: pd.DataFrame, cv: pd.DataFrame,
             used_pairs.add(pair_id)
             used_cvs.add(candidate["id"])
             pair_rows.append((
-                pair_id, batch, jd_row.id, candidate["id"], jd_row["Primary Keyword"],
-                jd_row.exp_band, candidate["Primary Keyword"], candidate.band,
+                pair_id, batch, stratum, jd_row.id, candidate["id"],
+                jd_row["Primary Keyword"], jd_row.exp_band,
+                candidate["Primary Keyword"], candidate.band,
                 round(float(candidate.lexical_score), 6)))
         used_jds.add(jd_row.id)
 
     pairs = pd.DataFrame(pair_rows, columns=[
-        "pair_id", "batch", "jd_id", "cv_id", "primary_keyword", "exp_band",
+        "pair_id", "batch", "stratum", "jd_id", "cv_id", "primary_keyword", "exp_band",
         "cv_primary_keyword", "lexical_band", "lexical_score"])
     holdout = pd.DataFrame(holdout_rows, columns=["doc_id", "doc_type", "reason"])
     return pairs, holdout
@@ -303,10 +330,25 @@ def summarise(pairs: pd.DataFrame, holdout: pd.DataFrame, specs: list[dict]) -> 
             "cvs": int(rows.cv_id.nunique()),
             "keywords": spec.get("keywords"),
             "reuse_jds": bool(spec.get("reuse_jds")),
-            "stratum": "targeted" if spec.get("keywords") else "unstratified (D14)"}
+            "stratum": stratum_of(spec)}
+
+    # The reporting view. Batches are the operational record; figures are quoted per
+    # stratum, and the two strata are never averaged together (D29).
+    by_stratum = {}
+    for name in STRATA:
+        rows = pairs[pairs.stratum == name]
+        if rows.empty:
+            continue
+        by_stratum[name] = {
+            "pairs": int(len(rows)), "jds": int(rows.jd_id.nunique()),
+            "batches": sorted(int(b) for b in rows.batch.unique()),
+            "titles": sorted(rows.primary_keyword.unique().tolist()),
+            "title_count": int(rows.primary_keyword.nunique())}
+
     return {
         "pairs": int(len(pairs)), "jds": int(pairs.jd_id.nunique()),
-        "cvs": int(pairs.cv_id.nunique()), "batches": by_batch,
+        "cvs": int(pairs.cv_id.nunique()),
+        "strata": by_stratum, "batches": by_batch,
         "by_lexical_band": pairs.lexical_band.value_counts().to_dict(),
         "by_exp_band": pairs.exp_band.value_counts().to_dict(),
         # D14 removed the sampling constraint but not the measurement — this is the
@@ -356,10 +398,15 @@ def print_report(r: dict) -> None:
     s = r["summary"]
     print(f"\n=== In-domain set — {s['pairs']} pairs, {s['jds']} JDs, {s['cvs']} CVs "
           f"(eval region only)")
+    print("  --- strata (the reporting unit; never averaged together, D29)")
+    for name, st in s["strata"].items():
+        print(f"      {name:<9} {st['pairs']:>4} pairs  {st['jds']:>3} JDs  "
+              f"{st['title_count']:>2} titles  batches {st['batches']}")
+    print("  --- batches (the operational record)")
     for number, b in s["batches"].items():
         scope = ", ".join(b["keywords"]) if b["keywords"] else "all families"
-        print(f"  batch {number}  {b['pairs']:>4} pairs  {b['jds']:>3} JDs  "
-              f"{b['stratum']:<20} [{scope}]"
+        print(f"      batch {number}  {b['pairs']:>4} pairs  {b['jds']:>3} JDs  "
+              f"{b['stratum']:<9} [{scope}]"
               + ("  (deeper, same JDs)" if b["reuse_jds"] else ""))
     print(f"  lexical bands   {s['by_lexical_band']}")
     print(f"  experience      {s['by_exp_band']}")

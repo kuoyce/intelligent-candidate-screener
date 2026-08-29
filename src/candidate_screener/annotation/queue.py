@@ -58,7 +58,12 @@ DISPATCH_OUT = PROCESSED / "indomain"
 #: merging them would have forced a choice between deleting the determinism check and
 #: never re-running the builder. The schema is written before any label exists — a schema
 #: settled afterwards is a migration.
-JUDGEMENT_COLUMNS = ("pair_id", "batch", "corpus", "query_id", "doc_id",
+#: `stratum` is recorded alongside `batch` on purpose *(D29)*. Batch is the operational
+#: record; stratum is the unit every figure is quoted in, and stamping it at labelling
+#: time means editing a batch spec later cannot silently re-stratify judgements already
+#: collected. `annotator` carries who labelled the pair — with two annotators both
+#: covering every title, that is what makes the 30% double-labelled overlap computable.
+JUDGEMENT_COLUMNS = ("pair_id", "batch", "stratum", "corpus", "query_id", "doc_id",
                      "selection_reason", "annotator", "label", "shortlist_pick", "notes")
 
 #: Columns an annotator sees. Anything else is anchoring material.
@@ -91,6 +96,7 @@ def a1_recheck(strata: dict[str, int], seed: int) -> pd.DataFrame:
     return pd.DataFrame({
         "corpus": "a1",
         "batch": 0,          # the recheck is not part of the in-domain campaign
+        "stratum": "a1_recheck",   # never pooled with either in-domain stratum
         "query_id": out.jd_id.to_numpy(),
         "doc_id": out.resume_id.to_numpy(),
         "selection_reason": "a1_recheck",
@@ -127,6 +133,7 @@ def indomain_rows() -> pd.DataFrame:
     return pd.DataFrame({
         "corpus": "a2",
         "batch": pairs.batch.to_numpy(),
+        "stratum": pairs.stratum.to_numpy(),
         "query_id": pairs.jd_id.to_numpy(),
         "doc_id": pairs.cv_id.to_numpy(),
         "selection_reason": "indomain_banded",
@@ -185,6 +192,8 @@ def progress() -> dict:
         "remaining": int((~pairs.done).sum()),
         "by_batch": {str(b): {"done": int(g.done.sum()), "total": int(len(g))}
                      for b, g in pairs.groupby("batch")},
+        "by_stratum": {str(k): {"done": int(g.done.sum()), "total": int(len(g))}
+                       for k, g in pairs.groupby("stratum")},
         # A JD split across two sittings needs its top-1 shortlist pick recorded in the
         # second, because the question is asked once per JD after all its candidates.
         "partial_jds": partial.index.tolist(),
@@ -211,11 +220,19 @@ def build(seed: int, strata: dict[str, int] | None = None) -> dict:
         "total": int(len(queue)),
         "already_judged_and_skipped": len(already),
         "by_batch": {str(b): int(n) for b, n in queue.batch.value_counts().items()},
+        "by_stratum": {str(k): int(n) for k, n in queue.stratum.value_counts().items()},
         "by_selection_reason": queue.selection_reason.value_counts().to_dict(),
         "a1_recheck_strata": {k: int(v) for k, v in
                               queue[queue.selection_reason == "a1_recheck"]
                               .a1_label.value_counts().items()},
-        "double_label_target": 60,
+        "double_label_target": int(round(0.30 * len(queue[queue.corpus == "a2"]))),
+        "annotators": 2,
+        "note_protocol": (
+            "Two annotators, both covering every title, working from this one queue split "
+            "by hand (D29). 30% of the in-domain pairs are labelled by both, for kappa; the "
+            "rest are single-labelled. Because both cover all titles, the double-labelled "
+            "subset can be drawn at random — under an expertise split it could not, since "
+            "a random draw would rarely land on a pair two people had both seen."),
         "note_blinding": (
             "The dispatch file carries only " + ", ".join(DISPATCH_COLUMNS) + ". "
             "selection_reason and a1_label are in the committed key and the git-ignored "
@@ -236,7 +253,9 @@ def print_report(r: dict) -> None:
     for reason, n in r["by_selection_reason"].items():
         print(f"  {reason:<20} {n}")
     print(f"  A1 recheck strata   {r['a1_recheck_strata']}  <-- tests A13")
-    print(f"  double-label target {r['double_label_target']} of 200 in-domain pairs (30%)")
+    print(f"  strata              {r['by_stratum']}")
+    print(f"  double-label target {r['double_label_target']} in-domain pairs (30%), "
+          f"{r['annotators']} annotators, one queue split by hand")
     print(f"  key      -> {QUEUE_MANIFEST.name} (committed, no text)")
     print(f"  dispatch -> {DISPATCH_OUT / 'judging-queue.csv'} (git-ignored, redacted)")
     print(f"  labels   -> {JUDGEMENTS.name} (committed, header only until the session runs)")
@@ -259,8 +278,10 @@ def main() -> int:
         p = progress()
         print(f"\n=== Progress — {p['in_domain_done']}/{p['in_domain_total']} in-domain "
               f"pairs judged, {p['remaining']} remaining")
+        for name, st in p["by_stratum"].items():
+            print(f"  {name:<10} {st['done']}/{st['total']}")
         for batch, b in p["by_batch"].items():
-            print(f"  batch {batch}   {b['done']}/{b['total']}")
+            print(f"    batch {batch}   {b['done']}/{b['total']}")
         if p["partial_jds"]:
             print(f"  partial JDs ({len(p['partial_jds'])}) — each needs its top-1 "
                   f"shortlist pick recorded when it is finished:")
