@@ -227,7 +227,7 @@ production precision, and the manifest header says so.
 | Q14 | Pool depth in-domain, and whether to collect rankings | **Open** — recommendation in `02-work-plan.md`; belongs to 3.4 |
 | Q16 | Where more labelled in-domain data comes from if a later stage runs short | **Deferred by design** (D18) |
 | ~~Q17~~ | Does the test-side density of 6 Good Fit per JD reinstate Recall@10? | **Closed** — yes. Recall@10 reinstated, Recall@50 retired, Precision@5 adopted. §3A above; catalog, A1 card and README updated |
-| **Q18** | *New.* With ~96% of a 100-deep pool assumed non-relevant, is the downward precision bias acceptable for Stage 1–4 comparison, or does a judging wave over system top-k output belong in the plan (as Q14 proposes in-domain)? | **Open** — decide once the Stage 1 baseline exists and the size of the bias can be seen |
+| **Q18** | *New.* With ~96% of a 100-deep pool assumed non-relevant, is the downward precision bias acceptable for Stage 1–4 comparison, or does a judging wave over system top-k output belong in the plan (as Q14 proposes in-domain)? | **Open — analysed 29 Aug 2026 in [`plan/2026-08-29-pool-precision-bias/`](../2026-08-29-pool-precision-bias/README.md).** The stated closing condition ("once the Stage 1 baseline exists") is now met and does **not** close it: the question is three quantities, one of which (the contamination rate) is not computable at all. A second, previously unrecorded bias was found — a judged-supply ceiling capping Precision@5 at 0.781 strict / 0.719 graded regardless of pool depth. Decisions Q26/Q27 requested |
 
 ## 6. Next
 

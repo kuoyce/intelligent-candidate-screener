@@ -65,7 +65,8 @@ catalog, the A1 card and the README. See
 
 **Successor:** [`plan/2026-08-29-baseline-repeatability/`](../2026-08-29-baseline-repeatability/README.md)
 — Phase 4 takes the 3.2 split and the 3.3 metric discipline and applies both to the first
-scored system. Q18 (pool precision bias) remains open here and is untouched there; Q24 (scoring
+scored system. Q18 (pool precision bias) remains open here — now analysed and decomposed in
+[`plan/2026-08-29-pool-precision-bias/`](../2026-08-29-pool-precision-bias/README.md), which requests decisions Q26 and Q27; Q24 (scoring
 the baseline on the 3.3 pools) is raised there and deliberately deferred back to a phase after
 it.
 

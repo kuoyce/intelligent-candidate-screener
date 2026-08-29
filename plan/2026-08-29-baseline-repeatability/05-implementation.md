@@ -129,7 +129,7 @@ registration, as design spec §5.1 required.
 
 | # | Question | Status |
 |---|---|---|
-| Q18 | Pool precision bias | **Open** — inherited from Phase 3, untouched here |
+| Q18 | Pool precision bias | **Open** — inherited from Phase 3, untouched by the implementation. Analysed 29 Aug once this phase made the Stage 1 baseline exist, which was Q18's own closing condition: [`plan/2026-08-29-pool-precision-bias/`](../2026-08-29-pool-precision-bias/README.md) |
 | Q23 | Golden tolerance; pin `OMP_NUM_THREADS=1`? | **Closed 29 Aug** — exact integers, 1e-12 floats, no pin. Measured, above |
 | Q24 | Score the baseline on the Phase 3 retrieval pools? | **Open** — deliberately excluded. It is new evaluation, not repeatability, and the random-ranker floor it would be compared against is already measured |
 | Q22 | CI | **Closed 29 Aug — none added.** `AGENTS.md` now says so in writing and puts `pytest` / `--check` in the code-review step, so "automatically caught" is not claimed where "caught by a reviewer who runs one command" is what is delivered |
