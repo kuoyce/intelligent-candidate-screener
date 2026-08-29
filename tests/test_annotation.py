@@ -8,7 +8,10 @@ cheaply. Three failures would each waste it silently, and none of them raises on
   has already labelled and lets them anchor on the expected answer — that would void the
   A1 recheck, the only test of assumption **A13**;
 - the candidate draw being uniform rather than banded, which returns ~5 `No Fit` per JD
-  and makes P@5 identically zero for every system.
+  and makes P@5 identically zero for every system;
+- **a later batch re-drawing an earlier one's pairs**, which orphans every label already
+  collected against them. This one was real: seeding each JD by its *position* meant
+  growing the campaign from 40 JDs to 60 changed 190 of 200 `pair_id`s *(D28)*.
 
 All on inline synthetic corpora: the suite must run on a fresh clone with no `data/`.
 """
@@ -104,7 +107,7 @@ def test_banding_spans_the_similarity_range_rather_than_taking_the_top_five():
     jd = pd.Series({"id": "jd_0",
                     "jd_text": "hiring a data engineer for python sql pipelines"})
     banded = sample.band_candidates(jd, synthetic_candidates(),
-                                    np.random.SeedSequence(0))
+                                    np.random.SeedSequence(0), len(sample.BANDS))
     assert list(banded.band) == list(sample.BANDS)
     assert banded.id.nunique() == len(sample.BANDS)      # no CV drawn twice
     assert banded[banded.band == "high"].lexical_score.min() >= \
@@ -113,8 +116,8 @@ def test_banding_spans_the_similarity_range_rather_than_taking_the_top_five():
 
 def test_banding_is_deterministic_at_a_fixed_seed():
     jd = pd.Series({"id": "jd_0", "jd_text": "python sql data pipelines"})
-    first = sample.band_candidates(jd, synthetic_candidates(), np.random.SeedSequence(0))
-    second = sample.band_candidates(jd, synthetic_candidates(), np.random.SeedSequence(0))
+    first = sample.band_candidates(jd, synthetic_candidates(), np.random.SeedSequence(0), 5)
+    second = sample.band_candidates(jd, synthetic_candidates(), np.random.SeedSequence(0), 5)
     assert list(first.id) == list(second.id)
 
 
@@ -152,3 +155,109 @@ def test_recheck_strata_cover_all_three_a1_classes():
     labelling, which is half of what A13 is about."""
     assert set(queue.RECHECK_STRATA) == {"Good Fit", "Potential Fit", "No Fit"}
     assert sum(queue.RECHECK_STRATA.values()) == 50
+
+
+# --- the batch campaign (D28) ---------------------------------------------
+
+BATCH_1 = {"batch": 1, "n_jds": 4, "per_jd": 5, "seed": 0, "keywords": None,
+           "reuse_jds": False}
+
+
+def test_document_seed_depends_on_the_id_not_the_position():
+    """The bug D28 fixes, at its root.
+
+    `SeedSequence(seed).spawn(n)` zipped positionally with a sorted list gives each JD a
+    seed determined by how many JDs precede it. Insert one JD and every later JD is
+    re-seeded, so its candidate pool is re-drawn and its `pair_id`s change — silently,
+    with no exception and no row-count difference.
+    """
+    a = sample.document_seed("jd_zzz", 0).generate_state(4)
+    b = sample.document_seed("jd_zzz", 0).generate_state(4)
+    c = sample.document_seed("jd_aaa", 0).generate_state(4)
+    d = sample.document_seed("jd_zzz", 1).generate_state(4)
+    assert list(a) == list(b)          # stable for the same (id, seed)
+    assert list(a) != list(c)          # different documents differ
+    assert list(a) != list(d)          # the campaign seed still moves it
+
+
+def test_the_draw_does_not_depend_on_corpus_row_order():
+    """Two fixes meet here, and the second is the one that is easy to miss.
+
+    `document_seed` removed the batch's dependence on a JD's *position*; sorting inside
+    `choose_jds` removes its dependence on the order `load_split` returns rows in. Without
+    the second, a publisher re-upload that shuffled the parquet would select a different 40
+    JDs while every seed, count and config stayed identical — invisible drift arriving
+    through the corpus rather than through the code.
+    """
+    jd = pd.DataFrame({"id": [f"jd_{i:02d}" for i in range(20)],
+                       "exp_band": ["0-1", "2-3", "4-6", "0-1"] * 5,
+                       "Primary Keyword": "Java"})
+    straight = list(sample.choose_jds(jd, 8, 0)["id"])
+    shuffled = list(sample.choose_jds(jd.sample(frac=1, random_state=3), 8, 0)["id"])
+    assert straight == shuffled
+
+
+def test_choose_jds_skips_what_an_earlier_batch_took():
+    jd = pd.DataFrame({"id": [f"jd_{i}" for i in range(20)],
+                       "exp_band": ["0-1", "2-3", "4-6", "0-1"] * 5,
+                       "Primary Keyword": "Java"})
+    first = set(sample.choose_jds(jd, 6, 0)["id"])
+    second = set(sample.choose_jds(jd, 6, 0, exclude=first)["id"])
+    assert not (first & second)
+    assert len(second) == 6
+
+
+def test_band_candidates_honours_per_jd():
+    """A `reuse_jds` batch may ask for a different depth than the 5 `BANDS` describe."""
+    jd = pd.Series({"id": "jd_0", "jd_text": "python sql data pipelines"})
+    for per_jd in (3, 5, 7):
+        out = sample.band_candidates(jd, synthetic_candidates(),
+                                     np.random.SeedSequence(0), per_jd)
+        assert len(out) == per_jd
+        assert out.id.nunique() == per_jd
+
+
+def test_add_batch_numbers_and_defaults_its_seed():
+    specs = [dict(BATCH_1)]
+    number = max(s["batch"] for s in specs) + 1
+    assert number == 2
+    # `seed=None` -> the batch number, so two batches never share a seed by accident
+    assert sample.DEFAULT_CAMPAIGN[0]["batch"] == 1
+
+
+def test_targeted_batches_are_labelled_as_a_distinct_stratum():
+    """Pooling a keyword-scoped batch into a headline destroys D14 for the whole set."""
+    pairs = pd.DataFrame({"pair_id": ["a", "b"], "batch": [1, 2], "jd_id": ["j", "k"],
+                          "cv_id": ["c", "d"], "primary_keyword": ["Java", "Data Science"],
+                          "exp_band": ["0-1", "2-3"], "lexical_band": ["high", "low"]})
+    holdout = pd.DataFrame({"doc_id": ["j"], "doc_type": ["jd"], "reason": ["q"]})
+    specs = [dict(BATCH_1),
+             {"batch": 2, "n_jds": 1, "per_jd": 5, "seed": 2,
+              "keywords": ["Data Science"], "reuse_jds": False}]
+    summary = sample.summarise(pairs, holdout, specs)
+    assert summary["batches"]["1"]["stratum"] == "unstratified (D14)"
+    assert summary["batches"]["2"]["stratum"] == "targeted"
+
+
+# --- resume (D28) ----------------------------------------------------------
+
+def test_judged_pair_ids_is_empty_when_the_layer_is_header_only(tmp_path, monkeypatch):
+    path = tmp_path / "judgements.csv"
+    path.write_text(",".join(queue.JUDGEMENT_COLUMNS) + "\n")
+    monkeypatch.setattr(queue, "JUDGEMENTS", path)
+    assert queue.judged_pair_ids() == set()
+
+
+def test_judged_pair_ids_reads_the_layer_and_nothing_else(tmp_path, monkeypatch):
+    """The whole resume mechanism. No progress file means no way for two to disagree."""
+    path = tmp_path / "judgements.csv"
+    rows = pd.DataFrame([{c: "" for c in queue.JUDGEMENT_COLUMNS} for _ in range(2)])
+    rows["pair_id"] = ["j1__c1", "j2__c2"]
+    rows.to_csv(path, index=False)
+    monkeypatch.setattr(queue, "JUDGEMENTS", path)
+    assert queue.judged_pair_ids() == {"j1__c1", "j2__c2"}
+
+
+def test_judgement_schema_carries_the_batch():
+    """Without it, a figure cannot be split by stratum after the fact."""
+    assert "batch" in queue.JUDGEMENT_COLUMNS

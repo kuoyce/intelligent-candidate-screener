@@ -1,0 +1,14 @@
+{
+  "note": "Frozen, append-only (D28). Batch N draws from what 1..N-1 left, so appending a batch cannot change an existing pair_id \u2014 labels already collected stay valid. Edit an existing batch only if nothing from it has been labelled.",
+  "note_stratum": "A batch carrying `keywords` is a TARGETED sample and is not interchangeable with an unstratified one. Pooling its labels into a headline figure silently destroys D14's unstratified property for the whole set. Report a keyword-scoped batch as its own named stratum, always \u2014 the same rule D23's newly-scoreable queries carry.",
+  "batches": [
+    {
+      "batch": 1,
+      "n_jds": 40,
+      "per_jd": 5,
+      "seed": 0,
+      "keywords": null,
+      "reuse_jds": false
+    }
+  ]
+}

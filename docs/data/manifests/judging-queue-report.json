@@ -1,6 +1,11 @@
 {
   "seed": 0,
   "total": 250,
+  "already_judged_and_skipped": 0,
+  "by_batch": {
+    "1": 200,
+    "0": 50
+  },
   "by_selection_reason": {
     "indomain_banded": 200,
     "a1_recheck": 50

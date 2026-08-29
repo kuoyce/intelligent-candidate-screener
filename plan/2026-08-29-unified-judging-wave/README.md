@@ -44,7 +44,8 @@ both now point here rather than each carrying half a design. Wave 1 of task 3.4b
 | **D22** | **One wave, run once after the last stage exists.** No incremental per-stage judging | **Q30** | No stage is scored against an answer key an earlier stage helped write. **Cost, stated for the record:** every Stage 1–3 precision figure is provisional until the wave lands, and will be superseded upward. §"What D22 costs" below |
 | **D25** | *New, and the one that changes this plan's shape.* Manual annotation is capped at **one session, ~250 judgements, ~2.5 team-days**: task 3.4b's 200 in-domain pairs plus ~50 blind A1 recheck pairs. The judging wave leaves the critical path | **The budget question** | Supersedes the *scope* of D22 and D23 — their reasoning stands on record, their schedule does not. See §"Why the wave was cut" |
 | **D26** | *New.* **Q18 closes as a standing limitation.** The attainable precision ceiling is recorded in code and reported beside every Precision@k, raw and normalised both; Recall@10 is the headline retrieval metric | **Q18, Q27**; dissolves **Q26** | One of the three closes the Q18 analysis itself listed. Implemented: `metrics.attainable_ceiling`, `metrics.ceilings`, emitted into `pools-yield.json` |
-| **D27** | *New.* The retrieval scoring pass over the 3.3 pools runs **now** | **Q24** | Implemented as `evaluation.retrieval`. It cost no annotator time and had been deferred twice. §"What Q24 actually returned" |
+| **D27** | *New.* The retrieval scoring pass over the 3.3 pools runs **now** | **Q24** | Implemented as `evaluation.retrieval`. It cost no annotator time and had been deferred twice. §"What Q24 actually returned". **Re-run deferred 29 Aug 2026** — see §"Q24 in the back pocket" |
+| **D28** | *New.* The in-domain set is a **frozen, append-only batch campaign**, and the queue is rebuilt from what is *not yet judged* | **How the set grows and pauses** | Batch *N* draws from what 1..*N*-1 left, so appending cannot orphan a collected label. Resume granularity is the **pair**. §"Growing, pausing, re-scoping" |
 | ~~**D23**~~ | *Superseded in scope by D25, 29 Aug 2026.* The wave covers **all 100 test queries**, including the 36 that are currently unscoreable. Widening *n* is a first-class objective of the wave, not a byproduct | **Q31** | Supersedes D21's 64 within the same wave — D21's reasoning (graded, not strict) still governs the *relevance definition*; D23 governs *query coverage*. Upper bound rises to **500 top-5 slots per system** from 320. §"What D23 buys" below |
 
 ## What D22 costs, and what it changes about Q26
@@ -106,6 +107,25 @@ mechanical, not preferential. The judgement schema is written now, before any la
 layer rather than migrating it. The wave is deferred to an optional week-11 batch of 100–150
 pairs, not cancelled, and D22/D23's reasoning is on record for whoever runs it.
 
+## Q24 in the back pocket
+
+The scoring pass is **run and recorded**; what is deferred is *re-running it on a better
+model*. The reason is that the Stage 1 baseline is weak — Recall@10 0.298 against a 0.80
+target — and a weak ranker's exposure profile is a poor guide to a strong one's.
+
+That is precisely **assumption A15**: *"one system's exposure generalises well enough to set
+policy for Stages 1–4."* It is currently untested, and re-running `evaluation.retrieval`
+against a Stage 2/3 model is the test. The cost is one command and no annotator time:
+
+```bash
+uv run python -m candidate_screener.evaluation.retrieval --seed 0
+```
+
+`evaluation.retrieval.evaluate` takes any long-form `query_jd_id, candidate_resume_id, score`
+frame, so a new stage plugs in without touching the metric code. **If a stronger system's
+unjudged share does *not* fall the way TF-IDF's did, D26 should be revisited** — that
+monotone fall is the evidence D26 rests on, and it currently has two points and a floor.
+
 ## What Q24 actually returned *(D27)*
 
 Run at last, and it does **not** support the comfortable reading.
@@ -164,6 +184,45 @@ Two consequences that must not be lost:
    surfaced something relevant. Reporting A1+ours over all 100 mixes queries whose relevant set was
    found independently with queries whose relevant set was found by the systems under test. Task
    5.7 reports the newly-scoreable queries as a **named stratum**, never silently pooled.
+
+## Growing, pausing, re-scoping *(D28)*
+
+D25 fixed a budget. It did not say what happens when the budget is spent and more is wanted,
+and the first implementation answered that badly: the builders were one-shot, in the same
+style as `pools.csv` — a pure function of (corpus, seed) with byte-equality asserted across
+rebuilds. That is right for a derived artefact and **wrong for a campaign that runs over days**.
+
+Measured on the first implementation: growing `n_jds` from 40 to 60 kept the same 40 JDs and
+**changed 190 of 200 `pair_id`s**. Every label collected against them would have pointed at a
+pair that no longer existed. No exception, no row-count change — the shape this repo keeps
+meeting.
+
+| Scenario | Command | What is guaranteed |
+|---|---|---|
+| **More breadth** — new JDs | `sample --add-batch --n-jds 20` | Existing batches untouched; new JDs, new CVs |
+| **More depth** — same JDs, Q14's wave-2 shape | `sample --add-batch --reuse-jds --per-jd 5` | Existing pairs untouched; new candidates for JDs already in the set |
+| **Add job titles** | `sample --add-batch --keywords "Data Science" ...` | Recorded as a **targeted stratum**, and `verify --derived` names it |
+| **Stop halfway** | `queue --build` | Rebuilds only what is unjudged. It *is* the resume command |
+| **See where you are** | `queue --progress` | Per-batch counts, and which JDs are split across sittings |
+
+Three properties make this hold, and they are not interchangeable:
+
+1. **Frozen batch specs** (`indomain-batches.json`) — batch *N* draws from what 1..*N*-1 left.
+   This alone is what keeps collected labels valid.
+2. **`document_seed`** — a JD's candidate draw is keyed on its `jd_id`, not its position, so a
+   batch re-derived under a filter reproduces the same pairs.
+3. **`choose_jds` sorts before permuting** — otherwise a publisher re-upload that shuffled the
+   parquet would select a different 40 JDs with every seed and count identical.
+
+**The obligation this creates.** A keyword-scoped batch is a *targeted* sample. Pooling its
+labels into a headline figure destroys D14's unstratified property for the whole set — the
+same trap as D23's newly-scoreable queries. `indomain-batches.json` carries the rule, the
+report labels each batch `unstratified (D14)` or `targeted`, and `verify --derived` names the
+targeted batches on every run.
+
+**What it does not solve.** The top-1 shortlist pick is asked once per JD after all its
+candidates are seen. A JD split across two sittings needs its pick recorded in the second;
+`queue --progress` lists exactly those JDs rather than leaving it to memory.
 
 ## Progress
 

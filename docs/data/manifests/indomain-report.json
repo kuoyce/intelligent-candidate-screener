@@ -1,7 +1,4 @@
 {
-  "seed": 0,
-  "n_jds": 40,
-  "per_jd": 5,
   "cv_text_fields": [
     "Position",
     "CV",
@@ -11,11 +8,22 @@
   ],
   "candidates_per_jd": 200,
   "note_banding": "The 5 CVs per JD are banded by TF-IDF cosine against the JD, not drawn uniformly. Consequence, and it must be stated wherever an in-domain precision figure appears: this pool is NOT a uniform sample of the corpus, so in-domain absolute precision is not an unbiased estimate of production precision. It is a comparison instrument between systems. The alternative \u2014 a uniform draw \u2014 returns ~5 No Fit per JD and makes P@5 identically zero for every system, which measures nothing at all.",
+  "note_stratum": "A batch carrying `keywords` is a TARGETED sample and is not interchangeable with an unstratified one. Pooling its labels into a headline figure silently destroys D14's unstratified property for the whole set. Report a keyword-scoped batch as its own named stratum, always \u2014 the same rule D23's newly-scoreable queries carry.",
   "note_region": "Drawn only from region == eval in a2-partition.csv (D19).",
   "summary": {
     "pairs": 200,
     "jds": 40,
     "cvs": 200,
+    "batches": {
+      "1": {
+        "pairs": 200,
+        "jds": 40,
+        "cvs": 200,
+        "keywords": null,
+        "reuse_jds": false,
+        "stratum": "unstratified (D14)"
+      }
+    },
     "by_lexical_band": {
       "mid": 80,
       "high": 80,
@@ -45,7 +53,7 @@
     },
     "holdout_documents": {
       "jd": 40,
-      "cv": 7401
+      "cv": 7459
     }
   }
 }

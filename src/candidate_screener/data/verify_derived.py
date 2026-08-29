@@ -300,6 +300,25 @@ def check_indomain() -> list[tuple[bool, str]]:
                     f"reserved for {len(pairs)} pairs"))
 
     results.append((pairs.pair_id.is_unique, "identity: pair_id has no duplicates"))
+
+    # D28: batches are frozen and append-only. A document appearing in two batches means
+    # a later batch re-drew what an earlier one took, which is exactly the failure that
+    # orphans already-collected labels.
+    if sample.BATCHES.exists():
+        import json
+        specs = json.loads(sample.BATCHES.read_text())["batches"]
+        numbers = [b["batch"] for b in specs]
+        results.append((len(numbers) == len(set(numbers)),
+                        f"campaign: {len(numbers)} batch specs, numbers unique"))
+        results.append((set(pairs.batch) <= set(numbers),
+                        f"campaign: every pair's batch is a declared spec"))
+        cv_batches = pairs.groupby("cv_id").batch.nunique()
+        results.append(((cv_batches == 1).all(),
+                        f"batch disjointness: {int((cv_batches > 1).sum())} CVs drawn by "
+                        f"more than one batch"))
+        targeted = [b["batch"] for b in specs if b.get("keywords")]
+        results.append((True, f"strata: batches {targeted or 'none'} are TARGETED and must "
+                              f"be reported separately from the unstratified set (D14)"))
     return results
 
 
@@ -332,6 +351,14 @@ def check_judging_queue() -> list[tuple[bool, str]]:
                                       f"PII in the dispatched text"))
     else:
         results.append((True, f"blinding: {dispatch} not built (git-ignored) — skipped"))
+
+    # D28: the queue is rebuilt from what is *not* judged, so a rebuild must never
+    # re-present a labelled pair. This is the resume mechanism's only invariant.
+    done = queue.judged_pair_ids()
+    if done:
+        redispatched = {f"{q}__{d}" for q, d in zip(key.query_id, key.doc_id)} & done
+        results.append((not redispatched,
+                        f"resume: {len(redispatched)} already-judged pairs re-dispatched"))
 
     if queue.JUDGEMENTS.exists():
         judged = pd.read_csv(queue.JUDGEMENTS)

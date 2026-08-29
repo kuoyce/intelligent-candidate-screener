@@ -135,6 +135,14 @@ adjudicated disagreement logged.
 > Stage 4. `docs/data/manifests/judging-queue.csv` is the key; the redacted dispatch file is
 > git-ignored under `data/processed/indomain/`.
 >
+> **Revised to a batch campaign 29 Aug 2026 (D28).** The first build was one-shot, and
+> growing `n_jds` from 40 to 60 changed **190 of 200 `pair_id`s** — every collected label
+> would have been orphaned. The set is now a list of frozen batch specs
+> (`indomain-batches.json`); batch 1 is the 200 pairs above. Grow with `--add-batch`,
+> resume with `queue --build`. A `--keywords` batch is a **targeted stratum** and is
+> reported separately, never pooled — D14 constrains batch 1's sampling and the
+> obligation survives into every later batch.
+>
 > One deviation from step 3: **experience bands cover `0-1`, `2-3` and `4-6` only.** The JD
 > side ships five `Exp Years` categories that map to three bands and has no `7+` — a property
 > of how Djinni collected the field, already recorded in `a2_finetune.JD_EXP_TO_BAND`, not a

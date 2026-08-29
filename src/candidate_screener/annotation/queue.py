@@ -19,8 +19,19 @@ the dispatch file; if it carried `selection_reason`, they would know which pairs
 already labelled and could anchor on the expected answer, which is the one thing the
 recheck cannot survive. The key exists so the session is reconstructible afterwards.
 
+**Resuming a half-finished session** *(decision D28)*. The queue is rebuilt from what is
+*not yet judged*: any `pair_id` carrying a row in `judgements.csv` is dropped before the
+shuffle. Granularity is the pair, not the JD or the batch, so a session that stops at pair
+130 of 250 resumes at 120 remaining with no bookkeeping and no state file. Re-running
+`--build` at any point is therefore always safe — it is the resume command.
+
+The one thing it cannot do is put a JD back together: the top-1 shortlist pick is asked
+once per JD after all its candidates have been seen, so a JD split across two sittings
+needs its pick recorded in the second. `--report-progress` prints which JDs are partial.
+
 Usage:
     uv run python -m candidate_screener.annotation.queue --build --seed 0
+    uv run python -m candidate_screener.annotation.queue --progress
 """
 from __future__ import annotations
 
@@ -47,8 +58,8 @@ DISPATCH_OUT = PROCESSED / "indomain"
 #: merging them would have forced a choice between deleting the determinism check and
 #: never re-running the builder. The schema is written before any label exists — a schema
 #: settled afterwards is a migration.
-JUDGEMENT_COLUMNS = ("pair_id", "corpus", "query_id", "doc_id", "selection_reason",
-                     "annotator", "label", "shortlist_pick", "notes")
+JUDGEMENT_COLUMNS = ("pair_id", "batch", "corpus", "query_id", "doc_id",
+                     "selection_reason", "annotator", "label", "shortlist_pick", "notes")
 
 #: Columns an annotator sees. Anything else is anchoring material.
 DISPATCH_COLUMNS = ("queue_id", "query_text", "candidate_text")
@@ -79,6 +90,7 @@ def a1_recheck(strata: dict[str, int], seed: int) -> pd.DataFrame:
     out = pd.concat(picked)
     return pd.DataFrame({
         "corpus": "a1",
+        "batch": 0,          # the recheck is not part of the in-domain campaign
         "query_id": out.jd_id.to_numpy(),
         "doc_id": out.resume_id.to_numpy(),
         "selection_reason": "a1_recheck",
@@ -87,8 +99,23 @@ def a1_recheck(strata: dict[str, int], seed: int) -> pd.DataFrame:
         "a1_label": out.label.to_numpy()})
 
 
+def judged_pair_ids() -> set[str]:
+    """Everything already labelled. The resume mechanism, and the whole of it.
+
+    A pair is done when it has a row here — no separate progress file, nothing to keep in
+    sync, and no way for the two to disagree. `judgements.csv` is append-only, so this set
+    only grows.
+    """
+    if not JUDGEMENTS.exists():
+        return set()
+    judged = pd.read_csv(JUDGEMENTS)
+    if judged.empty or "pair_id" not in judged:
+        return set()
+    return set(judged.pair_id.dropna().astype(str))
+
+
 def indomain_rows() -> pd.DataFrame:
-    """Task 3.4b's 200 pairs, joined to text."""
+    """Task 3.4b's pairs, every batch, joined to text."""
     if not PAIRS_MANIFEST.exists():
         raise FileNotFoundError(
             f"{PAIRS_MANIFEST} missing — run `uv run python -m "
@@ -99,6 +126,7 @@ def indomain_rows() -> pd.DataFrame:
     cv_text = cv.set_index("id").cv_text
     return pd.DataFrame({
         "corpus": "a2",
+        "batch": pairs.batch.to_numpy(),
         "query_id": pairs.jd_id.to_numpy(),
         "doc_id": pairs.cv_id.to_numpy(),
         "selection_reason": "indomain_banded",
@@ -108,9 +136,17 @@ def indomain_rows() -> pd.DataFrame:
 
 
 def build_queue(seed: int, strata: dict[str, int] | None = None) -> pd.DataFrame:
-    """Concatenate, redact, shuffle. The shuffle is the blinding."""
+    """Concatenate, drop what is judged, redact, shuffle. The shuffle is the blinding."""
     rows = pd.concat([indomain_rows(), a1_recheck(strata or RECHECK_STRATA, seed)],
                      ignore_index=True)
+    rows["pair_id"] = rows.query_id.astype(str) + "__" + rows.doc_id.astype(str)
+
+    done = judged_pair_ids()
+    rows = rows[~rows.pair_id.isin(done)].reset_index(drop=True)
+    if rows.empty:
+        raise AssertionError(
+            f"every pair in the campaign is already judged ({len(done)} labels). Add a "
+            "batch with `annotation.sample --add-batch` before rebuilding the queue.")
 
     missing = rows[rows.query_text.isna() | rows.candidate_text.isna()]
     if len(missing):
@@ -127,8 +163,32 @@ def build_queue(seed: int, strata: dict[str, int] | None = None) -> pd.DataFrame
     if rows.queue_id.duplicated().any():
         raise AssertionError("duplicate queue_id — the same pair is dispatched twice")
 
-    order = np.random.default_rng(seed).permutation(len(rows))
+    # Reshuffled on every rebuild, at a seed that includes how much is already done, so a
+    # resumed sitting does not re-present the remainder in its original relative order —
+    # which would leak that the skipped pairs were the ones judged first.
+    order = np.random.default_rng([seed, len(rows)]).permutation(len(rows))
     return rows.iloc[order].reset_index(drop=True).assign(position=range(len(rows)))
+
+
+def progress() -> dict:
+    """What is done, what is left, and which JDs are split across sittings."""
+    done = judged_pair_ids()
+    pairs = pd.read_csv(PAIRS_MANIFEST)
+    pairs["pair_id"] = pairs.jd_id.astype(str) + "__" + pairs.cv_id.astype(str)
+    pairs["done"] = pairs.pair_id.isin(done)
+
+    by_jd = pairs.groupby("jd_id").done.agg(["sum", "size"])
+    partial = by_jd[(by_jd["sum"] > 0) & (by_jd["sum"] < by_jd["size"])]
+    return {
+        "judged": len(done), "in_domain_total": int(len(pairs)),
+        "in_domain_done": int(pairs.done.sum()),
+        "remaining": int((~pairs.done).sum()),
+        "by_batch": {str(b): {"done": int(g.done.sum()), "total": int(len(g))}
+                     for b, g in pairs.groupby("batch")},
+        # A JD split across two sittings needs its top-1 shortlist pick recorded in the
+        # second, because the question is asked once per JD after all its candidates.
+        "partial_jds": partial.index.tolist(),
+    }
 
 
 def build(seed: int, strata: dict[str, int] | None = None) -> dict:
@@ -145,9 +205,12 @@ def build(seed: int, strata: dict[str, int] | None = None) -> dict:
         DISPATCH_OUT / "judging-queue.csv", index=False, lineterminator="\n")
     queue.to_parquet(DISPATCH_OUT / "judging-queue-full.parquet", index=False)
 
+    already = judged_pair_ids()
     report = {
         "seed": seed,
         "total": int(len(queue)),
+        "already_judged_and_skipped": len(already),
+        "by_batch": {str(b): int(n) for b, n in queue.batch.value_counts().items()},
         "by_selection_reason": queue.selection_reason.value_counts().to_dict(),
         "a1_recheck_strata": {k: int(v) for k, v in
                               queue[queue.selection_reason == "a1_recheck"]
@@ -167,7 +230,9 @@ def build(seed: int, strata: dict[str, int] | None = None) -> dict:
 
 
 def print_report(r: dict) -> None:
-    print(f"\n=== Judging queue — {r['total']} pairs, one session (seed={r['seed']})")
+    print(f"\n=== Judging queue — {r['total']} pairs to judge (seed={r['seed']})")
+    if r["already_judged_and_skipped"]:
+        print(f"  resuming: {r['already_judged_and_skipped']} already judged, skipped")
     for reason, n in r["by_selection_reason"].items():
         print(f"  {reason:<20} {n}")
     print(f"  A1 recheck strata   {r['a1_recheck_strata']}  <-- tests A13")
@@ -180,11 +245,29 @@ def print_report(r: dict) -> None:
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--build", action="store_true")
+    ap.add_argument("--build", action="store_true",
+                    help="write the queue of everything not yet judged — also the "
+                         "resume command, safe to run at any point")
+    ap.add_argument("--progress", action="store_true",
+                    help="what is done, what is left, which JDs are split")
     ap.add_argument("--seed", type=int, default=0)
     args = ap.parse_args()
-    if not args.build:
-        ap.error("pass --build")
+    if not (args.build or args.progress):
+        ap.error("pass --build or --progress")
+
+    if args.progress:
+        p = progress()
+        print(f"\n=== Progress — {p['in_domain_done']}/{p['in_domain_total']} in-domain "
+              f"pairs judged, {p['remaining']} remaining")
+        for batch, b in p["by_batch"].items():
+            print(f"  batch {batch}   {b['done']}/{b['total']}")
+        if p["partial_jds"]:
+            print(f"  partial JDs ({len(p['partial_jds'])}) — each needs its top-1 "
+                  f"shortlist pick recorded when it is finished:")
+            for j in p["partial_jds"][:10]:
+                print(f"      {j}")
+        return 0
+
     print_report(build(args.seed))
     return 0
 

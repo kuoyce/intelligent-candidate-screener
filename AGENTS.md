@@ -82,6 +82,15 @@ in `plan/2026-08-29-unified-judging-wave/`.
 Nothing reaches an annotator without passing `annotation.redact`, and nothing an annotator sees
 carries `selection_reason` — a reader who knows which pairs already have a label anchors on it.
 
+**The in-domain set is a frozen, append-only batch campaign** *(decision D28)*, configured by
+`docs/data/manifests/indomain-batches.json`. Grow it by appending a batch spec
+(`sample --add-batch`), never by re-running an existing batch with a larger `n_jds` — batch *N*
+draws from what 1..*N*-1 left, and that is the only thing keeping already-collected labels
+valid. `queue --build` is the resume command: it emits only pairs absent from `judgements.csv`.
+
+A batch carrying `keywords` is a **targeted stratum** and must be reported separately; pooling
+it into a headline destroys D14's unstratified property for the whole set.
+
 ## Data rules
 
 1. **`data/` is git-ignored in its entirety.** Everything in it must be reconstructible from

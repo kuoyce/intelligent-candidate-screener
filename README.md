@@ -126,6 +126,27 @@ uv run python -m candidate_screener.data.build --task indomain judging-queue --s
 The dispatch file carries three columns and nothing else. An annotator who could see why a pair
 was selected would know which ones already have a label and would anchor on the expected answer.
 
+### Growing it, pausing it, re-scoping it *(D28)*
+
+The set is a **frozen, append-only batch campaign** — `docs/data/manifests/indomain-batches.json`
+is its config. Batch *N* draws only from what batches 1..*N*-1 left behind, so appending can
+never change an existing `pair_id`, and labels already collected stay valid.
+
+```bash
+uv run python -m candidate_screener.annotation.sample --add-batch --n-jds 20        # wider
+uv run python -m candidate_screener.annotation.sample --add-batch --reuse-jds       # deeper
+uv run python -m candidate_screener.annotation.sample --add-batch --keywords "Data Science"
+uv run python -m candidate_screener.annotation.queue  --build                       # resume
+uv run python -m candidate_screener.annotation.queue  --progress                    # where you are
+```
+
+`queue --build` is the resume command: it emits only pairs with no row in `judgements.csv`, so
+a session that stops at pair 130 of 250 restarts with 120 and no bookkeeping.
+
+**A `--keywords` batch is a targeted stratum.** Pooling it into a headline destroys the
+unstratified property (D14) of the whole set; report it separately. `verify --derived` names
+the targeted batches on every run so this cannot be forgotten quietly.
+
 ## Data handling rules
 
 - Nothing under `data/` is committed. Derived artefacts are reproducible from the scripts.
