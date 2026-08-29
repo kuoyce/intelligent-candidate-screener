@@ -56,6 +56,53 @@ The informative failure is `Potential Fit` (F1 0.09 / 0.05): its mean score is *
 `Good Fit`'s with by far the widest spread, so it carries no ordinal information and a monotone
 threshold cannot place it. That is the bar the semantic and cross-encoder stages have to clear.
 
+## `retrieval-metrics.json` — the same baseline as a **ranker** *(Q24, decision D27)*
+
+`baseline-metrics.json` measures the baseline as a *classifier*, one pair at a time. That is
+not the question the task 3.3 pools were built to ask, and for two phases nobody asked the
+other one: **Q24 — score an existing system over the pools — was deferred out of Phase 4 and
+deferred again in Phase 5.**
+
+```bash
+uv run python -m candidate_screener.evaluation.retrieval --seed 0     # rebuild + write
+uv run python -m candidate_screener.evaluation.retrieval --check      # rebuild + diff
+```
+
+It re-uses `baselines.run.build` for the fitted vectoriser and BM25 statistics, so the ranker
+recorded here is the same object `run --check` guards; there is no second fit path.
+
+### The result
+
+| | Recall@10 strict | Precision@5 strict | % of attainable | nDCG@10 strict |
+|---|---|---|---|---|
+| TF-IDF | **0.298** [0.216, 0.391] | 0.142 [0.090, 0.194] | 18% | 0.232 |
+| BM25 | 0.196 [0.125, 0.279] | 0.103 [0.065, 0.148] | 13% | 0.182 |
+| Random floor | 0.128 [0.061, 0.212] | 0.071 [0.039, 0.110] | 9% | 0.084 |
+
+*n* = 31 strict / 64 graded, N100, bootstrap CI resampling queries. **The proposal's Stage 1
+target is Recall@10 > 0.80.** TF-IDF reaches 0.298 — above the random floor with a
+non-overlapping interval, and nowhere near the target. That is the finding, not a defect to
+be tuned away before it is reported.
+
+### What it settles about Q18
+
+Of TF-IDF's 500 top-5 slots, **416 (83.2%) are unjudged distractors** — documents precision
+counts as misses that nobody ever looked at. So the bias Q18 raised is *large*, not
+negligible, and the raw Precision@5 of 0.142 is a floor rather than an estimate.
+
+The ordering question is the one that was actually in doubt, and it resolves the other way
+from the fear. Q18's argument was that the penalty **grows** with system quality, which would
+compress or invert the ranking. Measured, the unjudged share falls monotonically as the system
+improves — random 94.0%, BM25 86.6%, TF-IDF 83.2% — because a better system puts *more* judged
+documents at the top, not fewer. The pools rank these systems in the right order, and the
+mechanism that would have made them unfit for that job is not present in the observed
+direction.
+
+**This is exposure, not contamination.** How many of the 416 are *genuinely* relevant still
+needs a human, and under **D26** that measurement is deliberately not taken: Q18 closes as a
+standing limitation, with Recall@10 — which carries a ceiling of 0.983 and is the metric the
+success measures name — as the headline. See `plan/2026-08-29-unified-judging-wave/`.
+
 ## Reading the file
 
 No timestamp, deliberately *(Phase 3, W6)*: with one, every re-run diffs and the reproducibility

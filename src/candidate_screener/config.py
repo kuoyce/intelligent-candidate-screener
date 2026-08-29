@@ -38,6 +38,10 @@ PROFILE_METRICS = DOCS_DATA / "profile-metrics.json"
 #: Written by `candidate_screener.baselines.run`; the golden record of the Stage 1
 #: classical baseline. Committed — see `output/baselines/README.md`.
 BASELINE_METRICS = OUTPUT / "baselines" / "baseline-metrics.json"
+#: Written by `candidate_screener.evaluation.retrieval`; the Stage 1 baseline scored
+#: as a *ranker* over the task 3.3 pools, which the classification record above does
+#: not measure. Committed, and the evidence Q18b/Q24 asked for *(decision D27)*.
+RETRIEVAL_METRICS = OUTPUT / "baselines" / "retrieval-metrics.json"
 #: Git-ignored regenerable cache: the fitted pickles and the per-pair scores *(D23)*.
 BASELINE_CACHE = PROCESSED / "baselines"
 

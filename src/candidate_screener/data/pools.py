@@ -31,7 +31,9 @@ import numpy as np
 import pandas as pd
 
 from candidate_screener.config import PROCESSED
-from candidate_screener.data.fit_split import MANIFESTS, SPLIT_MANIFEST, FIT_OUT
+from candidate_screener.data.fit_split import (MANIFESTS, SPLIT_MANIFEST, FIT_OUT,
+                                              load_pooled)
+from candidate_screener.evaluation.metrics import ceilings
 
 POOLS_OUT = PROCESSED / "pools"
 POOL_MANIFEST = MANIFESTS / "pools.csv"
@@ -137,6 +139,46 @@ def attainability(pools: pd.DataFrame, variant: str = "N100") -> dict:
     return out
 
 
+def attach_text(pools: pd.DataFrame) -> pd.DataFrame:
+    """Join pool rows to document text — from the **pooled A1 corpus**, not the split.
+
+    *(Deviation X1, 29 Aug 2026 — a bug found by the first code that actually ranked
+    these pools.)* The universe of candidates is every resume assigned to test (193),
+    but only 158 of them appear in a judged test pair: the other 35 are test-assigned
+    resumes whose every pair was discarded by the doubly-disjoint rule. Sourcing text
+    from `test.parquet` therefore left **1,755 of 10,000 N100 rows** (17.6%) with a
+    null `resume_text`, all of them distractors.
+
+    Nothing caught it, in the shape this repo keeps meeting: the null count *was*
+    computed, but assigned to `report` **after** `POOL_YIELD.write_text` had already
+    run, so it never reached the committed manifest; and no consumer existed until
+    `evaluation.retrieval` — Q24, deferred twice — tried to vectorise the pools and
+    hit `np.nan is an invalid document`.
+
+    A distractor with no text is worse than a missing row: a scorer either raises or
+    silently ranks it, and either way the realised pool depth is not the recorded one.
+    So this asserts rather than warns.
+    """
+    pooled, _ = load_pooled()
+    resumes = pooled[["resume_id", "resume_text"]].drop_duplicates(
+        "resume_id").set_index("resume_id").resume_text
+    jds = pooled[["jd_id", "job_description_text"]].drop_duplicates(
+        "jd_id").set_index("jd_id").job_description_text
+
+    joined = pools.assign(
+        job_description_text=pools.query_jd_id.map(jds),
+        resume_text=pools.candidate_resume_id.map(resumes))
+
+    missing = joined[joined.resume_text.isna() | joined.job_description_text.isna()]
+    if len(missing):
+        raise AssertionError(
+            f"{len(missing)} pool rows have no document text "
+            f"({missing.candidate_resume_id.nunique()} resumes, "
+            f"{missing.query_jd_id.nunique()} JDs). Every pool document must be "
+            "scoreable or the realised pool depth is not the recorded depth.")
+    return joined
+
+
 def build(seed: int) -> dict:
     judged, universe = load_test_pool()
     pools = build_pools(judged, universe, seed)
@@ -149,19 +191,18 @@ def build(seed: int) -> dict:
     report = {"seed": seed, "universe_resumes": int(len(universe)),
               "note_distractors": ASSUMPTION,
               "note_variants": "Nested: N20 subset of N100 subset of Nfull.",
-              "summary": summarise(pools), "attainability": attainability(pools)}
-    POOL_YIELD.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
+              "summary": summarise(pools), "attainability": attainability(pools),
+              "precision_ceiling": ceilings(pools)}
 
     POOLS_OUT.mkdir(parents=True, exist_ok=True)
-    text = pd.concat([
-        judged[["jd_id", "job_description_text"]].drop_duplicates("jd_id"),
-    ]).set_index("jd_id").job_description_text
-    resumes = judged[["resume_id", "resume_text"]].drop_duplicates("resume_id").set_index("resume_id").resume_text
-    joined = pools.assign(
-        job_description_text=pools.query_jd_id.map(text),
-        resume_text=pools.candidate_resume_id.map(resumes))
+    joined = attach_text(pools)
     joined.to_parquet(POOLS_OUT / "pools.parquet", index=False)
-    report["unjoinable_resume_text"] = int(joined.resume_text.isna().sum())
+    report["text_join"] = {
+        "resume_text_source": "load_pooled() — all 643 A1 resumes, not test.parquet",
+        "distractors_needing_the_wider_source": int(
+            (~pools.candidate_resume_id.isin(judged.resume_id)).sum()),
+        "unjoinable": 0}
+    POOL_YIELD.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
     return report
 
 
@@ -183,6 +224,15 @@ def print_report(r: dict) -> None:
             print(f"      Recall{k:<4} median cap {c['median_cap']:.2f}  "
                   f"queries reaching 0.90: {c['pct_queries_cap_ge_0.90']:5.1f}%")
 
+    print(f"\n=== Q18a — Precision@k ceiling on these pools "
+          f"({r['precision_ceiling']['variant']}) *(D26)*")
+    for name, d in r["precision_ceiling"]["definitions"].items():
+        for metric, c in d.items():
+            print(f"  {name:<7} {metric:<12} max attainable {c['max_attainable_mean']:.4f}  "
+                  f"n={c['n_queries']:<3} unwinnable slots "
+                  f"{c['unwinnable_slots']}/{c['total_slots']} "
+                  f"({100 * c['unwinnable_slots'] / c['total_slots']:.0f}%)")
+
 
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__,
@@ -198,6 +248,7 @@ def main() -> int:
         judged, universe = load_test_pool()
         pools = build_pools(judged, universe, args.seed)
         print_report({"summary": summarise(pools), "attainability": attainability(pools),
+                      "precision_ceiling": ceilings(pools),
                       "universe_resumes": len(universe)})
     if args.build:
         print_report(build(args.seed))

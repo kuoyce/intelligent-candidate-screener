@@ -33,6 +33,18 @@ import pandas as pd
 GAINS = {"good": 2.0, "potential": 1.0, "none": 0.0}
 DEFINITIONS = {"strict": {"good"}, "graded": {"good", "potential"}}
 
+#: Travels with every Precision@k figure *(decision D26)*. Q18 closes as a standing
+#: limitation rather than a judging wave: the ceiling is recorded and reported, and
+#: Recall@10 — which carries no such ceiling at a median of 6 relevant per query — is
+#: the headline retrieval metric the project's success measures actually name.
+CEILING_NOTE = (
+    "Precision@k on these pools is bounded below 1.0 by judged supply: many queries "
+    "have fewer than k judged-relevant resumes, so no ranker can fill the top k. The "
+    "ceiling is a property of the split, identical at every pool variant. Report the "
+    "raw figure AND this ceiling; a system at 0.45 against a 0.781 ceiling is at 58% "
+    "of attainable, not 45%."
+)
+
 
 @dataclass(frozen=True)
 class Figure:
@@ -129,6 +141,79 @@ def score(pools: pd.DataFrame, scores: pd.DataFrame, variant: str, metric: str,
     low, high = bootstrap_ci(values, seed=seed)
     return Figure(f"{metric}@{k}", definition, variant, float(values.mean()),
                   len(values), low, high)
+
+
+def attainable_ceiling(pools: pd.DataFrame, metric: str, k: int,
+                       definition: str = "strict", variant: str = "N100",
+                       seed: int = 0) -> Figure:
+    """The best value **any** ranker could reach on these pools *(Q18a, decision D26)*.
+
+    A second bias, distinct from the unjudged-distractor assumption `pools.ASSUMPTION`
+    describes: for many queries there are not *k* judged-relevant resumes in existence
+    to put in the top *k*, so a perfect ranker scores below 1.0 by construction. With a
+    graded median of 4 relevant resumes per query, 90 of the 320 top-5 slots are
+    unwinnable — reporting a raw Precision@5 without this understates every system
+    uniformly and silently.
+
+    Per query the ceiling is `min(k, R) / k` for Precision and `min(k, R) / R` for
+    Recall, where R is the judged-relevant count under `definition`.
+
+    **nDCG has no ceiling below 1.0** and asking for one raises: `ndcg_at_k` normalises
+    by an ideal taken from the same pool, so a perfect ranker scores exactly 1.0 however
+    sparse the labels are. That is not the ceiling being absent, it is nDCG hiding the
+    same sparsity in its denominator.
+
+    The ceiling is a property of the **split**, not of pool depth — it is identical at
+    N20, N100 and Nfull, because adding distractors changes precision's denominator but
+    not the supply of judged-relevant documents. `test_metrics.py` asserts that, because
+    it is the fact that stops someone "fixing" the ceiling by choosing another variant.
+    """
+    if metric == "nDCG":
+        raise ValueError(
+            "nDCG@k has no attainable ceiling below 1.0 — it normalises by an ideal "
+            "drawn from the same pool, so a perfect ranker reaches 1.0 at any label "
+            "density. Use Precision or Recall, and report nDCG's sparsity separately.")
+    if metric not in ("Precision", "Recall"):
+        raise ValueError(f"unknown metric {metric!r} — Precision or Recall")
+
+    group = pools[pools.pool_variant == variant]
+    depth = group.groupby("query_jd_id").size()
+    if k > int(depth.min()):
+        raise ValueError(
+            f"{metric}@{k} is deeper than the shallowest {variant} pool "
+            f"({int(depth.min())} candidates) — the same guard `score` applies.")
+
+    relevant = group[group.relevance.isin(DEFINITIONS[definition])].groupby(
+        "query_jd_id").size()
+    if not len(relevant):      # undefined, not zero — the rule `score` enforces
+        raise ValueError(f"{metric}@{k} ({definition}): no query carries a relevant "
+                         "document — nothing to bound")
+
+    caps = np.minimum(k, relevant.to_numpy()) / (
+        k if metric == "Precision" else relevant.to_numpy())
+    low, high = bootstrap_ci(caps.astype(float), seed=seed)
+    return Figure(f"ceiling {metric}@{k}", definition, variant, float(caps.mean()),
+                  len(caps), low, high)
+
+
+def ceilings(pools: pd.DataFrame, variant: str = "N100", seed: int = 0) -> dict:
+    """Every precision ceiling these pools carry, shaped for `pools-yield.json`."""
+    out: dict = {"variant": variant, "note": CEILING_NOTE, "definitions": {}}
+    for definition in DEFINITIONS:
+        entry: dict = {}
+        for k in (5, 10):
+            figure = attainable_ceiling(pools, "Precision", k, definition, variant, seed)
+            group = pools[pools.pool_variant == variant]
+            relevant = group[group.relevance.isin(DEFINITIONS[definition])].groupby(
+                "query_jd_id").size()
+            entry[f"precision@{k}"] = {
+                "max_attainable_mean": round(figure.value, 4),
+                "n_queries": figure.n_queries,
+                "queries_able_to_reach_1.0": int((relevant >= k).sum()),
+                "unwinnable_slots": int((k - np.minimum(k, relevant)).sum()),
+                "total_slots": int(k * len(relevant))}
+        out["definitions"][definition] = entry
+    return out
 
 
 def random_scores(pools: pd.DataFrame, seed: int = 0) -> pd.DataFrame:

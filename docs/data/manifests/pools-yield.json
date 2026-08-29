@@ -125,5 +125,48 @@
         }
       }
     }
+  },
+  "precision_ceiling": {
+    "variant": "N100",
+    "note": "Precision@k on these pools is bounded below 1.0 by judged supply: many queries have fewer than k judged-relevant resumes, so no ranker can fill the top k. The ceiling is a property of the split, identical at every pool variant. Report the raw figure AND this ceiling; a system at 0.45 against a 0.781 ceiling is at 58% of attainable, not 45%.",
+    "definitions": {
+      "strict": {
+        "precision@5": {
+          "max_attainable_mean": 0.7806,
+          "n_queries": 31,
+          "queries_able_to_reach_1.0": 20,
+          "unwinnable_slots": 34,
+          "total_slots": 155
+        },
+        "precision@10": {
+          "max_attainable_mean": 0.5677,
+          "n_queries": 31,
+          "queries_able_to_reach_1.0": 6,
+          "unwinnable_slots": 134,
+          "total_slots": 310
+        }
+      },
+      "graded": {
+        "precision@5": {
+          "max_attainable_mean": 0.7188,
+          "n_queries": 64,
+          "queries_able_to_reach_1.0": 30,
+          "unwinnable_slots": 90,
+          "total_slots": 320
+        },
+        "precision@10": {
+          "max_attainable_mean": 0.4734,
+          "n_queries": 64,
+          "queries_able_to_reach_1.0": 7,
+          "unwinnable_slots": 337,
+          "total_slots": 640
+        }
+      }
+    }
+  },
+  "text_join": {
+    "resume_text_source": "load_pooled() \u2014 all 643 A1 resumes, not test.parquet",
+    "distractors_needing_the_wider_source": 5503,
+    "unjoinable": 0
   }
 }
