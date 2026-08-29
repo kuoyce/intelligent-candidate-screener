@@ -63,6 +63,12 @@ catalog, the A1 card and the README. See
 | 3.3 retrieval pools | **Done** 23 Aug 2026 — 100 queries, N20/N100/Nfull, metrics guarded. Q17 closed: Recall@10 reinstated, Recall@50 retired |
 | 3.1, 3.4, 3.5 | Not started |
 
+**Successor:** [`plan/2026-08-29-baseline-repeatability/`](../2026-08-29-baseline-repeatability/README.md)
+— Phase 4 takes the 3.2 split and the 3.3 metric discipline and applies both to the first
+scored system. Q18 (pool precision bias) remains open here and is untouched there; Q24 (scoring
+the baseline on the 3.3 pools) is raised there and deliberately deferred back to a phase after
+it.
+
 ## Critical path
 
 ```

@@ -4,17 +4,22 @@ NUS ISS PLP Practice Module, Group 2. A resume–job-description screening syste
 resumes in their original formats, extract structured evidence, and rank candidates against a
 job description with the evidence shown back to the recruiter.
 
-**Current phase: derived artefacts (Phase 3) — in progress.** All eleven adopted sources are
-downloaded, verified and documented; the leak-free evaluation split is built. Modelling has
-not started.
+**Current phase: baseline repeatability (Phase 4) — in progress.** All eleven adopted sources
+are downloaded, verified and documented; the leak-free evaluation split and the retrieval pools
+are built; the Stage 1 classical baseline is extracted into the package, frozen as a committed
+record and covered by a regression suite.
 
 ## Layout
 
 ```
 src/candidate_screener/     project code
   config.py                 canonical data paths
-  data/                     source registry, fetch, verify, profile
-notebooks/                  01-06, the data acquisition EDA (executed, outputs committed)
+  data/                     source registry, fetch, verify, profile, splits, pools
+  baselines/                the Stage 1 classical baseline (TF-IDF, BM25) and its entrypoint
+  evaluation/               retrieval and classification metrics, with their reporting guards
+tests/                      pytest — runs without data/ except the golden check
+notebooks/                  01-06 the acquisition EDA, 07 the baseline (executed, outputs committed)
+output/baselines/           committed model record — figures and config, never bytes
 docs/
   data/                     data catalog, per-source dataset cards, manifests
   proposal/                 the module proposal this project implements
@@ -55,6 +60,23 @@ Builders are pure functions of (`data/raw/`, seed). Nothing built is committed; 
 committed is the manifest naming each document by content hash, so the artefacts are
 reconstructible byte-for-byte — see [`docs/data/manifests/`](docs/data/manifests/).
 
+## Run the baseline
+
+```bash
+uv run python -m candidate_screener.baselines.run --seed 0   # fit, score, write the record
+uv run python -m candidate_screener.baselines.run --check    # assert it still reproduces
+uv run pytest                                                # unit + regression suite
+```
+
+The Stage 1 classical baseline (TF-IDF cosine and BM25, each over a single-feature logistic
+regression) lives in `src/candidate_screener/baselines/`, and its figures are committed to
+[`output/baselines/`](output/baselines/README.md). The fitted models are *not* committed — they
+are a regenerable cache under git-ignored `data/processed/baselines/`. `--check` refits in
+memory and diffs against the committed record, so a run that quietly differs fails loudly.
+
+`pytest` needs no data: every test but the end-to-end golden check runs on inline synthetic
+corpora and the golden check skips, visibly, when `data/` is absent.
+
 ## Where to look
 
 | Question | Read |
@@ -62,6 +84,7 @@ reconstructible byte-for-byte — see [`docs/data/manifests/`](docs/data/manifes
 | What data do we have, under what licence, with what defects? | [`docs/data/data-catalog.md`](docs/data/data-catalog.md) and [`docs/data/cards/`](docs/data/cards/) |
 | Why these sources, and what did profiling change? | [`plan/2026-08-19-data-strategy/01-requirements-and-findings.md`](plan/2026-08-19-data-strategy/01-requirements-and-findings.md) |
 | What happens next with the data? | [`plan/2026-08-23-derived-artefacts/`](plan/2026-08-23-derived-artefacts/README.md) — Phase 3, supersedes the acquisition plan's §3 |
+| What does the baseline score, and what is it comparable to? | [`output/baselines/README.md`](output/baselines/README.md) — the committed figures, and why accuracy sits below the majority floor |
 | What was actually built, and where did it deviate? | [`plan/2026-08-19-data-strategy/04-acquisition-implementation.md`](plan/2026-08-19-data-strategy/04-acquisition-implementation.md) |
 | How should an agent work in this repo? | [`AGENTS.md`](AGENTS.md) |
 
