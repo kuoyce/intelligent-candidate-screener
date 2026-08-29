@@ -11,6 +11,8 @@ from __future__ import annotations
 
 import argparse
 
+from candidate_screener.annotation import queue as judging_queue
+from candidate_screener.annotation import sample as indomain
 from candidate_screener.data import a2_finetune, fit_split, pools
 
 #: The hold-out fraction signed off on 23 Aug 2026 — see `fit-split-survey.json`.
@@ -41,12 +43,25 @@ def build_a2_shortlist(seed: int) -> None:
         a2_finetune.DATASCIENCE_KEYWORDS, jds_per_cell=15, per_jd=5, seed=seed))
 
 
-#: Task -> builder, in dependency order. 3.1 and 3.5 register as they land.
+def build_indomain(seed: int) -> None:
+    indomain.print_report(indomain.build(n_jds=40, per_jd=5, seed=seed))
+
+
+def build_judging_queue(seed: int) -> None:
+    judging_queue.print_report(judging_queue.build(seed))
+
+
+#: Task -> builder, **in dependency order**, which is the order `--all` runs them in.
+#: `indomain` reads `a2-partition.csv` and `judging-queue` reads `indomain-pairs.csv`,
+#: so this dict's insertion order is load-bearing and not cosmetic. 3.1 and 3.5 register
+#: as they land.
 TASKS = {
     "fit-split": build_fit_split,
     "pools": build_pools,
     "a2-partition": build_a2_partition,
     "a2-shortlist": build_a2_shortlist,
+    "indomain": build_indomain,
+    "judging-queue": build_judging_queue,
 }
 
 
@@ -58,7 +73,9 @@ def main() -> int:
     ap.add_argument("--seed", type=int, default=0)
     args = ap.parse_args()
 
-    tasks = sorted(TASKS) if args.all else args.task
+    # Insertion order, not `sorted` — the dict above is a dependency order, and
+    # alphabetical agreement with it was a coincidence of the first four task names.
+    tasks = list(TASKS) if args.all else [t for t in TASKS if t in args.task]
     if not tasks:
         ap.error("pass --all or --task <name> [...]")
     for name in tasks:

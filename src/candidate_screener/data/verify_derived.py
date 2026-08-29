@@ -255,12 +255,105 @@ def check_a2_shortlist() -> list[tuple[bool, str]]:
     return results
 
 
+def check_indomain() -> list[tuple[bool, str]]:
+    """Task 3.4b's 200-pair set and the D18 holdout region."""
+    from candidate_screener.annotation import sample
+
+    if not sample.PAIRS_MANIFEST.exists():
+        return [(False, "indomain-pairs.csv missing — run `annotation.sample --build`")]
+    if not a2.PARTITION_MANIFEST.exists():
+        return [(False, "a2-partition.csv missing — the eval-region check needs it")]
+
+    pairs = pd.read_csv(sample.PAIRS_MANIFEST)
+    holdout = pd.read_csv(sample.HOLDOUT_MANIFEST)
+    partition = pd.read_csv(a2.PARTITION_MANIFEST)
+    eval_jds = set(partition[(partition.doc_type == "jd") & (partition.region == "eval")].doc_id)
+    eval_cvs = set(partition[(partition.doc_type == "cv") & (partition.region == "eval")].doc_id)
+
+    # The mirror image of the shortlist check above, and the other half of D19. Together
+    # they are what makes "fine-tune on train, evaluate on eval" an assertion rather than
+    # an intention.
+    stray_jd, stray_cv = set(pairs.jd_id) - eval_jds, set(pairs.cv_id) - eval_cvs
+    results = [(not stray_jd and not stray_cv,
+                f"train-region isolation: {len(stray_jd)} JDs and {len(stray_cv)} CVs "
+                f"outside the eval region")]
+
+    shortlist_ids = set()
+    if a2.SHORTLIST_MANIFEST.exists():
+        shortlist = pd.read_csv(a2.SHORTLIST_MANIFEST)
+        shortlist_ids = set(shortlist.jd_id) | set(shortlist.cv_id)
+    overlap = (set(pairs.jd_id) | set(pairs.cv_id)) & shortlist_ids
+    results.append((not overlap,
+                    f"fine-tuning disjointness: {len(overlap)} documents shared with the "
+                    f"data-science shortlist"))
+
+    # D18: the *whole* candidate pool is reserved, not the 200 drawn pairs. Reserving only
+    # the pairs would leave a later expansion of this set judging documents that pretraining
+    # has already seen.
+    covered = set(holdout.doc_id)
+    missing = (set(pairs.jd_id) | set(pairs.cv_id)) - covered
+    results.append((not missing,
+                    f"holdout coverage: {len(missing)} evaluation documents outside "
+                    f"indomain-holdout.csv"))
+    results.append((len(covered) > len(set(pairs.jd_id) | set(pairs.cv_id)),
+                    f"holdout is the pool, not the sample: {len(covered)} documents "
+                    f"reserved for {len(pairs)} pairs"))
+
+    results.append((pairs.pair_id.is_unique, "identity: pair_id has no duplicates"))
+    return results
+
+
+def check_judging_queue() -> list[tuple[bool, str]]:
+    """The dispatch queue: blinding, PII, and that nothing is judged twice."""
+    from candidate_screener.annotation import queue, redact
+
+    if not queue.QUEUE_MANIFEST.exists():
+        return [(False, "judging-queue.csv missing — run `annotation.queue --build`")]
+
+    key = pd.read_csv(queue.QUEUE_MANIFEST)
+    results = [(key.queue_id.is_unique, "identity: queue_id has no duplicates"),
+               (not key.duplicated(["corpus", "query_id", "doc_id"]).any(),
+                "no pair is dispatched twice")]
+
+    # Blinding is a property of the dispatch file, not of the repository. The committed
+    # key carries selection_reason on purpose — it is the audit trail; what must not carry
+    # it is the file an annotator opens.
+    dispatch = queue.DISPATCH_OUT / "judging-queue.csv"
+    if dispatch.exists():
+        sent = pd.read_csv(dispatch)
+        leaked = set(sent.columns) - set(queue.DISPATCH_COLUMNS)
+        results.append((not leaked, f"blinding: dispatch carries {sorted(leaked) or 'no'} "
+                                    f"columns beyond {list(queue.DISPATCH_COLUMNS)}"))
+        residual = {}
+        for column in ("query_text", "candidate_text"):
+            residual |= {f"{column}.{k}": v
+                         for k, v in redact.residual_pii(sent[column]).items() if v}
+        results.append((not residual, f"de-identification: {residual or 'zero'} detectable "
+                                      f"PII in the dispatched text"))
+    else:
+        results.append((True, f"blinding: {dispatch} not built (git-ignored) — skipped"))
+
+    if queue.JUDGEMENTS.exists():
+        judged = pd.read_csv(queue.JUDGEMENTS)
+        results.append((list(judged.columns) == list(queue.JUDGEMENT_COLUMNS),
+                        "judgement layer: schema matches the committed definition"))
+        # D20: our labels are a separate layer. pools.csv is a pure function of
+        # (data/raw/, seed) and check 6 asserts it reproduces byte-for-byte; a human
+        # judgement is not a function of a seed and cannot live there.
+        results.append(("relevance" not in judged.columns,
+                        "judgement layer: carries no `relevance` column — it overlays "
+                        "pools.csv, it does not become it (D20)"))
+    return results
+
+
 #: Task -> its acceptance checks. 3.1 and 3.5 register here as they land.
 CHECKS = {
     "fit-split": check_fit_split,
     "pools": check_pools,
     "a2-partition": check_a2_partition,
     "a2-shortlist": check_a2_shortlist,
+    "indomain": check_indomain,
+    "judging-queue": check_judging_queue,
 }
 
 
