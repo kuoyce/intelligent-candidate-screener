@@ -438,6 +438,76 @@ def check_collected_labels(judged: pd.DataFrame) -> list[tuple[bool, str]]:
     return results
 
 
+def check_llm_recheck() -> list[tuple[bool, str]]:
+    """Provenance, never determinism *(D33, closing Q31)*.
+
+    `llm-recheck.csv` is **collected data**: no seed reproduces a subagent run, so the
+    byte-comparison every other check in this file performs would be red on every run and
+    would train a reader to ignore it. What can be checked is that each row names the
+    instrument that produced it — the agent definition and the exact prompt — and that the
+    judge's labels never leaked into the human file, where `annotator` is a free string and
+    an `llm` row would be silently pooled into the human kappa.
+    """
+    from candidate_screener.annotation import llm_recheck as llm
+    from candidate_screener.annotation import queue, session
+
+    results: list[tuple[bool, str]] = []
+    results.append((llm.agent_definition_is_current(),
+                    "judge: .claude/agents/a1-judge.md is what docs/annotation-guide.md "
+                    "renders — a stale one means a row's agent_sha256 names an "
+                    "instrument that never judged it"))
+
+    front = (llm.AGENT_DEF.read_text(encoding="utf-8").split("---")[1]
+             if llm.AGENT_DEF.exists() else "")
+    results.append(("tools: []" in front,
+                    "judge: holds no tools — judging-queue-full.parquet carries a1_label "
+                    "for all 50 recheck pairs, so blinding has to be structural (D33)"))
+
+    if queue.JUDGEMENTS.exists():
+        judged = pd.read_csv(queue.JUDGEMENTS, dtype=str)
+        machine = judged[judged.annotator.fillna("").str.startswith("llm:")]
+        results.append((machine.empty,
+                        f"separation: {len(machine)} machine judgement(s) found in "
+                        "judgements.csv — the LLM is a third opinion, never a human "
+                        "annotator (D33)"))
+
+    if not llm.RECHECK_CSV.exists():
+        results.append((True, f"{llm.RECHECK_CSV.name} not built — skipped"))
+        return results
+
+    frame = pd.read_csv(llm.RECHECK_CSV)
+    results.append((list(frame.columns) == list(llm.LLM_COLUMNS),
+                    "schema: llm-recheck.csv matches LLM_COLUMNS"))
+
+    dispatched = {(r["pair_id"], r["run"]): r for r in llm.read_jsonl(llm.PROMPTS)}
+    if dispatched:
+        drift = [(r.pair_id, r.run) for r in frame.itertuples()
+                 if (r.pair_id, r.run) not in dispatched
+                 or dispatched[(r.pair_id, r.run)]["prompt_sha256"] != r.prompt_sha256]
+        results.append((not drift,
+                        f"provenance: {len(drift)} row(s) whose prompt_sha256 does not "
+                        "match the prompt that was dispatched for that pair and run"))
+    else:
+        results.append((True, "provenance: dispatch file not built (git-ignored) — "
+                              "prompt_sha256 unverifiable on this machine"))
+
+    scored = frame[frame.parsed_ok.astype(str).str.lower().isin(("true", "1"))]
+    bad = sorted(set(scored.label.dropna()) - set(session.LABELS))
+    results.append((not bad, f"scheme: {bad or 'no'} labels outside A1's 3 classes"))
+
+    recheck_ids = set()
+    try:
+        pairs = queue.a1_recheck(queue.RECHECK_STRATA, 0)
+        recheck_ids = set(pairs.query_id.astype(str) + "__" + pairs.doc_id.astype(str))
+    except (FileNotFoundError, OSError):
+        pass
+    if recheck_ids:
+        stray = sorted(set(frame.pair_id) - recheck_ids)
+        results.append((not stray, f"scope: {len(stray)} judged pair(s) are not among the "
+                                   "50 A1 recheck pairs"))
+    return results
+
+
 #: Task -> its acceptance checks. 3.1 and 3.5 register here as they land.
 CHECKS = {
     "fit-split": check_fit_split,
@@ -446,6 +516,7 @@ CHECKS = {
     "a2-shortlist": check_a2_shortlist,
     "indomain": check_indomain,
     "judging-queue": check_judging_queue,
+    "llm-recheck": check_llm_recheck,
 }
 
 

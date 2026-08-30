@@ -27,6 +27,8 @@ uv run python -m candidate_screener.baselines.run --check     # assert it still 
 uv run python -m candidate_screener.evaluation.retrieval --seed 0   # the same baseline, ranked
 uv run python -m candidate_screener.data.build --all --seed 0       # splits, pools, annotation queue
 uv run python -m candidate_screener.annotation.ui --annotator <name>   # the labelling UI
+uv run python -m candidate_screener.annotation.llm_recheck --agent      # render the LLM judge
+uv run python -m candidate_screener.annotation.llm_recheck --dispatch --run 1
 uv run pytest                                                 # unit + regression suite
 uv run jupyter nbconvert --to notebook --execute --inplace notebooks/0X-*.ipynb
 ```
@@ -54,6 +56,7 @@ leveraged to streamline development and ensure maintainability.
 | Data documentation | `docs/data/` — the catalog, and one card per adopted source |
 | The annotation instrument | `src/candidate_screener/annotation/` + `docs/annotation-guide.md` |
 | The labelling UI | `annotation/session.py` (rules, tested) + `annotation/ui.py` + `ui.html` (transport) |
+| The LLM judge | `annotation/llm_recheck.py` + `.claude/agents/a1-judge.md` (generated, committed) |
 
 Do **not** put runnable scripts under `plan/`. A plan is a record of a decision; code that
 outlives the decision belongs in the package. (This was deviation V1 of the acquisition
@@ -100,6 +103,31 @@ a batch's title list cannot re-stratify collected labels.
 The session is two annotators, both covering every title, 30% double-labelled. Do not assign
 titles by expertise: it confounds annotator with title, and the confound reaches the pooled
 figure as well as the per-title ones.
+
+**The A1 recheck gets a third judge, and it is a third opinion** *(decision D33)*.
+kappa(A1, yc) = 0.010 with a **bidirectional** disagreement, so it is not a strictness shift
+and it does not preserve ranking. Either A1's labels are wrong — **A13 fails** and D26's
+ceilings are soft — or `yc` is miscalibrated. One annotator cannot separate the two, and the
+two have opposite consequences for every figure quoted against 0.7806. `annotation.llm_recheck`
+runs one tool-free `sonnet` subagent per pair, 10 concurrent.
+
+**Tool-free is the control, not a preference.** The answer key is on disk:
+`data/processed/indomain/judging-queue-full.parquet` carries `a1_label` for all 50 recheck
+pairs. A judge holding `Read` or `Bash` reaches it in one command, and "we told it not to
+look" is not the standard this repo holds human blinding to — `serve_group` redacts its own
+output and `assert_clean`s it, with the rules in `session.py` rather than in the caller.
+`.claude/agents/a1-judge.md` is **generated** from `docs/annotation-guide.md` (verbatim, minus
+the four sections describing the human workflow) and `verify --derived` fails if the committed
+judge is not what the guide renders, or if its frontmatter is not `tools: []`.
+
+**Its labels never enter `judgements.csv`.** `annotator` is a free string, so an `llm` row
+there would pass every existing check and be silently pooled into the human kappa. They go to
+`docs/data/manifests/llm-recheck.csv`, quoted as `llm:claude-sonnet-5:run{N}`.
+
+**It is collected data, not derived** *(Q31)*. No seed reproduces a subagent run, so
+`check_llm_recheck` verifies **provenance** — `agent_sha256`, `prompt_sha256` against the
+dispatched prompt, and that every judged pair is one of the 50 — and never determinism, which
+would be red on every run.
 
 **Labelling happens in a local UI, both corpora** *(decisions D30, D32)*. `annotation.ui`
 serves one query with its candidates and appends straight to `judgements.csv`, which is already
