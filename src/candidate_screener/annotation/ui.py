@@ -47,17 +47,25 @@ MAX_NEW_JDS = 200
 
 
 @lru_cache(maxsize=1)
-def corpus_text() -> tuple[pd.Series, pd.Series]:
+def corpus_text(strata_key: tuple[tuple[str, int], ...] | None = None
+                ) -> tuple[pd.Series, pd.Series]:
     """Query and document text for **both** corpora, loaded once per process (~3 s).
 
     A1 ids (`j_…`, `r_…`) and Djinni ids (UUIDs) cannot collide, so one lookup each is
     enough and the caller never has to know which corpus a group came from.
+
+    `strata_key` is the A1 recheck draw to load text for, as a **hashable** pair of pairs
+    because this is `lru_cache`d — `None` means the human 50 (`RECHECK_STRATA`). The LLM
+    leg passes `LLM_RECHECK_STRATA`, and a caller that forgets gets an
+    `AssertionError` out of `serve_group` rather than a group with an empty document:
+    the text lookup and the unit draw must be built from the same strata.
     """
     jd, cv = sample.load_english()
     queries = [jd.set_index("id").jd_text]
     documents = [cv.set_index("id").cv_text]
     try:
-        recheck = judging.a1_recheck(judging.RECHECK_STRATA, 0)
+        recheck = judging.a1_recheck(
+            dict(strata_key) if strata_key else judging.RECHECK_STRATA, 0)
         queries.append(recheck.set_index("query_id").query_text.groupby(level=0).first())
         documents.append(
             recheck.set_index("doc_id").candidate_text.groupby(level=0).first())

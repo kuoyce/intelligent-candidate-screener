@@ -265,8 +265,11 @@ def test_dispatch_is_idempotent_per_pair_and_run(tmp_path, monkeypatch):
     jd, cv = texts(frame)
     monkeypatch.setattr(llm, "PROMPTS", tmp_path / "p.jsonl")
     monkeypatch.setattr(llm, "assert_agent_definition_current", lambda: "sha")
-    monkeypatch.setattr(llm.session, "load_units", lambda seed=0: frame)
-    monkeypatch.setattr("candidate_screener.annotation.ui.corpus_text", lambda: (jd, cv))
+    monkeypatch.setattr(llm, "assert_recheck_nests", lambda seed=0: None)
+    monkeypatch.setattr(llm.session, "load_units",
+                        lambda seed=0, strata=None: frame)
+    monkeypatch.setattr("candidate_screener.annotation.ui.corpus_text",
+                        lambda strata_key=None: (jd, cv))
 
     first = llm.dispatch(run=1)
     second = llm.dispatch(run=1)
@@ -381,3 +384,121 @@ def test_a_judge_that_crashes_is_recorded_rather_than_dropped(tmp_path, monkeypa
     result = llm.judge(run=1, concurrency=2)
     assert result["judged_now"] == 3
     assert all("judge failed" in r["raw"] for r in llm.read_jsonl(raw))
+
+
+# --- the widened LLM leg ---------------------------------------------------
+
+#: The two draws are a property of A1's test split, so the nesting test needs it on disk.
+#: The assertion that *guards* the property is exercised without it, just below.
+needs_fit_split = pytest.mark.skipif(
+    not (llm.PROCESSED / "fit" / "test.parquet").exists(),
+    reason="data/processed/fit/test.parquet not built — run `python -m "
+           "candidate_screener.data.build --task fit-split --seed 0`.")
+
+
+@needs_fit_split
+def test_the_llm_draw_contains_the_human_draw():
+    """Mutation: draw the wide set at a different seed — this fails.
+
+    Real data, not a stub: `a1_recheck` takes `order[:n]` from one permutation per
+    stratum, so raising `n` appends. Every published n=50 figure is quoted beside a
+    figure over the wider draw, which is honest only while the narrow draw nests.
+    """
+    llm.assert_recheck_nests(0)          # the committed pair of strata
+
+    narrow = llm.judging.a1_recheck(llm.judging.RECHECK_STRATA, 0)
+    wide = llm.judging.a1_recheck(llm.judging.LLM_RECHECK_STRATA, 0)
+    ids = lambda f: set(f.query_id.astype(str) + "__" + f.doc_id.astype(str))  # noqa: E731
+    assert len(ids(narrow)) == 50 and len(ids(wide)) == 100
+    assert ids(narrow) < ids(wide), "the human 50 must be a strict subset of the LLM 100"
+
+
+def test_a_diverged_draw_is_refused_rather_than_quoted(monkeypatch):
+    """The assertion earns its place: give it two draws that do not nest."""
+    import pandas as pd
+
+    def fake(strata, seed=0):
+        offset = 0 if sum(strata.values()) == 50 else 500      # the divergence
+        return pd.DataFrame([{"query_id": f"j_{offset + i}", "doc_id": f"r_{offset + i}",
+                              "a1_label": "No Fit"}
+                             for i in range(sum(strata.values()))])
+
+    monkeypatch.setattr(llm.judging, "a1_recheck", fake)
+    with pytest.raises(AssertionError, match="absent from the LLM"):
+        llm.assert_recheck_nests(0)
+
+
+@needs_fit_split
+def test_the_human_queue_is_not_widened_by_the_llm_leg():
+    """Mutation: point `load_units`' default at `LLM_RECHECK_STRATA` — this fails.
+
+    Widening the machine leg costs no annotator time; widening the human one silently
+    adds 50 pairs to a session that is 9 short of finished. `load_units` defaults to the
+    human 50 and the LLM path passes its own strata explicitly.
+    """
+    import inspect
+    default = inspect.signature(llm.session.load_units).parameters["strata"].default
+    assert default is None, "load_units must default to the human strata, not the LLM's"
+
+    units = llm.session.load_units(0)
+    wide = llm.session.load_units(0, llm.judging.LLM_RECHECK_STRATA)
+    assert (units.corpus == "a1").sum() == 50
+    assert (wide.corpus == "a1").sum() == 100
+
+
+def test_the_report_still_quotes_the_human_50_alongside_the_wider_draw(
+        tmp_path, monkeypatch):
+    """Mutation: drop `pairwise_kappa_over_the_human_50` — this fails.
+
+    A wider kappa computed over pairs no human ever saw must not silently replace the
+    figure the card, the catalog and AGENTS.md already quote. Synthetic: 4 pairs in the
+    narrow draw, 6 in the wide one, and only the narrow ones carry a human label.
+    """
+    import pandas as pd
+
+    wide = [f"j{i}__r{i}" for i in range(6)]
+    narrow = wide[:4]
+    a1 = pd.Series(["Good Fit", "No Fit", "Good Fit", "No Fit", "Good Fit", "No Fit"],
+                   index=wide)
+    llm_labels = pd.Series(["Good Fit", "No Fit", "No Fit", "No Fit", "No Fit", "Good Fit"],
+                           index=wide)
+    human = pd.Series(["Good Fit", "No Fit", "Good Fit", "No Fit"], index=narrow)
+
+    monkeypatch.setattr(llm, "judge_frames", lambda seed=0: {
+        "a1": a1, "human": human, "llm": llm_labels, "_runs": {}})
+    monkeypatch.setattr(llm.judging, "a1_recheck", lambda strata, seed=0: pd.DataFrame(
+        {"query_id": [p.split("__")[0] for p in narrow],
+         "doc_id": [p.split("__")[1] for p in narrow]}))
+    monkeypatch.setattr(llm, "REPORT", tmp_path / "report.json")
+
+    out = llm.report(0)
+    assert "pairwise_kappa_over_the_human_50" in out
+    assert out["coverage"]["human_50_draw"] == len(narrow)
+    assert out["coverage"]["llm_draw"] == len(wide)
+    assert out["pairwise_kappa"]["a1_vs_llm"]["n"] == len(wide)
+    assert out["pairwise_kappa_over_the_human_50"]["a1_vs_llm"]["n"] == len(narrow)
+    # the wider per-class block sees every pair the judge covered, not the human subset
+    assert out["per_class_llm_vs_a1"]["Good Fit"]["n"] == 3
+    assert out["per_class_agreement"]["Good Fit"]["n"] == 2
+
+
+@needs_fit_split
+def test_the_text_lookup_covers_every_pair_the_llm_draw_serves():
+    """Mutation: let `dispatch` call `ui.corpus_text()` with no strata — this fails.
+
+    `corpus_text` is `lru_cache`d and loads A1 text for one draw. Built from the human 50
+    while the units come from the LLM 100, half the pairs have no document — caught only
+    at `serve_group`, and only because that assertion exists. The two consumers take the
+    same strata, and here that is checked rather than remembered.
+    """
+    from candidate_screener.annotation import ui
+
+    strata = llm.judging.LLM_RECHECK_STRATA
+    units = llm.session.load_units(0, strata)
+    jd_text, cv_text = ui.corpus_text(tuple(sorted(strata.items())))
+    a1 = units[units.corpus == "a1"]
+    assert not set(a1.jd_id) - set(jd_text.index), "JDs in the draw with no text"
+    assert not set(a1.cv_id) - set(cv_text.index), "CVs in the draw with no text"
+
+    narrow_jd, _ = ui.corpus_text()      # the default draw cannot cover the wider one
+    assert set(a1.jd_id) - set(narrow_jd.index)

@@ -38,16 +38,20 @@ Good Fit resumes per test JD: min 1, Q1 3, **median 18**, Q3 24, max 48.
 3. **6 pairs carry conflicting labels** across the corpus — these are annotations, not
    authoritative ground truth.
 4. **General-industry, not IT-specific.** In-domain evaluation comes from A2 instead.
-5. **The labels do not reproduce — A13 fails** *(added 30 Aug 2026, D33)*. On a 50-pair
-   recheck, two independent judges working from `docs/annotation-guide.md` and blind to
-   A1's answer both fail to recover it: kappa(A1, human) = 0.010 (n=41) and
-   kappa(A1, `llm:claude-sonnet-5`) = **0.029** (n=50), both CIs straddling zero, while the
-   two blind judges agree with each other at kappa = 0.291 (CI [0.115, 0.492]). Under binary
-   collapse (`Good`∪`Potential` vs `No Fit`) kappa(A1, llm) is **exactly 0.000** against
-   0.424 between the blind judges. The LLM judge's test-retest reliability is 0.857-1.000
-   over three runs, so this is not a noisy judge. **The breakdown is in A1's positives**:
-   neither blind judge reproduces one of A1's 15 `Good Fit` labels as `Good Fit`, 14 of the
-   15 read as `No Fit`, and agreement on A1's `No Fit` is 0.60 / 0.80. Evidence:
+5. **The labels do not reproduce — A13 fails** *(added 30 Aug 2026, D33)*. On a recheck of
+   100 pairs (machine) / 50 (human), two independent judges working from
+   `docs/annotation-guide.md` and blind to A1's answer both fail to recover it:
+   kappa(A1, human) = **0.034** (n=50, CI [-0.162, 0.225]) and
+   kappa(A1, `llm:claude-sonnet-5`) = **0.125** (n=100, CI [0.013, 0.241]), while the two
+   blind judges agree with each other at kappa = **0.275** (CI [0.127, 0.457], n=50). Under
+   binary collapse (`Good`∪`Potential` vs `No Fit`) the A1 legs are **0.031** and **0.113**
+   — and exactly **0.000** over the original 50-pair draw — against **0.425** between the
+   blind judges. The LLM judge's test-retest reliability is 0.857-1.000 over three runs, so
+   this is not a noisy judge. **The breakdown is in A1's positives**: against A1's `Good
+   Fit` (n=30) the judge agrees **0.067** and reads 26 of the 30 as `No Fit`; over the
+   original 50 the human confirms 3 of A1's 15 `Good Fit` and the judge none. Agreement on
+   A1's `No Fit` is 0.60 human / 0.90 judge — the whole of the small positive kappa.
+   Evidence:
    [`llm-recheck.csv`](../manifests/llm-recheck.csv),
    `output/annotation/llm-recheck-report.json`,
    `plan/2026-08-30-llm-recheck/01-findings.md`.

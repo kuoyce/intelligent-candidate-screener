@@ -461,7 +461,7 @@ def check_llm_recheck() -> list[tuple[bool, str]]:
              if llm.AGENT_DEF.exists() else "")
     results.append(("tools: []" in front,
                     "judge: holds no tools — judging-queue-full.parquet carries a1_label "
-                    "for all 50 recheck pairs, so blinding has to be structural (D33)"))
+                    "for every recheck pair, so blinding has to be structural (D33)"))
 
     if queue.JUDGEMENTS.exists():
         judged = pd.read_csv(queue.JUDGEMENTS, dtype=str)
@@ -495,16 +495,24 @@ def check_llm_recheck() -> list[tuple[bool, str]]:
     bad = sorted(set(scored.label.dropna()) - set(session.LABELS))
     results.append((not bad, f"scheme: {bad or 'no'} labels outside A1's 3 classes"))
 
-    recheck_ids = set()
+    recheck_ids, human_ids = set(), set()
+    ids = lambda f: set(f.query_id.astype(str) + "__" + f.doc_id.astype(str))  # noqa: E731
     try:
-        pairs = queue.a1_recheck(queue.RECHECK_STRATA, 0)
-        recheck_ids = set(pairs.query_id.astype(str) + "__" + pairs.doc_id.astype(str))
+        recheck_ids = ids(queue.a1_recheck(queue.LLM_RECHECK_STRATA, 0))
+        human_ids = ids(queue.a1_recheck(queue.RECHECK_STRATA, 0))
     except (FileNotFoundError, OSError):
         pass
     if recheck_ids:
         stray = sorted(set(frame.pair_id) - recheck_ids)
         results.append((not stray, f"scope: {len(stray)} judged pair(s) are not among the "
-                                   "50 A1 recheck pairs"))
+                                   f"{len(recheck_ids)} A1 recheck pairs"))
+        # The published n=50 figures are quoted beside figures over the wider draw. That
+        # is only honest while the narrow draw is a subset of the wide one.
+        outside = sorted(human_ids - recheck_ids)
+        results.append((not outside,
+                        f"nesting: {len(outside)} of the human {len(human_ids)} are absent "
+                        f"from the LLM {len(recheck_ids)} — a figure over one may not be "
+                        "quoted beside a figure over the other unless one nests"))
     return results
 
 

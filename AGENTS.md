@@ -114,14 +114,27 @@ two have opposite consequences for every figure quoted against 0.7806. `annotati
 runs one tool-free `sonnet` judge per pair, 10 concurrent.
 
 **It has run, and A13 fails** *(30 Aug 2026, `plan/2026-08-30-llm-recheck/01-findings.md`)*.
-kappa(A1, llm) = **0.029** [-0.134, 0.190] n=50 against kappa(yc, llm) = **0.291**
-[0.115, 0.492] n=41; under binary collapse, **0.000** against 0.424. The judge's own
-test-retest reliability is 0.857-1.000 over three runs, so its low agreement with A1 is not
-a noisy judge — the bound on the kappa it could have reached was ~0.86, not ~0.3. Neither
-blind judge reproduces one of A1's 15 `Good Fit` labels; 14 of the 15 read as `No Fit`,
-while both agree with each other on the negatives. **D26's 0.7806 / 0.7188 ceilings are
-therefore soft**, and any figure quoted as a fraction of attainable inherits the doubt.
-Restating them is a separate change that supersedes in place; it has not been made.
+kappa(A1, llm) = **0.125** [0.013, 0.241] n=100 and kappa(A1, yc) = **0.034** [-0.162,
+0.225] n=50, against kappa(yc, llm) = **0.275** [0.127, 0.457] n=50; under binary collapse
+0.113 and 0.031 against **0.425**. The judge's own test-retest reliability is 0.857-1.000
+over three runs, so its low agreement with A1 is not a noisy judge — the bound on the kappa
+it could have reached was ~0.86, not ~0.3. **All of A1-vs-llm's small positive kappa comes
+from one cell**: per class it agrees 0.90 on A1's `No Fit` (n=40), 0.27 on `Potential Fit`
+(n=30) and **0.067 on `Good Fit` (n=30)** — 26 of those 30 read as `No Fit`. **D26's
+0.7806 / 0.7188 ceilings are therefore soft**, and any figure quoted as a fraction of
+attainable inherits the doubt. Restating them is a separate change that supersedes in
+place; it has not been made.
+
+**The machine leg is 100 pairs, the human leg is 50, and the two draws nest** *(deviation
+V6)*. `queue.LLM_RECHECK_STRATA` (30/30/40) against `RECHECK_STRATA` (15/15/20);
+`a1_recheck` takes `order[:n]` from one permutation per stratum, so the 100 contain the 50
+exactly and an n=50 figure may be quoted beside an n=100 one. `assert_recheck_nests` and
+`verify --derived` both hold it. **Widen the machine leg by raising `LLM_RECHECK_STRATA`,
+never `RECHECK_STRATA`** — `session.load_units` and `ui.corpus_text` default to the human
+strata, and raising that constant silently adds pairs to a live human sitting. The two
+consumers must be handed the *same* draw: units from `load_units(seed, strata)` and text
+from `corpus_text(tuple(sorted(strata.items())))`, or half the pairs arrive with no
+document.
 
 **Tool-free is necessary and was not sufficient** *(deviation V4)*. The judge runs as a
 `claude -p --agent a1-judge` **subprocess whose cwd is a sandbox holding a copy of the

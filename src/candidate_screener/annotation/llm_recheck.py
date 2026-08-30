@@ -218,7 +218,7 @@ def a1_groups(units: pd.DataFrame, jd_text: pd.Series, cv_text: pd.Series,
     """Every A1 unit, served through the path a human screen goes through.
 
     `serve_group` takes `judgements` as an argument, so passing an **empty** frame returns
-    all 50 rather than the 20 `outstanding()` would allow a fresh annotator — and the text
+    every one rather than the 20 `outstanding()` would allow a fresh annotator — and the text
     still goes through the same `redact.redact` + `assert_clean`. No change to
     `session.py` is needed for any of this. `Group.asks_shortlist` is already `False` for
     `corpus == "a1"`, so dissolving the groups into single pairs loses no question.
@@ -250,8 +250,12 @@ def dispatch(run: int, seed: int = 0, subsample: int | None = None) -> dict:
     from candidate_screener.annotation import ui
 
     agent_hash = assert_agent_definition_current()
-    jd_text, cv_text = ui.corpus_text()
-    units = session.load_units(seed)
+    assert_recheck_nests(seed)
+    # One draw, two consumers: the text lookup and the unit frame must come from the same
+    # strata or `serve_group` meets a pair whose documents it cannot find.
+    strata = judging.LLM_RECHECK_STRATA
+    jd_text, cv_text = ui.corpus_text(tuple(sorted(strata.items())))
+    units = session.load_units(seed, strata)
     groups = a1_groups(units, jd_text, cv_text, seed=seed)
 
     records = []
@@ -298,6 +302,26 @@ def dispatch(run: int, seed: int = 0, subsample: int | None = None) -> dict:
             "chars_sent_median": int(np.median([r["chars_sent"] for r in records]))
             if records else 0,
             "prompts": str(PROMPTS)}
+
+
+def assert_recheck_nests(seed: int = 0) -> None:
+    """The LLM's 100 contain the human's 50, exactly.
+
+    Every figure this repo has already published — kappa(A1, llm) = 0.029 at n=50, the
+    `Good Fit` cell at n=15 — is quoted beside a figure over the wider draw. That is only
+    honest if the narrow draw is a subset of the wide one. `a1_recheck` makes it so by
+    taking `order[:n]` from one permutation per stratum, which is exactly the kind of
+    property that stops being true quietly when someone changes a seed or a sort.
+    """
+    narrow = judging.a1_recheck(judging.RECHECK_STRATA, seed)
+    wide = judging.a1_recheck(judging.LLM_RECHECK_STRATA, seed)
+    ids = lambda f: set(f.query_id.astype(str) + "__" + f.doc_id.astype(str))  # noqa: E731
+    missing = ids(narrow) - ids(wide)
+    if missing:
+        raise AssertionError(
+            f"{len(missing)} of the human 50 are absent from the LLM {len(ids(wide))} — "
+            "the two draws have diverged, and no figure over one may be quoted beside a "
+            "figure over the other")
 
 
 # --- judge -----------------------------------------------------------------
@@ -521,7 +545,7 @@ def majority(labels: list[str]) -> str | None:
 
 def judge_frames(seed: int = 0) -> dict[str, pd.Series]:
     """A1's own label, the human's, and the LLM's — one series each, indexed by pair_id."""
-    recheck = judging.a1_recheck(judging.RECHECK_STRATA, seed)
+    recheck = judging.a1_recheck(judging.LLM_RECHECK_STRATA, seed)
     recheck["pair_id"] = (recheck.query_id.astype(str) + "__"
                           + recheck.doc_id.astype(str))
     a1 = recheck.set_index("pair_id").a1_label
@@ -548,13 +572,26 @@ def report(seed: int = 0) -> dict:
     runs = frames.pop("_runs")
     names = ["a1", "human", "llm"]
 
-    pairwise = {}
-    for i, x in enumerate(names):
-        for y in names[i + 1:]:
-            common = frames[x].index.intersection(frames[y].index)
-            pairwise[f"{x}_vs_{y}"] = kappa_ci(
-                frames[x].loc[common].tolist(), frames[y].loc[common].tolist(),
-                seed=seed)
+    def pairwise_over(restrict: set[str] | None) -> dict:
+        out = {}
+        for i, x in enumerate(names):
+            for y in names[i + 1:]:
+                common = frames[x].index.intersection(frames[y].index)
+                if restrict is not None:
+                    common = common.intersection(pd.Index(sorted(restrict)))
+                out[f"{x}_vs_{y}"] = kappa_ci(
+                    frames[x].loc[common].tolist(), frames[y].loc[common].tolist(),
+                    seed=seed)
+        return out
+
+    narrow = judging.a1_recheck(judging.RECHECK_STRATA, seed)
+    human_50 = set(narrow.query_id.astype(str) + "__" + narrow.doc_id.astype(str))
+
+    pairwise = pairwise_over(None)
+    # The human 50 are a strict subset of the LLM draw (`assert_recheck_nests`), so the
+    # figures already published against n=50 stay quotable rather than being silently
+    # replaced by a wider number computed over pairs no human ever saw.
+    pairwise_50 = pairwise_over(human_50)
 
     self_consistency = {}
     run_ids = sorted(runs)
@@ -564,6 +601,7 @@ def report(seed: int = 0) -> dict:
             self_consistency[f"run{x}_vs_run{y}"] = kappa_ci(
                 runs[x].loc[common].tolist(), runs[y].loc[common].tolist(), seed=seed)
 
+    llm_covered = frames["a1"].index.intersection(frames["llm"].index)
     all_three = frames["a1"].index
     for name in names[1:]:
         all_three = all_three.intersection(frames[name].index)
@@ -577,8 +615,11 @@ def report(seed: int = 0) -> dict:
         "model": MODEL, "seed": seed,
         "generated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "coverage": {n: int(len(frames[n])) for n in names} | {
-            "all_three": int(len(all_three))},
+            "all_three": int(len(all_three)),
+            "human_50_draw": len(human_50),
+            "llm_draw": int(len(frames["a1"]))},
         "pairwise_kappa": pairwise,
+        "pairwise_kappa_over_the_human_50": pairwise_50,
         "self_consistency_kappa": self_consistency,
         "per_class_agreement": {
             cls: {
@@ -590,6 +631,13 @@ def report(seed: int = 0) -> dict:
                     frames["a1"].loc[all_three] == cls] == cls).mean())
                 if (frames["a1"].loc[all_three] == cls).any() else float("nan"),
             } for cls in session.LABELS},
+        "per_class_llm_vs_a1": {
+            cls: {"n": int((frames["a1"].loc[llm_covered] == cls).sum()),
+                  "llm_agrees": float(
+                      (frames["llm"].loc[llm_covered][
+                          frames["a1"].loc[llm_covered] == cls] == cls).mean())
+                  if (frames["a1"].loc[llm_covered] == cls).any() else float("nan")}
+            for cls in session.LABELS},
         "disagreements": disagreements,
         "note_not_ground_truth": (
             "The LLM is a third judge with its own bias, known to exist and not measured "
@@ -599,6 +647,13 @@ def report(seed: int = 0) -> dict:
             "No seed reproduces a subagent run. llm-recheck.csv is collected data: "
             "append-only, provenance-stamped by agent_sha256 and prompt_sha256, and "
             "never subject to a determinism check."),
+        "note_human_leg": (
+            f"The human leg covers {len(frames['human'])} of the {len(human_50)} pairs "
+            "drawn for it. Every kappa involving `human` is provisional until that "
+            "sitting finishes; re-run `llm_recheck --report`. The A1-vs-llm leg has no "
+            "human dependency and is final at its stated n."
+            if len(frames["human"]) < len(human_50) else
+            f"The human leg is complete at {len(human_50)} pairs."),
         "note_instrument_difference": (
             "The human saw A1 candidates 1-4 at a time; the judge sees one pair in a "
             "fresh context. Nothing in the A1 instrument spans candidates "

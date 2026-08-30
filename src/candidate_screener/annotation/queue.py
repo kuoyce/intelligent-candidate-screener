@@ -75,6 +75,21 @@ DISPATCH_COLUMNS = ("queue_id", "query_text", "candidate_text")
 #: false-positive bias in A1's labelling.
 RECHECK_STRATA = {"Good Fit": 15, "Potential Fit": 15, "No Fit": 20}
 
+#: The **LLM leg only**, at twice the depth. Machine judging costs no annotator time, so
+#: the leg that does not consume the D25 budget is the one worth widening: it takes
+#: kappa(A1, llm) from n=50 to n=100 and — the reason it matters — A1's `Good Fit` cell,
+#: where the D33 finding actually lives, from n=15 to n=30.
+#:
+#: **`RECHECK_STRATA` is deliberately left at 50.** `session.load_units` defaults to it, so
+#: the human queue is untouched and the 9 outstanding human pairs stay 9.
+#:
+#: **The draw is nested by construction and asserted anyway.** `a1_recheck` permutes each
+#: label's pool at a stratum seed and takes `order[:n]`, so raising `n` appends and never
+#: reshuffles. `assert_recheck_nests` holds it: if it ever broke, the published n=50
+#: figures would stop being a subset of the n=100 ones and the two could not be quoted
+#: side by side.
+LLM_RECHECK_STRATA = {"Good Fit": 30, "Potential Fit": 30, "No Fit": 40}
+
 
 def queue_id(corpus: str, query: str, doc: str) -> str:
     """Opaque and stable. Not sequential — a sequential id leaks the build order, and

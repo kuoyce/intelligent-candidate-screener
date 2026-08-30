@@ -159,12 +159,14 @@ UNIT_COLUMNS = ("pair_id", "query_id", "doc_id", "batch", "stratum", "corpus",
                 "selection_reason")
 
 
-def load_units(seed: int = 0) -> pd.DataFrame:
+def load_units(seed: int = 0, strata: dict[str, int] | None = None) -> pd.DataFrame:
     """Everything labellable, both corpora, in one frame *(D32)*.
 
     The A1 recheck is regenerated from its seed rather than stored, exactly as
-    `queue.build_queue` does it — one definition of which 50 pairs those are, so the UI
-    and the dispatch file cannot drift apart. It is skipped, with no error, when
+    `queue.build_queue` does it — one definition of which pairs those are, so the UI and
+    the dispatch file cannot drift apart. `strata` defaults to `RECHECK_STRATA`, the human
+    50; the LLM leg passes `LLM_RECHECK_STRATA` to reach 100 without growing the human
+    queue, and the two draws are nested. It is skipped, with no error, when
     `test.parquet` is absent: the in-domain half must stay labellable on a machine that
     has not built the A1 split.
     """
@@ -172,7 +174,7 @@ def load_units(seed: int = 0) -> pd.DataFrame:
 
     units = [load_pairs().assign(corpus="a2", selection_reason="indomain_banded")]
     try:
-        recheck = judging.a1_recheck(judging.RECHECK_STRATA, seed)
+        recheck = judging.a1_recheck(strata or judging.RECHECK_STRATA, seed)
     except (FileNotFoundError, OSError):
         recheck = None
     if recheck is not None and len(recheck):
