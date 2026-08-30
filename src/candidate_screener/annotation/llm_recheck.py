@@ -29,17 +29,22 @@ Usage:
     uv run python -m candidate_screener.annotation.llm_recheck --agent      # (re)write the judge
     uv run python -m candidate_screener.annotation.llm_recheck --dispatch --run 1
     uv run python -m candidate_screener.annotation.llm_recheck --dispatch --run 2 --subsample 20
-    # ... the orchestrating session spawns one `a1-judge` per record, 10 concurrent ...
+    uv run python -m candidate_screener.annotation.llm_recheck --judge --run 1
     uv run python -m candidate_screener.annotation.llm_recheck --collect
     uv run python -m candidate_screener.annotation.llm_recheck --report
 """
 from __future__ import annotations
 
 import argparse
+import concurrent.futures
 import hashlib
 import json
 import re
+import shutil
+import subprocess
+import tempfile
 from datetime import datetime, timezone
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
@@ -72,6 +77,14 @@ OPERATOR_SECTIONS = ("How the pairs reach you",
                      "One extra question per job description",
                      "How the work is split",
                      "Double labelling and adjudication")
+
+#: How many judges run at once. The plan's number; raise it and the only thing that
+#: changes is wall-clock and the chance of a rate limit.
+CONCURRENCY = 10
+
+#: One judge, one pair, one process. Generous — an 8.7k-char pair is a single turn, but a
+#: cold start plus a retry inside the CLI is not instant.
+JUDGE_TIMEOUT_S = 600
 
 #: The judge is spot-checked, not asked to explain itself. Enforced on the way in (the
 #: instruction) and on the way out (`parse_return` flags anything longer).
@@ -287,6 +300,120 @@ def dispatch(run: int, seed: int = 0, subsample: int | None = None) -> dict:
             "prompts": str(PROMPTS)}
 
 
+# --- judge -----------------------------------------------------------------
+
+def read_jsonl(path) -> list[dict]:
+    if not path.exists():
+        return []
+    return [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines()
+            if line.strip()]
+
+
+#: Files whose presence in an ancestor of the judge's working directory would put this
+#: repository's own prose into its context. `AGENTS.md` names the recheck, the kappa it is
+#: chasing and the parquet that holds `a1_label`; a judge that has read it is not the
+#: instrument `yc` was.
+CONTEXT_FILES = ("CLAUDE.md", "AGENTS.md", ".claude")
+
+
+class JudgeNotIsolated(RuntimeError):
+    pass
+
+
+def assert_isolated(cwd: Path) -> None:
+    """The judge's cwd, and every ancestor, carries no project context but the agent.
+
+    Structural, not instructed — the same standard `serve_group.assert_clean` holds. A
+    judge launched inside the repository loads `CLAUDE.md`, and `CLAUDE.md` here is
+    `AGENTS.md`, which describes this very experiment. Measured, not assumed: running the
+    probe from the repository root answers *yes* to "is AGENTS.md in your context", and
+    from an isolated directory it answers *no*.
+    """
+    cwd = Path(cwd).resolve()
+    allowed = (cwd / ".claude" / "agents" / AGENT_DEF.name).resolve()
+    for d in (cwd, *cwd.parents):
+        for name in CONTEXT_FILES:
+            found = d / name
+            if not found.exists():
+                continue
+            if found.is_dir():
+                strays = [f for f in found.rglob("*")
+                          if f.is_file() and f.resolve() != allowed]
+                if strays:
+                    raise JudgeNotIsolated(f"{found} carries {strays[0]}")
+                continue
+            raise JudgeNotIsolated(f"{found} would reach the judge's context")
+
+
+def judge_sandbox(stack) -> Path:
+    """A working directory holding the committed judge and nothing else."""
+    cwd = Path(stack.enter_context(tempfile.TemporaryDirectory(prefix="a1-judge-")))
+    agents = cwd / ".claude" / "agents"
+    agents.mkdir(parents=True)
+    shutil.copy2(AGENT_DEF, agents / AGENT_DEF.name)
+    assert_isolated(cwd)
+    return cwd
+
+
+def judge_one(record: dict, cwd: Path) -> dict:
+    """One pair, one process, one label. The process holds no tools and no repository."""
+    proc = subprocess.run(
+        [shutil.which("claude") or "claude", "-p", "--agent", "a1-judge"],
+        input=record["prompt"], cwd=str(cwd), capture_output=True, text=True,
+        timeout=JUDGE_TIMEOUT_S, check=False)
+    raw = proc.stdout.strip()
+    if proc.returncode != 0 and not raw:
+        raw = f"<judge exited {proc.returncode}: {proc.stderr.strip()[:300]}>"
+    return {"pair_id": record["pair_id"], "run": record["run"],
+            "returned_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+            "raw": raw}
+
+
+def judge(run: int, concurrency: int = CONCURRENCY) -> dict:
+    """Run every dispatched pair of `run` that has no raw return yet.
+
+    Idempotent per `(pair_id, run)` for the reason dispatch is: a second return matched
+    against the first return's prompt hash would let the provenance columns name a prompt
+    that did not produce the label.
+    """
+    import contextlib
+
+    dispatched = [r for r in read_jsonl(PROMPTS) if r["run"] == run]
+    if not dispatched:
+        raise FileNotFoundError(f"no run {run} in {PROMPTS} — `--dispatch --run {run}` first")
+
+    on_disk = {r["agent_sha256"] for r in dispatched}
+    if on_disk != {sha(AGENT_DEF.read_text(encoding="utf-8"))}:
+        raise JudgeNotIsolated(
+            "the committed judge is not the one these prompts were dispatched against; "
+            "re-dispatch rather than judging with a different instrument")
+
+    done = {(r["pair_id"], r["run"]) for r in read_jsonl(RAW)}
+    todo = [r for r in dispatched if (r["pair_id"], r["run"]) not in done]
+
+    returned = 0
+    with contextlib.ExitStack() as stack:
+        cwd = judge_sandbox(stack)
+        RAW.parent.mkdir(parents=True, exist_ok=True)
+        with RAW.open("a", encoding="utf-8") as fh:
+            with concurrent.futures.ThreadPoolExecutor(concurrency) as pool:
+                futures = {pool.submit(judge_one, rec, cwd): rec for rec in todo}
+                for future in concurrent.futures.as_completed(futures):
+                    rec = futures[future]
+                    try:
+                        got = future.result()
+                    except Exception as exc:                    # noqa: BLE001
+                        got = {"pair_id": rec["pair_id"], "run": rec["run"],
+                               "returned_at": datetime.now(timezone.utc)
+                                              .isoformat(timespec="seconds"),
+                               "raw": f"<judge failed: {type(exc).__name__}: {exc}>"}
+                    fh.write(json.dumps(got, ensure_ascii=False) + "\n")
+                    fh.flush()
+                    returned += 1
+    return {"run": run, "dispatched": len(dispatched), "already_judged": len(done),
+            "judged_now": returned, "concurrency": concurrency, "raw": str(RAW)}
+
+
 # --- collect ---------------------------------------------------------------
 
 class BadReturn(ValueError):
@@ -315,13 +442,6 @@ def parse_return(raw: str) -> dict:
     reason = str(obj.get("reason", "")).strip()
     return {"label": label, "reason": reason[:REASON_CHARS],
             "reason_overlong": len(reason) > REASON_CHARS}
-
-
-def read_jsonl(path) -> list[dict]:
-    if not path.exists():
-        return []
-    return [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines()
-            if line.strip()]
 
 
 def collect() -> dict:
@@ -497,6 +617,9 @@ def main() -> int:
     ap.add_argument("--agent", action="store_true",
                     help="render .claude/agents/a1-judge.md from the guide")
     ap.add_argument("--dispatch", action="store_true")
+    ap.add_argument("--judge", action="store_true",
+                    help="run the committed judge over the dispatched prompts")
+    ap.add_argument("--concurrency", type=int, default=CONCURRENCY)
     ap.add_argument("--collect", action="store_true")
     ap.add_argument("--report", action="store_true")
     ap.add_argument("--run", type=int, default=1)
@@ -510,6 +633,8 @@ def main() -> int:
         print(f"wrote {AGENT_DEF}  sha256={sha(render_agent_definition())[:12]}")
     if args.dispatch:
         print(json.dumps(dispatch(args.run, args.seed, args.subsample), indent=2))
+    if args.judge:
+        print(json.dumps(judge(args.run, args.concurrency), indent=2))
     if args.collect:
         print(json.dumps(collect(), indent=2))
     if args.report:
@@ -519,7 +644,7 @@ def main() -> int:
                          indent=2))
         print(f"{len(out['disagreements'])} pairs where the three judges differ "
               f"-> {REPORT}")
-    if not any((args.agent, args.dispatch, args.collect, args.report)):
+    if not any((args.agent, args.dispatch, args.judge, args.collect, args.report)):
         ap.print_help()
     return 0
 

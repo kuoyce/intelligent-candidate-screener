@@ -273,3 +273,111 @@ def test_dispatch_is_idempotent_per_pair_and_run(tmp_path, monkeypatch):
     assert first["pairs"] == len(frame) and first["already_dispatched"] == 0
     assert second["pairs"] == 0 and second["already_dispatched"] == len(frame)
     assert len(llm.read_jsonl(llm.PROMPTS)) == len(frame)
+
+
+# --- judge -----------------------------------------------------------------
+
+def _sandbox(tmp_path):
+    agents = tmp_path / ".claude" / "agents"
+    agents.mkdir(parents=True)
+    (agents / llm.AGENT_DEF.name).write_text(
+        llm.AGENT_DEF.read_text(encoding="utf-8"), encoding="utf-8")
+    return tmp_path
+
+
+def test_the_judge_refuses_a_working_directory_that_carries_project_context(tmp_path):
+    """Mutation: make `assert_isolated` a no-op — this fails.
+
+    Measured, not assumed. Probing the committed judge from the repository root answers
+    *yes* to "is AGENTS.md in your context"; from an isolated directory it answers *no*.
+    `AGENTS.md` names the recheck, the kappa it is chasing and the parquet that carries
+    `a1_label`, so a judge that has read it is not the instrument `yc` was.
+    """
+    cwd = _sandbox(tmp_path / "clean")
+    llm.assert_isolated(cwd)                      # the sandbox itself is fine
+
+    (tmp_path / "CLAUDE.md").write_text("@AGENTS.md\n")
+    with pytest.raises(llm.JudgeNotIsolated, match="CLAUDE.md"):
+        llm.assert_isolated(cwd)                  # ... until an ancestor carries context
+
+
+def test_the_judge_refuses_a_sandbox_carrying_any_second_agent(tmp_path):
+    """A `.claude/` holding anything but the committed judge is not a sandbox."""
+    cwd = _sandbox(tmp_path)
+    (cwd / ".claude" / "agents" / "helper.md").write_text("---\nname: helper\n---\n")
+    with pytest.raises(llm.JudgeNotIsolated, match="helper.md"):
+        llm.assert_isolated(cwd)
+
+
+def test_the_repository_root_is_never_a_legal_judge_cwd():
+    """The one directory this must refuse is the one it is most convenient to use."""
+    with pytest.raises(llm.JudgeNotIsolated):
+        llm.assert_isolated(llm.PROJECT_ROOT)
+
+
+def _staged_judge(tmp_path, monkeypatch, returns):
+    """`judge()` with the subprocess replaced; nothing spawns, nothing leaves the box."""
+    agent_sha = llm.sha(llm.AGENT_DEF.read_text(encoding="utf-8"))
+    prompts, raw = tmp_path / "p.jsonl", tmp_path / "r.jsonl"
+    prompts.write_text("\n".join(json.dumps({
+        "pair_id": f"j_0__r_{i:02d}", "query_id": "j_0", "doc_id": f"r_{i:02d}",
+        "run": 1, "prompt": "JOB DESCRIPTION\nx\n\nCANDIDATE\ny",
+        "prompt_sha256": "abc", "chars_sent": 32, "agent_sha256": agent_sha,
+        "model": llm.MODEL}) for i in range(3)) + "\n")
+    monkeypatch.setattr(llm, "PROMPTS", prompts)
+    monkeypatch.setattr(llm, "RAW", raw)
+    calls = []
+
+    def fake(record, cwd):
+        llm.assert_isolated(cwd)        # every spawn is checked, not just the first
+        calls.append(record["pair_id"])
+        return {"pair_id": record["pair_id"], "run": record["run"],
+                "returned_at": "2026-08-30T00:00:00Z", "raw": returns}
+
+    monkeypatch.setattr(llm, "judge_one", fake)
+    return raw, calls
+
+
+def test_judging_is_idempotent_per_pair_and_run(tmp_path, monkeypatch):
+    """Mutation: drop the `done` filter — this fails.
+
+    A second return matched against the first return's `prompt_sha256` would let the
+    provenance columns name a prompt that did not produce the label. Dispatch is
+    idempotent for this reason; so is judging.
+    """
+    raw, calls = _staged_judge(tmp_path, monkeypatch, '{"label":"No Fit","reason":"x"}')
+    first = llm.judge(run=1, concurrency=2)
+    second = llm.judge(run=1, concurrency=2)
+    assert first["judged_now"] == 3 and second["judged_now"] == 0
+    assert second["already_judged"] == 3
+    assert len(calls) == 3 and len(llm.read_jsonl(raw)) == 3
+
+
+def test_judging_refuses_prompts_dispatched_against_a_different_judge(
+        tmp_path, monkeypatch):
+    """Mutation: drop the `agent_sha256` comparison — this fails.
+
+    The prompts carry the hash of the judge they were rendered for. Judging them with a
+    re-rendered agent would stamp every row with provenance that never held.
+    """
+    raw, _ = _staged_judge(tmp_path, monkeypatch, '{"label":"No Fit","reason":"x"}')
+    rows = llm.read_jsonl(llm.PROMPTS)
+    for row in rows:
+        row["agent_sha256"] = "0" * 64
+    llm.PROMPTS.write_text("\n".join(json.dumps(r) for r in rows) + "\n")
+    with pytest.raises(llm.JudgeNotIsolated, match="not the one these prompts"):
+        llm.judge(run=1, concurrency=2)
+    assert not raw.exists()
+
+
+def test_a_judge_that_crashes_is_recorded_rather_than_dropped(tmp_path, monkeypatch):
+    """A missing pair and a failed pair are different findings; only one is silent."""
+    raw, _ = _staged_judge(tmp_path, monkeypatch, '{"label":"No Fit","reason":"x"}')
+
+    def boom(record, cwd):
+        raise TimeoutError("judge took too long")
+
+    monkeypatch.setattr(llm, "judge_one", boom)
+    result = llm.judge(run=1, concurrency=2)
+    assert result["judged_now"] == 3
+    assert all("judge failed" in r["raw"] for r in llm.read_jsonl(raw))

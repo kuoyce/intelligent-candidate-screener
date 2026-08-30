@@ -29,6 +29,8 @@ uv run python -m candidate_screener.data.build --all --seed 0       # splits, po
 uv run python -m candidate_screener.annotation.ui --annotator <name>   # the labelling UI
 uv run python -m candidate_screener.annotation.llm_recheck --agent      # render the LLM judge
 uv run python -m candidate_screener.annotation.llm_recheck --dispatch --run 1
+uv run python -m candidate_screener.annotation.llm_recheck --judge --run 1   # isolated subprocesses
+uv run python -m candidate_screener.annotation.llm_recheck --collect --report
 uv run pytest                                                 # unit + regression suite
 uv run jupyter nbconvert --to notebook --execute --inplace notebooks/0X-*.ipynb
 ```
@@ -109,7 +111,29 @@ kappa(A1, yc) = 0.010 with a **bidirectional** disagreement, so it is not a stri
 and it does not preserve ranking. Either A1's labels are wrong — **A13 fails** and D26's
 ceilings are soft — or `yc` is miscalibrated. One annotator cannot separate the two, and the
 two have opposite consequences for every figure quoted against 0.7806. `annotation.llm_recheck`
-runs one tool-free `sonnet` subagent per pair, 10 concurrent.
+runs one tool-free `sonnet` judge per pair, 10 concurrent.
+
+**It has run, and A13 fails** *(30 Aug 2026, `plan/2026-08-30-llm-recheck/01-findings.md`)*.
+kappa(A1, llm) = **0.029** [-0.134, 0.190] n=50 against kappa(yc, llm) = **0.291**
+[0.115, 0.492] n=41; under binary collapse, **0.000** against 0.424. The judge's own
+test-retest reliability is 0.857-1.000 over three runs, so its low agreement with A1 is not
+a noisy judge — the bound on the kappa it could have reached was ~0.86, not ~0.3. Neither
+blind judge reproduces one of A1's 15 `Good Fit` labels; 14 of the 15 read as `No Fit`,
+while both agree with each other on the negatives. **D26's 0.7806 / 0.7188 ceilings are
+therefore soft**, and any figure quoted as a fraction of attainable inherits the doubt.
+Restating them is a separate change that supersedes in place; it has not been made.
+
+**Tool-free is necessary and was not sufficient** *(deviation V4)*. The judge runs as a
+`claude -p --agent a1-judge` **subprocess whose cwd is a sandbox holding a copy of the
+committed judge and nothing else** — never the `Agent` tool and never inside the repository.
+Measured, not assumed: asked whether `AGENTS.md`, `CLAUDE.md` or `a1_label` was in its
+context, a judge launched at the repository root answers **YES**. `CLAUDE.md` here is
+`@AGENTS.md`, which names D33, quotes the kappa it is chasing and says where `a1_label`
+lives. Project memory is a second leak channel and `tools: []` does not close it;
+`llm_recheck.assert_isolated` does, by refusing any cwd or ancestor carrying `CLAUDE.md`,
+`AGENTS.md`, or a `.claude/` with anything but the judge. **Adding a `CLAUDE.md` above the
+sandbox, or judging from the repo, breaks the instrument silently** — which is why the
+repository root is a test case.
 
 **Tool-free is the control, not a preference.** The answer key is on disk:
 `data/processed/indomain/judging-queue-full.parquet` carries `a1_label` for all 50 recheck

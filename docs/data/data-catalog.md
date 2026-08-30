@@ -37,7 +37,8 @@ Legend — **Tier 1** adopt, **Tier 2** adopt with stated caveats, **Tier 3** ev
 | PII | Resumes are livecareer-style; names largely stripped, but employers/schools remain |
 | Popularity | 798 downloads/30d, 80 likes, last modified 2024-07-25 |
 | Role | Common dataset for Stages 1–4 (§5.3.2), and the substrate for synthetic retrieval pools |
-| Caveats | 99.8% resume leakage across the shipped split; 6 conflicting-label pairs; general-industry, not IT-specific |
+| Label quality | *Added 30 Aug 2026 (D33).* **The labels do not reproduce — A13 fails.** On a 50-pair recheck, two judges blind to A1's answer both land at chance against it: kappa(A1, human) = 0.010 (n=41), kappa(A1, `llm:claude-sonnet-5`) = **0.029** (n=50), **0.000** under binary collapse — while agreeing with each other at kappa = 0.291 (0.424 collapsed). The failure is in A1's positives: 14 of its 15 `Good Fit` labels read as `No Fit` to both. **D26's 0.7806 / 0.7188 ceilings are computed off these labels and are therefore soft**; they are not restated here. See the [card](cards/A1-resume-job-description-fit.md) defect 5 and `plan/2026-08-30-llm-recheck/01-findings.md` |
+| Caveats | 99.8% resume leakage across the shipped split; 6 conflicting-label pairs; general-industry, not IT-specific; **the labels do not reproduce (above)** |
 
 **Pool feasibility (Verified)** — this determines whether decision D1 is executable:
 

@@ -38,9 +38,30 @@ Good Fit resumes per test JD: min 1, Q1 3, **median 18**, Q3 24, max 48.
 3. **6 pairs carry conflicting labels** across the corpus — these are annotations, not
    authoritative ground truth.
 4. **General-industry, not IT-specific.** In-domain evaluation comes from A2 instead.
+5. **The labels do not reproduce — A13 fails** *(added 30 Aug 2026, D33)*. On a 50-pair
+   recheck, two independent judges working from `docs/annotation-guide.md` and blind to
+   A1's answer both fail to recover it: kappa(A1, human) = 0.010 (n=41) and
+   kappa(A1, `llm:claude-sonnet-5`) = **0.029** (n=50), both CIs straddling zero, while the
+   two blind judges agree with each other at kappa = 0.291 (CI [0.115, 0.492]). Under binary
+   collapse (`Good`∪`Potential` vs `No Fit`) kappa(A1, llm) is **exactly 0.000** against
+   0.424 between the blind judges. The LLM judge's test-retest reliability is 0.857-1.000
+   over three runs, so this is not a noisy judge. **The breakdown is in A1's positives**:
+   neither blind judge reproduces one of A1's 15 `Good Fit` labels as `Good Fit`, 14 of the
+   15 read as `No Fit`, and agreement on A1's `No Fit` is 0.60 / 0.80. Evidence:
+   [`llm-recheck.csv`](../manifests/llm-recheck.csv),
+   `output/annotation/llm-recheck-report.json`,
+   `plan/2026-08-30-llm-recheck/01-findings.md`.
+6. **Label provenance is unrecorded** *(Q28)*. The publisher does not say how the labels
+   were produced. It no longer blocks reading defect 5 — shared machine bias would have
+   *inflated* kappa(A1, llm), and the observed value is at chance — but it is still unknown.
 
 ## How it must be used
 
+- **Quote no ceiling off these labels without the A13 caveat** *(defect 5)*. D26's
+  attainable Precision@5 of **0.7806** strict / **0.7188** graded and Recall@10 of 0.983 are
+  computed against pools whose A1 leg carries labels that do not reproduce. The figures have
+  not been restated — that is a separate change, superseding in place — but every use of
+  them now travels with the finding, not only with the ceiling.
 - Do **not** report on the shipped split. Use the doubly-disjoint re-split — **built, at a
   30% hold-out, seed 0**: [`docs/data/manifests/fit-split.csv`](../manifests/fit-split.csv),
   rebuilt with `python -m candidate_screener.data.build --task fit-split`.

@@ -1,6 +1,10 @@
 # LLM recheck — a third judge on the 50 A1 pairs
 
-> **Status: draft for approval. Nothing here is implemented.**
+> **Status: implemented and run, 30 Aug 2026.** The result is in `01-findings.md`
+> (row 1 of the reading table — **A13 fails**); how it was built and where it deviates is
+> in `01-implementation.md`. The transport below is superseded by deviation **V4**: the
+> judge runs as an isolated subprocess, not through the `Agent` tool, because a judge
+> launched inside the repository loads `AGENTS.md`.
 >
 > **Revised 30 Aug 2026, before approval.** The first draft called the Messages API from
 > `annotation/llm_recheck.py` via `requests`. **There is no API key available**, so the
@@ -276,9 +280,10 @@ in the table above.
 ```bash
 uv run pytest
 uv run python -m candidate_screener.data.verify --derived      # must be unchanged by this work
-uv run python -m candidate_screener.annotation.llm_recheck --dispatch --seed 0
-# ... orchestrator spawns the a1-judge subagents ...
+uv run python -m candidate_screener.annotation.llm_recheck --dispatch --run 1 --seed 0
+uv run python -m candidate_screener.annotation.llm_recheck --judge --run 1   # deviation V4
 uv run python -m candidate_screener.annotation.llm_recheck --collect
+uv run python -m candidate_screener.annotation.llm_recheck --report
 ```
 
 ## Out of scope
