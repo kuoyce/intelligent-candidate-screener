@@ -1,0 +1,183 @@
+{
+  "split": {
+    "source": "processed/fit",
+    "note_not_comparable": "Measured on the leak-free data/processed/fit/ split (task 3.2). NOT comparable to any number published against the shipped cnamuangtoun train/test partition, which leaks 99.8% of its test resumes into train.",
+    "train": {
+      "pairs": 3990,
+      "unique_resumes": 446,
+      "unique_jds": 245,
+      "label_counts": {
+        "Good Fit": 953,
+        "Potential Fit": 1060,
+        "No Fit": 1977
+      }
+    },
+    "test": {
+      "pairs": 659,
+      "unique_resumes": 158,
+      "unique_jds": 100,
+      "label_counts": {
+        "Good Fit": 182,
+        "Potential Fit": 133,
+        "No Fit": 344
+      }
+    }
+  },
+  "config": {
+    "seed": 0,
+    "skill_patterns_sha256": "aeee52261870360baa956934bcc8f1094464cb2e182467c6ffa508d2459c54c0",
+    "token_pattern": "(?u)\\b\\w\\w+\\b",
+    "tfidf": {
+      "max_features": 5000,
+      "min_df": 2,
+      "max_df": 0.8,
+      "ngram_range": [
+        1,
+        2
+      ],
+      "lowercase": true,
+      "stop_words": "english"
+    },
+    "classifier": {
+      "solver": "lbfgs",
+      "max_iter": 5000,
+      "class_weight": "balanced",
+      "random_state": 0
+    }
+  },
+  "vocabulary": {
+    "size": 5000,
+    "sha256": "424627ebb062002d2c5da914334b34479c42deecb2949ee2e56afef45f534ee0"
+  },
+  "floor": {
+    "majority_class": "No Fit",
+    "accuracy": 0.5220030349013657,
+    "macro_f1": 0.22864739115985377
+  },
+  "models": {
+    "tfidf": {
+      "accuracy": 0.49165402124430957,
+      "macro_f1": 0.3817562438403446,
+      "n": 659,
+      "per_class": {
+        "Good Fit": {
+          "precision": 0.3607843137254902,
+          "recall": 0.5054945054945055,
+          "f1": 0.42105263157894735,
+          "support": 182
+        },
+        "Potential Fit": {
+          "precision": 0.21621621621621623,
+          "recall": 0.06015037593984962,
+          "f1": 0.09411764705882353,
+          "support": 133
+        },
+        "No Fit": {
+          "precision": 0.6103542234332425,
+          "recall": 0.6511627906976745,
+          "f1": 0.630098452883263,
+          "support": 344
+        }
+      },
+      "confusion": [
+        [
+          92,
+          12,
+          78
+        ],
+        [
+          60,
+          8,
+          65
+        ],
+        [
+          103,
+          17,
+          224
+        ]
+      ],
+      "classes": [
+        "Good Fit",
+        "No Fit",
+        "Potential Fit"
+      ],
+      "coef": [
+        2.6997809397350894,
+        -4.087959106854608,
+        1.3881781671195226
+      ],
+      "intercept": [
+        -0.24414752012007354,
+        0.3571198489018934,
+        -0.11297232878091734
+      ],
+      "n_iter": 11
+    },
+    "bm25": {
+      "accuracy": 0.4597875569044006,
+      "macro_f1": 0.34657758611301687,
+      "n": 659,
+      "per_class": {
+        "Good Fit": {
+          "precision": 0.34328358208955223,
+          "recall": 0.5054945054945055,
+          "f1": 0.4088888888888889,
+          "support": 182
+        },
+        "Potential Fit": {
+          "precision": 0.21052631578947367,
+          "recall": 0.03007518796992481,
+          "f1": 0.05263157894736842,
+          "support": 133
+        },
+        "No Fit": {
+          "precision": 0.5564516129032258,
+          "recall": 0.6017441860465116,
+          "f1": 0.5782122905027933,
+          "support": 344
+        }
+      },
+      "confusion": [
+        [
+          92,
+          8,
+          82
+        ],
+        [
+          46,
+          4,
+          83
+        ],
+        [
+          130,
+          7,
+          207
+        ]
+      ],
+      "classes": [
+        "Good Fit",
+        "No Fit",
+        "Potential Fit"
+      ],
+      "coef": [
+        0.0006756547618999472,
+        -0.0003535200814070061,
+        -0.00032213468054623516
+      ],
+      "intercept": [
+        -0.23246566221017084,
+        0.12126785150506283,
+        0.11119781070510855
+      ],
+      "n_iter": 22
+    }
+  },
+  "environment": {
+    "python": "3.12",
+    "scikit-learn": "1.9.0",
+    "numpy": "2.5.2",
+    "scipy": "1.18.1",
+    "pandas": "3.0.5",
+    "rank-bm25": "0.2.2"
+  }
+}

@@ -1,0 +1,31 @@
+pair_id,batch,stratum,corpus,query_id,doc_id,selection_reason,annotator,label,shortlist_pick,notes
+60aac018-c8be-5669-85ef-892997b1a3ec__7c32fce8-2eb8-5860-a9df-81f2840a5567,1,generic,a2,60aac018-c8be-5669-85ef-892997b1a3ec,7c32fce8-2eb8-5860-a9df-81f2840a5567,indomain_banded,yc,No Fit,0,"infra role, mostly software cv"
+60aac018-c8be-5669-85ef-892997b1a3ec__cfe11d3f-f2ed-54e2-94fb-029fcc65f966,1,generic,a2,60aac018-c8be-5669-85ef-892997b1a3ec,cfe11d3f-f2ed-54e2-94fb-029fcc65f966,indomain_banded,yc,No Fit,0,"infra role, mostly software cv"
+60aac018-c8be-5669-85ef-892997b1a3ec__0b55fb28-975d-59b0-a17e-48a8083d3fbc,1,generic,a2,60aac018-c8be-5669-85ef-892997b1a3ec,0b55fb28-975d-59b0-a17e-48a8083d3fbc,indomain_banded,yc,No Fit,0,"infra role, mostly software cv"
+60aac018-c8be-5669-85ef-892997b1a3ec__3b83fd7d-d292-5434-9789-7809e0bb5503,1,generic,a2,60aac018-c8be-5669-85ef-892997b1a3ec,3b83fd7d-d292-5434-9789-7809e0bb5503,indomain_banded,yc,No Fit,0,"infra role, mostly software cv"
+60aac018-c8be-5669-85ef-892997b1a3ec__daad9b4f-0fb6-5a47-ad3a-0a184808c28b,1,generic,a2,60aac018-c8be-5669-85ef-892997b1a3ec,daad9b4f-0fb6-5a47-ad3a-0a184808c28b,indomain_banded,yc,No Fit,0,"infra role, mostly software cv"
+a77b2346-51c8-5eef-b743-9cf1ef8d40d7__df0f75e4-8656-523a-8681-fdca8f581844,1,generic,a2,a77b2346-51c8-5eef-b743-9cf1ef8d40d7,df0f75e4-8656-523a-8681-fdca8f581844,indomain_banded,yc,No Fit,0,"frontend dev role, no relevant"
+a77b2346-51c8-5eef-b743-9cf1ef8d40d7__3b309590-605c-5813-a9c9-3d4d4a804f94,1,generic,a2,a77b2346-51c8-5eef-b743-9cf1ef8d40d7,3b309590-605c-5813-a9c9-3d4d4a804f94,indomain_banded,yc,No Fit,0,"frontend dev role, no relevant"
+a77b2346-51c8-5eef-b743-9cf1ef8d40d7__89c16504-644d-5221-9fa2-bcb9fbfb7821,1,generic,a2,a77b2346-51c8-5eef-b743-9cf1ef8d40d7,89c16504-644d-5221-9fa2-bcb9fbfb7821,indomain_banded,yc,No Fit,0,"frontend dev role, no relevant"
+a77b2346-51c8-5eef-b743-9cf1ef8d40d7__a6f55a4c-6020-5488-9c67-0ed76ced087c,1,generic,a2,a77b2346-51c8-5eef-b743-9cf1ef8d40d7,a6f55a4c-6020-5488-9c67-0ed76ced087c,indomain_banded,yc,No Fit,0,"frontend dev role, no relevant"
+a77b2346-51c8-5eef-b743-9cf1ef8d40d7__92690d1a-5e6a-5339-ac2a-206c70b792da,1,generic,a2,a77b2346-51c8-5eef-b743-9cf1ef8d40d7,92690d1a-5e6a-5339-ac2a-206c70b792da,indomain_banded,yc,No Fit,0,"frontend dev role, no relevant"
+cd34e6d9-bd4c-526f-ad03-ead383c644c8__e560b320-1ef6-5bbe-985d-a3fa93a645a0,1,generic,a2,cd34e6d9-bd4c-526f-ad03-ead383c644c8,e560b320-1ef6-5bbe-985d-a3fa93a645a0,indomain_banded,yc,No Fit,0,
+cd34e6d9-bd4c-526f-ad03-ead383c644c8__d3740be6-cdd9-5201-b6fd-d87a8cb7b0c2,1,generic,a2,cd34e6d9-bd4c-526f-ad03-ead383c644c8,d3740be6-cdd9-5201-b6fd-d87a8cb7b0c2,indomain_banded,yc,No Fit,0,
+cd34e6d9-bd4c-526f-ad03-ead383c644c8__ffacda99-222d-5141-ab3b-dd0b1fc543f4,1,generic,a2,cd34e6d9-bd4c-526f-ad03-ead383c644c8,ffacda99-222d-5141-ab3b-dd0b1fc543f4,indomain_banded,yc,No Fit,0,
+cd34e6d9-bd4c-526f-ad03-ead383c644c8__8378f46b-5df6-57f2-bc6f-1d4615aa613a,1,generic,a2,cd34e6d9-bd4c-526f-ad03-ead383c644c8,8378f46b-5df6-57f2-bc6f-1d4615aa613a,indomain_banded,yc,No Fit,0,
+cd34e6d9-bd4c-526f-ad03-ead383c644c8__495e9dd7-f6e7-5ad7-a77d-7a3b769605a8,1,generic,a2,cd34e6d9-bd4c-526f-ad03-ead383c644c8,495e9dd7-f6e7-5ad7-a77d-7a3b769605a8,indomain_banded,yc,No Fit,0,
+21a58a87-88fa-5721-b0c7-b40c5320fd1c__76584245-9e05-50a8-878a-4e7e55f1670a,1,generic,a2,21a58a87-88fa-5721-b0c7-b40c5320fd1c,76584245-9e05-50a8-878a-4e7e55f1670a,indomain_banded,yc,No Fit,0,
+21a58a87-88fa-5721-b0c7-b40c5320fd1c__33749cbb-95dc-5f0f-8bda-e274fd5bf32c,1,generic,a2,21a58a87-88fa-5721-b0c7-b40c5320fd1c,33749cbb-95dc-5f0f-8bda-e274fd5bf32c,indomain_banded,yc,No Fit,0,
+21a58a87-88fa-5721-b0c7-b40c5320fd1c__6c9aa413-57ca-5ebd-81f7-63e000282fb9,1,generic,a2,21a58a87-88fa-5721-b0c7-b40c5320fd1c,6c9aa413-57ca-5ebd-81f7-63e000282fb9,indomain_banded,yc,No Fit,0,
+21a58a87-88fa-5721-b0c7-b40c5320fd1c__6ce922e0-9440-5357-89d3-db0de84dc807,1,generic,a2,21a58a87-88fa-5721-b0c7-b40c5320fd1c,6ce922e0-9440-5357-89d3-db0de84dc807,indomain_banded,yc,No Fit,0,
+21a58a87-88fa-5721-b0c7-b40c5320fd1c__24fb0602-5d3e-57e3-918b-4c15ed0df25d,1,generic,a2,21a58a87-88fa-5721-b0c7-b40c5320fd1c,24fb0602-5d3e-57e3-918b-4c15ed0df25d,indomain_banded,yc,No Fit,0,
+c63e4cc9-55f8-5e36-af46-62962a586864__4a607166-49e6-57fb-86a2-a7232b1b344d,1,generic,a2,c63e4cc9-55f8-5e36-af46-62962a586864,4a607166-49e6-57fb-86a2-a7232b1b344d,indomain_banded,yc,No Fit,0,
+c63e4cc9-55f8-5e36-af46-62962a586864__84bc552e-a6d3-5990-9e70-d038b0ae35f7,1,generic,a2,c63e4cc9-55f8-5e36-af46-62962a586864,84bc552e-a6d3-5990-9e70-d038b0ae35f7,indomain_banded,yc,No Fit,0,
+c63e4cc9-55f8-5e36-af46-62962a586864__003deb2d-fbdd-5cb5-b122-3cd0a13ddb61,1,generic,a2,c63e4cc9-55f8-5e36-af46-62962a586864,003deb2d-fbdd-5cb5-b122-3cd0a13ddb61,indomain_banded,yc,No Fit,0,
+c63e4cc9-55f8-5e36-af46-62962a586864__b0bf7028-6f46-5301-9366-e590d3796b92,1,generic,a2,c63e4cc9-55f8-5e36-af46-62962a586864,b0bf7028-6f46-5301-9366-e590d3796b92,indomain_banded,yc,No Fit,0,
+c63e4cc9-55f8-5e36-af46-62962a586864__2675b0f0-1dfb-5aea-bc9c-2727b9b0087f,1,generic,a2,c63e4cc9-55f8-5e36-af46-62962a586864,2675b0f0-1dfb-5aea-bc9c-2727b9b0087f,indomain_banded,yc,No Fit,0,
+a8a46ef9-88dd-595c-813e-db693d0adcb1__7fed889b-2f0a-5887-86c3-a45dc3795d3a,1,generic,a2,a8a46ef9-88dd-595c-813e-db693d0adcb1,7fed889b-2f0a-5887-86c3-a45dc3795d3a,indomain_banded,yc,No Fit,0,
+a8a46ef9-88dd-595c-813e-db693d0adcb1__1f8a0ad3-a6bb-5f44-b866-3b31c120ea10,1,generic,a2,a8a46ef9-88dd-595c-813e-db693d0adcb1,1f8a0ad3-a6bb-5f44-b866-3b31c120ea10,indomain_banded,yc,No Fit,0,
+a8a46ef9-88dd-595c-813e-db693d0adcb1__2f417a1f-7bfd-5575-830d-dd7aebf96442,1,generic,a2,a8a46ef9-88dd-595c-813e-db693d0adcb1,2f417a1f-7bfd-5575-830d-dd7aebf96442,indomain_banded,yc,Potential Fit,0,
+a8a46ef9-88dd-595c-813e-db693d0adcb1__2a17f5f8-df64-567c-9b5e-f003205a7342,1,generic,a2,a8a46ef9-88dd-595c-813e-db693d0adcb1,2a17f5f8-df64-567c-9b5e-f003205a7342,indomain_banded,yc,No Fit,0,
+a8a46ef9-88dd-595c-813e-db693d0adcb1__e55af60c-82c9-528f-af1b-7489a327a9b0,1,generic,a2,a8a46ef9-88dd-595c-813e-db693d0adcb1,e55af60c-82c9-528f-af1b-7489a327a9b0,indomain_banded,yc,Potential Fit,1,

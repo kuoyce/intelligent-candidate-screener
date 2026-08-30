@@ -1,0 +1,15 @@
+{
+  "note": "Frozen, append-only (D28). Batch N draws from what 1..N-1 left, so appending a batch cannot change an existing pair_id \u2014 labels already collected stay valid. Edit an existing batch only if nothing from it has been labelled.",
+  "note_stratum": "Two reporting strata, never pooled together (D29). `generic` is the unstratified sample (D14) and answers 'how does this system do on a typical posting'. `targeted` pools every keyword-scoped batch and answers 'how does it do on the families we chose to cover'. Both are true statements about a real population; their average is not. Batches within a stratum MAY be pooled \u2014 they differ only in which titles they cover.",
+  "batches": [
+    {
+      "batch": 1,
+      "n_jds": 40,
+      "per_jd": 10,
+      "seed": 0,
+      "keywords": null,
+      "reuse_jds": false,
+      "same_keyword_min": 8
+    }
+  ]
+}

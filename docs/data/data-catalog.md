@@ -37,7 +37,8 @@ Legend — **Tier 1** adopt, **Tier 2** adopt with stated caveats, **Tier 3** ev
 | PII | Resumes are livecareer-style; names largely stripped, but employers/schools remain |
 | Popularity | 798 downloads/30d, 80 likes, last modified 2024-07-25 |
 | Role | Common dataset for Stages 1–4 (§5.3.2), and the substrate for synthetic retrieval pools |
-| Caveats | 99.8% resume leakage across the shipped split; 6 conflicting-label pairs; general-industry, not IT-specific |
+| Label quality | *Added 30 Aug 2026 (D33).* **The labels do not reproduce — A13 fails.** On a recheck of 100 pairs (machine) / 50 (human), two judges blind to A1's answer both land near chance against it: kappa(A1, human) = **0.034** (n=50), kappa(A1, `llm:claude-sonnet-5`) = **0.125** (n=100) — 0.031 and 0.113 under binary collapse, and exactly 0.000 over the original 50-pair draw — while the two blind judges agree with each other at kappa = **0.275** (0.425 collapsed, n=50). The failure is in A1's positives: the judge agrees 0.90 on A1's `No Fit` (n=40) but **0.067 on its `Good Fit`** (n=30), reading 26 of those 30 as `No Fit`. **D26's 0.7806 / 0.7188 ceilings are computed off these labels and are therefore soft**; they are not restated here. See the [card](cards/A1-resume-job-description-fit.md) defect 5 and `plan/2026-08-30-llm-recheck/01-findings.md` |
+| Caveats | 99.8% resume leakage across the shipped split; 6 conflicting-label pairs; general-industry, not IT-specific; **the labels do not reproduce (above)** |
 
 **Pool feasibility (Verified)** — this determines whether decision D1 is executable:
 
@@ -51,11 +52,18 @@ Legend — **Tier 1** adopt, **Tier 2** adopt with stated caveats, **Tier 3** ev
 **Relevance density (Verified)** — Good Fit resumes per test JD: median **18**, Q1 3, Q3 24, max 48.
 
 Two consequences. Pools are natively only ~14–25 candidates, so they **must** be padded with
-distractors (max 477 unique test resumes) — pool N = 100 is the adopted setting. And because the
-median JD has 18 relevant resumes, **Recall@10 is capped at 0.56 for the median query and is
-unreachable above 0.90 for 57% of queries**; the adopted metrics are Recall@50, Precision@10 and
-nDCG@10. See `01-requirements-and-findings.md` §2.7 and the protocol in
-`03-acquisition-action-plan.md` §3.3.
+distractors — pool N = 100 is the adopted setting. And because the median JD has 18 relevant
+resumes, **Recall@10 is capped at 0.56 for the median query** on this, the *shipped*, split.
+
+> **Superseded 23 Aug 2026 by task 3.3 (Q17).** The density above is the shipped split's. The
+> leak-free split holds resumes out, so each query keeps only its held-out judgements and the
+> test-side median falls from 18 to **6 Good Fit per JD**. Measured on the built pools,
+> **Recall@10 reaches 0.90 for 93.5% of queries and 1.0 for 87%** — so the ban on Recall@10 is
+> lifted and it becomes the primary recall metric. In the same move **Recall@50 is retired**:
+> at 6 relevant in a 100-deep pool every query's ceiling is 1.0 and the metric saturates, and
+> over the N20 variant it is not even defined. The candidate universe is **193** test resumes,
+> not 477. See [`docs/data/manifests/pools-yield.json`](manifests/pools-yield.json) and
+> [`plan/2026-08-23-derived-artefacts/05-implementation.md`](../../plan/2026-08-23-derived-artefacts/05-implementation.md).
 
 ### A2 · `lang-uk/recruitment-dataset-*` (Djinni) — **Tier 1, in-domain evaluation (R4)**
 

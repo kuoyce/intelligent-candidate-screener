@@ -1,0 +1,335 @@
+{
+  "model": "claude-sonnet-5",
+  "seed": 0,
+  "generated_at": "2026-08-30T07:26:11+00:00",
+  "coverage": {
+    "a1": 100,
+    "human": 50,
+    "llm": 100,
+    "all_three": 50,
+    "human_50_draw": 50,
+    "llm_draw": 100
+  },
+  "pairwise_kappa": {
+    "a1_vs_human": {
+      "kappa": 0.03426791277258545,
+      "lo": -0.16209729037764029,
+      "hi": 0.2252681764004768,
+      "n": 50,
+      "agreement": 0.38
+    },
+    "a1_vs_llm": {
+      "kappa": 0.12479740680713136,
+      "lo": 0.012937486020460229,
+      "hi": 0.2407682144138888,
+      "n": 100,
+      "agreement": 0.46
+    },
+    "human_vs_llm": {
+      "kappa": 0.2747784045124899,
+      "lo": 0.12682760829151793,
+      "hi": 0.45697577276524637,
+      "n": 50,
+      "agreement": 0.64
+    }
+  },
+  "pairwise_kappa_over_the_human_50": {
+    "a1_vs_human": {
+      "kappa": 0.03426791277258545,
+      "lo": -0.16209729037764029,
+      "hi": 0.2252681764004768,
+      "n": 50,
+      "agreement": 0.38
+    },
+    "a1_vs_llm": {
+      "kappa": 0.029126213592232997,
+      "lo": -0.13387173203334451,
+      "hi": 0.1900407365260761,
+      "n": 50,
+      "agreement": 0.4
+    },
+    "human_vs_llm": {
+      "kappa": 0.2747784045124899,
+      "lo": 0.12682760829151793,
+      "hi": 0.45697577276524637,
+      "n": 50,
+      "agreement": 0.64
+    }
+  },
+  "self_consistency_kappa": {
+    "run1_vs_run2": {
+      "kappa": 0.8571428571428572,
+      "lo": 0.41706566347469226,
+      "hi": 1.0,
+      "n": 20,
+      "agreement": 0.95
+    },
+    "run1_vs_run3": {
+      "kappa": 0.8571428571428572,
+      "lo": 0.41706566347469226,
+      "hi": 1.0,
+      "n": 20,
+      "agreement": 0.95
+    },
+    "run2_vs_run3": {
+      "kappa": 1.0,
+      "lo": 1.0,
+      "hi": 1.0,
+      "n": 20,
+      "agreement": 1.0
+    }
+  },
+  "per_class_agreement": {
+    "Good Fit": {
+      "n": 15,
+      "human_agrees": 0.2,
+      "llm_agrees": 0.0
+    },
+    "Potential Fit": {
+      "n": 15,
+      "human_agrees": 0.26666666666666666,
+      "llm_agrees": 0.26666666666666666
+    },
+    "No Fit": {
+      "n": 20,
+      "human_agrees": 0.6,
+      "llm_agrees": 0.8
+    }
+  },
+  "per_class_llm_vs_a1": {
+    "Good Fit": {
+      "n": 30,
+      "llm_agrees": 0.06666666666666667
+    },
+    "Potential Fit": {
+      "n": 30,
+      "llm_agrees": 0.26666666666666666
+    },
+    "No Fit": {
+      "n": 40,
+      "llm_agrees": 0.9
+    }
+  },
+  "disagreements": [
+    {
+      "pair_id": "j_244f893f44d8__r_7d9919ce0c9e",
+      "a1": "No Fit",
+      "human": "Good Fit",
+      "llm": "Potential Fit"
+    },
+    {
+      "pair_id": "j_244f893f44d8__r_e5b671d6d5ea",
+      "a1": "Potential Fit",
+      "human": "Good Fit",
+      "llm": "Potential Fit"
+    },
+    {
+      "pair_id": "j_3149433013e5__r_2a58ebc46ba5",
+      "a1": "No Fit",
+      "human": "Potential Fit",
+      "llm": "No Fit"
+    },
+    {
+      "pair_id": "j_3149433013e5__r_708f5eca7774",
+      "a1": "Good Fit",
+      "human": "No Fit",
+      "llm": "No Fit"
+    },
+    {
+      "pair_id": "j_3149433013e5__r_af6a8343706f",
+      "a1": "Potential Fit",
+      "human": "Good Fit",
+      "llm": "No Fit"
+    },
+    {
+      "pair_id": "j_3149433013e5__r_e741e1ca6ee8",
+      "a1": "Good Fit",
+      "human": "No Fit",
+      "llm": "No Fit"
+    },
+    {
+      "pair_id": "j_3703c60dc13d__r_9ddad6feab89",
+      "a1": "Potential Fit",
+      "human": "No Fit",
+      "llm": "No Fit"
+    },
+    {
+      "pair_id": "j_5fdf7d382e67__r_54efc8ed3054",
+      "a1": "Potential Fit",
+      "human": "Good Fit",
+      "llm": "No Fit"
+    },
+    {
+      "pair_id": "j_601b1be28694__r_3e11bbbda486",
+      "a1": "Good Fit",
+      "human": "No Fit",
+      "llm": "No Fit"
+    },
+    {
+      "pair_id": "j_601b1be28694__r_5c04e2270625",
+      "a1": "Potential Fit",
+      "human": "Potential Fit",
+      "llm": "No Fit"
+    },
+    {
+      "pair_id": "j_601b1be28694__r_60d5e723d074",
+      "a1": "Good Fit",
+      "human": "Good Fit",
+      "llm": "Potential Fit"
+    },
+    {
+      "pair_id": "j_6057b152b402__r_a79ee88e30ff",
+      "a1": "No Fit",
+      "human": "Good Fit",
+      "llm": "Potential Fit"
+    },
+    {
+      "pair_id": "j_7745d1936d3f__r_a79ee88e30ff",
+      "a1": "Potential Fit",
+      "human": "No Fit",
+      "llm": "No Fit"
+    },
+    {
+      "pair_id": "j_81bfd39d8a31__r_52936a56ec83",
+      "a1": "Good Fit",
+      "human": "Good Fit",
+      "llm": "No Fit"
+    },
+    {
+      "pair_id": "j_8e2f16d04a9d__r_b635334c254b",
+      "a1": "Good Fit",
+      "human": "Potential Fit",
+      "llm": "No Fit"
+    },
+    {
+      "pair_id": "j_8e2f16d04a9d__r_e741e1ca6ee8",
+      "a1": "Good Fit",
+      "human": "No Fit",
+      "llm": "No Fit"
+    },
+    {
+      "pair_id": "j_8eec52da017e__r_e33097f84003",
+      "a1": "No Fit",
+      "human": "Good Fit",
+      "llm": "No Fit"
+    },
+    {
+      "pair_id": "j_9114d6480e8e__r_e741e1ca6ee8",
+      "a1": "Good Fit",
+      "human": "No Fit",
+      "llm": "No Fit"
+    },
+    {
+      "pair_id": "j_978d084a319f__r_3c191b7fe1d1",
+      "a1": "Good Fit",
+      "human": "Potential Fit",
+      "llm": "No Fit"
+    },
+    {
+      "pair_id": "j_978d084a319f__r_6de8c60312de",
+      "a1": "No Fit",
+      "human": "Good Fit",
+      "llm": "No Fit"
+    },
+    {
+      "pair_id": "j_978d084a319f__r_cfef6a354732",
+      "a1": "Good Fit",
+      "human": "No Fit",
+      "llm": "No Fit"
+    },
+    {
+      "pair_id": "j_9aa590d4c265__r_d4231a28f017",
+      "a1": "Potential Fit",
+      "human": "No Fit",
+      "llm": "No Fit"
+    },
+    {
+      "pair_id": "j_ab265623439d__r_395325f99dd5",
+      "a1": "Good Fit",
+      "human": "No Fit",
+      "llm": "No Fit"
+    },
+    {
+      "pair_id": "j_ab265623439d__r_5351c9fe242e",
+      "a1": "Potential Fit",
+      "human": "No Fit",
+      "llm": "No Fit"
+    },
+    {
+      "pair_id": "j_afad5d1e324c__r_fc38879ecf80",
+      "a1": "No Fit",
+      "human": "Good Fit",
+      "llm": "No Fit"
+    },
+    {
+      "pair_id": "j_b35cfefb41dd__r_3c191b7fe1d1",
+      "a1": "Potential Fit",
+      "human": "Potential Fit",
+      "llm": "No Fit"
+    },
+    {
+      "pair_id": "j_b35cfefb41dd__r_54efc8ed3054",
+      "a1": "Potential Fit",
+      "human": "Good Fit",
+      "llm": "Potential Fit"
+    },
+    {
+      "pair_id": "j_b4459d155af3__r_4f4670a5e744",
+      "a1": "No Fit",
+      "human": "Good Fit",
+      "llm": "Good Fit"
+    },
+    {
+      "pair_id": "j_b85987227b04__r_ca7ba98f2447",
+      "a1": "Good Fit",
+      "human": "No Fit",
+      "llm": "No Fit"
+    },
+    {
+      "pair_id": "j_bc97fb1bdc9d__r_3f37a16fe433",
+      "a1": "Good Fit",
+      "human": "Good Fit",
+      "llm": "No Fit"
+    },
+    {
+      "pair_id": "j_bc97fb1bdc9d__r_708f5eca7774",
+      "a1": "Good Fit",
+      "human": "No Fit",
+      "llm": "No Fit"
+    },
+    {
+      "pair_id": "j_ef4c6efe5843__r_9ddad6feab89",
+      "a1": "No Fit",
+      "human": "Good Fit",
+      "llm": "Potential Fit"
+    },
+    {
+      "pair_id": "j_f4f1a1e6c67d__r_d4231a28f017",
+      "a1": "Potential Fit",
+      "human": "No Fit",
+      "llm": "No Fit"
+    },
+    {
+      "pair_id": "j_f5e9f3bdbe1e__r_13af6c5b12ae",
+      "a1": "Potential Fit",
+      "human": "No Fit",
+      "llm": "No Fit"
+    },
+    {
+      "pair_id": "j_f5e9f3bdbe1e__r_576a62182bc4",
+      "a1": "Potential Fit",
+      "human": "No Fit",
+      "llm": "No Fit"
+    },
+    {
+      "pair_id": "j_f80734a834f5__r_4237404a46ae",
+      "a1": "Good Fit",
+      "human": "No Fit",
+      "llm": "No Fit"
+    }
+  ],
+  "note_not_ground_truth": "The LLM is a third judge with its own bias, known to exist and not measured here. It breaks a tie between two accounts of the A1 labels; it does not adjudicate one correct (D33).",
+  "note_not_reproducible": "No seed reproduces a subagent run. llm-recheck.csv is collected data: append-only, provenance-stamped by agent_sha256 and prompt_sha256, and never subject to a determinism check.",
+  "note_human_leg": "The human leg is complete at 50 pairs.",
+  "note_instrument_difference": "The human saw A1 candidates 1-4 at a time; the judge sees one pair in a fresh context. Nothing in the A1 instrument spans candidates (asks_shortlist is False for corpus a1), so no question is lost, but the two judges are not identical on the co-presence axis."
+}

@@ -1,0 +1,62 @@
+{
+  "seed": 0,
+  "keywords": [
+    "Data Science",
+    "Data Engineer",
+    "Data Analyst"
+  ],
+  "jds_per_cell": 15,
+  "per_jd": 5,
+  "summary": {
+    "pairs": 675,
+    "jds": 135,
+    "cvs": 582,
+    "by_cell": {
+      "Data Analyst/0-1": {
+        "pairs": 75,
+        "jds": 15,
+        "cvs": 69
+      },
+      "Data Analyst/2-3": {
+        "pairs": 75,
+        "jds": 15,
+        "cvs": 70
+      },
+      "Data Analyst/4-6": {
+        "pairs": 75,
+        "jds": 15,
+        "cvs": 65
+      },
+      "Data Engineer/0-1": {
+        "pairs": 75,
+        "jds": 15,
+        "cvs": 51
+      },
+      "Data Engineer/2-3": {
+        "pairs": 75,
+        "jds": 15,
+        "cvs": 59
+      },
+      "Data Engineer/4-6": {
+        "pairs": 75,
+        "jds": 15,
+        "cvs": 60
+      },
+      "Data Science/0-1": {
+        "pairs": 75,
+        "jds": 15,
+        "cvs": 69
+      },
+      "Data Science/2-3": {
+        "pairs": 75,
+        "jds": 15,
+        "cvs": 72
+      },
+      "Data Science/4-6": {
+        "pairs": 75,
+        "jds": 15,
+        "cvs": 67
+      }
+    }
+  }
+}

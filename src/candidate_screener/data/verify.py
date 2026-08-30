@@ -14,6 +14,7 @@ Usage:
     uv run python -m candidate_screener.data.verify --all
     uv run python -m candidate_screener.data.verify --source fit esco
     uv run python -m candidate_screener.data.verify --all --no-hash   # faster
+    uv run python -m candidate_screener.data.verify --derived          # built artefacts
 """
 from __future__ import annotations
 
@@ -124,7 +125,15 @@ def main() -> int:
     ap.add_argument("--all", action="store_true", help="every adopted source")
     ap.add_argument("--no-hash", action="store_true", help="skip SHA-256 digests")
     ap.add_argument("--manifest", type=Path, default=MANIFEST)
+    ap.add_argument("--derived", action="store_true",
+                    help="acceptance test on the Phase 3 derived artefacts instead")
+    ap.add_argument("--task", nargs="+", default=[],
+                    help="with --derived: check only these tasks")
     args = ap.parse_args()
+
+    if args.derived:
+        from candidate_screener.data.verify_derived import main as verify_derived
+        return verify_derived(args.task or None)
 
     keys = [k for k, s in SOURCES.items() if s.adopted] if args.all else args.source
     if not keys:

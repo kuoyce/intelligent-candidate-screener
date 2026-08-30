@@ -1,0 +1,14 @@
+{
+  "seed": 0,
+  "eval_fraction": 0.25,
+  "counts": {
+    "cv": {
+      "eval": 52562,
+      "train": 157688
+    },
+    "jd": {
+      "eval": 35474,
+      "train": 106423
+    }
+  }
+}

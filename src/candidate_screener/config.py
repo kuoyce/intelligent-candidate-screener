@@ -25,10 +25,25 @@ DOCS = PROJECT_ROOT / "docs"
 DOCS_DATA = DOCS / "data"
 NOTEBOOKS = PROJECT_ROOT / "notebooks"
 
+#: Committed model records — the counterpart of `docs/data/` for things we *fit*
+#: rather than things we downloaded. Unlike `data/`, this directory is in git:
+#: `baselines.run --check` only has a fixed point to diff against if it is
+#: *(Phase 4, Q20)*.
+OUTPUT = PROJECT_ROOT / "output"
+
 #: Written by `candidate_screener.data.verify`; the acceptance record of a download.
 MANIFEST = DOCS_DATA / "acquisition-manifest.json"
 #: Written by `candidate_screener.data.profile`; the machine-readable Verified figures.
 PROFILE_METRICS = DOCS_DATA / "profile-metrics.json"
+#: Written by `candidate_screener.baselines.run`; the golden record of the Stage 1
+#: classical baseline. Committed — see `output/baselines/README.md`.
+BASELINE_METRICS = OUTPUT / "baselines" / "baseline-metrics.json"
+#: Written by `candidate_screener.evaluation.retrieval`; the Stage 1 baseline scored
+#: as a *ranker* over the task 3.3 pools, which the classification record above does
+#: not measure. Committed, and the evidence Q18b/Q24 asked for *(decision D27)*.
+RETRIEVAL_METRICS = OUTPUT / "baselines" / "retrieval-metrics.json"
+#: Git-ignored regenerable cache: the fitted pickles and the per-pair scores *(D23)*.
+BASELINE_CACHE = PROCESSED / "baselines"
 
 
 def ensure_data_dirs() -> None:

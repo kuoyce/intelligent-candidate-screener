@@ -1,0 +1,172 @@
+{
+  "seed": 0,
+  "universe_resumes": 193,
+  "note_distractors": "Distractors are UNJUDGED and assumed non-relevant. A1 judges a median of 4 resumes per test JD, so a 100-deep pool is ~96% assumption. Precision is biased downward by construction: a relevant resume among the distractors scores as a false positive. These pools compare systems; they do not estimate production precision. Report this wherever a pool-derived figure appears.",
+  "note_variants": "Nested: N20 subset of N100 subset of Nfull.",
+  "summary": {
+    "queries": 100,
+    "variants": {
+      "N100": {
+        "rows": 10000,
+        "pool_size": {
+          "min": 100,
+          "median": 100,
+          "max": 100
+        },
+        "judged_per_pool_median": 4,
+        "queries_with_relevant": {
+          "strict": 31,
+          "graded": 64
+        },
+        "relevant_per_query_median": {
+          "strict": 6,
+          "graded": 4
+        }
+      },
+      "N20": {
+        "rows": 2019,
+        "pool_size": {
+          "min": 20,
+          "median": 20,
+          "max": 29
+        },
+        "judged_per_pool_median": 4,
+        "queries_with_relevant": {
+          "strict": 31,
+          "graded": 64
+        },
+        "relevant_per_query_median": {
+          "strict": 6,
+          "graded": 4
+        }
+      },
+      "Nfull": {
+        "rows": 19300,
+        "pool_size": {
+          "min": 193,
+          "median": 193,
+          "max": 193
+        },
+        "judged_per_pool_median": 4,
+        "queries_with_relevant": {
+          "strict": 31,
+          "graded": 64
+        },
+        "relevant_per_query_median": {
+          "strict": 6,
+          "graded": 4
+        }
+      }
+    }
+  },
+  "attainability": {
+    "variant": "N100",
+    "definitions": {
+      "strict": {
+        "n_queries": 31,
+        "relevant_per_query": {
+          "min": 1,
+          "median": 6,
+          "max": 12,
+          "mean": 5.9
+        },
+        "recall_ceiling": {
+          "@5": {
+            "median_cap": 0.833,
+            "pct_queries_cap_ge_0.90": 45.2,
+            "pct_queries_cap_eq_1.0": 45.2
+          },
+          "@10": {
+            "median_cap": 1.0,
+            "pct_queries_cap_ge_0.90": 93.5,
+            "pct_queries_cap_eq_1.0": 87.1
+          },
+          "@20": {
+            "median_cap": 1.0,
+            "pct_queries_cap_ge_0.90": 100.0,
+            "pct_queries_cap_eq_1.0": 100.0
+          },
+          "@50": {
+            "median_cap": 1.0,
+            "pct_queries_cap_ge_0.90": 100.0,
+            "pct_queries_cap_eq_1.0": 100.0
+          }
+        }
+      },
+      "graded": {
+        "n_queries": 64,
+        "relevant_per_query": {
+          "min": 1,
+          "median": 4,
+          "max": 13,
+          "mean": 4.9
+        },
+        "recall_ceiling": {
+          "@5": {
+            "median_cap": 1.0,
+            "pct_queries_cap_ge_0.90": 65.6,
+            "pct_queries_cap_eq_1.0": 65.6
+          },
+          "@10": {
+            "median_cap": 1.0,
+            "pct_queries_cap_ge_0.90": 93.8,
+            "pct_queries_cap_eq_1.0": 89.1
+          },
+          "@20": {
+            "median_cap": 1.0,
+            "pct_queries_cap_ge_0.90": 100.0,
+            "pct_queries_cap_eq_1.0": 100.0
+          },
+          "@50": {
+            "median_cap": 1.0,
+            "pct_queries_cap_ge_0.90": 100.0,
+            "pct_queries_cap_eq_1.0": 100.0
+          }
+        }
+      }
+    }
+  },
+  "precision_ceiling": {
+    "variant": "N100",
+    "note": "Precision@k on these pools is bounded below 1.0 by judged supply: many queries have fewer than k judged-relevant resumes, so no ranker can fill the top k. The ceiling is a property of the split, identical at every pool variant. Report the raw figure AND this ceiling; a system at 0.45 against a 0.781 ceiling is at 58% of attainable, not 45%.",
+    "definitions": {
+      "strict": {
+        "precision@5": {
+          "max_attainable_mean": 0.7806,
+          "n_queries": 31,
+          "queries_able_to_reach_1.0": 20,
+          "unwinnable_slots": 34,
+          "total_slots": 155
+        },
+        "precision@10": {
+          "max_attainable_mean": 0.5677,
+          "n_queries": 31,
+          "queries_able_to_reach_1.0": 6,
+          "unwinnable_slots": 134,
+          "total_slots": 310
+        }
+      },
+      "graded": {
+        "precision@5": {
+          "max_attainable_mean": 0.7188,
+          "n_queries": 64,
+          "queries_able_to_reach_1.0": 30,
+          "unwinnable_slots": 90,
+          "total_slots": 320
+        },
+        "precision@10": {
+          "max_attainable_mean": 0.4734,
+          "n_queries": 64,
+          "queries_able_to_reach_1.0": 7,
+          "unwinnable_slots": 337,
+          "total_slots": 640
+        }
+      }
+    }
+  },
+  "text_join": {
+    "resume_text_source": "load_pooled() \u2014 all 643 A1 resumes, not test.parquet",
+    "distractors_needing_the_wider_source": 5503,
+    "unjoinable": 0
+  }
+}

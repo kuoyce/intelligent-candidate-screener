@@ -1,0 +1,778 @@
+{
+  "seed": 0,
+  "models": {
+    "tfidf": {
+      "figures": [
+        {
+          "metric": "Recall@10",
+          "definition": "strict",
+          "variant": "N20",
+          "value": 0.689118,
+          "n_queries": 31,
+          "ci": [
+            0.600382,
+            0.773465
+          ],
+          "ceiling": 0.983382,
+          "pct_of_attainable": 70.1
+        },
+        {
+          "metric": "Recall@10",
+          "definition": "strict",
+          "variant": "N100",
+          "value": 0.297666,
+          "n_queries": 31,
+          "ci": [
+            0.216487,
+            0.390775
+          ],
+          "ceiling": 0.983382,
+          "pct_of_attainable": 30.3
+        },
+        {
+          "metric": "Recall@10",
+          "definition": "strict",
+          "variant": "Nfull",
+          "value": 0.102485,
+          "n_queries": 31,
+          "ci": [
+            0.061865,
+            0.146493
+          ],
+          "ceiling": 0.983382,
+          "pct_of_attainable": 10.4
+        },
+        {
+          "metric": "Recall@10",
+          "definition": "graded",
+          "variant": "N20",
+          "value": 0.732535,
+          "n_queries": 64,
+          "ci": [
+            0.670245,
+            0.791288
+          ],
+          "ceiling": 0.98432,
+          "pct_of_attainable": 74.4
+        },
+        {
+          "metric": "Recall@10",
+          "definition": "graded",
+          "variant": "N100",
+          "value": 0.337497,
+          "n_queries": 64,
+          "ci": [
+            0.268025,
+            0.410794
+          ],
+          "ceiling": 0.98432,
+          "pct_of_attainable": 34.3
+        },
+        {
+          "metric": "Recall@10",
+          "definition": "graded",
+          "variant": "Nfull",
+          "value": 0.230791,
+          "n_queries": 64,
+          "ci": [
+            0.163672,
+            0.301679
+          ],
+          "ceiling": 0.98432,
+          "pct_of_attainable": 23.4
+        },
+        {
+          "metric": "Precision@5",
+          "definition": "strict",
+          "variant": "N20",
+          "value": 0.387097,
+          "n_queries": 31,
+          "ci": [
+            0.296774,
+            0.470968
+          ],
+          "ceiling": 0.780645,
+          "pct_of_attainable": 49.6
+        },
+        {
+          "metric": "Precision@5",
+          "definition": "strict",
+          "variant": "N100",
+          "value": 0.141935,
+          "n_queries": 31,
+          "ci": [
+            0.090323,
+            0.193548
+          ],
+          "ceiling": 0.780645,
+          "pct_of_attainable": 18.2
+        },
+        {
+          "metric": "Precision@5",
+          "definition": "strict",
+          "variant": "Nfull",
+          "value": 0.070968,
+          "n_queries": 31,
+          "ci": [
+            0.03871,
+            0.103226
+          ],
+          "ceiling": 0.780645,
+          "pct_of_attainable": 9.1
+        },
+        {
+          "metric": "Precision@5",
+          "definition": "graded",
+          "variant": "N20",
+          "value": 0.378125,
+          "n_queries": 64,
+          "ci": [
+            0.321875,
+            0.434375
+          ],
+          "ceiling": 0.71875,
+          "pct_of_attainable": 52.6
+        },
+        {
+          "metric": "Precision@5",
+          "definition": "graded",
+          "variant": "N100",
+          "value": 0.1625,
+          "n_queries": 64,
+          "ci": [
+            0.121875,
+            0.2
+          ],
+          "ceiling": 0.71875,
+          "pct_of_attainable": 22.6
+        },
+        {
+          "metric": "Precision@5",
+          "definition": "graded",
+          "variant": "Nfull",
+          "value": 0.09375,
+          "n_queries": 64,
+          "ci": [
+            0.065625,
+            0.121875
+          ],
+          "ceiling": 0.71875,
+          "pct_of_attainable": 13.0
+        },
+        {
+          "metric": "nDCG@10",
+          "definition": "strict",
+          "variant": "N20",
+          "value": 0.564883,
+          "n_queries": 31,
+          "ci": [
+            0.496237,
+            0.631887
+          ]
+        },
+        {
+          "metric": "nDCG@10",
+          "definition": "strict",
+          "variant": "N100",
+          "value": 0.232228,
+          "n_queries": 31,
+          "ci": [
+            0.179485,
+            0.286691
+          ]
+        },
+        {
+          "metric": "nDCG@10",
+          "definition": "strict",
+          "variant": "Nfull",
+          "value": 0.104135,
+          "n_queries": 31,
+          "ci": [
+            0.067053,
+            0.142951
+          ]
+        },
+        {
+          "metric": "nDCG@10",
+          "definition": "graded",
+          "variant": "N20",
+          "value": 0.591764,
+          "n_queries": 64,
+          "ci": [
+            0.532623,
+            0.648097
+          ]
+        },
+        {
+          "metric": "nDCG@10",
+          "definition": "graded",
+          "variant": "N100",
+          "value": 0.247027,
+          "n_queries": 64,
+          "ci": [
+            0.198126,
+            0.299521
+          ]
+        },
+        {
+          "metric": "nDCG@10",
+          "definition": "graded",
+          "variant": "Nfull",
+          "value": 0.150856,
+          "n_queries": 64,
+          "ci": [
+            0.110613,
+            0.191827
+          ]
+        }
+      ],
+      "top5_exposure": {
+        "variant": "N100",
+        "k": 5,
+        "queries": 100,
+        "total_slots": 500,
+        "slots": {
+          "judged_relevant_strict": 22,
+          "judged_relevant_graded": 52,
+          "judged_none": 32,
+          "unjudged_distractor": 416
+        },
+        "distractor_share_mean": 0.832,
+        "distractor_share_ci": [
+          0.786,
+          0.874
+        ],
+        "note": "Upper bound on the precision bias, not an estimate \u2014 see D26."
+      }
+    },
+    "bm25": {
+      "figures": [
+        {
+          "metric": "Recall@10",
+          "definition": "strict",
+          "variant": "N20",
+          "value": 0.56654,
+          "n_queries": 31,
+          "ci": [
+            0.473053,
+            0.659855
+          ],
+          "ceiling": 0.983382,
+          "pct_of_attainable": 57.6
+        },
+        {
+          "metric": "Recall@10",
+          "definition": "strict",
+          "variant": "N100",
+          "value": 0.195756,
+          "n_queries": 31,
+          "ci": [
+            0.12531,
+            0.279407
+          ],
+          "ceiling": 0.983382,
+          "pct_of_attainable": 19.9
+        },
+        {
+          "metric": "Recall@10",
+          "definition": "strict",
+          "variant": "Nfull",
+          "value": 0.133042,
+          "n_queries": 31,
+          "ci": [
+            0.073877,
+            0.210102
+          ],
+          "ceiling": 0.983382,
+          "pct_of_attainable": 13.5
+        },
+        {
+          "metric": "Recall@10",
+          "definition": "graded",
+          "variant": "N20",
+          "value": 0.63801,
+          "n_queries": 64,
+          "ci": [
+            0.56717,
+            0.706809
+          ],
+          "ceiling": 0.98432,
+          "pct_of_attainable": 64.8
+        },
+        {
+          "metric": "Recall@10",
+          "definition": "graded",
+          "variant": "N100",
+          "value": 0.254633,
+          "n_queries": 64,
+          "ci": [
+            0.187664,
+            0.327357
+          ],
+          "ceiling": 0.98432,
+          "pct_of_attainable": 25.9
+        },
+        {
+          "metric": "Recall@10",
+          "definition": "graded",
+          "variant": "Nfull",
+          "value": 0.182341,
+          "n_queries": 64,
+          "ci": [
+            0.128719,
+            0.242529
+          ],
+          "ceiling": 0.98432,
+          "pct_of_attainable": 18.5
+        },
+        {
+          "metric": "Precision@5",
+          "definition": "strict",
+          "variant": "N20",
+          "value": 0.341935,
+          "n_queries": 31,
+          "ci": [
+            0.245161,
+            0.43871
+          ],
+          "ceiling": 0.780645,
+          "pct_of_attainable": 43.8
+        },
+        {
+          "metric": "Precision@5",
+          "definition": "strict",
+          "variant": "N100",
+          "value": 0.103226,
+          "n_queries": 31,
+          "ci": [
+            0.064516,
+            0.148387
+          ],
+          "ceiling": 0.780645,
+          "pct_of_attainable": 13.2
+        },
+        {
+          "metric": "Precision@5",
+          "definition": "strict",
+          "variant": "Nfull",
+          "value": 0.064516,
+          "n_queries": 31,
+          "ci": [
+            0.032258,
+            0.096774
+          ],
+          "ceiling": 0.780645,
+          "pct_of_attainable": 8.3
+        },
+        {
+          "metric": "Precision@5",
+          "definition": "graded",
+          "variant": "N20",
+          "value": 0.334375,
+          "n_queries": 64,
+          "ci": [
+            0.271875,
+            0.4
+          ],
+          "ceiling": 0.71875,
+          "pct_of_attainable": 46.5
+        },
+        {
+          "metric": "Precision@5",
+          "definition": "graded",
+          "variant": "N100",
+          "value": 0.121875,
+          "n_queries": 64,
+          "ci": [
+            0.090625,
+            0.153125
+          ],
+          "ceiling": 0.71875,
+          "pct_of_attainable": 17.0
+        },
+        {
+          "metric": "Precision@5",
+          "definition": "graded",
+          "variant": "Nfull",
+          "value": 0.06875,
+          "n_queries": 64,
+          "ci": [
+            0.04375,
+            0.09375
+          ],
+          "ceiling": 0.71875,
+          "pct_of_attainable": 9.6
+        },
+        {
+          "metric": "nDCG@10",
+          "definition": "strict",
+          "variant": "N20",
+          "value": 0.510161,
+          "n_queries": 31,
+          "ci": [
+            0.432587,
+            0.584829
+          ]
+        },
+        {
+          "metric": "nDCG@10",
+          "definition": "strict",
+          "variant": "N100",
+          "value": 0.182212,
+          "n_queries": 31,
+          "ci": [
+            0.118143,
+            0.258975
+          ]
+        },
+        {
+          "metric": "nDCG@10",
+          "definition": "strict",
+          "variant": "Nfull",
+          "value": 0.100063,
+          "n_queries": 31,
+          "ci": [
+            0.063163,
+            0.142532
+          ]
+        },
+        {
+          "metric": "nDCG@10",
+          "definition": "graded",
+          "variant": "N20",
+          "value": 0.494961,
+          "n_queries": 64,
+          "ci": [
+            0.433813,
+            0.557563
+          ]
+        },
+        {
+          "metric": "nDCG@10",
+          "definition": "graded",
+          "variant": "N100",
+          "value": 0.199473,
+          "n_queries": 64,
+          "ci": [
+            0.148721,
+            0.254239
+          ]
+        },
+        {
+          "metric": "nDCG@10",
+          "definition": "graded",
+          "variant": "Nfull",
+          "value": 0.132308,
+          "n_queries": 64,
+          "ci": [
+            0.094725,
+            0.172807
+          ]
+        }
+      ],
+      "top5_exposure": {
+        "variant": "N100",
+        "k": 5,
+        "queries": 100,
+        "total_slots": 500,
+        "slots": {
+          "judged_relevant_strict": 16,
+          "judged_relevant_graded": 39,
+          "judged_none": 28,
+          "unjudged_distractor": 433
+        },
+        "distractor_share_mean": 0.866,
+        "distractor_share_ci": [
+          0.826,
+          0.902
+        ],
+        "note": "Upper bound on the precision bias, not an estimate \u2014 see D26."
+      }
+    },
+    "random": {
+      "figures": [
+        {
+          "metric": "Recall@10",
+          "definition": "strict",
+          "variant": "N20",
+          "value": 0.52847,
+          "n_queries": 31,
+          "ci": [
+            0.42959,
+            0.624238
+          ],
+          "ceiling": 0.983382,
+          "pct_of_attainable": 53.7
+        },
+        {
+          "metric": "Recall@10",
+          "definition": "strict",
+          "variant": "N100",
+          "value": 0.127808,
+          "n_queries": 31,
+          "ci": [
+            0.06106,
+            0.211591
+          ],
+          "ceiling": 0.983382,
+          "pct_of_attainable": 13.0
+        },
+        {
+          "metric": "Recall@10",
+          "definition": "strict",
+          "variant": "Nfull",
+          "value": 0.05593,
+          "n_queries": 31,
+          "ci": [
+            0.024104,
+            0.094887
+          ],
+          "ceiling": 0.983382,
+          "pct_of_attainable": 5.7
+        },
+        {
+          "metric": "Recall@10",
+          "definition": "graded",
+          "variant": "N20",
+          "value": 0.473301,
+          "n_queries": 64,
+          "ci": [
+            0.39567,
+            0.550632
+          ],
+          "ceiling": 0.98432,
+          "pct_of_attainable": 48.1
+        },
+        {
+          "metric": "Recall@10",
+          "definition": "graded",
+          "variant": "N100",
+          "value": 0.074388,
+          "n_queries": 64,
+          "ci": [
+            0.043316,
+            0.109983
+          ],
+          "ceiling": 0.98432,
+          "pct_of_attainable": 7.6
+        },
+        {
+          "metric": "Recall@10",
+          "definition": "graded",
+          "variant": "Nfull",
+          "value": 0.042846,
+          "n_queries": 64,
+          "ci": [
+            0.01888,
+            0.071414
+          ],
+          "ceiling": 0.98432,
+          "pct_of_attainable": 4.4
+        },
+        {
+          "metric": "Precision@5",
+          "definition": "strict",
+          "variant": "N20",
+          "value": 0.348387,
+          "n_queries": 31,
+          "ci": [
+            0.258065,
+            0.445161
+          ],
+          "ceiling": 0.780645,
+          "pct_of_attainable": 44.6
+        },
+        {
+          "metric": "Precision@5",
+          "definition": "strict",
+          "variant": "N100",
+          "value": 0.070968,
+          "n_queries": 31,
+          "ci": [
+            0.03871,
+            0.109677
+          ],
+          "ceiling": 0.780645,
+          "pct_of_attainable": 9.1
+        },
+        {
+          "metric": "Precision@5",
+          "definition": "strict",
+          "variant": "Nfull",
+          "value": 0.025806,
+          "n_queries": 31,
+          "ci": [
+            0.0,
+            0.058065
+          ],
+          "ceiling": 0.780645,
+          "pct_of_attainable": 3.3
+        },
+        {
+          "metric": "Precision@5",
+          "definition": "graded",
+          "variant": "N20",
+          "value": 0.2625,
+          "n_queries": 64,
+          "ci": [
+            0.203125,
+            0.328125
+          ],
+          "ceiling": 0.71875,
+          "pct_of_attainable": 36.5
+        },
+        {
+          "metric": "Precision@5",
+          "definition": "graded",
+          "variant": "N100",
+          "value": 0.04375,
+          "n_queries": 64,
+          "ci": [
+            0.021875,
+            0.065625
+          ],
+          "ceiling": 0.71875,
+          "pct_of_attainable": 6.1
+        },
+        {
+          "metric": "Precision@5",
+          "definition": "graded",
+          "variant": "Nfull",
+          "value": 0.021875,
+          "n_queries": 64,
+          "ci": [
+            0.00625,
+            0.040625
+          ],
+          "ceiling": 0.71875,
+          "pct_of_attainable": 3.0
+        },
+        {
+          "metric": "nDCG@10",
+          "definition": "strict",
+          "variant": "N20",
+          "value": 0.420825,
+          "n_queries": 31,
+          "ci": [
+            0.343363,
+            0.49579
+          ]
+        },
+        {
+          "metric": "nDCG@10",
+          "definition": "strict",
+          "variant": "N100",
+          "value": 0.084433,
+          "n_queries": 31,
+          "ci": [
+            0.046689,
+            0.128037
+          ]
+        },
+        {
+          "metric": "nDCG@10",
+          "definition": "strict",
+          "variant": "Nfull",
+          "value": 0.037895,
+          "n_queries": 31,
+          "ci": [
+            0.016443,
+            0.063769
+          ]
+        },
+        {
+          "metric": "nDCG@10",
+          "definition": "graded",
+          "variant": "N20",
+          "value": 0.370796,
+          "n_queries": 64,
+          "ci": [
+            0.307253,
+            0.434697
+          ]
+        },
+        {
+          "metric": "nDCG@10",
+          "definition": "graded",
+          "variant": "N100",
+          "value": 0.05739,
+          "n_queries": 64,
+          "ci": [
+            0.034014,
+            0.083959
+          ]
+        },
+        {
+          "metric": "nDCG@10",
+          "definition": "graded",
+          "variant": "Nfull",
+          "value": 0.028238,
+          "n_queries": 64,
+          "ci": [
+            0.013386,
+            0.045538
+          ]
+        }
+      ],
+      "top5_exposure": {
+        "variant": "N100",
+        "k": 5,
+        "queries": 100,
+        "total_slots": 500,
+        "slots": {
+          "judged_relevant_strict": 11,
+          "judged_relevant_graded": 14,
+          "judged_none": 16,
+          "unjudged_distractor": 470
+        },
+        "distractor_share_mean": 0.94,
+        "distractor_share_ci": [
+          0.918,
+          0.96
+        ],
+        "note": "Upper bound on the precision bias, not an estimate \u2014 see D26."
+      }
+    }
+  },
+  "precision_ceiling": {
+    "variant": "N100",
+    "note": "Precision@k on these pools is bounded below 1.0 by judged supply: many queries have fewer than k judged-relevant resumes, so no ranker can fill the top k. The ceiling is a property of the split, identical at every pool variant. Report the raw figure AND this ceiling; a system at 0.45 against a 0.781 ceiling is at 58% of attainable, not 45%.",
+    "definitions": {
+      "strict": {
+        "precision@5": {
+          "max_attainable_mean": 0.7806,
+          "n_queries": 31,
+          "queries_able_to_reach_1.0": 20,
+          "unwinnable_slots": 34,
+          "total_slots": 155
+        },
+        "precision@10": {
+          "max_attainable_mean": 0.5677,
+          "n_queries": 31,
+          "queries_able_to_reach_1.0": 6,
+          "unwinnable_slots": 134,
+          "total_slots": 310
+        }
+      },
+      "graded": {
+        "precision@5": {
+          "max_attainable_mean": 0.7188,
+          "n_queries": 64,
+          "queries_able_to_reach_1.0": 30,
+          "unwinnable_slots": 90,
+          "total_slots": 320
+        },
+        "precision@10": {
+          "max_attainable_mean": 0.4734,
+          "n_queries": 64,
+          "queries_able_to_reach_1.0": 7,
+          "unwinnable_slots": 337,
+          "total_slots": 640
+        }
+      }
+    }
+  },
+  "note_not_comparable": "Measured on the leak-free data/processed/fit/ split (task 3.2). NOT comparable to any number published against the shipped cnamuangtoun train/test partition, which leaks 99.8% of its test resumes into train.",
+  "note_distractors": "Distractors are UNJUDGED and assumed non-relevant. A1 judges a median of 4 resumes per test JD, so a 100-deep pool is ~96% assumption. Precision is biased downward by construction: a relevant resume among the distractors scores as a false positive. These pools compare systems; they do not estimate production precision. Report this wherever a pool-derived figure appears.",
+  "note_ceiling": "Precision@k on these pools is bounded below 1.0 by judged supply: many queries have fewer than k judged-relevant resumes, so no ranker can fill the top k. The ceiling is a property of the split, identical at every pool variant. Report the raw figure AND this ceiling; a system at 0.45 against a 0.781 ceiling is at 58% of attainable, not 45%."
+}
