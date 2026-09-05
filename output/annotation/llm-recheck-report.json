@@ -1,67 +1,202 @@
 {
-  "model": "claude-sonnet-5",
+  "model": "claude-haiku-4-5",
   "seed": 0,
-  "generated_at": "2026-08-30T07:26:11+00:00",
+  "current_agent_sha256": "75e00ea3d0c34ab92acd7e6436de2921a3b80b2ff4e8106c88bc7580d048cd23",
+  "generated_at": "2026-09-05T09:05:47+00:00",
   "coverage": {
     "a1": 100,
-    "human": 50,
+    "human": 100,
     "llm": 100,
-    "all_three": 50,
-    "human_50_draw": 50,
+    "all_three": 100,
+    "human_50_draw": 100,
     "llm_draw": 100
   },
   "pairwise_kappa": {
     "a1_vs_human": {
-      "kappa": 0.03426791277258545,
-      "lo": -0.16209729037764029,
-      "hi": 0.2252681764004768,
-      "n": 50,
-      "agreement": 0.38
+      "kappa": 0.08099688473520228,
+      "lo": -0.052168459941068585,
+      "hi": 0.22385556775593143,
+      "n": 100,
+      "agreement": 0.41
+    },
+    "a1_vs_human_binary": {
+      "kappa": 0.1085271317829456,
+      "lo": -0.07311361054546817,
+      "hi": 0.2910626789139236,
+      "n": 100,
+      "agreement": 0.54
     },
     "a1_vs_llm": {
-      "kappa": 0.12479740680713136,
-      "lo": 0.012937486020460229,
-      "hi": 0.2407682144138888,
+      "kappa": 0.0852713178294574,
+      "lo": -0.04263343476223593,
+      "hi": 0.21461610799088582,
       "n": 100,
-      "agreement": 0.46
+      "agreement": 0.41
+    },
+    "a1_vs_llm_binary": {
+      "kappa": 0.1568627450980392,
+      "lo": -0.030121520426803477,
+      "hi": 0.3400271317829456,
+      "n": 100,
+      "agreement": 0.57
     },
     "human_vs_llm": {
-      "kappa": 0.2747784045124899,
-      "lo": 0.12682760829151793,
-      "hi": 0.45697577276524637,
-      "n": 50,
-      "agreement": 0.64
+      "kappa": 0.3522670652715496,
+      "lo": 0.22625527396847883,
+      "hi": 0.4782332215597728,
+      "n": 100,
+      "agreement": 0.61
+    },
+    "human_vs_llm_binary": {
+      "kappa": 0.6138211382113821,
+      "lo": 0.4468411996066864,
+      "hi": 0.7683381060933219,
+      "n": 100,
+      "agreement": 0.81
     }
   },
   "pairwise_kappa_over_the_human_50": {
     "a1_vs_human": {
-      "kappa": 0.03426791277258545,
-      "lo": -0.16209729037764029,
-      "hi": 0.2252681764004768,
-      "n": 50,
-      "agreement": 0.38
+      "kappa": 0.08099688473520228,
+      "lo": -0.052168459941068585,
+      "hi": 0.22385556775593143,
+      "n": 100,
+      "agreement": 0.41
+    },
+    "a1_vs_human_binary": {
+      "kappa": 0.1085271317829456,
+      "lo": -0.07311361054546817,
+      "hi": 0.2910626789139236,
+      "n": 100,
+      "agreement": 0.54
     },
     "a1_vs_llm": {
-      "kappa": 0.029126213592232997,
-      "lo": -0.13387173203334451,
-      "hi": 0.1900407365260761,
-      "n": 50,
-      "agreement": 0.4
+      "kappa": 0.0852713178294574,
+      "lo": -0.04263343476223593,
+      "hi": 0.21461610799088582,
+      "n": 100,
+      "agreement": 0.41
+    },
+    "a1_vs_llm_binary": {
+      "kappa": 0.1568627450980392,
+      "lo": -0.030121520426803477,
+      "hi": 0.3400271317829456,
+      "n": 100,
+      "agreement": 0.57
     },
     "human_vs_llm": {
-      "kappa": 0.2747784045124899,
-      "lo": 0.12682760829151793,
-      "hi": 0.45697577276524637,
-      "n": 50,
-      "agreement": 0.64
+      "kappa": 0.3522670652715496,
+      "lo": 0.22625527396847883,
+      "hi": 0.4782332215597728,
+      "n": 100,
+      "agreement": 0.61
+    },
+    "human_vs_llm_binary": {
+      "kappa": 0.6138211382113821,
+      "lo": 0.4468411996066864,
+      "hi": 0.7683381060933219,
+      "n": 100,
+      "agreement": 0.81
+    }
+  },
+  "per_instrument": {
+    "47fc2e488a1b13536989e8dcd7bbd7e6d23d8351e32053fdfc0b30ffa90cb890": {
+      "runs": [
+        1,
+        2,
+        3
+      ],
+      "models": [
+        "claude-sonnet-5"
+      ],
+      "rows": 779,
+      "is_current": false,
+      "vs_a1": {
+        "kappa": 0.14239482200647258,
+        "lo": 0.025775313271306527,
+        "hi": 0.2601435912482628,
+        "n": 100,
+        "agreement": 0.47
+      },
+      "vs_a1_binary": {
+        "kappa": 0.11347517730496459,
+        "lo": -0.012938256978599282,
+        "hi": 0.23897601788776812,
+        "n": 100,
+        "agreement": 0.5
+      },
+      "vs_human": {
+        "kappa": 0.2865878516102731,
+        "lo": 0.15546477182096238,
+        "hi": 0.42642506345967357,
+        "n": 100,
+        "agreement": 0.65
+      },
+      "vs_human_binary": {
+        "kappa": 0.4206773618538324,
+        "lo": 0.265652349707758,
+        "hi": 0.5874161939143889,
+        "n": 100,
+        "agreement": 0.74
+      },
+      "marginals": {
+        "Good Fit": 4,
+        "Potential Fit": 14,
+        "No Fit": 82
+      },
+      "marginals_n": 100
+    },
+    "75e00ea3d0c34ab92acd7e6436de2921a3b80b2ff4e8106c88bc7580d048cd23": {
+      "runs": [
+        4
+      ],
+      "models": [
+        "claude-haiku-4-5"
+      ],
+      "rows": 100,
+      "is_current": true,
+      "vs_a1": {
+        "kappa": 0.0852713178294574,
+        "lo": -0.037807908832856514,
+        "hi": 0.20556435910072476,
+        "n": 100,
+        "agreement": 0.41
+      },
+      "vs_a1_binary": {
+        "kappa": 0.1568627450980392,
+        "lo": -0.03054418824270071,
+        "hi": 0.3325314162259376,
+        "n": 100,
+        "agreement": 0.57
+      },
+      "vs_human": {
+        "kappa": 0.3522670652715496,
+        "lo": 0.22935031725845167,
+        "hi": 0.47378247953455827,
+        "n": 100,
+        "agreement": 0.61
+      },
+      "vs_human_binary": {
+        "kappa": 0.6138211382113821,
+        "lo": 0.4466918925499107,
+        "hi": 0.7595214467396331,
+        "n": 100,
+        "agreement": 0.81
+      },
+      "marginals": {
+        "Good Fit": 3,
+        "Potential Fit": 42,
+        "No Fit": 55
+      },
+      "marginals_n": 100
     }
   },
   "self_consistency_kappa": {
     "run1_vs_run2": {
-      "kappa": 0.8571428571428572,
-      "lo": 0.41706566347469226,
-      "hi": 1.0,
-      "n": 20,
+      "kappa": 0.8286497601096642,
+      "lo": 0.6794843249020307,
+      "hi": 0.9599180325270767,
+      "n": 100,
       "agreement": 0.95
     },
     "run1_vs_run3": {
@@ -81,36 +216,60 @@
   },
   "per_class_agreement": {
     "Good Fit": {
-      "n": 15,
-      "human_agrees": 0.2,
+      "n": 30,
+      "human_agrees": 0.26666666666666666,
       "llm_agrees": 0.0
     },
     "Potential Fit": {
-      "n": 15,
-      "human_agrees": 0.26666666666666666,
-      "llm_agrees": 0.26666666666666666
+      "n": 30,
+      "human_agrees": 0.23333333333333334,
+      "llm_agrees": 0.5
     },
     "No Fit": {
-      "n": 20,
-      "human_agrees": 0.6,
-      "llm_agrees": 0.8
+      "n": 40,
+      "human_agrees": 0.65,
+      "llm_agrees": 0.65
     }
   },
   "per_class_llm_vs_a1": {
     "Good Fit": {
       "n": 30,
-      "llm_agrees": 0.06666666666666667
+      "llm_agrees": 0.0
     },
     "Potential Fit": {
       "n": 30,
-      "llm_agrees": 0.26666666666666666
+      "llm_agrees": 0.5
     },
     "No Fit": {
       "n": 40,
-      "llm_agrees": 0.9
+      "llm_agrees": 0.65
     }
   },
   "disagreements": [
+    {
+      "pair_id": "j_0f46c793ecea__r_1492d7a5d4ae",
+      "a1": "Good Fit",
+      "human": "No Fit",
+      "llm": "No Fit"
+    },
+    {
+      "pair_id": "j_16f9c601b139__r_fa1cd912aa5e",
+      "a1": "No Fit",
+      "human": "No Fit",
+      "llm": "Potential Fit"
+    },
+    {
+      "pair_id": "j_17d9c4a276a8__r_d0a9a235028a",
+      "a1": "Potential Fit",
+      "human": "Good Fit",
+      "llm": "Good Fit"
+    },
+    {
+      "pair_id": "j_18c5b7b4f2cb__r_e741e1ca6ee8",
+      "a1": "Good Fit",
+      "human": "No Fit",
+      "llm": "No Fit"
+    },
     {
       "pair_id": "j_244f893f44d8__r_7d9919ce0c9e",
       "a1": "No Fit",
@@ -139,7 +298,7 @@
       "pair_id": "j_3149433013e5__r_af6a8343706f",
       "a1": "Potential Fit",
       "human": "Good Fit",
-      "llm": "No Fit"
+      "llm": "Potential Fit"
     },
     {
       "pair_id": "j_3149433013e5__r_e741e1ca6ee8",
@@ -154,22 +313,40 @@
       "llm": "No Fit"
     },
     {
+      "pair_id": "j_489659b82924__r_3c191b7fe1d1",
+      "a1": "Potential Fit",
+      "human": "Good Fit",
+      "llm": "Potential Fit"
+    },
+    {
+      "pair_id": "j_4bcf35a89cde__r_26081eac0636",
+      "a1": "No Fit",
+      "human": "No Fit",
+      "llm": "Potential Fit"
+    },
+    {
+      "pair_id": "j_53f27e4b9117__r_72e3ab6f867a",
+      "a1": "No Fit",
+      "human": "Potential Fit",
+      "llm": "No Fit"
+    },
+    {
+      "pair_id": "j_5f893d618242__r_3c191b7fe1d1",
+      "a1": "Good Fit",
+      "human": "Potential Fit",
+      "llm": "Potential Fit"
+    },
+    {
       "pair_id": "j_5fdf7d382e67__r_54efc8ed3054",
       "a1": "Potential Fit",
       "human": "Good Fit",
-      "llm": "No Fit"
+      "llm": "Potential Fit"
     },
     {
       "pair_id": "j_601b1be28694__r_3e11bbbda486",
       "a1": "Good Fit",
       "human": "No Fit",
-      "llm": "No Fit"
-    },
-    {
-      "pair_id": "j_601b1be28694__r_5c04e2270625",
-      "a1": "Potential Fit",
-      "human": "Potential Fit",
-      "llm": "No Fit"
+      "llm": "Potential Fit"
     },
     {
       "pair_id": "j_601b1be28694__r_60d5e723d074",
@@ -184,6 +361,12 @@
       "llm": "Potential Fit"
     },
     {
+      "pair_id": "j_743824dea57f__r_3d8d0b6b67e0",
+      "a1": "No Fit",
+      "human": "Good Fit",
+      "llm": "Potential Fit"
+    },
+    {
       "pair_id": "j_7745d1936d3f__r_a79ee88e30ff",
       "a1": "Potential Fit",
       "human": "No Fit",
@@ -193,13 +376,37 @@
       "pair_id": "j_81bfd39d8a31__r_52936a56ec83",
       "a1": "Good Fit",
       "human": "Good Fit",
+      "llm": "Potential Fit"
+    },
+    {
+      "pair_id": "j_861699f75614__r_4f4670a5e744",
+      "a1": "Good Fit",
+      "human": "Good Fit",
+      "llm": "Potential Fit"
+    },
+    {
+      "pair_id": "j_8c9e67f3cbe3__r_2a58ebc46ba5",
+      "a1": "Good Fit",
+      "human": "No Fit",
       "llm": "No Fit"
+    },
+    {
+      "pair_id": "j_8d88006f821a__r_282df938bf67",
+      "a1": "Good Fit",
+      "human": "No Fit",
+      "llm": "No Fit"
+    },
+    {
+      "pair_id": "j_8e2f16d04a9d__r_4e7617c6f551",
+      "a1": "Good Fit",
+      "human": "Potential Fit",
+      "llm": "Potential Fit"
     },
     {
       "pair_id": "j_8e2f16d04a9d__r_b635334c254b",
       "a1": "Good Fit",
       "human": "Potential Fit",
-      "llm": "No Fit"
+      "llm": "Potential Fit"
     },
     {
       "pair_id": "j_8e2f16d04a9d__r_e741e1ca6ee8",
@@ -208,32 +415,80 @@
       "llm": "No Fit"
     },
     {
+      "pair_id": "j_8eec52da017e__r_3d8d0b6b67e0",
+      "a1": "No Fit",
+      "human": "No Fit",
+      "llm": "Potential Fit"
+    },
+    {
+      "pair_id": "j_8eec52da017e__r_8034449ae083",
+      "a1": "No Fit",
+      "human": "Good Fit",
+      "llm": "Potential Fit"
+    },
+    {
       "pair_id": "j_8eec52da017e__r_e33097f84003",
       "a1": "No Fit",
       "human": "Good Fit",
+      "llm": "Potential Fit"
+    },
+    {
+      "pair_id": "j_9114d6480e8e__r_2a58ebc46ba5",
+      "a1": "No Fit",
+      "human": "Potential Fit",
       "llm": "No Fit"
+    },
+    {
+      "pair_id": "j_9114d6480e8e__r_3f37a16fe433",
+      "a1": "No Fit",
+      "human": "No Fit",
+      "llm": "Potential Fit"
+    },
+    {
+      "pair_id": "j_9114d6480e8e__r_4237404a46ae",
+      "a1": "Good Fit",
+      "human": "Good Fit",
+      "llm": "Potential Fit"
+    },
+    {
+      "pair_id": "j_9114d6480e8e__r_d157d1698e99",
+      "a1": "Good Fit",
+      "human": "Good Fit",
+      "llm": "Potential Fit"
     },
     {
       "pair_id": "j_9114d6480e8e__r_e741e1ca6ee8",
       "a1": "Good Fit",
       "human": "No Fit",
-      "llm": "No Fit"
+      "llm": "Potential Fit"
+    },
+    {
+      "pair_id": "j_9760bd8603a4__r_bb69b1791fee",
+      "a1": "No Fit",
+      "human": "No Fit",
+      "llm": "Potential Fit"
     },
     {
       "pair_id": "j_978d084a319f__r_3c191b7fe1d1",
       "a1": "Good Fit",
       "human": "Potential Fit",
-      "llm": "No Fit"
+      "llm": "Potential Fit"
     },
     {
       "pair_id": "j_978d084a319f__r_6de8c60312de",
       "a1": "No Fit",
       "human": "Good Fit",
-      "llm": "No Fit"
+      "llm": "Potential Fit"
     },
     {
       "pair_id": "j_978d084a319f__r_cfef6a354732",
       "a1": "Good Fit",
+      "human": "No Fit",
+      "llm": "Potential Fit"
+    },
+    {
+      "pair_id": "j_9aa590d4c265__r_282df938bf67",
+      "a1": "Potential Fit",
       "human": "No Fit",
       "llm": "No Fit"
     },
@@ -256,16 +511,40 @@
       "llm": "No Fit"
     },
     {
-      "pair_id": "j_afad5d1e324c__r_fc38879ecf80",
-      "a1": "No Fit",
+      "pair_id": "j_ab265623439d__r_af6a8343706f",
+      "a1": "Good Fit",
+      "human": "No Fit",
+      "llm": "No Fit"
+    },
+    {
+      "pair_id": "j_abdeb82e4b82__r_f0410ea9aebb",
+      "a1": "Good Fit",
       "human": "Good Fit",
       "llm": "No Fit"
     },
     {
-      "pair_id": "j_b35cfefb41dd__r_3c191b7fe1d1",
+      "pair_id": "j_ad805ae910b9__r_39101c81b1e5",
       "a1": "Potential Fit",
+      "human": "No Fit",
+      "llm": "Potential Fit"
+    },
+    {
+      "pair_id": "j_afad5d1e324c__r_9f41c250b6f7",
+      "a1": "No Fit",
       "human": "Potential Fit",
       "llm": "No Fit"
+    },
+    {
+      "pair_id": "j_afad5d1e324c__r_a7ba46bfc48b",
+      "a1": "Potential Fit",
+      "human": "No Fit",
+      "llm": "No Fit"
+    },
+    {
+      "pair_id": "j_afad5d1e324c__r_fc38879ecf80",
+      "a1": "No Fit",
+      "human": "Good Fit",
+      "llm": "Potential Fit"
     },
     {
       "pair_id": "j_b35cfefb41dd__r_54efc8ed3054",
@@ -276,6 +555,12 @@
     {
       "pair_id": "j_b4459d155af3__r_4f4670a5e744",
       "a1": "No Fit",
+      "human": "Good Fit",
+      "llm": "Potential Fit"
+    },
+    {
+      "pair_id": "j_b4459d155af3__r_8b8c95916925",
+      "a1": "Potential Fit",
       "human": "Good Fit",
       "llm": "Good Fit"
     },
@@ -289,7 +574,7 @@
       "pair_id": "j_bc97fb1bdc9d__r_3f37a16fe433",
       "a1": "Good Fit",
       "human": "Good Fit",
-      "llm": "No Fit"
+      "llm": "Potential Fit"
     },
     {
       "pair_id": "j_bc97fb1bdc9d__r_708f5eca7774",
@@ -298,10 +583,52 @@
       "llm": "No Fit"
     },
     {
+      "pair_id": "j_c6cf432a5c66__r_de330ec0b46f",
+      "a1": "Good Fit",
+      "human": "No Fit",
+      "llm": "No Fit"
+    },
+    {
+      "pair_id": "j_d0f612320973__r_9ddad6feab89",
+      "a1": "Potential Fit",
+      "human": "No Fit",
+      "llm": "No Fit"
+    },
+    {
+      "pair_id": "j_db1793c46788__r_1486e59ff040",
+      "a1": "No Fit",
+      "human": "Potential Fit",
+      "llm": "No Fit"
+    },
+    {
+      "pair_id": "j_e877c9f7880b__r_80cc37401e93",
+      "a1": "Potential Fit",
+      "human": "No Fit",
+      "llm": "Potential Fit"
+    },
+    {
       "pair_id": "j_ef4c6efe5843__r_9ddad6feab89",
       "a1": "No Fit",
       "human": "Good Fit",
       "llm": "Potential Fit"
+    },
+    {
+      "pair_id": "j_f4f1a1e6c67d__r_282df938bf67",
+      "a1": "Potential Fit",
+      "human": "No Fit",
+      "llm": "No Fit"
+    },
+    {
+      "pair_id": "j_f4f1a1e6c67d__r_9a033c9f29fc",
+      "a1": "Potential Fit",
+      "human": "No Fit",
+      "llm": "Potential Fit"
+    },
+    {
+      "pair_id": "j_f4f1a1e6c67d__r_9ddad6feab89",
+      "a1": "Potential Fit",
+      "human": "Good Fit",
+      "llm": "Good Fit"
     },
     {
       "pair_id": "j_f4f1a1e6c67d__r_d4231a28f017",
@@ -322,14 +649,39 @@
       "llm": "No Fit"
     },
     {
+      "pair_id": "j_f80734a834f5__r_39101c81b1e5",
+      "a1": "Good Fit",
+      "human": "Potential Fit",
+      "llm": "No Fit"
+    },
+    {
       "pair_id": "j_f80734a834f5__r_4237404a46ae",
       "a1": "Good Fit",
+      "human": "No Fit",
+      "llm": "No Fit"
+    },
+    {
+      "pair_id": "j_f80734a834f5__r_ca7ba98f2447",
+      "a1": "Good Fit",
+      "human": "No Fit",
+      "llm": "No Fit"
+    },
+    {
+      "pair_id": "j_f80734a834f5__r_d0a9a235028a",
+      "a1": "Good Fit",
+      "human": "Good Fit",
+      "llm": "No Fit"
+    },
+    {
+      "pair_id": "j_fc6de709764a__r_a4dad8e574a8",
+      "a1": "Potential Fit",
       "human": "No Fit",
       "llm": "No Fit"
     }
   ],
   "note_not_ground_truth": "The LLM is a third judge with its own bias, known to exist and not measured here. It breaks a tie between two accounts of the A1 labels; it does not adjudicate one correct (D33).",
   "note_not_reproducible": "No seed reproduces a subagent run. llm-recheck.csv is collected data: append-only, provenance-stamped by agent_sha256 and prompt_sha256, and never subject to a determinism check.",
-  "note_human_leg": "The human leg is complete at 50 pairs.",
+  "note_instruments_are_not_pooled": "`llm` above is the instrument named by current_agent_sha256 and nothing else. A guide edit makes a new judge; its labels are a separate measurement. Every instrument on file is reported under per_instrument, and self_consistency_kappa compares only runs that share one.",
+  "note_human_leg": "The human leg is complete at 100 pairs.",
   "note_instrument_difference": "The human saw A1 candidates 1-4 at a time; the judge sees one pair in a fresh context. Nothing in the A1 instrument spans candidates (asks_shortlist is False for corpus a1), so no question is lost, but the two judges are not identical on the co-presence axis."
 }

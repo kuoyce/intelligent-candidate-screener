@@ -154,7 +154,7 @@ def test_recheck_strata_cover_all_three_a1_classes():
     """A recheck that samples only positives cannot detect a false-positive bias in A1's
     labelling, which is half of what A13 is about."""
     assert set(queue.RECHECK_STRATA) == {"Good Fit", "Potential Fit", "No Fit"}
-    assert sum(queue.RECHECK_STRATA.values()) == 50
+    assert sum(queue.RECHECK_STRATA.values()) == 100
 
 
 # --- the batch campaign (D28) ---------------------------------------------

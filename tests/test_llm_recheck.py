@@ -398,52 +398,53 @@ needs_fit_split = pytest.mark.skipif(
 
 @needs_fit_split
 def test_the_llm_draw_contains_the_human_draw():
-    """Mutation: draw the wide set at a different seed — this fails.
+    """Human and machine legs draw the same 100 pairs (raised from 50 after the
+    first sitting completed, 30 Aug 2026). The nesting assertion is trivially true."""
+    llm.assert_recheck_nests(0)
 
-    Real data, not a stub: `a1_recheck` takes `order[:n]` from one permutation per
-    stratum, so raising `n` appends. Every published n=50 figure is quoted beside a
-    figure over the wider draw, which is honest only while the narrow draw nests.
-    """
-    llm.assert_recheck_nests(0)          # the committed pair of strata
-
-    narrow = llm.judging.a1_recheck(llm.judging.RECHECK_STRATA, 0)
-    wide = llm.judging.a1_recheck(llm.judging.LLM_RECHECK_STRATA, 0)
+    human = llm.judging.a1_recheck(llm.judging.RECHECK_STRATA, 0)
+    machine = llm.judging.a1_recheck(llm.judging.LLM_RECHECK_STRATA, 0)
     ids = lambda f: set(f.query_id.astype(str) + "__" + f.doc_id.astype(str))  # noqa: E731
-    assert len(ids(narrow)) == 50 and len(ids(wide)) == 100
-    assert ids(narrow) < ids(wide), "the human 50 must be a strict subset of the LLM 100"
+    assert len(ids(human)) == 100 and len(ids(machine)) == 100
+    assert ids(human) == ids(machine)
 
 
 def test_a_diverged_draw_is_refused_rather_than_quoted(monkeypatch):
-    """The assertion earns its place: give it two draws that do not nest."""
+    """The assertion earns its place: give it two draws that do not nest.
+
+    With both legs at 100, the divergence is a *different* 100 rather than a
+    size mismatch — achieved by making the fake return different ids depending
+    on a hash of the strata dict.
+    """
     import pandas as pd
 
     def fake(strata, seed=0):
-        offset = 0 if sum(strata.values()) == 50 else 500      # the divergence
+        offset = hash(tuple(sorted(strata.items()))) % 1000   # different draw
         return pd.DataFrame([{"query_id": f"j_{offset + i}", "doc_id": f"r_{offset + i}",
                               "a1_label": "No Fit"}
                              for i in range(sum(strata.values()))])
 
+    # Make the two strata dicts differ so they produce different draws
+    monkeypatch.setattr(llm.judging, "RECHECK_STRATA",
+                        {"Good Fit": 30, "Potential Fit": 30, "No Fit": 40})
+    monkeypatch.setattr(llm.judging, "LLM_RECHECK_STRATA",
+                        {"Good Fit": 31, "Potential Fit": 30, "No Fit": 40})
     monkeypatch.setattr(llm.judging, "a1_recheck", fake)
     with pytest.raises(AssertionError, match="absent from the LLM"):
         llm.assert_recheck_nests(0)
 
 
 @needs_fit_split
-def test_the_human_queue_is_not_widened_by_the_llm_leg():
-    """Mutation: point `load_units`' default at `LLM_RECHECK_STRATA` — this fails.
-
-    Widening the machine leg costs no annotator time; widening the human one silently
-    adds 50 pairs to a session that is 9 short of finished. `load_units` defaults to the
-    human 50 and the LLM path passes its own strata explicitly.
-    """
-    import inspect
-    default = inspect.signature(llm.session.load_units).parameters["strata"].default
-    assert default is None, "load_units must default to the human strata, not the LLM's"
-
-    units = llm.session.load_units(0)
-    wide = llm.session.load_units(0, llm.judging.LLM_RECHECK_STRATA)
-    assert (units.corpus == "a1").sum() == 50
-    assert (wide.corpus == "a1").sum() == 100
+def test_both_legs_draw_the_same_100_pairs():
+    """Human and machine legs are now equal (both 100). `load_units` defaults to
+    RECHECK_STRATA; passing LLM_RECHECK_STRATA explicitly must produce the same draw."""
+    units_default = llm.session.load_units(0)
+    units_explicit = llm.session.load_units(0, llm.judging.LLM_RECHECK_STRATA)
+    assert (units_default.corpus == "a1").sum() == 100
+    assert (units_explicit.corpus == "a1").sum() == 100
+    default_ids = set(units_default[units_default.corpus == "a1"].pair_id)
+    explicit_ids = set(units_explicit[units_explicit.corpus == "a1"].pair_id)
+    assert default_ids == explicit_ids
 
 
 def test_the_report_still_quotes_the_human_50_alongside_the_wider_draw(
@@ -484,13 +485,8 @@ def test_the_report_still_quotes_the_human_50_alongside_the_wider_draw(
 
 @needs_fit_split
 def test_the_text_lookup_covers_every_pair_the_llm_draw_serves():
-    """Mutation: let `dispatch` call `ui.corpus_text()` with no strata — this fails.
-
-    `corpus_text` is `lru_cache`d and loads A1 text for one draw. Built from the human 50
-    while the units come from the LLM 100, half the pairs have no document — caught only
-    at `serve_group`, and only because that assertion exists. The two consumers take the
-    same strata, and here that is checked rather than remembered.
-    """
+    """Both legs are now 100 and the default strata match, so `corpus_text()` with
+    no argument covers every pair in the draw."""
     from candidate_screener.annotation import ui
 
     strata = llm.judging.LLM_RECHECK_STRATA
@@ -500,5 +496,56 @@ def test_the_text_lookup_covers_every_pair_the_llm_draw_serves():
     assert not set(a1.jd_id) - set(jd_text.index), "JDs in the draw with no text"
     assert not set(a1.cv_id) - set(cv_text.index), "CVs in the draw with no text"
 
-    narrow_jd, _ = ui.corpus_text()      # the default draw cannot cover the wider one
-    assert set(a1.jd_id) - set(narrow_jd.index)
+    default_jd, _ = ui.corpus_text()
+    assert not set(a1.jd_id) - set(default_jd.index), \
+        "default draw must cover the same pairs now that both legs are 100"
+
+
+def test_judge_frames_never_pools_two_instruments(tmp_path, monkeypatch):
+    """Mutation: take the majority across every run rather than the current agent's —
+    this fails.
+
+    A guide edit is a new judge. Its `agent_sha256` changes, and `report()` attributes
+    the `llm` series to whatever agent is committed. Pooling runs across instruments
+    would blend the old judge's labels into that series and call the blend the new
+    judge's measurement — the same failure as an `llm` row in `judgements.csv`, one
+    level up, and just as invisible: no exception, no row-count change, a plausible
+    kappa.
+
+    Synthetic: two instruments, opposite answers on the same 3 pairs. The committed
+    agent is the second one, so the series must be the second one's labels alone.
+    """
+    import pandas as pd
+
+    agent_old, agent_new = "a" * 64, "b" * 64
+    pairs = ["j1__r1", "j2__r2", "j3__r3"]
+    rows = []
+    for agent, run, label in ((agent_old, 1, "No Fit"), (agent_old, 2, "No Fit"),
+                              (agent_new, 3, "Good Fit")):
+        for pair in pairs:
+            rows.append({"pair_id": pair, "query_id": pair.split("__")[0],
+                         "doc_id": pair.split("__")[1], "run": run, "label": label,
+                         "agent_sha256": agent, "model": "m", "parsed_ok": True})
+    csv = tmp_path / "llm-recheck.csv"
+    pd.DataFrame(rows).to_csv(csv, index=False)
+
+    agent_def = tmp_path / "a1-judge.md"
+    agent_def.write_text("new judge", encoding="utf-8")
+    monkeypatch.setattr(llm, "RECHECK_CSV", csv)
+    monkeypatch.setattr(llm, "AGENT_DEF", agent_def)
+    monkeypatch.setattr(llm, "sha", lambda text: agent_new if text == "new judge"
+                        else agent_old)
+    monkeypatch.setattr(llm.judging, "a1_recheck", lambda strata, seed=0: pd.DataFrame(
+        {"query_id": [p.split("__")[0] for p in pairs],
+         "doc_id": [p.split("__")[1] for p in pairs],
+         "a1_label": ["Good Fit"] * len(pairs)}))
+    monkeypatch.setattr(llm.session, "load_judgements", lambda: pd.DataFrame(
+        columns=["pair_id", "corpus", "label"]))
+
+    frames = llm.judge_frames(0)
+    assert frames["llm"].tolist() == ["Good Fit"] * 3, (
+        "the `llm` series carried the old instrument's labels — 2 of the 3 runs on file "
+        "belong to a judge that is no longer committed")
+    assert set(frames["_instruments"]) == {agent_old, agent_new}
+    assert frames["_instruments"][agent_new]["is_current"] is True
+    assert frames["_instruments"][agent_old]["is_current"] is False

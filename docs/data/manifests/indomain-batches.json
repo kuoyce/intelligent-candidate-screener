@@ -10,6 +10,20 @@
       "keywords": null,
       "reuse_jds": false,
       "same_keyword_min": 8
+    },
+    {
+      "batch": 2,
+      "n_jds": 20,
+      "per_jd": 10,
+      "seed": 2,
+      "keywords": [
+        "Data Science",
+        "Data Analyst",
+        "Data Engineer",
+        "Business Analyst"
+      ],
+      "same_keyword_min": 8,
+      "reuse_jds": false
     }
   ]
 }

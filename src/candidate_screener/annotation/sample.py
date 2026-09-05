@@ -515,6 +515,11 @@ def assert_labels_survive(pairs: pd.DataFrame) -> None:
     judged = pd.read_csv(JUDGEMENTS)
     if judged.empty or "pair_id" not in judged:
         return
+    # Only check in-domain (a2) judgements — A1 recheck pairs are managed by queue.py
+    if "corpus" in judged.columns:
+        judged = judged[judged.corpus == "a2"]
+    if judged.empty:
+        return
     orphaned = sorted(set(judged.pair_id.dropna().astype(str))
                       - set(pairs.jd_id.astype(str) + "__" + pairs.cv_id.astype(str)))
     if orphaned:
