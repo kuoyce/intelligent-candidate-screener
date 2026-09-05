@@ -55,6 +55,19 @@ Good Fit resumes per test JD: min 1, Q1 3, **median 18**, Q3 24, max 48.
    [`llm-recheck.csv`](../manifests/llm-recheck.csv),
    `output/annotation/llm-recheck-report.json`,
    `plan/2026-08-30-llm-recheck/01-findings.md`.
+
+   *Superseded 5 Sep 2026 (D34).* The human leg closed at 100 pairs and the judge's guide
+   was rewritten to define `No Fit` positively, which raised kappa(human, llm) to **0.352**
+   (**0.614** collapsed, n=100). Against A1 both blind judges stayed at chance:
+   kappa(A1, human) = **0.081** [-0.052, 0.224] and kappa(A1, `llm:claude-haiku-4-5`) =
+   **0.085** [-0.038, 0.206], n=100 each. **The defect stands** — a judge that agrees far
+   better with the human after being made to apply the guide as written, and no better with
+   A1, is further evidence about A1, not less. Independently: A1's three classes are
+   **non-monotone** in JD-CV TF-IDF cosine (0.060 `No` / 0.072 `Potential` / 0.068 `Good`),
+   where both blind judges are monotone (rho 0.494 human, 0.365 judge); and one resume,
+   `r_e741e1ca6ee8` — a network-security engineer — carries A1 `Good Fit` against four
+   unrelated software JDs that both blind judges reject.
+   Evidence: `plan/2026-09-05-prompt-calibration/02-calibration-run.md`.
 6. **Label provenance is unrecorded** *(Q28)*. The publisher does not say how the labels
    were produced. It no longer blocks reading defect 5 — shared machine bias would have
    *inflated* kappa(A1, llm), and the observed value is at chance — but it is still unknown.

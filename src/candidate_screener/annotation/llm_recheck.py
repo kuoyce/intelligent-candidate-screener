@@ -62,14 +62,14 @@ RECHECK_CSV = MANIFESTS / "llm-recheck.csv"
 REPORT = OUTPUT / "annotation" / "llm-recheck-report.json"
 
 #: The judge. Named in every output row, because a different model is a different judge.
-MODEL = "claude-sonnet-5"
+MODEL = "claude-haiku-4-5"
 
 #: Sections of the guide that describe the *human workflow* and are dropped from the
 #: judge's system prompt. The shortlist question goes with them: `asks_shortlist` is
 #: already `False` for `corpus == "a1"`, so it is a question this judge is never asked,
 #: and leaving it in would invite a single-pair judge to compare against a field it
 #: cannot see. Everything that defines the instrument — the three class
-#: definitions, all nine worked examples, the tie-breaking rule, the what-not-to-consider
+#: definitions, the ordered decision, the tie-breaking rule, the what-not-to-consider
 #: list, `Two corpora, one scheme` (A16) — is kept **verbatim**. Paraphrasing would
 #: measure the paraphrase; the comparison only means something if both judges were handed
 #: the same instrument.
@@ -129,7 +129,7 @@ def render_agent_definition(guide: str | None = None) -> str:
     return f"""---
 name: a1-judge
 description: Judges one job-description/CV pair against the annotation guide's three classes. Returns one JSON object and nothing else. Tool-free by design.
-model: sonnet
+model: haiku
 tools: []
 ---
 
@@ -304,6 +304,55 @@ def dispatch(run: int, seed: int = 0, subsample: int | None = None) -> dict:
             "prompts": str(PROMPTS)}
 
 
+def dispatch_all_a1(run: int, seed: int = 0) -> dict:
+    """Option D: dispatch every A1 pair (all 659) through the same judge.
+
+    Uses the same prompt rendering, anchoring check, and redaction as the recheck path
+    but loads directly from test.parquet rather than the stratified draw. Idempotent per
+    (pair_id, run).
+    """
+    agent_hash = assert_agent_definition_current()
+    test = pd.read_parquet(PROCESSED / "fit" / "test.parquet")
+
+    records = []
+    for _, row in test.iterrows():
+        jd_id, cv_id = str(row.jd_id), str(row.resume_id)
+        pair_id = f"{jd_id}__{cv_id}"
+        jd_text = redact.redact_text(row.job_description_text)
+        cv_text = redact.redact_text(row.resume_text)
+        prompt = render_prompt(jd_text, cv_text)
+        assert_not_anchoring(prompt, f"pair {pair_id}")
+        records.append({"pair_id": pair_id, "query_id": jd_id, "doc_id": cv_id,
+                        "run": run, "prompt": prompt, "prompt_sha256": sha(prompt),
+                        "chars_sent": len(prompt), "agent_sha256": agent_hash,
+                        "model": MODEL})
+
+    overlap = guide_example_pairs() & {r["pair_id"] for r in records}
+    if overlap:
+        raise AssertionError(f"{len(overlap)} A1 pairs appear as worked examples in "
+                             f"{GUIDE}: {sorted(overlap)[:3]}")
+
+    redact.assert_clean(pd.Series([r["prompt"] for r in records]), "option D dispatch")
+
+    already = {(r["pair_id"], r["run"]) for r in read_jsonl(PROMPTS)}
+    skipped = [r for r in records if (r["pair_id"], r["run"]) in already]
+    records = [r for r in records if (r["pair_id"], r["run"]) not in already]
+
+    PROMPTS.parent.mkdir(parents=True, exist_ok=True)
+    with PROMPTS.open("a", encoding="utf-8") as fh:
+        for record in records:
+            fh.write(json.dumps(record, ensure_ascii=False) + "\n")
+
+    return {"run": run, "seed": seed, "pairs": len(records),
+            "already_dispatched": len(skipped),
+            "total_a1": len(test),
+            "jds": len({r["query_id"] for r in records}),
+            "agent_sha256": agent_hash, "model": MODEL,
+            "chars_sent_median": int(np.median([r["chars_sent"] for r in records]))
+            if records else 0,
+            "prompts": str(PROMPTS)}
+
+
 def assert_recheck_nests(seed: int = 0) -> None:
     """The LLM's 100 contain the human's 50, exactly.
 
@@ -393,12 +442,14 @@ def judge_one(record: dict, cwd: Path) -> dict:
             "raw": raw}
 
 
-def judge(run: int, concurrency: int = CONCURRENCY) -> dict:
+def judge(run: int, concurrency: int = CONCURRENCY, limit: int | None = None) -> dict:
     """Run every dispatched pair of `run` that has no raw return yet.
 
     Idempotent per `(pair_id, run)` for the reason dispatch is: a second return matched
     against the first return's prompt hash would let the provenance columns name a prompt
     that did not produce the label.
+
+    `limit` caps how many pairs this invocation judges, for operator-side pacing.
     """
     import contextlib
 
@@ -414,6 +465,9 @@ def judge(run: int, concurrency: int = CONCURRENCY) -> dict:
 
     done = {(r["pair_id"], r["run"]) for r in read_jsonl(RAW)}
     todo = [r for r in dispatched if (r["pair_id"], r["run"]) not in done]
+    remaining = len(todo)
+    if limit is not None:
+        todo = todo[:limit]
 
     returned = 0
     with contextlib.ExitStack() as stack:
@@ -435,7 +489,8 @@ def judge(run: int, concurrency: int = CONCURRENCY) -> dict:
                     fh.flush()
                     returned += 1
     return {"run": run, "dispatched": len(dispatched), "already_judged": len(done),
-            "judged_now": returned, "concurrency": concurrency, "raw": str(RAW)}
+            "judged_now": returned, "remaining": remaining - returned,
+            "concurrency": concurrency, "limit": limit, "raw": str(RAW)}
 
 
 # --- collect ---------------------------------------------------------------
@@ -487,13 +542,14 @@ def collect() -> dict:
         except BadReturn as exc:
             ok, label, reason = False, "", f"unparsed: {exc}"
             bad.append(key)
+        row_model = sent.get("model", MODEL)
         rows.append({
             "pair_id": sent["pair_id"], "batch": 0, "stratum": "a1_recheck",
             "corpus": "a1", "query_id": sent["query_id"], "doc_id": sent["doc_id"],
             "selection_reason": "a1_recheck",
-            "annotator": f"llm:{MODEL}:run{got['run']}",
+            "annotator": f"llm:{row_model}:run{got['run']}",
             "label": label, "shortlist_pick": "", "notes": reason,
-            "model": MODEL, "agent_sha256": sent["agent_sha256"],
+            "model": row_model, "agent_sha256": sent["agent_sha256"],
             "prompt_sha256": sent["prompt_sha256"], "run": got["run"],
             "chars_sent": sent["chars_sent"], "parsed_ok": ok,
             "judged_at": got.get("returned_at", "")})
@@ -509,13 +565,26 @@ def collect() -> dict:
 
 # --- agreement -------------------------------------------------------------
 
-def cohen_kappa(a: list[str], b: list[str]) -> float:
+def cohen_kappa(a: list[str], b: list[str],
+                labels: list[str] | None = None) -> float:
     from sklearn.metrics import cohen_kappa_score
-    return float(cohen_kappa_score(a, b, labels=list(session.LABELS)))
+    return float(cohen_kappa_score(a, b,
+                                   labels=labels or list(session.LABELS)))
+
+
+#: `Good` u `Potential` against `No Fit` — the coarsest question the instrument asks, and the
+#: one a three-class kappa cannot separate from a boundary disagreement. Reported beside
+#: every three-class figure since the run-4 calibration, where the two moved apart: kappa
+#: rose 0.287 -> 0.352 while the binary collapse rose 0.421 -> 0.614.
+BINARY = ["fit", "no fit"]
+
+
+def collapse(labels) -> list[str]:
+    return ["no fit" if x == "No Fit" else "fit" for x in labels]
 
 
 def kappa_ci(a: list[str], b: list[str], n_boot: int = 2000,
-             seed: int = 0) -> dict:
+             seed: int = 0, labels: list[str] | None = None) -> dict:
     """Kappa with a bootstrap 95% CI over pairs. n is always reported alongside."""
     a, b = list(a), list(b)
     if len(a) < 2:
@@ -527,10 +596,10 @@ def kappa_ci(a: list[str], b: list[str], n_boot: int = 2000,
         idx = rng.integers(0, len(a), len(a))
         sa, sb = [a[i] for i in idx], [b[i] for i in idx]
         if len(set(sa)) > 1 or len(set(sb)) > 1:
-            draws.append(cohen_kappa(sa, sb))
+            draws.append(cohen_kappa(sa, sb, labels))
     lo, hi = (np.nanpercentile(draws, [2.5, 97.5]) if draws
               else (float("nan"), float("nan")))
-    return {"kappa": cohen_kappa(a, b), "lo": float(lo), "hi": float(hi),
+    return {"kappa": cohen_kappa(a, b, labels), "lo": float(lo), "hi": float(hi),
             "n": len(a),
             "agreement": float(np.mean([x == y for x, y in zip(a, b)]))}
 
@@ -544,7 +613,15 @@ def majority(labels: list[str]) -> str | None:
 
 
 def judge_frames(seed: int = 0) -> dict[str, pd.Series]:
-    """A1's own label, the human's, and the LLM's — one series each, indexed by pair_id."""
+    """A1's own label, the human's, and the LLM's — one series each, indexed by pair_id.
+
+    **`llm` is the *current* instrument only.** A guide edit is a new judge: it gets a new
+    `agent_sha256`, and its labels are a different measurement from the previous judge's.
+    Taking a per-pair majority across every run on file would average two instruments into
+    one series and quietly attribute the blend to whichever agent happens to be committed —
+    the same failure mode as an `llm` row in `judgements.csv`, one level up. Runs of other
+    instruments are still returned, under `_instruments`, and reported separately.
+    """
     recheck = judging.a1_recheck(judging.LLM_RECHECK_STRATA, seed)
     recheck["pair_id"] = (recheck.query_id.astype(str) + "__"
                           + recheck.doc_id.astype(str))
@@ -556,20 +633,33 @@ def judge_frames(seed: int = 0) -> dict[str, pd.Series]:
 
     llm = pd.Series(dtype=str)
     runs: dict[int, pd.Series] = {}
+    instruments: dict[str, dict] = {}
+    current = sha(AGENT_DEF.read_text(encoding="utf-8")) if AGENT_DEF.exists() else ""
     if RECHECK_CSV.exists():
         frame = pd.read_csv(RECHECK_CSV)
         frame = frame[frame.parsed_ok.astype(str).str.lower().isin(("true", "1"))]
         for run, chunk in frame.groupby("run"):
             runs[int(run)] = chunk.drop_duplicates("pair_id").set_index("pair_id").label
-        if len(frame):
-            grouped = frame.groupby("pair_id").label.apply(lambda s: majority(list(s)))
+        for agent, chunk in frame.groupby("agent_sha256"):
+            instruments[str(agent)] = {
+                "runs": sorted(int(r) for r in chunk.run.unique()),
+                "models": sorted(chunk.model.dropna().astype(str).unique().tolist()),
+                "rows": int(len(chunk)),
+                "is_current": str(agent) == current,
+                "labels": chunk.drop_duplicates("pair_id").set_index("pair_id").label}
+        live = frame[frame.agent_sha256.astype(str) == current]
+        if len(live):
+            grouped = live.groupby("pair_id").label.apply(lambda s: majority(list(s)))
             llm = grouped.dropna()
-    return {"a1": a1, "human": human, "llm": llm, "_runs": runs}
+    return {"a1": a1, "human": human, "llm": llm, "_runs": runs,
+            "_instruments": instruments, "_current": current}
 
 
 def report(seed: int = 0) -> dict:
     frames = judge_frames(seed)
-    runs = frames.pop("_runs")
+    runs = frames.pop("_runs", {})
+    instruments = frames.pop("_instruments", {})
+    current = frames.pop("_current", "")
     names = ["a1", "human", "llm"]
 
     def pairwise_over(restrict: set[str] | None) -> dict:
@@ -579,9 +669,10 @@ def report(seed: int = 0) -> dict:
                 common = frames[x].index.intersection(frames[y].index)
                 if restrict is not None:
                     common = common.intersection(pd.Index(sorted(restrict)))
-                out[f"{x}_vs_{y}"] = kappa_ci(
-                    frames[x].loc[common].tolist(), frames[y].loc[common].tolist(),
-                    seed=seed)
+                a, b = frames[x].loc[common].tolist(), frames[y].loc[common].tolist()
+                out[f"{x}_vs_{y}"] = kappa_ci(a, b, seed=seed)
+                out[f"{x}_vs_{y}_binary"] = kappa_ci(
+                    collapse(a), collapse(b), seed=seed, labels=BINARY)
         return out
 
     narrow = judging.a1_recheck(judging.RECHECK_STRATA, seed)
@@ -593,13 +684,39 @@ def report(seed: int = 0) -> dict:
     # replaced by a wider number computed over pairs no human ever saw.
     pairwise_50 = pairwise_over(human_50)
 
+    # Self-consistency is a property of *one* judge. Comparing runs of two instruments
+    # would report a guide edit as unreliability, which is the opposite of what it is.
+    run_agent = {r: a for a, meta in instruments.items() for r in meta["runs"]}
     self_consistency = {}
     run_ids = sorted(runs)
     for i, x in enumerate(run_ids):
         for y in run_ids[i + 1:]:
+            if run_agent.get(x) != run_agent.get(y):
+                continue
             common = runs[x].index.intersection(runs[y].index)
             self_consistency[f"run{x}_vs_run{y}"] = kappa_ci(
                 runs[x].loc[common].tolist(), runs[y].loc[common].tolist(), seed=seed)
+
+    # Every instrument on file, against both human legs, so a guide change is readable as
+    # a change rather than as movement in a pooled number.
+    per_instrument = {}
+    for agent, meta in instruments.items():
+        labels = meta["labels"]
+        block = {"runs": meta["runs"], "models": meta["models"], "rows": meta["rows"],
+                 "is_current": meta["is_current"]}
+        for other in ("a1", "human"):
+            common = labels.index.intersection(frames[other].index)
+            a, b = frames[other].loc[common].tolist(), labels.loc[common].tolist()
+            block[f"vs_{other}"] = kappa_ci(a, b, seed=seed)
+            block[f"vs_{other}_binary"] = kappa_ci(
+                collapse(a), collapse(b), seed=seed, labels=BINARY)
+        # Over the recheck draw only, so the marginals belong to the same pairs the
+        # kappas above were computed on. An instrument may carry other rows (option D
+        # judges all of A1); mixing them in would make the two blocks incomparable.
+        drawn = labels.loc[labels.index.intersection(frames["a1"].index)]
+        block["marginals"] = {c: int((drawn == c).sum()) for c in session.LABELS}
+        block["marginals_n"] = int(len(drawn))
+        per_instrument[agent] = block
 
     llm_covered = frames["a1"].index.intersection(frames["llm"].index)
     all_three = frames["a1"].index
@@ -613,6 +730,7 @@ def report(seed: int = 0) -> dict:
 
     out = {
         "model": MODEL, "seed": seed,
+        "current_agent_sha256": current,
         "generated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "coverage": {n: int(len(frames[n])) for n in names} | {
             "all_three": int(len(all_three)),
@@ -620,6 +738,7 @@ def report(seed: int = 0) -> dict:
             "llm_draw": int(len(frames["a1"]))},
         "pairwise_kappa": pairwise,
         "pairwise_kappa_over_the_human_50": pairwise_50,
+        "per_instrument": per_instrument,
         "self_consistency_kappa": self_consistency,
         "per_class_agreement": {
             cls: {
@@ -647,6 +766,11 @@ def report(seed: int = 0) -> dict:
             "No seed reproduces a subagent run. llm-recheck.csv is collected data: "
             "append-only, provenance-stamped by agent_sha256 and prompt_sha256, and "
             "never subject to a determinism check."),
+        "note_instruments_are_not_pooled": (
+            "`llm` above is the instrument named by current_agent_sha256 and nothing "
+            "else. A guide edit makes a new judge; its labels are a separate "
+            "measurement. Every instrument on file is reported under per_instrument, "
+            "and self_consistency_kappa compares only runs that share one."),
         "note_human_leg": (
             f"The human leg covers {len(frames['human'])} of the {len(human_50)} pairs "
             "drawn for it. Every kappa involving `human` is provisional until that "
@@ -672,9 +796,13 @@ def main() -> int:
     ap.add_argument("--agent", action="store_true",
                     help="render .claude/agents/a1-judge.md from the guide")
     ap.add_argument("--dispatch", action="store_true")
+    ap.add_argument("--all-a1", action="store_true",
+                    help="dispatch all 659 A1 pairs (option D), not just the recheck")
     ap.add_argument("--judge", action="store_true",
                     help="run the committed judge over the dispatched prompts")
     ap.add_argument("--concurrency", type=int, default=CONCURRENCY)
+    ap.add_argument("--limit", type=int, default=None,
+                    help="judge at most N pairs this invocation (operator-side pacing)")
     ap.add_argument("--collect", action="store_true")
     ap.add_argument("--report", action="store_true")
     ap.add_argument("--run", type=int, default=1)
@@ -686,10 +814,12 @@ def main() -> int:
         AGENT_DEF.parent.mkdir(parents=True, exist_ok=True)
         AGENT_DEF.write_text(render_agent_definition(), encoding="utf-8")
         print(f"wrote {AGENT_DEF}  sha256={sha(render_agent_definition())[:12]}")
-    if args.dispatch:
+    if args.dispatch and args.all_a1:
+        print(json.dumps(dispatch_all_a1(args.run, args.seed), indent=2))
+    elif args.dispatch:
         print(json.dumps(dispatch(args.run, args.seed, args.subsample), indent=2))
     if args.judge:
-        print(json.dumps(judge(args.run, args.concurrency), indent=2))
+        print(json.dumps(judge(args.run, args.concurrency, args.limit), indent=2))
     if args.collect:
         print(json.dumps(collect(), indent=2))
     if args.report:

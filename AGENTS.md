@@ -111,7 +111,7 @@ kappa(A1, yc) = 0.010 with a **bidirectional** disagreement, so it is not a stri
 and it does not preserve ranking. Either A1's labels are wrong — **A13 fails** and D26's
 ceilings are soft — or `yc` is miscalibrated. One annotator cannot separate the two, and the
 two have opposite consequences for every figure quoted against 0.7806. `annotation.llm_recheck`
-runs one tool-free `sonnet` judge per pair, 10 concurrent.
+runs one tool-free `haiku` judge per pair, 10 concurrent (run 1 used `sonnet`).
 
 **It has run, and A13 fails** *(30 Aug 2026, `plan/2026-08-30-llm-recheck/01-findings.md`)*.
 kappa(A1, llm) = **0.125** [0.013, 0.241] n=100 and kappa(A1, yc) = **0.034** [-0.162,
@@ -125,15 +125,38 @@ from one cell**: per class it agrees 0.90 on A1's `No Fit` (n=40), 0.27 on `Pote
 attainable inherits the doubt. Restating them is a separate change that supersedes in
 place; it has not been made.
 
-**The machine leg is 100 pairs, the human leg is 50, and the two draws nest** *(deviation
-V6)*. `queue.LLM_RECHECK_STRATA` (30/30/40) against `RECHECK_STRATA` (15/15/20);
-`a1_recheck` takes `order[:n]` from one permutation per stratum, so the 100 contain the 50
-exactly and an n=50 figure may be quoted beside an n=100 one. `assert_recheck_nests` and
-`verify --derived` both hold it. **Widen the machine leg by raising `LLM_RECHECK_STRATA`,
-never `RECHECK_STRATA`** — `session.load_units` and `ui.corpus_text` default to the human
-strata, and raising that constant silently adds pairs to a live human sitting. The two
-consumers must be handed the *same* draw: units from `load_units(seed, strata)` and text
-from `corpus_text(tuple(sorted(strata.items())))`, or half the pairs arrive with no
+**The guide now defines `No Fit` positively, and it moved the judge** *(decision D34, 5 Sep
+2026, `plan/2026-09-05-prompt-calibration/02-calibration-run.md`)*. The old instrument's
+disagreement with `yc` was not strictness: it matched **57 of `yc`'s 58 `No Fit`s**, and of
+its own 82 only **8 cited a different profession** — the rest cited a missing named tool
+(20), a missing industry (9) or a years gap (14), all of which the guide's own examples
+called `Potential Fit`. The cause was the tie-break: "choose the lower one" reads to a model
+as *any doubt → down*, transitively, and nothing required `No Fit` to have a reason. The
+guide is now an **ordered decision** — profession, then career stage, then core activity —
+with `No Fit` reachable only from the first two steps, the tie-break scoped to the
+`Good`/`Potential` boundary and barred from reaching `No Fit`, a missing tool or industry or
+a year or two short of a minimum named as a screening question, and **all nine worked
+examples removed**. kappa(yc, llm) 0.287 → **0.352** and the binary collapse 0.421 →
+**0.614** [0.447, 0.760], n=100. kappa(A1, llm) fell to 0.085: **A13 still fails**. Two
+things this does not settle — run 1 was `sonnet` and run 4 `haiku` with no old-guide/haiku
+control (**Q32**), and the edit is retroactive against the 500 human labels collected under
+guide `842d7b0e`, which `judgements.csv` does not record (**Q33**).
+
+**An instrument is `agent_sha256`, and figures are never pooled across two.** A guide edit
+is a new judge. `judge_frames` returns `llm` for the **committed** agent alone, every
+instrument on file under `per_instrument`, and `self_consistency_kappa` only for runs that
+share one — a per-pair majority across all runs would blend two judges and attribute the
+blend to whichever is committed, with no exception and a plausible kappa. `report()` also
+quotes binary-collapse kappa beside every three-class figure, because D34 is a run where the
+two moved apart.
+
+**Both legs are 100 pairs** *(deviation V6, updated 30 Aug 2026)*.
+`queue.RECHECK_STRATA` and `LLM_RECHECK_STRATA` are both (30/30/40). The human leg was 50
+(15/15/20) while the first sitting was live; raised to 100 after all 50 were labelled, so
+the existing labels are a prefix of the new draw and nothing is orphaned. The nesting
+assertion (`assert_recheck_nests`, `verify --derived`) is trivially satisfied. The two
+consumers must still be handed the *same* draw: units from `load_units(seed, strata)` and
+text from `corpus_text(tuple(sorted(strata.items())))`, or half the pairs arrive with no
 document.
 
 **Tool-free is necessary and was not sufficient** *(deviation V4)*. The judge runs as a
@@ -159,7 +182,9 @@ judge is not what the guide renders, or if its frontmatter is not `tools: []`.
 
 **Its labels never enter `judgements.csv`.** `annotator` is a free string, so an `llm` row
 there would pass every existing check and be silently pooled into the human kappa. They go to
-`docs/data/manifests/llm-recheck.csv`, quoted as `llm:claude-sonnet-5:run{N}`.
+`docs/data/manifests/llm-recheck.csv`, quoted as `llm:{model}:run{N}` (run 1:
+`claude-sonnet-5`, run 2+: `claude-haiku-4-5`). `collect()` preserves per-row model
+provenance from the dispatch record.
 
 **It is collected data, not derived** *(Q31)*. No seed reproduces a subagent run, so
 `check_llm_recheck` verifies **provenance** — `agent_sha256`, `prompt_sha256` against the
