@@ -1082,3 +1082,53 @@ def test_a_record_is_torn_only_by_a_newline(tmp_path):
     assert len(path.read_text(encoding="utf-8").splitlines()) == 3, (
         "the fixture must actually contain a splitlines-only separator")
     assert llm.read_jsonl(path) == records
+
+
+def test_a_pair_the_judge_has_labelled_is_still_owed_by_the_human(tmp_path, monkeypatch):
+    """Task 1.2's guard. Mutation: union the A2 files into `judged_pair_ids()` — fails.
+
+    Phase 1 dispatches the judge over the 200 `targeted` pairs *before* their human
+    session, and the whole value of that ordering is that the two legs are independent.
+    If the judge's output ever suppressed human work, the pairs the human labelled would
+    be exactly the ones the judge had not reached — and the prospective comparison would
+    be over a set selected by the judge's own throughput.
+
+    It holds structurally today: `outstanding()` counts rows in `judgements.csv`, and the
+    judge never writes there. This locks that in.
+    """
+    frame = _indomain(monkeypatch, n_generic=0, n_targeted=6)
+    targeted = frame[frame.stratum == "targeted"]
+    ids = [f"{r.query_id}__{r.doc_id}" for r in targeted.itertuples()]
+
+    # The human file must EXIST and be non-empty, or `judged_pair_ids` returns early and
+    # a test over it proves nothing. One unrelated pair is enough to get past that.
+    judgements = tmp_path / "judgements.csv"
+    pd.DataFrame([{
+        "pair_id": "someone__else", "batch": 1, "stratum": "generic", "corpus": "a2",
+        "query_id": "someone", "doc_id": "else", "selection_reason": "indomain_banded",
+        "annotator": "yc", "label": "No Fit", "shortlist_pick": 0, "notes": ""}
+    ]).to_csv(judgements, index=False)
+    monkeypatch.setattr(llm.judging, "JUDGEMENTS", judgements)
+
+    machine_file = tmp_path / "llm-a2-targeted.csv"
+    pd.DataFrame([{
+        "pair_id": p, "batch": 2, "stratum": "targeted", "corpus": "a2",
+        "query_id": p.split("__")[0], "doc_id": p.split("__")[1],
+        "selection_reason": "indomain_banded", "annotator": "llm:m:run6",
+        "label": "No Fit", "shortlist_pick": "", "notes": "", "model": "m",
+        "agent_sha256": "sha", "prompt_sha256": "p", "run": 6, "chars_sent": 1,
+        "parsed_ok": True, "judged_at": "", "draw": llm.A2_TARGETED_DRAW}
+        for p in ids]).to_csv(machine_file, index=False)
+    monkeypatch.setitem(llm.DRAW_FILES, llm.A2_TARGETED_DRAW, machine_file)
+    monkeypatch.setattr(llm.judging, "a1_recheck",
+                        lambda strata, seed=0: pd.DataFrame(columns=list(frame.columns)))
+
+    assert llm.judging.judged_pair_ids() == {"someone__else"}, (
+        "the judge's labels reached the human resume mechanism")
+
+    # `build_queue` is the consumer that matters: it drops judged pairs, and it is what
+    # the annotator's UI is served from.
+    queued = set(llm.judging.build_queue(seed=0).pair_id)
+    assert queued == set(ids), (
+        "the judge's labels suppressed human work — the prospective leg would then be "
+        "measured over whichever pairs the judge happened not to reach")
