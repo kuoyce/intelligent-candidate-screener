@@ -202,10 +202,29 @@ D33's problem one boundary along, and the second annotator's `Good Fit` rate is 
 settles it (**Q38**: whether that boundary needs a D34-style pass; a guide edit is a new
 judge and no figure would pool with run 5).
 
-The A2 draws are `a2_generic` (400, run 5, collected) and `a2_targeted` (200, run 6, not
-yet dispatched), in `llm-a2-generic.csv` and `llm-a2-targeted.csv`, quoted per stratum in
+The A2 draws are `a2_generic` (400, run 5) and `a2_targeted` (200, run 6), in
+`llm-a2-generic.csv` and `llm-a2-targeted.csv`, quoted per stratum in
 `output/annotation/llm-a2-report.json`. `judge_frames` and `llm-recheck-report.json` do not
 read them and did not move.
+
+**`targeted` is pre-labelled and its human session has not started** *(7 Sep 2026,
+`plan/2026-09-06-a2-llm-prelabel/05-phase1-dispatch.md`)*. That ordering is the design: the
+judge saw no label, the annotator will see no machine label, so the figure will be
+prospective and held out where `generic`'s is retrospective. Nothing blocks the session —
+`build_queue` serves all 200, guarded by
+`test_a_pair_the_judge_has_labelled_is_still_owed_by_the_human` — and `a2_report` says
+`no overlap` rather than inventing a figure until labels land.
+
+Two things are already readable from the **marginal distribution**, which needs no
+reference labels. The judge's three proportions move by at most 1.5 points between the
+strata, so the instrument is stable across populations selected by different rules — and
+`targeted` is therefore **predicted to land near `generic`'s 0.380**, recorded here before
+the human labels exist. And where `No Fit` nearly matches (0.370 against `yc`'s 0.402), the
+judge issues `Good Fit` at **4.0% against `yc`'s 25.2%**: it does not merely disagree case
+by case, it almost never reaches the class. A near-total absence is the signature of a
+mis-set threshold rather than of scattered judgement differences, which sharpens **Q38** to
+the boundary's *position* — though `yc` over-issuing `Good Fit` fits the same numbers, and
+one annotator still cannot separate them.
 
 **A spawn that never answered is not a return** *(fix F1/F2, 6 Sep 2026,
 `plan/2026-09-06-a2-llm-prelabel/`)*. `judge()` resumes from `llm-recheck-raw.jsonl`, and

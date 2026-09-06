@@ -1,7 +1,7 @@
 {
   "model": "claude-haiku-4-5",
   "seed": 0,
-  "generated_at": "2026-09-06T15:05:04+00:00",
+  "generated_at": "2026-09-06T20:00:53+00:00",
   "strata": {
     "generic": {
       "draw": "a2_generic",
@@ -91,11 +91,25 @@
     "targeted": {
       "draw": "a2_targeted",
       "file": "/home/yuchen/project/intelligent-candidate-screener/docs/data/manifests/llm-a2-targeted.csv",
-      "runs": [],
-      "coverage": {},
+      "runs": [
+        6
+      ],
+      "coverage": {
+        "6": {
+          "run": 6,
+          "n_dispatched": 200,
+          "n_answered": 200,
+          "n_quarantined": 0,
+          "n_missing": 0,
+          "complete": true
+        }
+      },
       "n_human": 0,
-      "n_llm": 0,
-      "status": "not dispatched"
+      "n_llm": 200,
+      "status": "no overlap",
+      "n_scored": 0,
+      "n_dispatched": 200,
+      "self_consistency": {}
     }
   },
   "current_agent_sha256": "75e00ea3d0c34ab92acd7e6436de2921a3b80b2ff4e8106c88bc7580d048cd23",
