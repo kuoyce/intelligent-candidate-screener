@@ -1063,3 +1063,22 @@ def test_per_class_agreement_catches_a_kappa_carried_by_one_class(tmp_path):
     assert out["No Fit"] == {"n": 8, "agreement": 1.0}
     assert out["Good Fit"] == {"n": 2, "agreement": 0.0}
     assert out["Potential Fit"]["n"] == 0
+
+
+def test_a_record_is_torn_only_by_a_newline(tmp_path):
+    """Mutation: read with `str.splitlines()` — this fails.
+
+    Prompts are written `ensure_ascii=False`, so a document carrying U+2028 (Djinni CVs
+    carry 16) puts a `splitlines()` boundary *inside* a JSON string. Both callers that
+    matter read from here: dispatch dedups on `(pair_id, run)`, and `judge`'s resume set
+    decides which pairs are still owed.
+    """
+    path = tmp_path / "p.jsonl"
+    records = [{"pair_id": "a__b", "run": 5, "prompt": "line one line two"},
+               {"pair_id": "c__d", "run": 5, "prompt": "plain"}]
+    path.write_text("\n".join(json.dumps(r, ensure_ascii=False) for r in records) + "\n",
+                    encoding="utf-8")
+
+    assert len(path.read_text(encoding="utf-8").splitlines()) == 3, (
+        "the fixture must actually contain a splitlines-only separator")
+    assert llm.read_jsonl(path) == records

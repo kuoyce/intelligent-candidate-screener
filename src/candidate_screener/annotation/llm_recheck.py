@@ -659,9 +659,23 @@ def assert_recheck_nests(seed: int = 0) -> None:
 # --- judge -----------------------------------------------------------------
 
 def read_jsonl(path) -> list[dict]:
+    """JSONL is delimited by `\\n`, and by nothing else.
+
+    This used `str.splitlines()`, which also splits on U+2028, U+2029, `\\x0b`, `\\x0c`,
+    `\\x1c`, `\\x1d`, `\\x1e` and `\\x85`. Prompts are written with `ensure_ascii=False`, so
+    a document containing any of those puts one **inside** a JSON string and the record is
+    torn in half on the way back in. Djinni CV text carries 16 U+2028s; A1 text carried
+    none, which is the only reason runs 1-4 worked.
+
+    It surfaced as a `JSONDecodeError` on the first A2 judging pass, which is the good
+    outcome. Had the loader skipped unparseable fragments instead, both callers that
+    matter would have gone quietly wrong: dispatch dedups on `(pair_id, run)` read from
+    here, and `judge`'s resume set is built from here — so torn records would have meant
+    pairs re-dispatched and pairs silently never judged.
+    """
     if not path.exists():
         return []
-    return [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines()
+    return [json.loads(line) for line in path.read_text(encoding="utf-8").split("\n")
             if line.strip()]
 
 
