@@ -177,7 +177,9 @@ fixed. So a figure computed over these labels would describe a judge this reposi
 longer commits. Q34 stays deferred and unworked unless option D is revisited or a decision
 comes to rest on its output — and the first thing it reopens is whether the labels may be
 used at all or must be re-judged under the committed instrument (`--dispatch --all-a1
---run 6`, ~659 spawns).
+--run n` for the next unused `n`, ~659 spawns). **No run number is reserved for this.** A
+deferred task does not hold a number against work that is actually happening; whichever
+run is free when Q34 is revisited is the one it takes.
 
 **Both legs are 100 pairs** *(deviation V6, updated 30 Aug 2026)*.
 `queue.RECHECK_STRATA` and `LLM_RECHECK_STRATA` are both (30/30/40). The human leg was 50
