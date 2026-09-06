@@ -90,13 +90,37 @@ RECHECK_CSV = MANIFESTS / "llm-recheck.csv"
 FULL_A1_CSV = MANIFESTS / "llm-recheck-full-a1.csv"
 REPORT = OUTPUT / "annotation" / "llm-recheck-report.json"
 
+#: The A2 figures get their own file for the reason they get their own frame builder: the
+#: recheck report backs published numbers, and appending a section to it would let this
+#: plan move them.
+A2_REPORT = OUTPUT / "annotation" / "llm-a2-report.json"
+
 #: The two populations this judge is ever pointed at *(decision D35)*. `a1_recheck` is the
 #: 100-pair stratified draw the instrument is validated on; `a1_full` is option D, every
 #: pair in `fit/test.parquet`. They are different measurements over different populations
 #: and they live in different files.
 RECHECK_DRAW = "a1_recheck"
 FULL_A1_DRAW = "a1_full"
-DRAW_FILES = {RECHECK_DRAW: RECHECK_CSV, FULL_A1_DRAW: FULL_A1_CSV}
+
+#: The in-domain draws *(plan/2026-09-06-a2-llm-prelabel)*. Two, not one, because D29's
+#: strata are two populations whose average names nothing: `generic` is the unstratified
+#: D14 sample, `targeted` pools the keyword-scoped batches. Composing D29 with D35 —
+#: one file, one draw — makes the pooled A2 figure impossible rather than merely
+#: forbidden. `a2_generic` is retrospective: those 400 pairs already carry `yc` labels the
+#: judge has never seen, so kappa(yc, llm) on the in-domain corpus is computable without
+#: any pending annotation. `a2_targeted` is dispatched *before* its human session, which
+#: is what makes it a prospective, held-out measurement.
+A2_GENERIC_DRAW = "a2_generic"
+A2_TARGETED_DRAW = "a2_targeted"
+A2_GENERIC_CSV = MANIFESTS / "llm-a2-generic.csv"
+A2_TARGETED_CSV = MANIFESTS / "llm-a2-targeted.csv"
+
+#: The stratum each A2 draw samples. `indomain_rows()` stamps `stratum` on the pair, so
+#: this maps a draw to the rows it may contain and nothing else selects them.
+A2_DRAW_STRATUM = {A2_GENERIC_DRAW: "generic", A2_TARGETED_DRAW: "targeted"}
+
+DRAW_FILES = {RECHECK_DRAW: RECHECK_CSV, FULL_A1_DRAW: FULL_A1_CSV,
+              A2_GENERIC_DRAW: A2_GENERIC_CSV, A2_TARGETED_DRAW: A2_TARGETED_CSV}
 
 #: The judge. Named in every output row, because a different model is a different judge.
 MODEL = "claude-haiku-4-5"
@@ -424,6 +448,82 @@ def dispatch_all_a1(run: int, seed: int = 0) -> dict:
     return {"run": run, "seed": seed, "draw": FULL_A1_DRAW, "pairs": len(records),
             "already_dispatched": len(skipped),
             "total_a1": len(test),
+            "jds": len({r["query_id"] for r in records}),
+            "agent_sha256": agent_hash, "model": MODEL,
+            "chars_sent_median": int(np.median([r["chars_sent"] for r in records]))
+            if records else 0,
+            "prompts": str(PROMPTS)}
+
+
+def dispatch_a2(stratum: str, run: int, seed: int = 0) -> dict:
+    """Dispatch one in-domain stratum through the committed judge.
+
+    The judge's agreement with `yc` has only ever been measured on A1 pairs, which are 3x
+    longer than these (median 5,134 chars against 1,549 JD / 1,742 CV) and are the corpus
+    D34's guide was tuned against. Whether it carries to A2 is **Q36**, and this is the
+    dispatch that answers it.
+
+    `stratum` selects the draw, and the draw selects the file: no figure over `generic`
+    may be pooled with one over `targeted` *(D29)*, and after this call nothing has to
+    remember that — the rows are in different files.
+
+    **The prompt cannot carry a label.** `indomain_rows()` returns `a1_label = None`
+    throughout for A2 and joins no human judgement, so `yc`'s existing labels on the
+    `generic` pairs are unreachable from here by construction; `assert_not_anchoring` is
+    the second line, not the first.
+    """
+    draw = next((d for d, s in A2_DRAW_STRATUM.items() if s == stratum), None)
+    if draw is None:
+        raise ValueError(
+            f"stratum {stratum!r} is not one of {sorted(A2_DRAW_STRATUM.values())}. "
+            "D29 defines exactly two, and a third would be a new population with no "
+            "file to go to.")
+
+    agent_hash = assert_agent_definition_current()
+    assert_run_holds_one_draw(run, draw)
+
+    rows = judging.indomain_rows()
+    rows = rows[rows.stratum.astype(str) == stratum]
+    if rows.empty:
+        raise AssertionError(
+            f"no in-domain pairs in stratum {stratum!r} — `sample --build` first")
+
+    records = []
+    for row in rows.itertuples():
+        jd_id, cv_id = str(row.query_id), str(row.doc_id)
+        pair_id = f"{jd_id}__{cv_id}"
+        prompt = render_prompt(redact.redact_text(row.query_text),
+                               redact.redact_text(row.candidate_text))
+        assert_not_anchoring(prompt, f"pair {pair_id}")
+        records.append({"pair_id": pair_id, "query_id": jd_id, "doc_id": cv_id,
+                        "run": run, "draw": draw,
+                        # Carried so `collect` files the row as what it is rather than
+                        # defaulting it to the recheck's A1 identity.
+                        "corpus": "a2", "batch": int(row.batch), "stratum": stratum,
+                        "selection_reason": str(row.selection_reason),
+                        "prompt": prompt, "prompt_sha256": sha(prompt),
+                        "chars_sent": len(prompt), "agent_sha256": agent_hash,
+                        "model": MODEL})
+
+    overlap = guide_example_pairs() & {r["pair_id"] for r in records}
+    if overlap:
+        raise AssertionError(f"{len(overlap)} A2 pairs appear as worked examples in "
+                             f"{GUIDE}: {sorted(overlap)[:3]}")
+
+    redact.assert_clean(pd.Series([r["prompt"] for r in records]), f"a2 {stratum} dispatch")
+
+    already = {(r["pair_id"], r["run"]) for r in read_jsonl(PROMPTS)}
+    skipped = [r for r in records if (r["pair_id"], r["run"]) in already]
+    records = [r for r in records if (r["pair_id"], r["run"]) not in already]
+
+    PROMPTS.parent.mkdir(parents=True, exist_ok=True)
+    with PROMPTS.open("a", encoding="utf-8") as fh:
+        for record in records:
+            fh.write(json.dumps(record, ensure_ascii=False) + "\n")
+
+    return {"run": run, "seed": seed, "draw": draw, "stratum": stratum,
+            "pairs": len(records), "already_dispatched": len(skipped),
+            "total_in_stratum": len(rows),
             "jds": len({r["query_id"] for r in records}),
             "agent_sha256": agent_hash, "model": MODEL,
             "chars_sent_median": int(np.median([r["chars_sent"] for r in records]))
@@ -858,10 +958,16 @@ def collect() -> dict:
                 f"{key} was dispatched with draw={draw!r}. A row is filed by the draw it "
                 "was sent under, and pre-D35 prompts carry none — run `--backfill-draw` "
                 "before collecting.")
+        # Identity comes from the dispatch record, defaulting to the recheck's A1 shape.
+        # The defaults are what runs 1-4 were filed under and are kept so re-collecting
+        # reproduces the two committed files byte-for-byte; the A2 dispatch stamps its own.
         rows.append({
-            "pair_id": sent["pair_id"], "batch": 0, "stratum": "a1_recheck",
-            "corpus": "a1", "query_id": sent["query_id"], "doc_id": sent["doc_id"],
-            "selection_reason": "a1_recheck",
+            "pair_id": sent["pair_id"],
+            "batch": sent.get("batch", 0),
+            "stratum": sent.get("stratum", "a1_recheck"),
+            "corpus": sent.get("corpus", "a1"),
+            "query_id": sent["query_id"], "doc_id": sent["doc_id"],
+            "selection_reason": sent.get("selection_reason", "a1_recheck"),
             "annotator": f"llm:{row_model}:run{got['run']}",
             "label": label, "shortlist_pick": "", "notes": reason,
             "model": row_model, "agent_sha256": sent["agent_sha256"],
@@ -984,6 +1090,147 @@ def judge_frames(seed: int = 0) -> dict[str, pd.Series]:
             llm = grouped.dropna()
     return {"a1": a1, "human": human, "llm": llm, "_runs": runs,
             "_instruments": instruments, "_current": current}
+
+
+def per_class_agreement(reference: list[str], other: list[str]) -> dict:
+    """Per class of `reference`, how often `other` said the same thing.
+
+    A pooled kappa can be carried entirely by the easy class: A1-vs-llm scored 0.90 on
+    `No Fit`, 0.27 on `Potential Fit` and **0.067 on `Good Fit`**, and still came out
+    positive overall. The substitution gate therefore has a per-class clause, and this is
+    what evaluates it. Asymmetric on purpose — it is conditioned on the human's label,
+    because the human is the reference the judge would be standing in for.
+    """
+    out = {}
+    for label in session.LABELS:
+        idx = [i for i, x in enumerate(reference) if x == label]
+        out[label] = {
+            "n": len(idx),
+            "agreement": (float(np.mean([other[i] == label for i in idx]))
+                          if idx else float("nan"))}
+    return out
+
+
+def confusion(reference: list[str], other: list[str]) -> dict:
+    counts = {a: {b: 0 for b in session.LABELS} for a in session.LABELS}
+    for a, b in zip(reference, other):
+        if a in counts and b in counts[a]:
+            counts[a][b] += 1
+    return counts
+
+
+def a2_frames(stratum: str) -> dict:
+    """The human's labels and the judge's, for **one** in-domain stratum.
+
+    Deliberately not `judge_frames`. That function reads `RECHECK_CSV` and nothing else
+    and its output backs the committed D33/D34 figures; an A2 row reaching it would move
+    published numbers. Two functions, two reports, two files — the same separation D35
+    drew between the recheck and option D, one axis across.
+
+    `stratum` is a single stratum and there is no argument that pools two *(D29)*. The
+    average of `generic` and `targeted` describes no population, so the API cannot express
+    it.
+    """
+    if stratum not in A2_DRAW_STRATUM.values():
+        raise ValueError(
+            f"{stratum!r} is not an in-domain stratum. D29 defines exactly two — "
+            f"{sorted(A2_DRAW_STRATUM.values())} — and they are never pooled: a figure "
+            "over both describes no population. Ask for one, then the other.")
+    draw = next(d for d, s in A2_DRAW_STRATUM.items() if s == stratum)
+    path = DRAW_FILES[draw]
+
+    judged = session.load_judgements()
+    human = judged[(judged.corpus == "a2") & (judged.stratum.astype(str) == stratum)
+                   & judged.label.notna()]
+    human = human.drop_duplicates("pair_id").set_index("pair_id").label
+
+    llm = pd.Series(dtype=str)
+    runs: dict[int, pd.Series] = {}
+    current = sha(AGENT_DEF.read_text(encoding="utf-8")) if AGENT_DEF.exists() else ""
+    if path.exists():
+        frame = pd.read_csv(path)
+        frame = frame[frame.parsed_ok.astype(str).str.lower().isin(("true", "1"))]
+        for run, chunk in frame.groupby("run"):
+            runs[int(run)] = chunk.drop_duplicates("pair_id").set_index("pair_id").label
+        live = frame[frame.agent_sha256.astype(str) == current]
+        if len(live):
+            llm = live.groupby("pair_id").label.apply(
+                lambda s: majority(list(s))).dropna()
+    return {"human": human, "llm": llm, "_runs": runs, "_draw": draw,
+            "_current": current, "_path": path}
+
+
+def a2_report(seed: int = 0, strict: bool = True) -> dict:
+    """kappa(yc, llm) per in-domain stratum. Never an average of the two *(D29)*.
+
+    Every figure carries `n_dispatched` beside `n_scored` and, while `strict`, the report
+    **refuses to compute a kappa over a run that is short** *(fix F3)*. A judging pass that
+    lost pairs to an empty balance did not sample a smaller version of the population; it
+    sampled whichever pairs answered fastest, which correlates with document length. The
+    resulting kappa is not the figure it appears to be, and nothing downstream would say
+    so. Pass `strict=False` only to inspect a partial run, never to quote one.
+    """
+    out: dict = {"model": MODEL, "seed": seed,
+                 "generated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+                 "strata": {}}
+    for draw, stratum in sorted(A2_DRAW_STRATUM.items()):
+        frames = a2_frames(stratum)
+        out["current_agent_sha256"] = frames["_current"]
+        dispatched_runs = sorted({r["run"] for r in read_jsonl(PROMPTS)
+                                  if r.get("draw") == draw})
+        coverage = {str(run): run_coverage(run) for run in dispatched_runs}
+        short = [run for run, cov in coverage.items() if not cov["complete"]]
+
+        section: dict = {"draw": draw, "file": str(frames["_path"]),
+                         "runs": dispatched_runs, "coverage": coverage,
+                         "n_human": len(frames["human"]), "n_llm": len(frames["llm"])}
+        if not dispatched_runs:
+            section["status"] = "not dispatched"
+            out["strata"][stratum] = section
+            continue
+        if short and strict:
+            section["status"] = "refused"
+            section["note"] = (
+                f"run(s) {short} are short: pairs were dispatched that never answered. A "
+                "kappa over the survivors is a kappa over whichever pairs answered "
+                "fastest, not over this stratum. Re-run `--judge` for those runs.")
+            out["strata"][stratum] = section
+            continue
+
+        common = frames["human"].index.intersection(frames["llm"].index)
+        a = frames["human"].loc[common].tolist()
+        b = frames["llm"].loc[common].tolist()
+        section["status"] = "scored" if len(common) else "no overlap"
+        section["n_scored"] = len(common)
+        section["n_dispatched"] = sum(c["n_dispatched"] for c in coverage.values())
+        if len(common):
+            section["human_vs_llm"] = kappa_ci(a, b, seed=seed)
+            section["human_vs_llm_binary"] = kappa_ci(
+                collapse(a), collapse(b), seed=seed, labels=BINARY)
+            section["per_class"] = per_class_agreement(a, b)
+            section["confusion_human_rows"] = confusion(a, b)
+            section["confusion_llm_rows"] = confusion(b, a)
+        # Self-consistency is a property of one judge over one draw.
+        section["self_consistency"] = {
+            f"run{x}_vs_run{y}": kappa_ci(
+                frames["_runs"][x].loc[idx].tolist(),
+                frames["_runs"][y].loc[idx].tolist(), seed=seed)
+            for i, x in enumerate(sorted(frames["_runs"]))
+            for y in sorted(frames["_runs"])[i + 1:]
+            if len(idx := frames["_runs"][x].index.intersection(
+                frames["_runs"][y].index))}
+        out["strata"][stratum] = section
+
+    out["note_never_pooled"] = (
+        "`generic` and `targeted` are two populations (D29). Both figures are true "
+        "statements; their average is not, and this report has no field holding one.")
+    out["note_separate_from_a1"] = (
+        "These figures are over the in-domain corpus and share no code path with "
+        "llm-recheck-report.json, which is the A1 recheck. `judge_frames` does not read "
+        "the A2 files.")
+    A2_REPORT.parent.mkdir(parents=True, exist_ok=True)
+    A2_REPORT.write_text(json.dumps(out, indent=2) + "\n", encoding="utf-8")
+    return out
 
 
 def report(seed: int = 0) -> dict:
@@ -1129,6 +1376,14 @@ def main() -> int:
     ap.add_argument("--dispatch", action="store_true")
     ap.add_argument("--all-a1", action="store_true",
                     help="dispatch all 659 A1 pairs (option D), not just the recheck")
+    ap.add_argument("--a2", choices=sorted(A2_DRAW_STRATUM.values()), default=None,
+                    help="dispatch one in-domain stratum (D29 — never both at once)")
+    ap.add_argument("--a2-report", action="store_true",
+                    help="kappa(yc, llm) per in-domain stratum, written to "
+                         "output/annotation/llm-a2-report.json")
+    ap.add_argument("--allow-short-run", action="store_true",
+                    help="compute A2 figures over an incomplete run (F3). For inspection "
+                         "only — never quote the result")
     ap.add_argument("--judge", action="store_true",
                     help="run the committed judge over the dispatched prompts")
     ap.add_argument("--concurrency", type=int, default=CONCURRENCY)
@@ -1151,6 +1406,8 @@ def main() -> int:
         print(f"wrote {AGENT_DEF}  sha256={sha(render_agent_definition())[:12]}")
     if args.dispatch and args.all_a1:
         print(json.dumps(dispatch_all_a1(args.run, args.seed), indent=2))
+    elif args.dispatch and args.a2:
+        print(json.dumps(dispatch_a2(args.a2, args.run, args.seed), indent=2))
     elif args.dispatch:
         print(json.dumps(dispatch(args.run, args.seed, args.subsample), indent=2))
     if args.backfill_draw:
@@ -1168,6 +1425,11 @@ def main() -> int:
         print(json.dumps(run_coverage(args.run), indent=2))
     if args.collect:
         print(json.dumps(collect(), indent=2))
+    if args.a2_report:
+        out = a2_report(args.seed, strict=not args.allow_short_run)
+        print(json.dumps({k: v for k, v in out.items()
+                          if not k.startswith("note_")}, indent=2))
+        print(f"-> {A2_REPORT}")
     if args.report:
         out = report(args.seed)
         print(json.dumps({k: v for k, v in out.items()
@@ -1176,7 +1438,7 @@ def main() -> int:
         print(f"{len(out['disagreements'])} pairs where the three judges differ "
               f"-> {REPORT}")
     if not any((args.agent, args.dispatch, args.backfill_draw, args.judge, args.collect,
-                args.coverage, args.report)):
+                args.coverage, args.report, args.a2_report)):
         ap.print_help()
     return 0
 

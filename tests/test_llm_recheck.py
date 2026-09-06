@@ -855,3 +855,211 @@ def test_no_figure_may_be_quoted_over_a_run_that_is_short(tmp_path, monkeypatch)
         llm.judge(1, concurrency=1)
     with pytest.raises(llm.JudgeFailures):
         llm.assert_run_complete(1)
+
+
+# --- the in-domain draws (plan/2026-09-06-a2-llm-prelabel) ------------------
+
+def _indomain(monkeypatch, n_generic=2, n_targeted=2):
+    """A tiny two-stratum in-domain frame, in `indomain_rows()`'s shape."""
+    rows = []
+    for i in range(n_generic):
+        rows.append({"corpus": "a2", "batch": 1, "stratum": "generic",
+                     "query_id": f"g_jd_{i}", "doc_id": f"g_cv_{i}",
+                     "selection_reason": "indomain_banded",
+                     "query_text": f"generic jd {i}", "candidate_text": f"generic cv {i}",
+                     "a1_label": None})
+    for i in range(n_targeted):
+        rows.append({"corpus": "a2", "batch": 2, "stratum": "targeted",
+                     "query_id": f"t_jd_{i}", "doc_id": f"t_cv_{i}",
+                     "selection_reason": "indomain_banded",
+                     "query_text": f"targeted jd {i}", "candidate_text": f"targeted cv {i}",
+                     "a1_label": None})
+    frame = pd.DataFrame(rows)
+    monkeypatch.setattr(llm.judging, "indomain_rows", lambda: frame.copy())
+    return frame
+
+
+def _stage_a2_dispatch(tmp_path, monkeypatch):
+    prompts = tmp_path / "p.jsonl"
+    prompts.write_text("")
+    monkeypatch.setattr(llm, "PROMPTS", prompts)
+    monkeypatch.setattr(llm, "assert_agent_definition_current", lambda: "sha")
+    _indomain(monkeypatch)
+    return prompts
+
+
+def test_each_a2_stratum_goes_to_its_own_draw_and_file(tmp_path, monkeypatch):
+    """D29 composed with D35: two populations, so two draws and two files.
+
+    The average of `generic` and `targeted` describes nothing, and after this the
+    pooled figure is not merely forbidden — there is no file holding it.
+    """
+    prompts = _stage_a2_dispatch(tmp_path, monkeypatch)
+
+    llm.dispatch_a2("generic", run=5)
+    llm.dispatch_a2("targeted", run=6)
+    sent = llm.read_jsonl(prompts)
+
+    by_draw = {}
+    for r in sent:
+        by_draw.setdefault(r["draw"], set()).add(r["pair_id"])
+    assert set(by_draw) == {llm.A2_GENERIC_DRAW, llm.A2_TARGETED_DRAW}
+    assert all(p.startswith("g_") for p in by_draw[llm.A2_GENERIC_DRAW])
+    assert all(p.startswith("t_") for p in by_draw[llm.A2_TARGETED_DRAW])
+    assert llm.DRAW_FILES[llm.A2_GENERIC_DRAW] != llm.DRAW_FILES[llm.A2_TARGETED_DRAW]
+    assert all(r["corpus"] == "a2" for r in sent)
+
+
+def test_an_a2_draw_may_not_land_on_a_run_another_draw_holds(tmp_path, monkeypatch):
+    """D35's guard has to cover the new draws in both directions."""
+    prompts = _stage_a2_dispatch(tmp_path, monkeypatch)
+    llm.dispatch_a2("generic", run=5)
+
+    with pytest.raises(llm.MixedDraw):
+        llm.dispatch_a2("targeted", run=5)
+
+    prompts.write_text(json.dumps({
+        "pair_id": "j_0__r_00", "query_id": "j_0", "doc_id": "r_00", "run": 7,
+        "draw": llm.RECHECK_DRAW, "prompt": "x", "prompt_sha256": "a",
+        "chars_sent": 1, "agent_sha256": "sha", "model": llm.MODEL}) + "\n")
+    with pytest.raises(llm.MixedDraw):
+        llm.dispatch_a2("generic", run=7)
+
+
+def test_the_a2_prompt_cannot_carry_the_label_the_human_gave(tmp_path, monkeypatch):
+    """The 400 `generic` pairs already have `yc` labels; the judge must not see one.
+
+    Structural, not instructed: `indomain_rows()` joins no judgement, so there is no
+    column to leak. This asserts the frame's shape rather than the prompt's text, because
+    a prompt-text check passes for the wrong reason once the column exists.
+    """
+    _stage_a2_dispatch(tmp_path, monkeypatch)
+    rows = llm.judging.indomain_rows()
+    assert "label" not in rows.columns, "a joined human label would be one line from here"
+    assert rows.a1_label.isna().all()
+
+    # The operational form of the same property: the prompt does not move when the
+    # judgements file does. The three class names appear in every prompt — they are the
+    # output schema the judge is told to use — so their presence proves nothing either
+    # way, and this is the assertion that does.
+    llm.dispatch_a2("generic", run=5)
+    without = [r["prompt_sha256"] for r in llm.read_jsonl(tmp_path / "p.jsonl")]
+
+    judgements = tmp_path / "judgements.csv"
+    pd.DataFrame([{
+        "pair_id": "g_jd_0__g_cv_0", "batch": 1, "stratum": "generic", "corpus": "a2",
+        "query_id": "g_jd_0", "doc_id": "g_cv_0",
+        "selection_reason": "indomain_banded", "annotator": "yc", "label": "Good Fit",
+        "shortlist_pick": 0, "notes": ""}]).to_csv(judgements, index=False)
+    monkeypatch.setattr(llm.judging, "JUDGEMENTS", judgements)
+    monkeypatch.setattr(llm, "PROMPTS", tmp_path / "p2.jsonl")
+
+    llm.dispatch_a2("generic", run=5)
+    assert [r["prompt_sha256"] for r in llm.read_jsonl(tmp_path / "p2.jsonl")] == without, (
+        "the prompt changed when a human label existed — the judge is being anchored")
+
+
+def test_a2_dispatch_refuses_a_stratum_d29_does_not_define(tmp_path, monkeypatch):
+    _stage_a2_dispatch(tmp_path, monkeypatch)
+    with pytest.raises(ValueError, match="not one of"):
+        llm.dispatch_a2("everything", run=5)
+
+
+def test_collect_reproduces_the_a1_identity_for_records_that_predate_a2(
+        tmp_path, monkeypatch):
+    """`collect` reads identity from the dispatch record now. Runs 1-4 carry none.
+
+    Mutation: drop the defaults — this fails. The two committed A1 files would be
+    rewritten with empty corpus/stratum columns on the next `--collect`.
+    """
+    out, _ = _stage(tmp_path, monkeypatch, [
+        {"pair_id": "j_0__r_00", "run": 1,
+         "raw": '{"label":"Good Fit","reason":"ok"}'}])
+    llm.collect()
+    row = pd.read_csv(out).iloc[0]
+    assert (row.corpus, row.stratum, row.batch, row.selection_reason) == (
+        "a1", "a1_recheck", 0, "a1_recheck")
+
+
+def test_collect_files_an_a2_row_as_a2(tmp_path, monkeypatch):
+    generic = tmp_path / "llm-a2-generic.csv"
+    _stage(tmp_path, monkeypatch, [
+        {"pair_id": "g_jd_0__g_cv_0", "run": 5,
+         "raw": '{"label":"No Fit","reason":"ok"}'}],
+        dispatched=[{
+            "pair_id": "g_jd_0__g_cv_0", "query_id": "g_jd_0", "doc_id": "g_cv_0",
+            "run": 5, "draw": llm.A2_GENERIC_DRAW, "corpus": "a2", "batch": 1,
+            "stratum": "generic", "selection_reason": "indomain_banded",
+            "prompt": "x", "prompt_sha256": "abc", "chars_sent": 1,
+            "agent_sha256": "def", "model": llm.MODEL}])
+    monkeypatch.setattr(llm, "DRAW_FILES", {llm.A2_GENERIC_DRAW: generic})
+    llm.collect()
+    row = pd.read_csv(generic).iloc[0]
+    assert (row.corpus, row.stratum, row.batch, row.draw) == (
+        "a2", "generic", 1, llm.A2_GENERIC_DRAW)
+
+
+def test_no_a2_figure_may_be_asked_for_over_both_strata(tmp_path, monkeypatch):
+    """D29's refusal, expressed in the API rather than in a comment."""
+    with pytest.raises(ValueError, match="never pooled"):
+        llm.a2_frames("all")
+    with pytest.raises(ValueError, match="never pooled"):
+        llm.a2_frames("generic+targeted")
+
+
+def test_judge_frames_is_untouched_by_the_existence_of_a2_files(tmp_path, monkeypatch):
+    """The test that protects the committed D33/D34 figures.
+
+    `judge_frames` reads `RECHECK_CSV` and nothing else. If an A2 file could reach it,
+    every published kappa would move the first time Phase 0 collected.
+    """
+    agent = "a" * 64
+    recheck = tmp_path / "llm-recheck.csv"
+    pd.DataFrame([{
+        "pair_id": "j_0__r_00", "batch": 0, "stratum": "a1_recheck", "corpus": "a1",
+        "query_id": "j_0", "doc_id": "r_00", "selection_reason": "a1_recheck",
+        "annotator": "llm:m:run1", "label": "Good Fit", "shortlist_pick": "",
+        "notes": "", "model": "m", "agent_sha256": agent, "prompt_sha256": "p",
+        "run": 1, "chars_sent": 1, "parsed_ok": True, "judged_at": "",
+        "draw": llm.RECHECK_DRAW}]).to_csv(recheck, index=False)
+
+    agent_def = tmp_path / "a1-judge.md"
+    agent_def.write_text("judge", encoding="utf-8")
+    monkeypatch.setattr(llm, "RECHECK_CSV", recheck)
+    monkeypatch.setattr(llm, "AGENT_DEF", agent_def)
+    monkeypatch.setattr(llm, "sha", lambda text: agent)
+    monkeypatch.setattr(llm.judging, "a1_recheck", lambda strata, seed=0: pd.DataFrame(
+        {"query_id": ["j_0"], "doc_id": ["r_00"], "a1_label": ["Good Fit"]}))
+    monkeypatch.setattr(llm.session, "load_judgements", lambda: pd.DataFrame(
+        columns=["pair_id", "corpus", "label"]))
+
+    before = llm.judge_frames(0)["llm"].to_dict()
+
+    # Now put A2 rows on disk, in both in-domain files.
+    for draw in (llm.A2_GENERIC_DRAW, llm.A2_TARGETED_DRAW):
+        path = tmp_path / f"{draw}.csv"
+        pd.DataFrame([{
+            "pair_id": f"{draw}_jd__cv", "batch": 1,
+            "stratum": llm.A2_DRAW_STRATUM[draw], "corpus": "a2",
+            "query_id": f"{draw}_jd", "doc_id": "cv",
+            "selection_reason": "indomain_banded", "annotator": "llm:m:run5",
+            "label": "No Fit", "shortlist_pick": "", "notes": "", "model": "m",
+            "agent_sha256": agent, "prompt_sha256": "p", "run": 5, "chars_sent": 1,
+            "parsed_ok": True, "judged_at": "", "draw": draw}]).to_csv(path, index=False)
+        monkeypatch.setitem(llm.DRAW_FILES, draw, path)
+
+    assert llm.judge_frames(0)["llm"].to_dict() == before, (
+        "an A2 row reached judge_frames — every published A1 kappa would move")
+
+
+def test_per_class_agreement_catches_a_kappa_carried_by_one_class(tmp_path):
+    """A1-vs-llm scored 0.90 / 0.27 / 0.067 per class and still came out positive.
+
+    The gate's second clause exists because of that, and this is what evaluates it.
+    """
+    human = ["No Fit"] * 8 + ["Good Fit"] * 2
+    judge = ["No Fit"] * 8 + ["No Fit"] * 2
+    out = llm.per_class_agreement(human, judge)
+    assert out["No Fit"] == {"n": 8, "agreement": 1.0}
+    assert out["Good Fit"] == {"n": 2, "agreement": 0.0}
+    assert out["Potential Fit"]["n"] == 0

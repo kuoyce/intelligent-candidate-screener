@@ -518,13 +518,18 @@ def check_llm_recheck() -> list[tuple[bool, str]]:
     # A run number holds one draw *(D35)*. The two files are the only place that invariant
     # is visible after the fact, because a mixed run reads as one instrument, one run and a
     # plausible row count — which is exactly how option D absorbed D33's run 2.
-    if len(frames) == 2:
-        shared = set(frames[llm.RECHECK_DRAW].run) & set(frames[llm.FULL_A1_DRAW].run)
-        unexpected = sorted(shared - llm.LEGACY_MIXED_RUNS)
-        results.append((not unexpected,
-                        f"one draw per run: run(s) {unexpected or 'none'} appear in both "
-                        "llm-recheck.csv and llm-recheck-full-a1.csv, beyond the declared "
-                        f"pre-D35 mixture {sorted(llm.LEGACY_MIXED_RUNS)}"))
+    # Every pair of draws, not just the first two: the in-domain draws made this four
+    # files, and a check written for exactly two would have stopped covering the ones
+    # added last while still reporting PASS.
+    for i, x in enumerate(sorted(frames)):
+        for y in sorted(frames)[i + 1:]:
+            shared = set(frames[x].run) & set(frames[y].run)
+            unexpected = sorted(shared - llm.LEGACY_MIXED_RUNS)
+            results.append((not unexpected,
+                            f"one draw per run: run(s) {unexpected or 'none'} appear in "
+                            f"both {llm.DRAW_FILES[x].name} and {llm.DRAW_FILES[y].name}, "
+                            "beyond the declared pre-D35 mixture "
+                            f"{sorted(llm.LEGACY_MIXED_RUNS)}"))
 
     ids = lambda f: set(f.query_id.astype(str) + "__" + f.doc_id.astype(str))  # noqa: E731
     recheck_ids, human_ids = set(), set()
@@ -556,6 +561,40 @@ def check_llm_recheck() -> list[tuple[bool, str]]:
         else:
             results.append((True, "scope: fit/test.parquet not built — option-D pair set "
                                   "unverifiable on this machine"))
+
+    # The in-domain draws. A row's stratum is what routes it to a file, so the check that
+    # matters is that the pair really is in that stratum of the manifest — not merely that
+    # it is an A2 pair. `stratum` is stamped at dispatch and never looked up later (D29),
+    # which is what this catches drifting.
+    a2_draws = [d for d in llm.A2_DRAW_STRATUM if d in frames]
+    if a2_draws:
+        try:
+            rows = queue.indomain_rows()
+            rows["pair_id"] = (rows.query_id.astype(str) + "__"
+                               + rows.doc_id.astype(str))
+        except (FileNotFoundError, OSError):
+            rows = None
+        for draw in a2_draws:
+            stratum = llm.A2_DRAW_STRATUM[draw]
+            frame = frames[draw]
+            name = llm.DRAW_FILES[draw].name
+            if rows is None:
+                results.append((True, f"scope: indomain-pairs.csv not built — {name} "
+                                      "pair set unverifiable on this machine"))
+                continue
+            allowed = set(rows[rows.stratum.astype(str) == stratum].pair_id)
+            stray = sorted(set(frame.pair_id) - allowed)
+            results.append((not stray, f"scope: {len(stray)} pair(s) in {name} are not "
+                                       f"among the {len(allowed)} in-domain pairs of "
+                                       f"stratum {stratum!r}"))
+            wrong = frame[frame.stratum.astype(str) != stratum]
+            results.append((wrong.empty,
+                            f"stratum purity: {len(wrong)} row(s) in {name} carry a "
+                            f"stratum other than {stratum!r} — the two strata are never "
+                            "pooled (D29), so a file holds exactly one"))
+            off_corpus = frame[frame.corpus.astype(str) != "a2"]
+            results.append((off_corpus.empty,
+                            f"corpus: {len(off_corpus)} row(s) in {name} are not a2"))
     return results
 
 
