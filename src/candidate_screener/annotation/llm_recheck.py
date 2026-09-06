@@ -37,11 +37,18 @@ Usage:
     uv run python -m candidate_screener.annotation.llm_recheck --agent      # (re)write the judge
     uv run python -m candidate_screener.annotation.llm_recheck --dispatch --run 1
     uv run python -m candidate_screener.annotation.llm_recheck --dispatch --run 5 --subsample 20
-    uv run python -m candidate_screener.annotation.llm_recheck --dispatch --all-a1 --run 6
+    uv run python -m candidate_screener.annotation.llm_recheck --dispatch --all-a1 --run n
     uv run python -m candidate_screener.annotation.llm_recheck --backfill-draw   # pre-D35 prompts
-    uv run python -m candidate_screener.annotation.llm_recheck --judge --run 1
+    uv run python -m candidate_screener.annotation.llm_recheck --judge --run 1 --limit 100
+    uv run python -m candidate_screener.annotation.llm_recheck --coverage --run 1
     uv run python -m candidate_screener.annotation.llm_recheck --collect
     uv run python -m candidate_screener.annotation.llm_recheck --report
+
+**A run that lost spawns is not a smaller sample.** `--judge` quarantines any pair whose
+process never answered and exits non-zero rather than reporting itself complete *(fixes
+F1/F2, `plan/2026-09-06-a2-llm-prelabel`)*. Recovery is to fix the cause — usually an
+empty balance — and re-run the same `--judge` command, which retries exactly those pairs.
+`--coverage` shows dispatched against answered; do not `--collect` a run that is short.
 """
 from __future__ import annotations
 
@@ -69,6 +76,16 @@ GUIDE = DOCS / "annotation-guide.md"
 AGENT_DEF = PROJECT_ROOT / ".claude" / "agents" / "a1-judge.md"
 PROMPTS = PROCESSED / "indomain" / "llm-recheck-prompts.jsonl"
 RAW = PROCESSED / "indomain" / "llm-recheck-raw.jsonl"
+
+#: Spawns that never produced an answer — credit exhaustion, a rate limit, a timeout, a
+#: missing CLI *(fix F1, plan/2026-09-06-a2-llm-prelabel)*. They are **not** returns, and
+#: the distinction is the whole point of the file: `judge()` resumes from `RAW`, so a
+#: failure written there is indistinguishable from a finished pair and is never retried.
+#: A run that lost 150 pairs to an empty balance would report `remaining: 0`, and the
+#: kappa would be computed over whatever `as_completed` returned before the wall — which
+#: is completion-latency order, not a random sample. Quarantining here keeps the pair in
+#: `todo`, so recovery is: top up, re-run `--judge`, done.
+FAILED = PROCESSED / "indomain" / "llm-judge-failed.jsonl"
 RECHECK_CSV = MANIFESTS / "llm-recheck.csv"
 FULL_A1_CSV = MANIFESTS / "llm-recheck-full-a1.csv"
 REPORT = OUTPUT / "annotation" / "llm-recheck-report.json"
@@ -559,6 +576,55 @@ class JudgeNotIsolated(RuntimeError):
     pass
 
 
+class JudgeUnavailable(RuntimeError):
+    """The spawn never produced an answer. Infrastructure, not data *(F1)*.
+
+    Raised by `judge_one` and caught by `judge`, which quarantines the pair instead of
+    filing it as a return. `kind` is a coarse cause used only for the operator summary —
+    every kind is handled identically, because the pair is retried either way.
+    """
+
+    def __init__(self, kind: str, detail: str):
+        super().__init__(f"{kind}: {detail}")
+        self.kind, self.detail = kind, detail
+
+
+class JudgeFailures(RuntimeError):
+    """`judge()` lost pairs to infrastructure *(fix F2)*.
+
+    It raises rather than returning, because every downstream step reads as success: the
+    successful returns are already in `RAW`, `collect()` files them without complaint, and
+    a report over them carries an `n` that looks like a smaller sample rather than a
+    truncated one. The operator has to learn about this here or not at all.
+    """
+
+    def __init__(self, summary: dict):
+        self.summary = summary
+        kinds = ", ".join(f"{k}={v}" for k, v in sorted(summary["kinds"].items()))
+        super().__init__(
+            f"run {summary['run']}: {summary['failed']} of "
+            f"{summary['attempted']} spawns produced no answer ({kinds}). "
+            f"{summary['judged_now']} returns were kept and "
+            f"{summary['remaining']} pairs are still unjudged. Nothing was lost — the "
+            f"failed pairs stayed out of {summary['raw']} and are quarantined in "
+            f"{summary['failed_log']}, so re-running `--judge --run {summary['run']}` "
+            "retries exactly them. Do not `--collect` a run that is short: a kappa over "
+            "the survivors is a kappa over whichever pairs answered fastest.")
+
+
+#: Substrings that name an exhausted balance or a throttle rather than a broken install.
+#: Used only to label the operator summary — the handling is identical either way.
+QUOTA_MARKERS = ("credit balance", "usage limit", "rate limit", "quota", "429",
+                 "insufficient", "billing", "too many requests")
+
+
+def classify_failure(returncode: int, stderr: str) -> str:
+    lowered = (stderr or "").lower()
+    if any(marker in lowered for marker in QUOTA_MARKERS):
+        return "quota"
+    return f"exit{returncode}"
+
+
 def assert_isolated(cwd: Path) -> None:
     """The judge's cwd, and every ancestor, carries no project context but the agent.
 
@@ -595,17 +661,31 @@ def judge_sandbox(stack) -> Path:
 
 
 def judge_one(record: dict, cwd: Path) -> dict:
-    """One pair, one process, one label. The process holds no tools and no repository."""
-    proc = subprocess.run(
-        [shutil.which("claude") or "claude", "-p", "--agent", "a1-judge"],
-        input=record["prompt"], cwd=str(cwd), capture_output=True, text=True,
-        timeout=JUDGE_TIMEOUT_S, check=False)
-    raw = proc.stdout.strip()
-    if proc.returncode != 0 and not raw:
-        raw = f"<judge exited {proc.returncode}: {proc.stderr.strip()[:300]}>"
+    """One pair, one process, one label. The process holds no tools and no repository.
+
+    **A non-zero exit is never a return** *(F1)*. A healthy judge exits 0; anything else is
+    the CLI reporting that it could not do the task, and filing that as data would let an
+    exhausted balance enter the corpus as a judgement the parser then rejects — at which
+    point it is indistinguishable from a judge that answered badly. Only what a
+    successfully-exited process wrote is data, and an empty stdout from a clean exit is
+    still data: the judge ran and said nothing, which `parse_return` should see.
+    """
+    try:
+        proc = subprocess.run(
+            [shutil.which("claude") or "claude", "-p", "--agent", "a1-judge"],
+            input=record["prompt"], cwd=str(cwd), capture_output=True, text=True,
+            timeout=JUDGE_TIMEOUT_S, check=False)
+    except subprocess.TimeoutExpired as exc:
+        raise JudgeUnavailable("timeout", f"no answer in {JUDGE_TIMEOUT_S}s") from exc
+    except OSError as exc:                                       # `claude` not on PATH
+        raise JudgeUnavailable("spawn", f"{type(exc).__name__}: {exc}") from exc
+    if proc.returncode != 0:
+        raise JudgeUnavailable(
+            classify_failure(proc.returncode, proc.stderr),
+            f"exit {proc.returncode}: {(proc.stderr or '').strip()[:300]}")
     return {"pair_id": record["pair_id"], "run": record["run"],
             "returned_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
-            "raw": raw}
+            "raw": proc.stdout.strip()}
 
 
 def judge(run: int, concurrency: int = CONCURRENCY, limit: int | None = None) -> dict:
@@ -636,27 +716,79 @@ def judge(run: int, concurrency: int = CONCURRENCY, limit: int | None = None) ->
         todo = todo[:limit]
 
     returned = 0
+    kinds: collections.Counter[str] = collections.Counter()
     with contextlib.ExitStack() as stack:
         cwd = judge_sandbox(stack)
         RAW.parent.mkdir(parents=True, exist_ok=True)
-        with RAW.open("a", encoding="utf-8") as fh:
-            with concurrent.futures.ThreadPoolExecutor(concurrency) as pool:
-                futures = {pool.submit(judge_one, rec, cwd): rec for rec in todo}
-                for future in concurrent.futures.as_completed(futures):
-                    rec = futures[future]
-                    try:
-                        got = future.result()
-                    except Exception as exc:                    # noqa: BLE001
-                        got = {"pair_id": rec["pair_id"], "run": rec["run"],
-                               "returned_at": datetime.now(timezone.utc)
-                                              .isoformat(timespec="seconds"),
-                               "raw": f"<judge failed: {type(exc).__name__}: {exc}>"}
-                    fh.write(json.dumps(got, ensure_ascii=False) + "\n")
-                    fh.flush()
+        fh = stack.enter_context(RAW.open("a", encoding="utf-8"))
+        failed_fh = stack.enter_context(FAILED.open("a", encoding="utf-8"))
+        with concurrent.futures.ThreadPoolExecutor(concurrency) as pool:
+            futures = {pool.submit(judge_one, rec, cwd): rec for rec in todo}
+            for future in concurrent.futures.as_completed(futures):
+                rec = futures[future]
+                try:
+                    got = future.result()
+                except JudgeUnavailable as exc:
+                    kinds[exc.kind] += 1
+                    sink, row = failed_fh, {
+                        "pair_id": rec["pair_id"], "run": rec["run"],
+                        "failed_at": datetime.now(timezone.utc)
+                                     .isoformat(timespec="seconds"),
+                        "kind": exc.kind, "detail": exc.detail}
+                except Exception as exc:                        # noqa: BLE001
+                    # Anything unforeseen is infrastructure too. The old branch wrote it
+                    # to RAW as a `<judge failed: ...>` string, which is the bug F1 fixes.
+                    kinds["error"] += 1
+                    sink, row = failed_fh, {
+                        "pair_id": rec["pair_id"], "run": rec["run"],
+                        "failed_at": datetime.now(timezone.utc)
+                                     .isoformat(timespec="seconds"),
+                        "kind": "error", "detail": f"{type(exc).__name__}: {exc}"}
+                else:
+                    sink, row = fh, got
                     returned += 1
-    return {"run": run, "dispatched": len(dispatched), "already_judged": len(done),
-            "judged_now": returned, "remaining": remaining - returned,
-            "concurrency": concurrency, "limit": limit, "raw": str(RAW)}
+                sink.write(json.dumps(row, ensure_ascii=False) + "\n")
+                sink.flush()
+
+    summary = {"run": run, "dispatched": len(dispatched), "already_judged": len(done),
+               "attempted": len(todo), "judged_now": returned,
+               "failed": sum(kinds.values()), "kinds": dict(kinds),
+               "remaining": remaining - returned,
+               "concurrency": concurrency, "limit": limit, "raw": str(RAW),
+               "failed_log": str(FAILED)}
+    if summary["failed"]:
+        raise JudgeFailures(summary)
+    return summary
+
+
+def run_coverage(run: int) -> dict:
+    """Dispatched, answered, quarantined — for one run *(F3's primitive)*.
+
+    A kappa is a figure over a population, and a run that lost pairs to infrastructure
+    sampled a different one. Any report quoting this judge must carry `n_dispatched`
+    beside `n_scored` and refuse to print a kappa while they differ; this is the function
+    that lets it, and `assert_run_complete` is the refusal.
+    """
+    dispatched = {r["pair_id"] for r in read_jsonl(PROMPTS) if r["run"] == run}
+    answered = {r["pair_id"] for r in read_jsonl(RAW) if r["run"] == run}
+    quarantined = {r["pair_id"] for r in read_jsonl(FAILED) if r["run"] == run}
+    return {"run": run, "n_dispatched": len(dispatched), "n_answered": len(answered),
+            "n_quarantined": len(quarantined - answered),
+            "n_missing": len(dispatched - answered),
+            "complete": dispatched == answered and bool(dispatched)}
+
+
+def assert_run_complete(run: int) -> dict:
+    """Refuse to quote a figure over a run that is short *(F2/F3)*."""
+    cov = run_coverage(run)
+    if not cov["complete"]:
+        raise JudgeFailures({
+            "run": run, "attempted": cov["n_dispatched"],
+            "judged_now": cov["n_answered"], "failed": cov["n_missing"],
+            "kinds": {"unanswered": cov["n_missing"]},
+            "remaining": cov["n_missing"], "raw": str(RAW),
+            "failed_log": str(FAILED)})
+    return cov
 
 
 # --- collect ---------------------------------------------------------------
@@ -1005,6 +1137,8 @@ def main() -> int:
     ap.add_argument("--backfill-draw", action="store_true",
                     help="stamp `draw` on prompt records dispatched before D35 (one time)")
     ap.add_argument("--collect", action="store_true")
+    ap.add_argument("--coverage", action="store_true",
+                    help="dispatched vs answered vs quarantined, for --run (F3)")
     ap.add_argument("--report", action="store_true")
     ap.add_argument("--run", type=int, default=1)
     ap.add_argument("--subsample", type=int, default=None)
@@ -1022,7 +1156,16 @@ def main() -> int:
     if args.backfill_draw:
         print(json.dumps(backfill_draw(args.seed), indent=2))
     if args.judge:
-        print(json.dumps(judge(args.run, args.concurrency, args.limit), indent=2))
+        try:
+            print(json.dumps(judge(args.run, args.concurrency, args.limit), indent=2))
+        except JudgeFailures as exc:
+            # Exit non-zero and say what to do. A failed judging pass that printed a
+            # summary and returned 0 is how a short run reaches `--collect` (F2).
+            print(json.dumps(exc.summary, indent=2))
+            print(f"\n{exc}")
+            return 1
+    if args.coverage:
+        print(json.dumps(run_coverage(args.run), indent=2))
     if args.collect:
         print(json.dumps(collect(), indent=2))
     if args.report:
@@ -1033,7 +1176,7 @@ def main() -> int:
         print(f"{len(out['disagreements'])} pairs where the three judges differ "
               f"-> {REPORT}")
     if not any((args.agent, args.dispatch, args.backfill_draw, args.judge, args.collect,
-                args.report)):
+                args.coverage, args.report)):
         ap.print_help()
     return 0
 

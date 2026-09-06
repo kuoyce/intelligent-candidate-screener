@@ -7,6 +7,7 @@ inline synthetic frames: no `data/`, no network, and **no subagent is ever spawn
 from __future__ import annotations
 
 import json
+import subprocess
 
 import pandas as pd
 import pytest
@@ -482,6 +483,9 @@ def _staged_judge(tmp_path, monkeypatch, returns):
         "model": llm.MODEL}) for i in range(3)) + "\n")
     monkeypatch.setattr(llm, "PROMPTS", prompts)
     monkeypatch.setattr(llm, "RAW", raw)
+    # F1 gave `judge()` a second sink. Unpatched it defaults to the real data directory,
+    # where a test's quarantine rows would then be counted by `run_coverage`.
+    monkeypatch.setattr(llm, "FAILED", tmp_path / "f.jsonl")
     calls = []
 
     def fake(record, cwd):
@@ -526,17 +530,31 @@ def test_judging_refuses_prompts_dispatched_against_a_different_judge(
     assert not raw.exists()
 
 
-def test_a_judge_that_crashes_is_recorded_rather_than_dropped(tmp_path, monkeypatch):
-    """A missing pair and a failed pair are different findings; only one is silent."""
+def test_a_judge_that_crashes_is_recorded_but_not_as_a_return(tmp_path, monkeypatch):
+    """A missing pair and a failed pair are different findings; neither is silent.
+
+    Rewritten by fix F1 (plan/2026-09-06-a2-llm-prelabel). This test previously asserted
+    the bug: it required the crash to land in `RAW` as `<judge failed: ...>` and counted
+    it in `judged_now`. `judge()` resumes from `RAW`, so that made a crashed pair
+    permanently un-retryable while the run reported itself complete — and the figure was
+    then computed over whatever survived. The finding is still recorded, in the quarantine
+    file, where it does not masquerade as an answer.
+    """
     raw, _ = _staged_judge(tmp_path, monkeypatch, '{"label":"No Fit","reason":"x"}')
 
     def boom(record, cwd):
         raise TimeoutError("judge took too long")
 
     monkeypatch.setattr(llm, "judge_one", boom)
-    result = llm.judge(run=1, concurrency=2)
-    assert result["judged_now"] == 3
-    assert all("judge failed" in r["raw"] for r in llm.read_jsonl(raw))
+    with pytest.raises(llm.JudgeFailures) as caught:
+        llm.judge(run=1, concurrency=2)
+
+    assert caught.value.summary["judged_now"] == 0
+    assert caught.value.summary["failed"] == 3
+    assert llm.read_jsonl(raw) == [], "a crash was filed as a return"
+    quarantined = llm.read_jsonl(tmp_path / "f.jsonl")
+    assert len(quarantined) == 3
+    assert all("judge took too long" in q["detail"] for q in quarantined)
 
 
 # --- the widened LLM leg ---------------------------------------------------
@@ -702,3 +720,138 @@ def test_judge_frames_never_pools_two_instruments(tmp_path, monkeypatch):
     assert set(frames["_instruments"]) == {agent_old, agent_new}
     assert frames["_instruments"][agent_new]["is_current"] is True
     assert frames["_instruments"][agent_old]["is_current"] is False
+
+
+# --- interruption safety (F1-F3) -------------------------------------------
+#
+# A credit exhaustion mid-run used to be recorded as a finished pair: `judge_one` turned a
+# non-zero exit into a `<judge exited 1: ...>` string, wrote it to `RAW`, and `judge()`
+# builds its resume set from `RAW`. The pair was never retried, the run reported
+# `remaining: 0`, and the report quoted a kappa over whichever pairs answered before the
+# wall — completion-latency order, not a random sample.
+
+
+class _Proc:
+    def __init__(self, returncode=0, stdout="", stderr=""):
+        self.returncode, self.stdout, self.stderr = returncode, stdout, stderr
+
+
+def _stage_judge(tmp_path, monkeypatch, n_pairs, outcomes):
+    """`n_pairs` dispatched on run 1; `outcomes` maps pair_id -> _Proc or Exception."""
+    prompts = tmp_path / "p.jsonl"
+    records = [{"pair_id": f"j_0__r_{i:02d}", "query_id": "j_0", "doc_id": f"r_{i:02d}",
+                "run": 1, "draw": llm.RECHECK_DRAW, "prompt": f"pair {i}",
+                "prompt_sha256": "abc", "chars_sent": 10,
+                "agent_sha256": "sha", "model": llm.MODEL} for i in range(n_pairs)]
+    prompts.write_text("\n".join(json.dumps(r) for r in records) + "\n")
+    monkeypatch.setattr(llm, "PROMPTS", prompts)
+    monkeypatch.setattr(llm, "RAW", tmp_path / "r.jsonl")
+    monkeypatch.setattr(llm, "FAILED", tmp_path / "f.jsonl")
+    monkeypatch.setattr(llm, "AGENT_DEF", tmp_path / "agent.md")
+    (tmp_path / "agent.md").write_text("judge", encoding="utf-8")
+    monkeypatch.setattr(llm, "sha", lambda text: "sha")
+    monkeypatch.setattr(llm, "judge_sandbox", lambda stack: tmp_path)
+
+    def fake_run(cmd, **kw):
+        pair = f"j_0__r_{kw['input'].split()[1]:0>2}"
+        outcome = outcomes(pair) if callable(outcomes) else outcomes[pair]
+        if isinstance(outcome, Exception):
+            raise outcome
+        return outcome
+
+    monkeypatch.setattr(llm.subprocess, "run", fake_run)
+    return prompts
+
+
+def test_a_spawn_that_never_answered_is_not_recorded_as_a_return(tmp_path, monkeypatch):
+    """Mutation: file the failure in `RAW` instead of `FAILED` — this fails.
+
+    This is fix F1, and the assertion that matters is the second one: the pair must still
+    be in `todo` on the next pass. Against the pre-F1 code the failure lands in `RAW`,
+    `done` absorbs it, and the re-run judges nothing.
+    """
+    good = _Proc(0, '{"label":"Good Fit","reason":"ok"}')
+    dead = _Proc(1, "", "Credit balance is too low")
+    _stage_judge(tmp_path, monkeypatch, 4,
+                 lambda p: good if p.endswith(("00", "01")) else dead)
+
+    with pytest.raises(llm.JudgeFailures) as caught:
+        llm.judge(1, concurrency=2)
+    assert caught.value.summary["failed"] == 2
+    assert caught.value.summary["kinds"] == {"quota": 2}
+
+    raw = [json.loads(x) for x in (tmp_path / "r.jsonl").read_text().splitlines()]
+    assert len(raw) == 2, "an unanswered spawn was filed as a return"
+    assert all("<judge exited" not in r["raw"] for r in raw)
+
+    # The point of the quarantine: the failed pairs are still owed.
+    cov = llm.run_coverage(1)
+    assert cov == {"run": 1, "n_dispatched": 4, "n_answered": 2, "n_quarantined": 2,
+                   "n_missing": 2, "complete": False}
+
+
+def test_the_retry_after_topping_up_judges_exactly_the_failed_pairs(
+        tmp_path, monkeypatch):
+    """The recovery procedure works: top up, re-run `--judge`, nothing else."""
+    good = _Proc(0, '{"label":"No Fit","reason":"ok"}')
+    dead = _Proc(1, "", "Credit balance is too low")
+    _stage_judge(tmp_path, monkeypatch, 4,
+                 lambda p: good if p.endswith(("00", "01")) else dead)
+    with pytest.raises(llm.JudgeFailures):
+        llm.judge(1, concurrency=2)
+
+    monkeypatch.setattr(llm.subprocess, "run", lambda cmd, **kw: good)
+    summary = llm.judge(1, concurrency=2)
+    assert summary["attempted"] == 2, (
+        "the retry did not pick up exactly the two pairs that failed")
+    assert summary["failed"] == 0
+    assert llm.run_coverage(1)["complete"] is True
+
+
+def test_a_timeout_is_infrastructure_not_a_bad_answer(tmp_path, monkeypatch):
+    _stage_judge(tmp_path, monkeypatch, 1, lambda p: subprocess.TimeoutExpired("claude", 1))
+    with pytest.raises(llm.JudgeFailures) as caught:
+        llm.judge(1, concurrency=1)
+    assert caught.value.summary["kinds"] == {"timeout": 1}
+    assert not (tmp_path / "r.jsonl").exists() or not (
+        tmp_path / "r.jsonl").read_text().strip()
+
+
+def test_a_clean_exit_with_junk_on_stdout_is_still_data(tmp_path, monkeypatch):
+    """F1 must not swallow a judge that answered badly — that is a real finding.
+
+    `parse_return` files it `parsed_ok=False`, which is what a misbehaving judge should
+    look like. Only spawns that never ran are quarantined.
+    """
+    _stage_judge(tmp_path, monkeypatch, 1, lambda p: _Proc(0, "I cannot judge this."))
+    summary = llm.judge(1, concurrency=1)
+    assert summary["failed"] == 0 and summary["judged_now"] == 1
+    raw = [json.loads(x) for x in (tmp_path / "r.jsonl").read_text().splitlines()]
+    assert raw[0]["raw"] == "I cannot judge this."
+    with pytest.raises(llm.BadReturn):
+        llm.parse_return(raw[0]["raw"])
+
+
+def test_judge_raises_rather_than_returning_a_summary_that_reads_as_success(
+        tmp_path, monkeypatch):
+    """Mutation: return the summary instead of raising — this fails.
+
+    Fix F2. Every downstream step reads a short run as success, so the operator has to
+    learn about it here.
+    """
+    _stage_judge(tmp_path, monkeypatch, 1, lambda p: _Proc(1, "", "boom"))
+    with pytest.raises(llm.JudgeFailures) as caught:
+        llm.judge(1, concurrency=1)
+    assert "re-running" in str(caught.value)
+    assert str(tmp_path / "f.jsonl") in str(caught.value)
+
+
+def test_no_figure_may_be_quoted_over_a_run_that_is_short(tmp_path, monkeypatch):
+    """Fix F3's refusal: a kappa over the survivors is a kappa over the fastest."""
+    _stage_judge(tmp_path, monkeypatch, 3,
+                 lambda p: _Proc(0, '{"label":"Good Fit","reason":"ok"}')
+                 if p.endswith("00") else _Proc(1, "", "usage limit reached"))
+    with pytest.raises(llm.JudgeFailures):
+        llm.judge(1, concurrency=1)
+    with pytest.raises(llm.JudgeFailures):
+        llm.assert_run_complete(1)

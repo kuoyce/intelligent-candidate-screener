@@ -181,6 +181,24 @@ used at all or must be re-judged under the committed instrument (`--dispatch --a
 deferred task does not hold a number against work that is actually happening; whichever
 run is free when Q34 is revisited is the one it takes.
 
+**A spawn that never answered is not a return** *(fix F1/F2, 6 Sep 2026,
+`plan/2026-09-06-a2-llm-prelabel/`)*. `judge()` resumes from `llm-recheck-raw.jsonl`, and
+`judge_one` used to write a non-zero exit there as a `<judge exited 1: …>` string. So a
+run that hit an empty credit balance recorded every remaining pair as **finished**: the
+re-run reported `remaining: 0`, `collect()` filed the failures `parsed_ok=False`, the
+frame builder dropped them, and the kappa was computed over the survivors — which are in
+`as_completed` order, i.e. whichever pairs answered fastest, not a random sample. No
+exception, no row count that looked wrong, a plausible number. Nothing had hit it (all 879
+raw returns on file are clean), so option D got lucky at 639 spawns. Now: a non-zero exit,
+a timeout or a failed spawn raises `JudgeUnavailable`, is quarantined to
+`llm-judge-failed.jsonl` — which the resume set does **not** read, so the pair stays owed —
+and `judge()` raises `JudgeFailures` rather than returning a summary that reads as success.
+Recovery is to fix the cause and re-run the same `--judge` command. `run_coverage` /
+`--coverage` report dispatched against answered, and `assert_run_complete` is what a report
+calls to refuse a figure over a short run. **A clean exit is still data**, junk on stdout
+included: a judge that answered badly is a finding, and only spawns that never ran are
+quarantined.
+
 **Both legs are 100 pairs** *(deviation V6, updated 30 Aug 2026)*.
 `queue.RECHECK_STRATA` and `LLM_RECHECK_STRATA` are both (30/30/40). The human leg was 50
 (15/15/20) while the first sitting was live; raised to 100 after all 50 were labelled, so
