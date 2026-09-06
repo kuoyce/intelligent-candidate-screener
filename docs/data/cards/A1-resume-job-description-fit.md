@@ -53,6 +53,7 @@ Good Fit resumes per test JD: min 1, Q1 3, **median 18**, Q3 24, max 48.
    A1's `No Fit` is 0.60 human / 0.90 judge — the whole of the small positive kappa.
    Evidence:
    [`llm-recheck.csv`](../manifests/llm-recheck.csv),
+   [`llm-recheck-full-a1.csv`](../manifests/llm-recheck-full-a1.csv) *(option D, D35)*,
    `output/annotation/llm-recheck-report.json`,
    `plan/2026-08-30-llm-recheck/01-findings.md`.
 
@@ -68,6 +69,18 @@ Good Fit resumes per test JD: min 1, Q1 3, **median 18**, Q3 24, max 48.
    `r_e741e1ca6ee8` — a network-security engineer — carries A1 `Good Fit` against four
    unrelated software JDs that both blind judges reject.
    Evidence: `plan/2026-09-05-prompt-calibration/02-calibration-run.md`.
+
+   *Amended 6 Sep 2026 (D35).* No figure above moves. What changed is where the judge's
+   labels live: option D — the same judge over **all 659** A1 pairs rather than the 100-pair
+   recheck — had been collected into `llm-recheck.csv` on run 2, the number D33's 20-pair
+   self-consistency sitting already held, and the test-retest figure quoted above had
+   therefore been widened from n=20 to n=100 in the committed report between 30 Aug and
+   today. It is back at **0.857 [0.417, 1.000], n=20**, the value this card and
+   `01-findings.md` have always quoted. Option D's 639 rows are now
+   [`llm-recheck-full-a1.csv`](../manifests/llm-recheck-full-a1.csv), read by nothing:
+   they carry the **pre-D34 instrument** (`47fc2e48`), so they describe a judge the guide
+   no longer renders (**Q34**, deferred). Evidence:
+   `plan/2026-09-06-recheck-file-split/`.
 6. **Label provenance is unrecorded** *(Q28)*. The publisher does not say how the labels
    were produced. It no longer blocks reading defect 5 — shared machine bias would have
    *inflated* kappa(A1, llm), and the observed value is at chance — but it is still unknown.

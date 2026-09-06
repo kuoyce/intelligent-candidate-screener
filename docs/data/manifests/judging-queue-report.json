@@ -1,24 +1,17 @@
 {
   "seed": 0,
-  "total": 250,
-  "already_judged_and_skipped": 450,
+  "total": 200,
+  "already_judged_and_skipped": 500,
   "by_batch": {
-    "2": 200,
-    "0": 50
+    "2": 200
   },
   "by_stratum": {
-    "targeted": 200,
-    "a1_recheck": 50
+    "targeted": 200
   },
   "by_selection_reason": {
-    "indomain_banded": 200,
-    "a1_recheck": 50
+    "indomain_banded": 200
   },
-  "a1_recheck_strata": {
-    "No Fit": 20,
-    "Potential Fit": 15,
-    "Good Fit": 15
-  },
+  "a1_recheck_strata": {},
   "double_label_target": 60,
   "annotators": 2,
   "note_protocol": "Two annotators, both covering every title, working from this one queue split by hand (D29). 30% of the in-domain pairs are labelled by both, for kappa; the rest are single-labelled. Because both cover all titles, the double-labelled subset can be drawn at random \u2014 under an expertise split it could not, since a random draw would rarely land on a pair two people had both seen.",

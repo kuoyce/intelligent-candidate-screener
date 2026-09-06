@@ -25,10 +25,20 @@ cannot forget — and "we told the judge not to look it up" does not meet that s
 never re-derived. `verify --derived` must check *provenance* (`prompt_sha256`,
 `agent_sha256`, the pair set) and never determinism, which would be red on every run.
 
+**One draw per file, one draw per run** *(decision D35)*. This judge is pointed at two
+populations: the 100-pair stratified recheck it is validated on, and option D's every-pair
+sweep of `fit/test.parquet`. `draw` is stamped at dispatch and routes the collected row —
+recheck to `llm-recheck.csv`, option D to `llm-recheck-full-a1.csv` — and `judge_frames`
+reads the first alone. `dispatch` refuses a run number the other draw already holds, which
+is the check that was missing when option D was sent as run 2 and silently absorbed the 20
+pairs D33 had dispatched under that number.
+
 Usage:
     uv run python -m candidate_screener.annotation.llm_recheck --agent      # (re)write the judge
     uv run python -m candidate_screener.annotation.llm_recheck --dispatch --run 1
-    uv run python -m candidate_screener.annotation.llm_recheck --dispatch --run 2 --subsample 20
+    uv run python -m candidate_screener.annotation.llm_recheck --dispatch --run 5 --subsample 20
+    uv run python -m candidate_screener.annotation.llm_recheck --dispatch --all-a1 --run 6
+    uv run python -m candidate_screener.annotation.llm_recheck --backfill-draw   # pre-D35 prompts
     uv run python -m candidate_screener.annotation.llm_recheck --judge --run 1
     uv run python -m candidate_screener.annotation.llm_recheck --collect
     uv run python -m candidate_screener.annotation.llm_recheck --report
@@ -36,6 +46,7 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import collections
 import concurrent.futures
 import hashlib
 import json
@@ -59,7 +70,16 @@ AGENT_DEF = PROJECT_ROOT / ".claude" / "agents" / "a1-judge.md"
 PROMPTS = PROCESSED / "indomain" / "llm-recheck-prompts.jsonl"
 RAW = PROCESSED / "indomain" / "llm-recheck-raw.jsonl"
 RECHECK_CSV = MANIFESTS / "llm-recheck.csv"
+FULL_A1_CSV = MANIFESTS / "llm-recheck-full-a1.csv"
 REPORT = OUTPUT / "annotation" / "llm-recheck-report.json"
+
+#: The two populations this judge is ever pointed at *(decision D35)*. `a1_recheck` is the
+#: 100-pair stratified draw the instrument is validated on; `a1_full` is option D, every
+#: pair in `fit/test.parquet`. They are different measurements over different populations
+#: and they live in different files.
+RECHECK_DRAW = "a1_recheck"
+FULL_A1_DRAW = "a1_full"
+DRAW_FILES = {RECHECK_DRAW: RECHECK_CSV, FULL_A1_DRAW: FULL_A1_CSV}
 
 #: The judge. Named in every output row, because a different model is a different judge.
 MODEL = "claude-haiku-4-5"
@@ -91,10 +111,12 @@ JUDGE_TIMEOUT_S = 600
 REASON_CHARS = 120
 
 #: `queue.JUDGEMENT_COLUMNS` plus provenance. `run` and the two hashes are what make a row
-#: attributable to an instrument, since no seed will reproduce it.
+#: attributable to an instrument, since no seed will reproduce it. `draw` names the
+#: population that was sampled *(D35)* — run 2 held two of them under one run number and one
+#: `agent_sha256`, so it is not derivable from the columns that preceded it.
 LLM_COLUMNS = judging.JUDGEMENT_COLUMNS + (
     "model", "agent_sha256", "prompt_sha256", "run", "chars_sent", "parsed_ok",
-    "judged_at")
+    "judged_at", "draw")
 
 
 def sha(text: str) -> str:
@@ -246,10 +268,42 @@ def subsample_ids(pair_ids: list[str], k: int, seed: int) -> list[str]:
     return sorted(np.array(ordered)[rng.permutation(len(ordered))[:k]].tolist())
 
 
+class MixedDraw(ValueError):
+    """One run number, two populations *(D35)*."""
+
+
+def assert_run_holds_one_draw(run: int, draw: str) -> None:
+    """A run number is a sitting of **one** draw, and dispatch refuses to widen it.
+
+    This is the check that was missing when option D was dispatched onto run 2. Dedup keys
+    on `(pair_id, run)`, so the 20 pairs D33 had already sent under that number were skipped
+    as "already dispatched" and their labels became part of what reads as one 659-pair run.
+    Nothing raised, no row count looked wrong, and `run1_vs_run2` in the committed report
+    silently widened from n=20 to n=100 — a self-consistency figure over 80 pairs that were
+    never judged twice by the same draw.
+
+    A record with no `draw` is a pre-D35 dispatch and is refused rather than assumed: a
+    default would refile option D into the recheck file on the first `--collect` run on a
+    machine that had not been backfilled.
+    """
+    on_file = {r.get("draw") for r in read_jsonl(PROMPTS) if r["run"] == run}
+    if None in on_file:
+        raise MixedDraw(
+            f"run {run} carries prompts dispatched before `draw` existed. Run "
+            "`--backfill-draw` first — which draw they belong to is not guessable from "
+            "the run number (run 2 held both).")
+    other = on_file - {draw}
+    if other:
+        raise MixedDraw(
+            f"run {run} already carries {sorted(other)} prompts and this dispatch is "
+            f"{draw!r}. A run number holds one draw (D35) — choose an unused run number.")
+
+
 def dispatch(run: int, seed: int = 0, subsample: int | None = None) -> dict:
     from candidate_screener.annotation import ui
 
     agent_hash = assert_agent_definition_current()
+    assert_run_holds_one_draw(run, RECHECK_DRAW)
     assert_recheck_nests(seed)
     # One draw, two consumers: the text lookup and the unit frame must come from the same
     # strata or `serve_group` meets a pair whose documents it cannot find.
@@ -266,6 +320,7 @@ def dispatch(run: int, seed: int = 0, subsample: int | None = None) -> dict:
             assert_not_anchoring(prompt, f"pair {pair_id}")
             records.append({"pair_id": pair_id, "query_id": group.jd_id,
                             "doc_id": candidate.cv_id, "run": run,
+                            "draw": RECHECK_DRAW,
                             "prompt": prompt, "prompt_sha256": sha(prompt),
                             "chars_sent": len(prompt),
                             "agent_sha256": agent_hash, "model": MODEL})
@@ -295,7 +350,7 @@ def dispatch(run: int, seed: int = 0, subsample: int | None = None) -> dict:
         for record in records:
             fh.write(json.dumps(record, ensure_ascii=False) + "\n")
 
-    return {"run": run, "seed": seed, "pairs": len(records),
+    return {"run": run, "seed": seed, "draw": RECHECK_DRAW, "pairs": len(records),
             "already_dispatched": len(skipped),
             "jds": len({r["query_id"] for r in records}),
             "subsample": subsample, "agent_sha256": agent_hash, "model": MODEL,
@@ -310,8 +365,13 @@ def dispatch_all_a1(run: int, seed: int = 0) -> dict:
     Uses the same prompt rendering, anchoring check, and redaction as the recheck path
     but loads directly from test.parquet rather than the stratified draw. Idempotent per
     (pair_id, run).
+
+    Its output is a **different population** from the recheck's and goes to a different
+    file *(D35)*. `assert_run_holds_one_draw` is what stops this dispatch from landing on a
+    run number the recheck is already using, which is how the two came to be mixed.
     """
     agent_hash = assert_agent_definition_current()
+    assert_run_holds_one_draw(run, FULL_A1_DRAW)
     test = pd.read_parquet(PROCESSED / "fit" / "test.parquet")
 
     records = []
@@ -323,7 +383,8 @@ def dispatch_all_a1(run: int, seed: int = 0) -> dict:
         prompt = render_prompt(jd_text, cv_text)
         assert_not_anchoring(prompt, f"pair {pair_id}")
         records.append({"pair_id": pair_id, "query_id": jd_id, "doc_id": cv_id,
-                        "run": run, "prompt": prompt, "prompt_sha256": sha(prompt),
+                        "run": run, "draw": FULL_A1_DRAW,
+                        "prompt": prompt, "prompt_sha256": sha(prompt),
                         "chars_sent": len(prompt), "agent_sha256": agent_hash,
                         "model": MODEL})
 
@@ -343,13 +404,118 @@ def dispatch_all_a1(run: int, seed: int = 0) -> dict:
         for record in records:
             fh.write(json.dumps(record, ensure_ascii=False) + "\n")
 
-    return {"run": run, "seed": seed, "pairs": len(records),
+    return {"run": run, "seed": seed, "draw": FULL_A1_DRAW, "pairs": len(records),
             "already_dispatched": len(skipped),
             "total_a1": len(test),
             "jds": len({r["query_id"] for r in records}),
             "agent_sha256": agent_hash, "model": MODEL,
             "chars_sent_median": int(np.median([r["chars_sent"] for r in records]))
             if records else 0,
+            "prompts": str(PROMPTS)}
+
+
+#: D33 dispatched its second and third self-consistency sittings as `--subsample 20`, and
+#: option D later landed on run 2's number. `subsample_ids` is seeded, so which 20 they
+#: were is still computable — which is what makes the backfill below a derivation rather
+#: than a guess about file order.
+#:
+#: It must be computed over the draw that was **live on 30 Aug 2026**, which was 50 pairs,
+#: not the 100 of today: V6 raised the machine leg later the same day, and `subsample_ids`
+#: permutes the list it is handed. Over the 100 the same call reproduces 7 of the 20. The
+#: 50 nest inside the 100 (`assert_recheck_nests`), so this names a subset of the current
+#: draw, not a draw that has gone away.
+LEGACY_SUBSAMPLE = 20
+LEGACY_SUBSAMPLE_STRATA = {"Good Fit": 15, "Potential Fit": 15, "No Fit": 20}
+
+#: The run numbers that hold two draws, and the only ones that ever will. Run 2 was D33's
+#: 20-pair subsample until option D was dispatched onto it; `assert_run_holds_one_draw`
+#: now refuses that, in both directions, so this set is closed. It is declared rather than
+#: inferred because "a run appearing in both files" is otherwise indistinguishable from the
+#: mistake the guard exists to prevent — and run 2 itself is permanently un-dispatchable:
+#: the guard sees both draws on it and refuses whichever one asks.
+LEGACY_MIXED_RUNS = frozenset({2})
+
+
+def backfill_draw(seed: int = 0) -> dict:
+    """Stamp `draw` on prompt records dispatched before D35. One time, in place.
+
+    `llm-recheck-prompts.jsonl` is collected data in a git-ignored directory: no seed
+    reproduces it, so it is stamped rather than rebuilt. The rewrite adds a field and
+    touches nothing a hash is taken over — `prompt_sha256` covers the prompt text alone —
+    so every provenance check still holds against the same bytes it held against before.
+
+    The split is **derived and then asserted**, never taken from file order:
+
+    * A run whose pairs are all inside the recheck draw is that draw, whole.
+    * A run carrying pairs outside it is a mixed legacy run — only run 2 ever was. Its
+      recheck part is exactly `subsample_ids` over `LEGACY_SUBSAMPLE_STRATA`, the draw D33
+      sent; everything else is option D. Both halves are checked: the subsample must
+      be present in the run, and every pair outside the recheck draw must be a pair of
+      `fit/test.parquet`, or the backfill refuses rather than filing a row by default.
+    * Where a pure run has exactly `LEGACY_SUBSAMPLE` pairs it must *be* that subsample —
+      an independent read on whether the seed still reproduces D33's draw. Run 3 is that
+      run, and it is the only reason the mixed split can be trusted: the same derivation
+      that names run 2's recheck half reproduces run 3's pair set exactly.
+    """
+    records = read_jsonl(PROMPTS)
+    if not records:
+        raise FileNotFoundError(f"{PROMPTS} is empty — nothing to backfill")
+    if all("draw" in r for r in records):
+        counts = collections.Counter((r["run"], r["draw"]) for r in records)
+        return {"stamped": 0, "already_stamped": len(records),
+                "by_run": {f"run{run}:{draw}": n for (run, draw), n in sorted(counts.items())},
+                "prompts": str(PROMPTS)}
+
+    ids = lambda f: set(f.query_id.astype(str) + "__" + f.doc_id.astype(str))  # noqa: E731
+    recheck_ids = ids(judging.a1_recheck(judging.LLM_RECHECK_STRATA, seed))
+    legacy_ids = ids(judging.a1_recheck(LEGACY_SUBSAMPLE_STRATA, seed))
+    subsample = set(subsample_ids(sorted(legacy_ids), LEGACY_SUBSAMPLE, seed))
+    test = pd.read_parquet(PROCESSED / "fit" / "test.parquet")
+    test_ids = set(test.jd_id.astype(str) + "__" + test.resume_id.astype(str))
+
+    by_run: dict[int, list[dict]] = {}
+    for record in records:
+        by_run.setdefault(record["run"], []).append(record)
+
+    stamped = 0
+    for run, group in sorted(by_run.items()):
+        pairs = {r["pair_id"] for r in group}
+        outside = pairs - recheck_ids
+        if not outside:
+            if len(pairs) == LEGACY_SUBSAMPLE and pairs != subsample:
+                raise AssertionError(
+                    f"run {run} has {LEGACY_SUBSAMPLE} recheck pairs but they are not "
+                    f"subsample_ids(a1_recheck({LEGACY_SUBSAMPLE_STRATA}), "
+                    f"{LEGACY_SUBSAMPLE}, seed={seed}) — the seed no longer reproduces "
+                    "D33's subsample, so the mixed run cannot be split by it either")
+            draw_of = dict.fromkeys(pairs, RECHECK_DRAW)
+        else:
+            unknown = outside - test_ids
+            if unknown:
+                raise AssertionError(
+                    f"run {run} carries {len(unknown)} pair(s) in neither the recheck draw "
+                    f"nor fit/test.parquet, e.g. {sorted(unknown)[:3]} — this backfill only "
+                    "knows the two draws D35 names")
+            if not subsample <= pairs:
+                raise AssertionError(
+                    f"run {run} is mixed but does not contain D33's {LEGACY_SUBSAMPLE}-pair "
+                    "subsample, so its recheck half cannot be identified. Refusing rather "
+                    "than filing 100 option-D rows as a recheck")
+            draw_of = {p: (RECHECK_DRAW if p in subsample else FULL_A1_DRAW) for p in pairs}
+        for record in group:
+            if "draw" not in record:
+                record["draw"] = draw_of[record["pair_id"]]
+                stamped += 1
+
+    tmp = PROMPTS.with_suffix(PROMPTS.suffix + ".backfill")
+    with tmp.open("w", encoding="utf-8") as fh:
+        for record in records:
+            fh.write(json.dumps(record, ensure_ascii=False) + "\n")
+    tmp.replace(PROMPTS)
+
+    counts = collections.Counter((r["run"], r["draw"]) for r in records)
+    return {"stamped": stamped, "already_stamped": len(records) - stamped,
+            "by_run": {f"run{run}:{draw}": n for (run, draw), n in sorted(counts.items())},
             "prompts": str(PROMPTS)}
 
 
@@ -524,7 +690,18 @@ def parse_return(raw: str) -> dict:
 
 
 def collect() -> dict:
-    """Validate the raw returns and write **only** `llm-recheck.csv`."""
+    """Validate the raw returns and write one committed CSV **per draw**.
+
+    Never `judgements.csv`: `annotator` there is a free string, so an `llm` row would pass
+    every existing check and be pooled into the human kappa.
+
+    And never one file for two draws *(D35)*. `llm-recheck.csv` is the file the instrument
+    is validated from — `judge_frames` reads it and nothing else — so a row over a
+    population the recheck never sampled does not belong in it, whatever run number it
+    carries. Routing is by the `draw` stamped at dispatch, and a record without one is
+    refused: defaulting would refile option D as a recheck on the first `--collect` after a
+    fresh clone.
+    """
     dispatched = {(r["pair_id"], r["run"]): r for r in read_jsonl(PROMPTS)}
     if not dispatched:
         raise FileNotFoundError(f"{PROMPTS} is empty — run `--dispatch` first")
@@ -543,6 +720,12 @@ def collect() -> dict:
             ok, label, reason = False, "", f"unparsed: {exc}"
             bad.append(key)
         row_model = sent.get("model", MODEL)
+        draw = sent.get("draw")
+        if draw not in DRAW_FILES:
+            raise BadReturn(
+                f"{key} was dispatched with draw={draw!r}. A row is filed by the draw it "
+                "was sent under, and pre-D35 prompts carry none — run `--backfill-draw` "
+                "before collecting.")
         rows.append({
             "pair_id": sent["pair_id"], "batch": 0, "stratum": "a1_recheck",
             "corpus": "a1", "query_id": sent["query_id"], "doc_id": sent["doc_id"],
@@ -552,15 +735,25 @@ def collect() -> dict:
             "model": row_model, "agent_sha256": sent["agent_sha256"],
             "prompt_sha256": sent["prompt_sha256"], "run": got["run"],
             "chars_sent": sent["chars_sent"], "parsed_ok": ok,
-            "judged_at": got.get("returned_at", "")})
+            "judged_at": got.get("returned_at", ""), "draw": draw})
 
     frame = pd.DataFrame(rows, columns=list(LLM_COLUMNS))
-    RECHECK_CSV.parent.mkdir(parents=True, exist_ok=True)
-    frame.to_csv(RECHECK_CSV, index=False)
+    written = {}
+    for draw, path in DRAW_FILES.items():
+        part = frame[frame.draw == draw]
+        # A draw with no rows here was not dispatched on this machine — `RAW` is git-ignored
+        # and a clone may hold only part of it. Skipping leaves that draw's committed file
+        # alone; truncating it would delete collected labels nothing can reproduce.
+        if part.empty:
+            continue
+        path.parent.mkdir(parents=True, exist_ok=True)
+        part.to_csv(path, index=False)
+        written[draw] = {"path": str(path), "rows": len(part),
+                         "runs": sorted(part.run.unique().tolist())}
     return {"rows": len(frame), "parsed_ok": int(frame.parsed_ok.sum()),
             "unparsed": len(bad), "unparsed_pairs": bad[:10],
             "runs": sorted(frame.run.unique().tolist()) if len(frame) else [],
-            "written": str(RECHECK_CSV)}
+            "written": written}
 
 
 # --- agreement -------------------------------------------------------------
@@ -621,6 +814,12 @@ def judge_frames(seed: int = 0) -> dict[str, pd.Series]:
     one series and quietly attribute the blend to whichever agent happens to be committed —
     the same failure mode as an `llm` row in `judgements.csv`, one level up. Runs of other
     instruments are still returned, under `_instruments`, and reported separately.
+
+    **It reads `RECHECK_CSV` and nothing else** *(D35)*. `llm-recheck-full-a1.csv` holds
+    option D — the same judge over a different population — and pooling the two would
+    repeat the instrument mistake one axis across: a self-consistency figure computed over
+    pairs judged once by the recheck and once by a dispatch that was not the recheck. That
+    is not a hypothetical. It is what `run1_vs_run2` reported at n=100 for six days.
     """
     recheck = judging.a1_recheck(judging.LLM_RECHECK_STRATA, seed)
     recheck["pair_id"] = (recheck.query_id.astype(str) + "__"
@@ -803,6 +1002,8 @@ def main() -> int:
     ap.add_argument("--concurrency", type=int, default=CONCURRENCY)
     ap.add_argument("--limit", type=int, default=None,
                     help="judge at most N pairs this invocation (operator-side pacing)")
+    ap.add_argument("--backfill-draw", action="store_true",
+                    help="stamp `draw` on prompt records dispatched before D35 (one time)")
     ap.add_argument("--collect", action="store_true")
     ap.add_argument("--report", action="store_true")
     ap.add_argument("--run", type=int, default=1)
@@ -818,6 +1019,8 @@ def main() -> int:
         print(json.dumps(dispatch_all_a1(args.run, args.seed), indent=2))
     elif args.dispatch:
         print(json.dumps(dispatch(args.run, args.seed, args.subsample), indent=2))
+    if args.backfill_draw:
+        print(json.dumps(backfill_draw(args.seed), indent=2))
     if args.judge:
         print(json.dumps(judge(args.run, args.concurrency, args.limit), indent=2))
     if args.collect:
@@ -829,7 +1032,8 @@ def main() -> int:
                          indent=2))
         print(f"{len(out['disagreements'])} pairs where the three judges differ "
               f"-> {REPORT}")
-    if not any((args.agent, args.dispatch, args.judge, args.collect, args.report)):
+    if not any((args.agent, args.dispatch, args.backfill_draw, args.judge, args.collect,
+                args.report)):
         ap.print_help()
     return 0
 

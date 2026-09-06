@@ -168,10 +168,11 @@ def test_overlong_reason_is_truncated_and_flagged():
 # --- collect ---------------------------------------------------------------
 
 def _stage(tmp_path, monkeypatch, raw_rows, dispatched=None):
-    prompts, raw, out = (tmp_path / "p.jsonl", tmp_path / "r.jsonl",
-                         tmp_path / "llm-recheck.csv")
+    prompts, raw = tmp_path / "p.jsonl", tmp_path / "r.jsonl"
+    out, full = tmp_path / "llm-recheck.csv", tmp_path / "llm-recheck-full-a1.csv"
     dispatched = dispatched or [{
         "pair_id": "j_0__r_00", "query_id": "j_0", "doc_id": "r_00", "run": 1,
+        "draw": llm.RECHECK_DRAW,
         "prompt": "JOB DESCRIPTION\nx\n\nCANDIDATE\ny", "prompt_sha256": "abc",
         "chars_sent": 32, "agent_sha256": "def", "model": llm.MODEL}]
     prompts.write_text("\n".join(json.dumps(d) for d in dispatched) + "\n")
@@ -179,6 +180,9 @@ def _stage(tmp_path, monkeypatch, raw_rows, dispatched=None):
     monkeypatch.setattr(llm, "PROMPTS", prompts)
     monkeypatch.setattr(llm, "RAW", raw)
     monkeypatch.setattr(llm, "RECHECK_CSV", out)
+    monkeypatch.setattr(llm, "FULL_A1_CSV", full)
+    monkeypatch.setattr(llm, "DRAW_FILES",
+                        {llm.RECHECK_DRAW: out, llm.FULL_A1_DRAW: full})
     monkeypatch.setattr(llm.judging, "JUDGEMENTS", tmp_path / "judgements.csv")
     return out, tmp_path / "judgements.csv"
 
@@ -225,6 +229,155 @@ def test_unparsed_return_is_excluded_and_counted(tmp_path, monkeypatch):
     result = llm.collect()
     assert result["unparsed"] == 1 and result["parsed_ok"] == 0
     assert pd.read_csv(out).iloc[0].parsed_ok in (False, "False")
+
+
+def test_collect_routes_each_draw_to_its_own_file(tmp_path, monkeypatch):
+    """Mutation: write every row to `RECHECK_CSV` — this fails *(D35)*.
+
+    `llm-recheck.csv` is the file the instrument is validated from: `judge_frames` reads
+    it and nothing else. Option D judges a different population with the same judge, so a
+    row of its 659 in that file is not a wider sample of the recheck, it is a different
+    measurement wearing the recheck's provenance. The scope check caught it only because
+    559 of the pairs happened to fall outside the draw; the 100 that fell inside it were
+    invisible.
+    """
+    dispatched = [
+        {"pair_id": "j_0__r_00", "query_id": "j_0", "doc_id": "r_00", "run": 1,
+         "draw": llm.RECHECK_DRAW, "prompt": "p", "prompt_sha256": "abc",
+         "chars_sent": 1, "agent_sha256": "def", "model": llm.MODEL},
+        {"pair_id": "j_9__r_99", "query_id": "j_9", "doc_id": "r_99", "run": 2,
+         "draw": llm.FULL_A1_DRAW, "prompt": "p", "prompt_sha256": "ghi",
+         "chars_sent": 1, "agent_sha256": "def", "model": llm.MODEL}]
+    out, _ = _stage(tmp_path, monkeypatch, [
+        {"pair_id": "j_0__r_00", "run": 1, "raw": '{"label": "No Fit", "reason": "a"}'},
+        {"pair_id": "j_9__r_99", "run": 2, "raw": '{"label": "Good Fit", "reason": "b"}'},
+    ], dispatched=dispatched)
+    full = llm.FULL_A1_CSV
+
+    result = llm.collect()
+    assert result["rows"] == 2
+    recheck_rows, full_rows = pd.read_csv(out), pd.read_csv(full)
+    assert list(recheck_rows.pair_id) == ["j_0__r_00"], \
+        "an option-D row reached the file judge_frames reads"
+    assert list(full_rows.pair_id) == ["j_9__r_99"]
+    assert set(recheck_rows.draw) == {llm.RECHECK_DRAW}
+    assert set(full_rows.draw) == {llm.FULL_A1_DRAW}
+
+
+def test_collect_refuses_a_prompt_record_with_no_draw(tmp_path, monkeypatch):
+    """Mutation: default `draw` to `RECHECK_DRAW` when the record lacks one — this fails.
+
+    Pre-D35 prompts carry no draw and a run number does not imply one: run 2 held both.
+    A default would refile option D as a recheck on the first `--collect` after a clone.
+    """
+    _stage(tmp_path, monkeypatch,
+           [{"pair_id": "j_0__r_00", "run": 1,
+             "raw": '{"label": "No Fit", "reason": "a"}'}],
+           dispatched=[{"pair_id": "j_0__r_00", "query_id": "j_0", "doc_id": "r_00",
+                        "run": 1, "prompt": "p", "prompt_sha256": "abc", "chars_sent": 1,
+                        "agent_sha256": "def", "model": llm.MODEL}])
+    with pytest.raises(llm.BadReturn, match="backfill-draw"):
+        llm.collect()
+
+
+def test_dispatch_refuses_a_run_number_already_used_by_the_other_draw(
+        tmp_path, monkeypatch):
+    """Mutation: drop `assert_run_holds_one_draw` — this fails silently, which is the point.
+
+    Dedup keys on `(pair_id, run)`. When option D was dispatched as run 2, the 20 pairs
+    D33 had already sent under that number were skipped as "already dispatched" and their
+    labels became part of what reads as one 659-pair run. Nothing raised and no count
+    looked wrong; `run1_vs_run2` widened from n=20 to n=100 in the committed report.
+    """
+    frame = units()
+    jd, cv = texts(frame)
+    prompts = tmp_path / "p.jsonl"
+    monkeypatch.setattr(llm, "PROMPTS", prompts)
+    monkeypatch.setattr(llm, "assert_agent_definition_current", lambda: "sha")
+    monkeypatch.setattr(llm, "assert_recheck_nests", lambda seed=0: None)
+    monkeypatch.setattr(llm.session, "load_units", lambda seed=0, strata=None: frame)
+    monkeypatch.setattr("candidate_screener.annotation.ui.corpus_text",
+                        lambda strata_key=None: (jd, cv))
+
+    llm.dispatch(run=2)
+    assert {r["draw"] for r in llm.read_jsonl(prompts)} == {llm.RECHECK_DRAW}
+
+    a1 = pd.DataFrame({"jd_id": ["j_0"], "resume_id": ["r_zz"],
+                       "job_description_text": ["a job"], "resume_text": ["a cv"]})
+    monkeypatch.setattr(llm.pd, "read_parquet", lambda *a, **k: a1)
+    with pytest.raises(llm.MixedDraw, match="one draw"):
+        llm.dispatch_all_a1(run=2)
+
+    # And the other direction: a recheck may not join a run option D holds.
+    monkeypatch.setattr(llm, "PROMPTS", tmp_path / "q.jsonl")
+    llm.dispatch_all_a1(run=3)
+    with pytest.raises(llm.MixedDraw, match="one draw"):
+        llm.dispatch(run=3)
+
+
+def test_dispatch_refuses_a_pre_d35_run_rather_than_guessing_its_draw(
+        tmp_path, monkeypatch):
+    """Mutation: treat a missing `draw` as the dispatching draw — this fails.
+
+    A legacy run carries no draw, and run 2 proves the run number does not supply one.
+    Dispatching onto it would silently adopt whichever draw asked first.
+    """
+    frame = units()
+    jd, cv = texts(frame)
+    prompts = tmp_path / "p.jsonl"
+    prompts.write_text(json.dumps(
+        {"pair_id": "j_0__r_00", "query_id": "j_0", "doc_id": "r_00", "run": 2,
+         "prompt": "p", "prompt_sha256": "abc", "chars_sent": 1,
+         "agent_sha256": "sha", "model": llm.MODEL}) + "\n")
+    monkeypatch.setattr(llm, "PROMPTS", prompts)
+    monkeypatch.setattr(llm, "assert_agent_definition_current", lambda: "sha")
+    monkeypatch.setattr(llm, "assert_recheck_nests", lambda seed=0: None)
+    monkeypatch.setattr(llm.session, "load_units", lambda seed=0, strata=None: frame)
+    monkeypatch.setattr("candidate_screener.annotation.ui.corpus_text",
+                        lambda strata_key=None: (jd, cv))
+    with pytest.raises(llm.MixedDraw, match="backfill-draw"):
+        llm.dispatch(run=2)
+
+
+def test_judge_frames_never_reads_the_full_a1_file(tmp_path, monkeypatch):
+    """Mutation: union the two CSVs in `judge_frames` — this fails *(D35)*.
+
+    Option D judged the recheck's own 100 pairs too, so a union does not merely add rows:
+    it turns self-consistency into a comparison between one draw and another, and moves
+    the `llm` series with labels no recheck run produced. The synthetic below makes the
+    option-D labels the opposite of the recheck's, so a union is visible in the figure.
+    """
+    pairs = ["j1__r1", "j2__r2", "j3__r3"]
+    agent = "a" * 64
+
+    def rows(run, label, draw):
+        return [{"pair_id": p, "query_id": p.split("__")[0], "doc_id": p.split("__")[1],
+                 "run": run, "label": label, "agent_sha256": agent, "model": "m",
+                 "parsed_ok": True, "draw": draw} for p in pairs]
+
+    recheck_csv = tmp_path / "llm-recheck.csv"
+    full_csv = tmp_path / "llm-recheck-full-a1.csv"
+    pd.DataFrame(rows(1, "Good Fit", llm.RECHECK_DRAW)).to_csv(recheck_csv, index=False)
+    pd.DataFrame(rows(2, "No Fit", llm.FULL_A1_DRAW)).to_csv(full_csv, index=False)
+
+    agent_def = tmp_path / "a1-judge.md"
+    agent_def.write_text("the judge", encoding="utf-8")
+    monkeypatch.setattr(llm, "RECHECK_CSV", recheck_csv)
+    monkeypatch.setattr(llm, "FULL_A1_CSV", full_csv)
+    monkeypatch.setattr(llm, "AGENT_DEF", agent_def)
+    monkeypatch.setattr(llm, "sha", lambda text: agent)
+    monkeypatch.setattr(llm.judging, "a1_recheck", lambda strata, seed=0: pd.DataFrame(
+        {"query_id": [p.split("__")[0] for p in pairs],
+         "doc_id": [p.split("__")[1] for p in pairs],
+         "a1_label": ["Good Fit"] * len(pairs)}))
+    monkeypatch.setattr(llm.session, "load_judgements", lambda: pd.DataFrame(
+        columns=["pair_id", "corpus", "label"]))
+
+    frames = llm.judge_frames(0)
+    assert frames["llm"].tolist() == ["Good Fit"] * 3, \
+        "option-D labels reached the `llm` series"
+    assert sorted(frames["_runs"]) == [1], "run 2 is option D and is not a recheck sitting"
+    assert frames["_instruments"][agent]["rows"] == len(pairs)
 
 
 # --- agreement -------------------------------------------------------------

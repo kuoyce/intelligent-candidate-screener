@@ -150,6 +150,35 @@ blend to whichever is committed, with no exception and a plausible kappa. `repor
 quotes binary-collapse kappa beside every three-class figure, because D34 is a run where the
 two moved apart.
 
+**A draw is a population, one run holds one of them, and one file holds one of them**
+*(decision D35, 6 Sep 2026, `plan/2026-09-06-recheck-file-split/`)*. `agent_sha256` is not
+the only axis a figure must not be pooled across. This judge is pointed at two populations —
+the 100-pair stratified recheck it is validated on, and option D's sweep of all 659 pairs of
+`fit/test.parquet` — and until this change both landed in `llm-recheck.csv`. Option D was
+dispatched as **run 2**, which D33 had already used for a 20-pair self-consistency sitting;
+dedup keys on `(pair_id, run)`, so the 20 were skipped as "already dispatched" and absorbed.
+Nothing raised, no row count looked wrong, and `run1_vs_run2` in the committed report
+silently widened from n=20 to **n=100** — a self-consistency figure over 80 pairs that no
+two recheck runs had ever both judged. `draw` is now stamped at dispatch and routes the
+collected row (recheck → `llm-recheck.csv`, option D → `llm-recheck-full-a1.csv`);
+`judge_frames` reads the **recheck file alone**; `assert_run_holds_one_draw` refuses a run
+number the other draw already holds, in both directions, and refuses a pre-D35 run outright
+rather than guessing (`--backfill-draw` stamps those, deriving run 2's split from
+`subsample_ids` over the **50-pair** draw that was live on 30 Aug, checked against run 3's
+pair set). Run 2 is the only mixed run there will ever be; `LEGACY_MIXED_RUNS` declares it,
+and the guard has closed it to any further dispatch.
+
+**Option D is collected and not analysed** *(Q34)*. `llm-recheck-full-a1.csv` is 639 rows —
+the 20 pairs D33 subsampled onto run 2 stay in the recheck file, because that is the
+dispatch that sent them, and joining the two files to reach 659 is the pooling D35 forbids.
+Every row carries `agent_sha256 = 47fc2e48`, the **pre-D34 instrument**, whose tie-break
+D34 showed was driving `No Fit`; kappa(yc, llm) moved 0.287 → 0.352 when the guide was
+fixed. So a figure computed over these labels would describe a judge this repository no
+longer commits. Q34 stays deferred and unworked unless option D is revisited or a decision
+comes to rest on its output — and the first thing it reopens is whether the labels may be
+used at all or must be re-judged under the committed instrument (`--dispatch --all-a1
+--run 6`, ~659 spawns).
+
 **Both legs are 100 pairs** *(deviation V6, updated 30 Aug 2026)*.
 `queue.RECHECK_STRATA` and `LLM_RECHECK_STRATA` are both (30/30/40). The human leg was 50
 (15/15/20) while the first sitting was live; raised to 100 after all 50 were labelled, so
@@ -158,6 +187,12 @@ assertion (`assert_recheck_nests`, `verify --derived`) is trivially satisfied. T
 consumers must still be handed the *same* draw: units from `load_units(seed, strata)` and
 text from `corpus_text(tuple(sorted(strata.items())))`, or half the pairs arrive with no
 document.
+
+The raise is also **retroactive on anything seeded off the draw**. D33's `--subsample 20`
+was drawn while the machine leg was still 50, so `subsample_ids` over today's 100
+reproduces 7 of those 20, not 20 — which is why `backfill_draw` carries
+`LEGACY_SUBSAMPLE_STRATA` and checks its derivation against run 3's pair set instead of
+assuming the current strata. Measured on 6 Sep 2026, in the course of D35.
 
 **Tool-free is necessary and was not sufficient** *(deviation V4)*. The judge runs as a
 `claude -p --agent a1-judge` **subprocess whose cwd is a sandbox holding a copy of the
@@ -182,9 +217,10 @@ judge is not what the guide renders, or if its frontmatter is not `tools: []`.
 
 **Its labels never enter `judgements.csv`.** `annotator` is a free string, so an `llm` row
 there would pass every existing check and be silently pooled into the human kappa. They go to
-`docs/data/manifests/llm-recheck.csv`, quoted as `llm:{model}:run{N}` (run 1:
-`claude-sonnet-5`, run 2+: `claude-haiku-4-5`). `collect()` preserves per-row model
-provenance from the dispatch record.
+`docs/data/manifests/llm-recheck.csv` (the recheck draw, 240 rows) and
+`docs/data/manifests/llm-recheck-full-a1.csv` (option D, 639), quoted as
+`llm:{model}:run{N}` (runs 1-3: `claude-sonnet-5`, run 4+: `claude-haiku-4-5`). `collect()`
+preserves per-row model provenance from the dispatch record, and routes by `draw` (D35).
 
 **It is collected data, not derived** *(Q31)*. No seed reproduces a subagent run, so
 `check_llm_recheck` verifies **provenance** — `agent_sha256`, `prompt_sha256` against the
