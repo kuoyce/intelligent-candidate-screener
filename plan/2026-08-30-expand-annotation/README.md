@@ -112,6 +112,24 @@ D25. **This is the user's decision.**
 
 ## Objective 3 — Option D: LLM-judge all 659 A1 pairs
 
+> **Outcome, recorded 6 Sep 2026 (D35, `plan/2026-09-06-recheck-file-split/`).** Objective 3
+> ran and its labels are on disk, but not where this plan put them. Two corrections stand
+> against the design below:
+>
+> 1. **Its output is its own file**, `docs/data/manifests/llm-recheck-full-a1.csv`, not
+>    `llm-recheck.csv`. "The `run` column distinguishes option D from the recheck" (§Output)
+>    was wrong: run 2 was *already* D33's 20-pair self-consistency sitting, the dispatch
+>    dedup key `(pair_id, run)` skipped those 20 as already sent, and the two draws fused
+>    under one run number. `run1_vs_run2` in the committed report widened from n=20 to n=100
+>    as a result. `draw` is now stamped at dispatch and a run holds one draw.
+> 2. **Step 6 (a `full_a1` section in `report()`) is not done and is deferred**, with
+>    §"Confirmation gate" unreached. The labels carry `agent_sha256 = 47fc2e48`, the
+>    pre-D34 instrument; D34 then rewrote the guide and moved kappa(yc, llm) 0.287 → 0.352.
+>    A full-A1 figure computed now would describe a retired judge. Tracked as **Q34** —
+>    deferred unless option D is revisited or a decision comes to rest on its output. The
+>    file is also 639 rows, not 659: the 20 pairs D33 subsampled onto run 2 stay with the
+>    recheck, and joining the two files to reach 659 is exactly the pooling D35 forbids.
+
 ### What this is
 
 The A1 benchmark (`data/processed/fit/test.parquet`) contains 659 JD–CV pairs with labels

@@ -1,8 +1,8 @@
 # Two files, two draws: separating option D from the instrument recheck
 
 **Date:** 6 Sep 2026
-**Status:** draft, awaiting approval
-**Branch (on approval):** `feat/recheck-file-split`
+**Status:** approved 6 Sep 2026; implemented — see [01-implementation.md](01-implementation.md)
+**Branch:** `feat/recheck-file-split`
 
 ## Why
 

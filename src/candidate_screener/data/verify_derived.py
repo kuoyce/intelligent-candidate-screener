@@ -447,6 +447,12 @@ def check_llm_recheck() -> list[tuple[bool, str]]:
     instrument that produced it — the agent definition and the exact prompt — and that the
     judge's labels never leaked into the human file, where `annotator` is a free string and
     an `llm` row would be silently pooled into the human kappa.
+
+    It runs over **both** collected files *(D35)*: `llm-recheck.csv` is the recheck draw,
+    `llm-recheck-full-a1.csv` is option D's sweep of every A1 pair, and the checks that
+    separate them — draw purity, one draw per run, a pair set per file — exist because a
+    mixed run is invisible to every other check here. Option D was dispatched onto D33's
+    run 2 and reads as one instrument, one run and a plausible row count.
     """
     from candidate_screener.annotation import llm_recheck as llm
     from candidate_screener.annotation import queue, session
@@ -471,39 +477,64 @@ def check_llm_recheck() -> list[tuple[bool, str]]:
                         "judgements.csv — the LLM is a third opinion, never a human "
                         "annotator (D33)"))
 
-    if not llm.RECHECK_CSV.exists():
-        results.append((True, f"{llm.RECHECK_CSV.name} not built — skipped"))
-        return results
-
-    frame = pd.read_csv(llm.RECHECK_CSV)
-    results.append((list(frame.columns) == list(llm.LLM_COLUMNS),
-                    "schema: llm-recheck.csv matches LLM_COLUMNS"))
-
     dispatched = {(r["pair_id"], r["run"]): r for r in llm.read_jsonl(llm.PROMPTS)}
-    if dispatched:
-        drift = [(r.pair_id, r.run) for r in frame.itertuples()
-                 if (r.pair_id, r.run) not in dispatched
-                 or dispatched[(r.pair_id, r.run)]["prompt_sha256"] != r.prompt_sha256]
-        results.append((not drift,
-                        f"provenance: {len(drift)} row(s) whose prompt_sha256 does not "
-                        "match the prompt that was dispatched for that pair and run"))
-    else:
-        results.append((True, "provenance: dispatch file not built (git-ignored) — "
-                              "prompt_sha256 unverifiable on this machine"))
+    frames = {}
+    for draw, path in llm.DRAW_FILES.items():
+        if not path.exists():
+            results.append((True, f"{path.name} not built — skipped"))
+            continue
+        frames[draw] = frame = pd.read_csv(path)
+        results.append((list(frame.columns) == list(llm.LLM_COLUMNS),
+                        f"schema: {path.name} matches LLM_COLUMNS"))
 
-    scored = frame[frame.parsed_ok.astype(str).str.lower().isin(("true", "1"))]
-    bad = sorted(set(scored.label.dropna()) - set(session.LABELS))
-    results.append((not bad, f"scheme: {bad or 'no'} labels outside A1's 3 classes"))
+        # D35: a file is one draw. Routing happens once, in `collect`, off the `draw`
+        # stamped at dispatch; this is what stops a hand-edited or half-migrated file
+        # from putting a second population back where `judge_frames` will read it.
+        # A file predating D35 has no `draw` at all, which the schema check reports; say so
+        # here too rather than raising and taking every later check down with it.
+        wrong = (frame if "draw" not in frame
+                 else frame[frame.draw.astype(str) != draw])
+        results.append((wrong.empty,
+                        f"draw purity: {len(wrong)} row(s) in {path.name} carry a draw "
+                        f"other than {draw!r}"))
 
-    recheck_ids, human_ids = set(), set()
+        if dispatched:
+            drift = [(r.pair_id, r.run) for r in frame.itertuples()
+                     if (r.pair_id, r.run) not in dispatched
+                     or dispatched[(r.pair_id, r.run)]["prompt_sha256"] != r.prompt_sha256]
+            results.append((not drift,
+                            f"provenance: {len(drift)} row(s) of {path.name} whose "
+                            "prompt_sha256 does not match the prompt dispatched for that "
+                            "pair and run"))
+        else:
+            results.append((True, f"provenance: dispatch file not built (git-ignored) — "
+                                  f"prompt_sha256 unverifiable for {path.name}"))
+
+        scored = frame[frame.parsed_ok.astype(str).str.lower().isin(("true", "1"))]
+        bad = sorted(set(scored.label.dropna()) - set(session.LABELS))
+        results.append((not bad, f"scheme: {bad or 'no'} labels outside A1's 3 classes in "
+                                 f"{path.name}"))
+
+    # A run number holds one draw *(D35)*. The two files are the only place that invariant
+    # is visible after the fact, because a mixed run reads as one instrument, one run and a
+    # plausible row count — which is exactly how option D absorbed D33's run 2.
+    if len(frames) == 2:
+        shared = set(frames[llm.RECHECK_DRAW].run) & set(frames[llm.FULL_A1_DRAW].run)
+        unexpected = sorted(shared - llm.LEGACY_MIXED_RUNS)
+        results.append((not unexpected,
+                        f"one draw per run: run(s) {unexpected or 'none'} appear in both "
+                        "llm-recheck.csv and llm-recheck-full-a1.csv, beyond the declared "
+                        f"pre-D35 mixture {sorted(llm.LEGACY_MIXED_RUNS)}"))
+
     ids = lambda f: set(f.query_id.astype(str) + "__" + f.doc_id.astype(str))  # noqa: E731
+    recheck_ids, human_ids = set(), set()
     try:
         recheck_ids = ids(queue.a1_recheck(queue.LLM_RECHECK_STRATA, 0))
         human_ids = ids(queue.a1_recheck(queue.RECHECK_STRATA, 0))
     except (FileNotFoundError, OSError):
         pass
-    if recheck_ids:
-        stray = sorted(set(frame.pair_id) - recheck_ids)
+    if recheck_ids and llm.RECHECK_DRAW in frames:
+        stray = sorted(set(frames[llm.RECHECK_DRAW].pair_id) - recheck_ids)
         results.append((not stray, f"scope: {len(stray)} judged pair(s) are not among the "
                                    f"{len(recheck_ids)} A1 recheck pairs"))
         # The published n=50 figures are quoted beside figures over the wider draw. That
@@ -513,6 +544,18 @@ def check_llm_recheck() -> list[tuple[bool, str]]:
                         f"nesting: {len(outside)} of the human {len(human_ids)} are absent "
                         f"from the LLM {len(recheck_ids)} — a figure over one may not be "
                         "quoted beside a figure over the other unless one nests"))
+
+    if llm.FULL_A1_DRAW in frames:
+        test = PROCESSED / "fit" / "test.parquet"
+        if test.exists():
+            a1 = pd.read_parquet(test)
+            a1_ids = set(a1.jd_id.astype(str) + "__" + a1.resume_id.astype(str))
+            stray = sorted(set(frames[llm.FULL_A1_DRAW].pair_id) - a1_ids)
+            results.append((not stray, f"scope: {len(stray)} option-D pair(s) are not among "
+                                       f"the {len(a1_ids)} pairs of fit/test.parquet"))
+        else:
+            results.append((True, "scope: fit/test.parquet not built — option-D pair set "
+                                  "unverifiable on this machine"))
     return results
 
 

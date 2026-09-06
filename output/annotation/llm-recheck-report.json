@@ -2,7 +2,7 @@
   "model": "claude-haiku-4-5",
   "seed": 0,
   "current_agent_sha256": "75e00ea3d0c34ab92acd7e6436de2921a3b80b2ff4e8106c88bc7580d048cd23",
-  "generated_at": "2026-09-05T09:05:47+00:00",
+  "generated_at": "2026-09-06T05:43:08+00:00",
   "coverage": {
     "a1": 100,
     "human": 100,
@@ -109,7 +109,7 @@
       "models": [
         "claude-sonnet-5"
       ],
-      "rows": 779,
+      "rows": 140,
       "is_current": false,
       "vs_a1": {
         "kappa": 0.14239482200647258,
@@ -193,10 +193,10 @@
   },
   "self_consistency_kappa": {
     "run1_vs_run2": {
-      "kappa": 0.8286497601096642,
-      "lo": 0.6794843249020307,
-      "hi": 0.9599180325270767,
-      "n": 100,
+      "kappa": 0.8571428571428572,
+      "lo": 0.41706566347469226,
+      "hi": 1.0,
+      "n": 20,
       "agreement": 0.95
     },
     "run1_vs_run3": {
