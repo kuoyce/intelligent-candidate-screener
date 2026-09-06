@@ -181,6 +181,32 @@ used at all or must be re-judged under the committed instrument (`--dispatch --a
 deferred task does not hold a number against work that is actually happening; whichever
 run is free when Q34 is revisited is the one it takes.
 
+**The judge carries to A2, and fails at one boundary** *(6 Sep 2026,
+`plan/2026-09-06-a2-llm-prelabel/04-phase0-findings.md`)*. The committed instrument
+(`75e00ea3`, haiku) was run over all 400 pairs of the in-domain `generic` stratum — pairs
+`yc` had already labelled and the judge had never seen. kappa(yc, llm) = **0.380** [0.310,
+0.447] n=400, binary **0.637** [0.553, 0.708], against the A1 recheck's 0.352 / 0.614 at
+n=100. **Q36 closes: no material difference between the corpora**, despite A2 documents
+being a third the length, now measured at four times the n.
+
+The disagreement is **one boundary, one direction**: per class, agreement is 0.745 on
+`No Fit` and 0.797 on `Potential Fit` but **0.119 on `Good Fit`** — 85 of `yc`'s 101
+`Good Fit`s came back `Potential Fit`, and only 4 came back `No Fit`. D34's fix held (the
+transitive collapse into `No Fit` is gone), but the tie-break at the boundary it was scoped
+to still resolves downward almost unconditionally. This is why the binary collapse is so
+much healthier: `Good → Potential` does not cross the fit/no-fit line. **Three-class
+substitution is refused** — the gate's per-class clause is absolute at 0.40 — while binary
+substitution stays open. It is **not** established that the judge is wrong: one annotator
+cannot say whether `yc` is generous with `Good Fit` or the instrument is harsh, which is
+D33's problem one boundary along, and the second annotator's `Good Fit` rate is what
+settles it (**Q38**: whether that boundary needs a D34-style pass; a guide edit is a new
+judge and no figure would pool with run 5).
+
+The A2 draws are `a2_generic` (400, run 5, collected) and `a2_targeted` (200, run 6, not
+yet dispatched), in `llm-a2-generic.csv` and `llm-a2-targeted.csv`, quoted per stratum in
+`output/annotation/llm-a2-report.json`. `judge_frames` and `llm-recheck-report.json` do not
+read them and did not move.
+
 **A spawn that never answered is not a return** *(fix F1/F2, 6 Sep 2026,
 `plan/2026-09-06-a2-llm-prelabel/`)*. `judge()` resumes from `llm-recheck-raw.jsonl`, and
 `judge_one` used to write a non-zero exit there as a `<judge exited 1: …>` string. So a
@@ -198,6 +224,14 @@ Recovery is to fix the cause and re-run the same `--judge` command. `run_coverag
 calls to refuse a figure over a short run. **A clean exit is still data**, junk on stdout
 included: a judge that answered badly is a finding, and only spawns that never ran are
 quarantined.
+
+**It was needed within the hour.** Run 5 hit the account's usage limit 193 pairs in and
+**202 of 395 spawns failed**, all `exit 1` with *both streams empty* — which is what a
+quota looks like from `claude -p`, so `QUOTA_MARKERS` matched nothing and the label was
+`exit1`. Do not rely on those markers firing; unexplained `exit1` in bulk is the signal.
+Pre-F1 that run would have reported itself complete and scored **0.301 / 0.554** over 198
+latency-ordered survivors instead of the true **0.380 / 0.637** over 400. The retry after
+the limit reset judged exactly the 202, zero failures.
 
 **Both legs are 100 pairs** *(deviation V6, updated 30 Aug 2026)*.
 `queue.RECHECK_STRATA` and `LLM_RECHECK_STRATA` are both (30/30/40). The human leg was 50
@@ -237,10 +271,12 @@ judge is not what the guide renders, or if its frontmatter is not `tools: []`.
 
 **Its labels never enter `judgements.csv`.** `annotator` is a free string, so an `llm` row
 there would pass every existing check and be silently pooled into the human kappa. They go to
-`docs/data/manifests/llm-recheck.csv` (the recheck draw, 240 rows) and
-`docs/data/manifests/llm-recheck-full-a1.csv` (option D, 639), quoted as
-`llm:{model}:run{N}` (runs 1-3: `claude-sonnet-5`, run 4+: `claude-haiku-4-5`). `collect()`
-preserves per-row model provenance from the dispatch record, and routes by `draw` (D35).
+`docs/data/manifests/llm-recheck.csv` (the recheck draw, 240 rows),
+`docs/data/manifests/llm-recheck-full-a1.csv` (option D, 639) and, for the in-domain
+corpus, `llm-a2-generic.csv` (400) and `llm-a2-targeted.csv` (not yet dispatched). Quoted
+as `llm:{model}:run{N}` (runs 1-3: `claude-sonnet-5`, run 4+: `claude-haiku-4-5`).
+`collect()` preserves per-row model provenance from the dispatch record, takes
+corpus/batch/stratum from it too, and routes by `draw` (D35).
 
 **It is collected data, not derived** *(Q31)*. No seed reproduces a subagent run, so
 `check_llm_recheck` verifies **provenance** — `agent_sha256`, `prompt_sha256` against the

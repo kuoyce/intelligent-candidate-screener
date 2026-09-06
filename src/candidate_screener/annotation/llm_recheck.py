@@ -728,6 +728,11 @@ class JudgeFailures(RuntimeError):
 
 #: Substrings that name an exhausted balance or a throttle rather than a broken install.
 #: Used only to label the operator summary — the handling is identical either way.
+#:
+#: **Do not rely on these firing.** Measured 6 Sep 2026, when run 5 hit a usage limit
+#: 193 pairs in: all 202 failed spawns exited 1 with **both streams empty**, so there was
+#: nothing to match and they were labelled `exit1`. An unexplained `exit1` in bulk is what
+#: a quota looks like from here; the label is a convenience, not a diagnosis.
 QUOTA_MARKERS = ("credit balance", "usage limit", "rate limit", "quota", "429",
                  "insufficient", "billing", "too many requests")
 
@@ -794,9 +799,11 @@ def judge_one(record: dict, cwd: Path) -> dict:
     except OSError as exc:                                       # `claude` not on PATH
         raise JudgeUnavailable("spawn", f"{type(exc).__name__}: {exc}") from exc
     if proc.returncode != 0:
+        said = (proc.stderr or "").strip() or (proc.stdout or "").strip()
         raise JudgeUnavailable(
             classify_failure(proc.returncode, proc.stderr),
-            f"exit {proc.returncode}: {(proc.stderr or '').strip()[:300]}")
+            f"exit {proc.returncode}: {said[:300]}" if said else
+            f"exit {proc.returncode}, both streams empty (a usage limit looks like this)")
     return {"pair_id": record["pair_id"], "run": record["run"],
             "returned_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
             "raw": proc.stdout.strip()}
@@ -864,7 +871,11 @@ def judge(run: int, concurrency: int = CONCURRENCY, limit: int | None = None) ->
                 sink.write(json.dumps(row, ensure_ascii=False) + "\n")
                 sink.flush()
 
-    summary = {"run": run, "dispatched": len(dispatched), "already_judged": len(done),
+    summary = {"run": run, "dispatched": len(dispatched),
+               # Scoped to this run. `done` spans every run in RAW, so the unscoped count
+               # read 884 on a 400-pair run — a number that invites the wrong conclusion
+               # about what just happened.
+               "already_judged": len({p for p, r in done if r == run}),
                "attempted": len(todo), "judged_now": returned,
                "failed": sum(kinds.values()), "kinds": dict(kinds),
                "remaining": remaining - returned,

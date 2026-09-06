@@ -1,0 +1,104 @@
+{
+  "model": "claude-haiku-4-5",
+  "seed": 0,
+  "generated_at": "2026-09-06T15:05:04+00:00",
+  "strata": {
+    "generic": {
+      "draw": "a2_generic",
+      "file": "/home/yuchen/project/intelligent-candidate-screener/docs/data/manifests/llm-a2-generic.csv",
+      "runs": [
+        5
+      ],
+      "coverage": {
+        "5": {
+          "run": 5,
+          "n_dispatched": 400,
+          "n_answered": 400,
+          "n_quarantined": 0,
+          "n_missing": 0,
+          "complete": true
+        }
+      },
+      "n_human": 400,
+      "n_llm": 400,
+      "status": "scored",
+      "n_scored": 400,
+      "n_dispatched": 400,
+      "human_vs_llm": {
+        "kappa": 0.3803192532454799,
+        "lo": 0.31021613985443713,
+        "hi": 0.44745169517755556,
+        "n": 400,
+        "agreement": 0.605
+      },
+      "human_vs_llm_binary": {
+        "kappa": 0.6365743179184662,
+        "lo": 0.552751663587637,
+        "hi": 0.7079889481252427,
+        "n": 400,
+        "agreement": 0.8275
+      },
+      "per_class": {
+        "Good Fit": {
+          "n": 101,
+          "agreement": 0.1188118811881188
+        },
+        "Potential Fit": {
+          "n": 138,
+          "agreement": 0.7971014492753623
+        },
+        "No Fit": {
+          "n": 161,
+          "agreement": 0.7453416149068323
+        }
+      },
+      "confusion_human_rows": {
+        "Good Fit": {
+          "Good Fit": 12,
+          "Potential Fit": 85,
+          "No Fit": 4
+        },
+        "Potential Fit": {
+          "Good Fit": 4,
+          "Potential Fit": 110,
+          "No Fit": 24
+        },
+        "No Fit": {
+          "Good Fit": 0,
+          "Potential Fit": 41,
+          "No Fit": 120
+        }
+      },
+      "confusion_llm_rows": {
+        "Good Fit": {
+          "Good Fit": 12,
+          "Potential Fit": 4,
+          "No Fit": 0
+        },
+        "Potential Fit": {
+          "Good Fit": 85,
+          "Potential Fit": 110,
+          "No Fit": 41
+        },
+        "No Fit": {
+          "Good Fit": 4,
+          "Potential Fit": 24,
+          "No Fit": 120
+        }
+      },
+      "self_consistency": {}
+    },
+    "targeted": {
+      "draw": "a2_targeted",
+      "file": "/home/yuchen/project/intelligent-candidate-screener/docs/data/manifests/llm-a2-targeted.csv",
+      "runs": [],
+      "coverage": {},
+      "n_human": 0,
+      "n_llm": 0,
+      "status": "not dispatched"
+    }
+  },
+  "current_agent_sha256": "75e00ea3d0c34ab92acd7e6436de2921a3b80b2ff4e8106c88bc7580d048cd23",
+  "note_never_pooled": "`generic` and `targeted` are two populations (D29). Both figures are true statements; their average is not, and this report has no field holding one.",
+  "note_separate_from_a1": "These figures are over the in-domain corpus and share no code path with llm-recheck-report.json, which is the A1 recheck. `judge_frames` does not read the A2 files."
+}
