@@ -364,13 +364,32 @@ def check_judging_queue() -> list[tuple[bool, str]]:
     else:
         results.append((True, f"blinding: {dispatch} not built (git-ignored) — skipped"))
 
-    # D28: the queue is rebuilt from what is *not* judged, so a rebuild must never
-    # re-present a labelled pair. This is the resume mechanism's only invariant.
-    done = queue.judged_pair_ids()
-    if done:
-        redispatched = {f"{q}__{d}" for q, d in zip(key.query_id, key.doc_id)} & done
-        results.append((not redispatched,
-                        f"resume: {len(redispatched)} already-judged pairs re-dispatched"))
+    # D28: the queue is rebuilt from what is *not finished*, so a rebuild must never
+    # re-present a pair that already carries every label the campaign wants. This is the
+    # resume mechanism's only invariant. "Finished" is not "has a label": a pair in a
+    # fully double-labelled stratum wants two, and 200 `targeted` pairs are in exactly
+    # that state — labelled by `van`, still owed by `yc`. Checking the weaker condition
+    # would fail on every one of them and would be demanding that `build_queue` drop
+    # outstanding work.
+    if queue.JUDGEMENTS.exists():
+        from candidate_screener.annotation import session
+
+        counts = pd.read_csv(queue.JUDGEMENTS).groupby("pair_id").size()
+        # The committed key carries no `stratum` — it is a blinded artifact and the
+        # column would be one more thing to keep in sync. Taken from the pairs manifest
+        # instead, which is where a pair's stratum is stamped (D29); an A1 recheck row is
+        # absent from it and falls through to the 30% rule, which is its rule.
+        strata = pd.read_csv(queue.PAIRS_MANIFEST).assign(
+            pair_id=lambda d: d.jd_id.astype(str) + "__" + d.cv_id.astype(str)
+        ).set_index("pair_id").stratum
+        pairs = key.assign(pair_id=key.query_id.astype(str) + "__"
+                           + key.doc_id.astype(str))
+        pairs["stratum"] = pairs.pair_id.map(strata)
+        have = pairs.pair_id.map(counts).fillna(0).astype(int)
+        finished = pairs.pair_id[have >= session.labels_wanted(pairs)]
+        results.append((not len(finished),
+                        f"resume: {len(finished)} pair(s) that already carry every label "
+                        "the campaign wants are still in the dispatched key"))
 
     if queue.JUDGEMENTS.exists():
         judged = pd.read_csv(queue.JUDGEMENTS)

@@ -221,7 +221,10 @@ rule):
 
 | # | Question | Status |
 |---|---|---|
-| Q35 | kappa(yc, annotator2) on A2? | **Answered 6 Sep 2026 — second annotator confirmed incoming, arriving after approval.** Phases 0–1 do not wait; the relative gate is the expected path. Open until measured. |
-| Q36 | Does judge–human agreement differ A1 vs A2? | Confirmed in scope — Phase 0 answers it |
+| Q35 | kappa(yc, annotator2) on A2? | **Closed 7 Sep 2026** — 0.250 [0.140, 0.365] n=126 `generic`; `targeted` pending `yc`'s leg. See [`06-phase2-findings.md`](06-phase2-findings.md) |
+| Q36 | Does judge–human agreement differ A1 vs A2? | **Closed 6 Sep 2026** — no material difference; Phase 0 |
+| Q38 | Does the `Good`/`Potential` boundary need a D34-style pass? | **Sharpened, open.** Both humans sit far above the judge, and disagree with each other about the boundary |
+| Q39 | Is a relative gate usable when the ceiling is 0.250? | **New, open.** 0.75 x 0.250 = 0.188 is cleared by a judge that fails clause 2 outright |
+| Q40 | Does the binary collapse have a defensible gate? | **New, open.** Every binary figure on file clears any bar taken from its own value |
 | Q37 | May `yc` and `llm` labels coexist in one evaluation layer? | **Deferred by decision, 6 Sep 2026.** Revisit at Phase 3; not worked before then |
 | Q34 | Option D's 639 pre-D34 rows | Untouched, still deferred. **No run number reserved** — AGENTS.md corrected in this commit |

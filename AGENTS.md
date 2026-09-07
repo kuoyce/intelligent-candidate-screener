@@ -226,6 +226,77 @@ mis-set threshold rather than of scattered judgement differences, which sharpens
 the boundary's *position* — though `yc` over-issuing `Good Fit` fits the same numbers, and
 one annotator still cannot separate them.
 
+**There is a human ceiling now, and it is below the judge** *(8 Sep 2026,
+`plan/2026-09-06-a2-llm-prelabel/06-phase2-findings.md`)*. A second annotator, `van`,
+labelled 126 `generic` and all 200 `targeted` pairs; `yc`'s `targeted` leg then closed at
+200. **Q35 closes.** kappa(yc, van) = **0.250** [0.140, 0.365] n=126 on `generic` and
+**0.214** [0.112, 0.309] n=200 on `targeted`. **Quote the `targeted` figure**: `yc`'s
+`generic` labels are 30 Aug, pre-D34, and `van`'s are 7 Sep, so the `generic` ceiling is
+measured *across two guides*; `targeted` is one guide, both annotators, full n. That the
+two agree so closely is itself the answer to **Q33** — the guide edit is not what makes
+two humans disagree.
+
+**Three-class substitution stays refused**, both strata: the gate's per-class clause is
+absolute at 0.40 and `Good Fit` agreement is 0.119 / 0.062 / 0.121 / 0.067. The *relative*
+clause has stopped measuring in the other direction — on `targeted` the judge (0.249 vs
+`yc`, 0.204 vs `van`) and the human ceiling (0.214) are **one overlapping cluster**, so
+0.75 × ceiling separates nothing. Read that as "the gate is not measuring", not "the gate
+passed" (**Q39**).
+
+**An annotator is an axis a figure may not be pooled across**, like `agent_sha256` and
+`draw`. The same judge scores **0.380 against `yc` and 0.142 against `van` on the same 126
+pairs**; there is no kappa(human, llm) on this corpus. `a2_frames` returns `humans`, a dict
+keyed by annotator, and has no `human` key; `a2_report` emits `vs_llm` keyed by name beside
+a `human_ceiling` block. Before this it built one series with `drop_duplicates("pair_id")`
+— fine while every A2 label was `yc`'s, and silently wrong afterwards, since that keeps
+whichever row is first in `judgements.csv`. It resolved to all-`yc` on `generic` and
+**all-`van` on `targeted`**, so one field name would have carried two different people's
+numbers. No exception, no row count that looked wrong, a plausible figure.
+
+**On `generic`** the judge reads as **`yc`'s scale shifted down one notch**: it reserves
+`Good Fit` for ~4% of the corpus, 75% of which is `yc`'s `Good Fit` (2.97× the base rate),
+while **96% of `yc`'s `Good Fit` survives as llm `Good`/`Potential`** and P(llm ≤ yc) =
+0.887. That is why binary (0.637) is so much healthier than three-class — `Good →
+Potential` does not cross the fit/no-fit line.
+
+**That reading does not survive `targeted`.** `Good Fit` behaves the same (93.9% of `yc`'s
+survives), but `yc` gets much harsher at the other boundary — `No Fit` 0.402 → 0.580 —
+while the judge barely moves, 0.370 → 0.395. P(llm ≤ yc) falls to **0.740**, and the
+largest cell is **50 of `yc`'s 116 `No Fit`s coming back `Potential Fit`**. The two now
+disagree at *both* boundaries in opposite directions, three-class falls to 0.249 and the
+binary collapse falls with it (0.637 → 0.371) — because `No Fit ↔ Potential Fit` **does**
+cross the fit/no-fit line. **Binary substitution is therefore not defensible on both
+strata** (Q40), and D29 forbids picking the stratum that suits.
+
+**Phase 1's advance prediction is falsified.** It predicted `targeted` would land near
+`generic`'s 0.380 from the judge's marginal stability across strata; it came in at 0.249,
+outside the interval [0.150, 0.339]. Marginal stability on one side of a comparison does
+not predict agreement — the humans were what moved.
+
+Both humans still bracket the judge from far above on `Good Fit` (yc 25.2%, van 51.6%, llm
+4.0% on `generic`), which keeps a mis-set threshold the economical reading of **Q38** — but
+the two humans do not clear the gate's own 0.40 bar against *each other* on that class
+(0.338 `generic`, 0.300 `targeted`), so a D34-style guide edit aimed at the judge alone
+would be fixing one end of a two-ended problem.
+
+**`targeted` is fully double-labelled and complete** *(`session.FULL_DOUBLE_STRATA`)*. The
+30% rule gave that stratum a ceiling of n=55, CI [0.039, 0.444] — an interval the gate
+divides by, so it decides nothing. Every `targeted` pair wants two labels and has them:
+the in-domain campaign is 600 pairs and **1,034 labels**, both strata double-labelled,
+`yc` and `van` covering the same 200 `targeted` pairs exactly. The interim figures were
+worth not quoting — kappa(yc, llm) read 0.377 at n=55 and settled at **0.249** at n=200.
+One thing the widening could *not* recover: Q14's shortlist question is never asked on a
+partial group, and the second annotator on a JD is almost always served one, so there is
+**no inter-annotator agreement on the shortlist pick on either stratum** (`generic`/van 0
+of 39 JDs, `targeted`/yc 1 of 20). Declaring a stratum fully double-labelled *before* its
+first sitting is the only thing that would have avoided it (**Q41**). Widening a stratum is safe
+because `needs_two_labels` stays a pure function of the pair, so nothing already collected
+is orphaned; *narrowing* one would strand second labels, so treat the set as append-only,
+like a batch spec. `session.labels_wanted` is the single place the rule lives, and
+`build_queue` now drops a pair when it is **finished** (holds every label wanted) rather
+than when it is *judged* (holds one) — the older reading would have removed 200 `targeted`
+pairs from the key that one annotator has labelled and the other still owes.
+
 **A spawn that never answered is not a return** *(fix F1/F2, 6 Sep 2026,
 `plan/2026-09-06-a2-llm-prelabel/`)*. `judge()` resumes from `llm-recheck-raw.jsonl`, and
 `judge_one` used to write a non-zero exit there as a `<judge exited 1: …>` string. So a

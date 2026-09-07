@@ -42,6 +42,9 @@ are spent. Runs 5+ are free.
 
 - [`01-design-spec.md`](01-design-spec.md) — draws, files, thresholds, what must not be pooled
 - [`02-work-plan.md`](02-work-plan.md) — tasks, order, acceptance checks
+- [`04-phase0-findings.md`](04-phase0-findings.md) — the judge carries to A2, and fails at one boundary
+- [`05-phase1-dispatch.md`](05-phase1-dispatch.md) — `targeted` pre-labelled, human leg pending
+- [`06-phase2-findings.md`](06-phase2-findings.md) — the human ceiling, and what it does to every judge figure
 
 ## A latent bug this plan found before dispatching anything
 
@@ -57,10 +60,11 @@ apply to the A1 path too, since the bug is not A2-specific.
 
 ## Open questions
 
-- **Q35** — kappa(yc, second annotator) on A2. **Answered 6 Sep 2026: a second annotator is
-  confirmed and arrives after this plan is approved.** Phases 0–1 run without waiting; the
-  relative gate in design spec §4 is the expected path, and the absolute fallback survives
-  only as contingency.
+- **Q35** — kappa(yc, second annotator) on A2. **Closed 7 Sep 2026: 0.250 [0.140, 0.365]
+  n=126 on `generic`.** It is *below* every judge figure it was meant to be the ceiling
+  for, so the relative gate's first clause no longer measures anything (**Q39**), while
+  the per-class clause refuses substitution outright. `targeted`'s ceiling is pending
+  `yc`'s leg, now that the stratum is fully double-labelled.
 - **Q36** — Does the judge's agreement with `yc` differ between the A2 corpus and the A1
   recheck it was calibrated on? Documents differ by 3x in length (A1 median 5,134 chars,
   A2 1,549 JD / 1,742 CV) and D34's guide was tuned against A1 pairs. **Confirmed in scope

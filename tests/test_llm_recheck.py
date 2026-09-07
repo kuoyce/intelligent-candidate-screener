@@ -1132,3 +1132,138 @@ def test_a_pair_the_judge_has_labelled_is_still_owed_by_the_human(tmp_path, monk
     assert queued == set(ids), (
         "the judge's labels suppressed human work — the prospective leg would then be "
         "measured over whichever pairs the judge happened not to reach")
+
+
+# --- two annotators (Phase 2) ----------------------------------------------
+
+def _stage_a2_scoring(tmp_path, monkeypatch, judgements, llm_labels,
+                      stratum="generic", run=5):
+    """One A2 stratum on disk: human rows, judge rows, and a complete dispatch record."""
+    draw = next(d for d, s in llm.A2_DRAW_STRATUM.items() if s == stratum)
+    agent = "a" * 64
+    agent_def = tmp_path / "a1-judge.md"
+    agent_def.write_text("judge", encoding="utf-8")
+    monkeypatch.setattr(llm, "AGENT_DEF", agent_def)
+    monkeypatch.setattr(llm, "sha", lambda text: agent)
+
+    path = tmp_path / f"{draw}.csv"
+    pd.DataFrame([{
+        "pair_id": p, "batch": 1, "stratum": stratum, "corpus": "a2",
+        "query_id": p.split("__")[0], "doc_id": p.split("__")[1],
+        "selection_reason": "indomain_banded", "annotator": f"llm:m:run{run}",
+        "label": lab, "shortlist_pick": "", "notes": "", "model": "m",
+        "agent_sha256": agent, "prompt_sha256": "p", "run": run, "chars_sent": 1,
+        "parsed_ok": True, "judged_at": "", "draw": draw}
+        for p, lab in llm_labels.items()]).to_csv(path, index=False)
+    monkeypatch.setitem(llm.DRAW_FILES, draw, path)
+
+    prompts = tmp_path / "p.jsonl"
+    prompts.write_text("\n".join(json.dumps({
+        "pair_id": p, "run": run, "draw": draw}) for p in llm_labels) + "\n",
+        encoding="utf-8")
+    monkeypatch.setattr(llm, "PROMPTS", prompts)
+    raw = tmp_path / "r.jsonl"
+    raw.write_text("\n".join(json.dumps({"pair_id": p, "run": run})
+                             for p in llm_labels) + "\n", encoding="utf-8")
+    monkeypatch.setattr(llm, "RAW", raw)
+
+    monkeypatch.setattr(llm.session, "load_judgements", lambda: pd.DataFrame(judgements))
+    monkeypatch.setattr(llm, "A2_REPORT", tmp_path / "a2.json")
+    return path
+
+
+def test_a2_frames_keeps_the_two_annotators_apart(tmp_path, monkeypatch):
+    """Mutation: `drop_duplicates("pair_id")` over all annotators — the code before this.
+
+    That version returned one series called `human`, built by keeping whichever row came
+    first in `judgements.csv`. On the real file it resolved to all-`yc` on `generic` and
+    all-`van` on `targeted`, so the same field meant a different person per stratum and
+    said so nowhere. Row order is not a rule, and there is no reading of that series that
+    is a statement about a population.
+    """
+    _stage_a2_scoring(tmp_path, monkeypatch, judgements=[
+        {"pair_id": "j__c1", "corpus": "a2", "stratum": "generic",
+         "annotator": "yc", "label": "Good Fit"},
+        {"pair_id": "j__c1", "corpus": "a2", "stratum": "generic",
+         "annotator": "van", "label": "No Fit"},
+        {"pair_id": "j__c2", "corpus": "a2", "stratum": "generic",
+         "annotator": "yc", "label": "No Fit"},
+    ], llm_labels={"j__c1": "Good Fit", "j__c2": "No Fit"})
+
+    frames = llm.a2_frames("generic")
+    assert "human" not in frames, "a pooled human series is the bug, not a convenience"
+    assert set(frames["humans"]) == {"yc", "van"}
+    assert frames["humans"]["yc"]["j__c1"] == "Good Fit"
+    assert frames["humans"]["van"]["j__c1"] == "No Fit"
+    assert "j__c2" not in frames["humans"]["van"].index
+
+
+def test_a2_report_names_the_annotator_every_judge_figure_is_against(
+        tmp_path, monkeypatch):
+    """Mutation: emit one `human_vs_llm` key, as the code did before 7 Sep 2026.
+
+    On the real data that single field is 0.380 or 0.204 depending on which annotator's
+    rows happen to come first, under a name AGENTS.md and the plan both read as
+    kappa(yc, llm). Here `yc` agrees with the judge on everything and `van` on nothing,
+    so a pooled field cannot be right for both — and a report that emits one is claiming
+    a figure for a reference it did not use.
+    """
+    pairs = {f"j__c{i}": ("Good Fit" if i % 2 else "No Fit") for i in range(10)}
+    judgements = (
+        [{"pair_id": p, "corpus": "a2", "stratum": "generic", "annotator": "yc",
+          "label": lab} for p, lab in pairs.items()]
+        + [{"pair_id": p, "corpus": "a2", "stratum": "generic", "annotator": "van",
+            "label": "Potential Fit"} for p in pairs])
+    _stage_a2_scoring(tmp_path, monkeypatch, judgements, llm_labels=pairs)
+
+    section = llm.a2_report(strict=False)["strata"]["generic"]
+    assert "human_vs_llm" not in section
+    assert set(section["vs_llm"]) == {"yc", "van"}
+    assert section["vs_llm"]["yc"]["three_class"]["kappa"] == 1.0
+    assert section["vs_llm"]["van"]["three_class"]["kappa"] < 1.0
+    assert section["annotators"] == {"van": 10, "yc": 10}
+
+
+def test_a2_report_carries_the_human_ceiling_beside_every_judge_figure(
+        tmp_path, monkeypatch):
+    """Mutation: drop the `human_ceiling` block.
+
+    Without it a reader compares kappa(yc, llm) to 1.0, which is the comparison the
+    design spec refuses: the gate is *relative*, and its denominator is how much two
+    people doing this task agree. On the real `generic` stratum that denominator is
+    0.250, below every judge figure in the file — a fact no absolute reading reaches.
+    """
+    pairs = {f"j__c{i}": ("Good Fit" if i % 2 else "No Fit") for i in range(10)}
+    judgements = (
+        # `yc` and the judge agree everywhere; `van` agrees with `yc` on half. So the
+        # ceiling must come out strictly below the judge figure it sits beside.
+        [{"pair_id": p, "corpus": "a2", "stratum": "generic", "annotator": "yc",
+          "label": lab} for p, lab in pairs.items()]
+        + [{"pair_id": p, "corpus": "a2", "stratum": "generic", "annotator": "van",
+            "label": lab if i < 5 else "Potential Fit"}
+           for i, (p, lab) in enumerate(pairs.items())])
+    _stage_a2_scoring(tmp_path, monkeypatch, judgements, llm_labels=pairs)
+
+    section = llm.a2_report(strict=False)["strata"]["generic"]
+    ceiling = section["human_ceiling"]["van_vs_yc"]
+    assert ceiling["n"] == 10
+    assert "three_class" in ceiling and "binary" in ceiling and "per_class" in ceiling
+    assert ceiling["three_class"]["kappa"] < section["vs_llm"]["yc"]["three_class"]["kappa"]
+
+
+def test_a2_report_says_so_when_two_annotators_share_no_pair(tmp_path, monkeypatch):
+    """Mutation: return silently. A stratum with two annotators and no overlap has no
+    ceiling, and a judge figure in it cannot be read as a fraction of one. Saying
+    nothing leaves the reader to assume the ceiling elsewhere in the file applies.
+    """
+    judgements = [
+        {"pair_id": "j__c0", "corpus": "a2", "stratum": "generic", "annotator": "yc",
+         "label": "No Fit"},
+        {"pair_id": "j__c1", "corpus": "a2", "stratum": "generic", "annotator": "van",
+         "label": "No Fit"}]
+    _stage_a2_scoring(tmp_path, monkeypatch, judgements,
+                      llm_labels={"j__c0": "No Fit", "j__c1": "No Fit"})
+
+    section = llm.a2_report(strict=False)["strata"]["generic"]
+    assert section["human_ceiling"] == {}
+    assert "note_no_ceiling" in section

@@ -1145,7 +1145,7 @@ def confusion(reference: list[str], other: list[str]) -> dict:
 
 
 def a2_frames(stratum: str) -> dict:
-    """The human's labels and the judge's, for **one** in-domain stratum.
+    """Each annotator's labels, separately, and the judge's, for **one** in-domain stratum.
 
     Deliberately not `judge_frames`. That function reads `RECHECK_CSV` and nothing else
     and its output backs the committed D33/D34 figures; an A2 row reaching it would move
@@ -1155,6 +1155,18 @@ def a2_frames(stratum: str) -> dict:
     `stratum` is a single stratum and there is no argument that pools two *(D29)*. The
     average of `generic` and `targeted` describes no population, so the API cannot express
     it.
+
+    **`humans` is a dict and there is no `human` key.** Until 7 Sep 2026 there was one:
+    every A2 label was `yc`'s, so `drop_duplicates("pair_id")` was a no-op and the series
+    was named `human` and read everywhere as `yc`. A second annotator arrived and that
+    stopped being true silently — `drop_duplicates` keeps whichever row is first in
+    `judgements.csv`, which is file order, not a rule. It resolved to all-`yc` on
+    `generic` and **all-`van` on `targeted`**, so `a2_report` would have gone on emitting
+    a field the plan and AGENTS.md both read as kappa(yc, llm) while computing
+    kappa(van, llm) — a different number (0.204 against 0.377) under the same name. Same
+    shape as D35's `run1_vs_run2`: no exception, no row count that looks wrong, a
+    plausible figure. An annotator is now an axis a figure may not be pooled across, like
+    `agent_sha256` and `draw`, and the API cannot express the pooled version.
     """
     if stratum not in A2_DRAW_STRATUM.values():
         raise ValueError(
@@ -1165,9 +1177,11 @@ def a2_frames(stratum: str) -> dict:
     path = DRAW_FILES[draw]
 
     judged = session.load_judgements()
-    human = judged[(judged.corpus == "a2") & (judged.stratum.astype(str) == stratum)
-                   & judged.label.notna()]
-    human = human.drop_duplicates("pair_id").set_index("pair_id").label
+    rows = judged[(judged.corpus == "a2") & (judged.stratum.astype(str) == stratum)
+                  & judged.label.notna()]
+    humans = {
+        str(who): chunk.drop_duplicates("pair_id").set_index("pair_id").label
+        for who, chunk in rows.groupby(rows.annotator.astype(str))}
 
     llm = pd.Series(dtype=str)
     runs: dict[int, pd.Series] = {}
@@ -1181,12 +1195,45 @@ def a2_frames(stratum: str) -> dict:
         if len(live):
             llm = live.groupby("pair_id").label.apply(
                 lambda s: majority(list(s))).dropna()
-    return {"human": human, "llm": llm, "_runs": runs, "_draw": draw,
+    return {"humans": humans, "llm": llm, "_runs": runs, "_draw": draw,
             "_current": current, "_path": path}
 
 
+def _pairwise(a: pd.Series, b: pd.Series, seed: int) -> dict | None:
+    """Three-class, binary, per-class and both confusions over the pairs `a` and `b` share.
+
+    Binary sits beside three-class on every figure without exception — D34 is the run
+    where the two moved apart, and A2 is a corpus where they say different things about
+    the same judge (0.380 against 0.637 on `generic`). Per-class sits there because the
+    A1 recheck's whole positive kappa came out of one cell and the headline hid it.
+    """
+    m = pd.concat([a.rename("a"), b.rename("b")], axis=1).dropna()
+    if m.empty:
+        return None
+    x, y = m.a.tolist(), m.b.tolist()
+    return {"n": len(m),
+            "three_class": kappa_ci(x, y, seed=seed),
+            "binary": kappa_ci(collapse(x), collapse(y), seed=seed, labels=BINARY),
+            "per_class": per_class_agreement(x, y),
+            "confusion_rows_first": confusion(x, y),
+            "confusion_rows_second": confusion(y, x)}
+
+
 def a2_report(seed: int = 0, strict: bool = True) -> dict:
-    """kappa(yc, llm) per in-domain stratum. Never an average of the two *(D29)*.
+    """Per in-domain stratum: each annotator against the judge, and against each other.
+
+    Never an average of the two strata *(D29)*, and **never an average of two annotators**.
+    Every judge figure is keyed by who it is against, because on this corpus the answer
+    depends on that: on `generic`, the same judge scores 0.380 against `yc` and 0.142
+    against `van` over the same pairs. A field called `human_vs_llm` would be one of those
+    two numbers wearing a name that claims to be both, which is what this report emitted
+    until 7 Sep 2026 — see `a2_frames`.
+
+    `human_ceiling` is kappa(annotator, annotator) on the pairs the two share. It is the
+    denominator of the substitution gate in `plan/2026-09-06-a2-llm-prelabel`: a judge is
+    not measured against 1.0, it is measured against how much two people doing the same
+    task agree. It is reported whether or not the gate is being evaluated, because every
+    judge figure in the file is uninterpretable without it.
 
     Every figure carries `n_dispatched` beside `n_scored` and, while `strict`, the report
     **refuses to compute a kappa over a run that is short** *(fix F3)*. A judging pass that
@@ -1206,9 +1253,11 @@ def a2_report(seed: int = 0, strict: bool = True) -> dict:
         coverage = {str(run): run_coverage(run) for run in dispatched_runs}
         short = [run for run, cov in coverage.items() if not cov["complete"]]
 
+        humans: dict[str, pd.Series] = frames["humans"]
         section: dict = {"draw": draw, "file": str(frames["_path"]),
                          "runs": dispatched_runs, "coverage": coverage,
-                         "n_human": len(frames["human"]), "n_llm": len(frames["llm"])}
+                         "annotators": {who: len(s) for who, s in sorted(humans.items())},
+                         "n_llm": len(frames["llm"])}
         if not dispatched_runs:
             section["status"] = "not dispatched"
             out["strata"][stratum] = section
@@ -1222,19 +1271,26 @@ def a2_report(seed: int = 0, strict: bool = True) -> dict:
             out["strata"][stratum] = section
             continue
 
-        common = frames["human"].index.intersection(frames["llm"].index)
-        a = frames["human"].loc[common].tolist()
-        b = frames["llm"].loc[common].tolist()
-        section["status"] = "scored" if len(common) else "no overlap"
-        section["n_scored"] = len(common)
+        # One entry per annotator, keyed by name. Never a pooled "human".
+        vs_llm = {who: fig for who, s in sorted(humans.items())
+                  if (fig := _pairwise(s, frames["llm"], seed)) is not None}
+        # The gate's denominator: how much two people doing this task agree, on the pairs
+        # they both saw. Ordered pairs of names so `first`/`second` in the confusions and
+        # in `per_class` are readable without guessing which way round they went.
+        ceiling = {f"{x}_vs_{y}": fig
+                   for i, x in enumerate(sorted(humans))
+                   for y in sorted(humans)[i + 1:]
+                   if (fig := _pairwise(humans[x], humans[y], seed)) is not None}
+        section["vs_llm"] = vs_llm
+        section["human_ceiling"] = ceiling
+        section["n_scored"] = max((f["n"] for f in vs_llm.values()), default=0)
         section["n_dispatched"] = sum(c["n_dispatched"] for c in coverage.values())
-        if len(common):
-            section["human_vs_llm"] = kappa_ci(a, b, seed=seed)
-            section["human_vs_llm_binary"] = kappa_ci(
-                collapse(a), collapse(b), seed=seed, labels=BINARY)
-            section["per_class"] = per_class_agreement(a, b)
-            section["confusion_human_rows"] = confusion(a, b)
-            section["confusion_llm_rows"] = confusion(b, a)
+        section["status"] = "scored" if vs_llm else "no overlap"
+        if len(humans) > 1 and not ceiling:
+            section["note_no_ceiling"] = (
+                f"{sorted(humans)} both labelled in this stratum but share no pair, so "
+                "there is no human ceiling here and no judge figure in it can be read as "
+                "a fraction of one.")
         # Self-consistency is a property of one judge over one draw.
         section["self_consistency"] = {
             f"run{x}_vs_run{y}": kappa_ci(
@@ -1249,6 +1305,11 @@ def a2_report(seed: int = 0, strict: bool = True) -> dict:
     out["note_never_pooled"] = (
         "`generic` and `targeted` are two populations (D29). Both figures are true "
         "statements; their average is not, and this report has no field holding one.")
+    out["note_never_pooled_annotators"] = (
+        "Every judge figure is keyed by the annotator it is against, and there is no "
+        "pooled `human`. Two annotators are two references, not two samples of one: on "
+        "`generic` the same judge scores 0.380 against yc and 0.142 against van over the "
+        "same 126 pairs. Read each against `human_ceiling`, never against 1.0.")
     out["note_separate_from_a1"] = (
         "These figures are over the in-domain corpus and share no code path with "
         "llm-recheck-report.json, which is the A1 recheck. `judge_frames` does not read "

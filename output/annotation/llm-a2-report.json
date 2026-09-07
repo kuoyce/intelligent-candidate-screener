@@ -1,7 +1,7 @@
 {
   "model": "claude-haiku-4-5",
   "seed": 0,
-  "generated_at": "2026-09-06T20:00:53+00:00",
+  "generated_at": "2026-09-07T16:48:36+00:00",
   "strata": {
     "generic": {
       "draw": "a2_generic",
@@ -19,73 +19,213 @@
           "complete": true
         }
       },
-      "n_human": 400,
+      "annotators": {
+        "van": 126,
+        "yc": 400
+      },
       "n_llm": 400,
-      "status": "scored",
+      "vs_llm": {
+        "van": {
+          "n": 126,
+          "three_class": {
+            "kappa": 0.14212765957446805,
+            "lo": 0.050274679145131666,
+            "hi": 0.23597559098638088,
+            "n": 126,
+            "agreement": 0.36507936507936506
+          },
+          "binary": {
+            "kappa": 0.43050847457627117,
+            "lo": 0.2845362540022184,
+            "hi": 0.5749748364947985,
+            "n": 126,
+            "agreement": 0.746031746031746
+          },
+          "per_class": {
+            "Good Fit": {
+              "n": 65,
+              "agreement": 0.06153846153846154
+            },
+            "Potential Fit": {
+              "n": 37,
+              "agreement": 0.5405405405405406
+            },
+            "No Fit": {
+              "n": 24,
+              "agreement": 0.9166666666666666
+            }
+          },
+          "confusion_rows_first": {
+            "Good Fit": {
+              "Good Fit": 4,
+              "Potential Fit": 47,
+              "No Fit": 14
+            },
+            "Potential Fit": {
+              "Good Fit": 1,
+              "Potential Fit": 20,
+              "No Fit": 16
+            },
+            "No Fit": {
+              "Good Fit": 0,
+              "Potential Fit": 2,
+              "No Fit": 22
+            }
+          },
+          "confusion_rows_second": {
+            "Good Fit": {
+              "Good Fit": 4,
+              "Potential Fit": 1,
+              "No Fit": 0
+            },
+            "Potential Fit": {
+              "Good Fit": 47,
+              "Potential Fit": 20,
+              "No Fit": 2
+            },
+            "No Fit": {
+              "Good Fit": 14,
+              "Potential Fit": 16,
+              "No Fit": 22
+            }
+          }
+        },
+        "yc": {
+          "n": 400,
+          "three_class": {
+            "kappa": 0.3803192532454799,
+            "lo": 0.31021613985443713,
+            "hi": 0.44745169517755556,
+            "n": 400,
+            "agreement": 0.605
+          },
+          "binary": {
+            "kappa": 0.6365743179184662,
+            "lo": 0.552751663587637,
+            "hi": 0.7079889481252427,
+            "n": 400,
+            "agreement": 0.8275
+          },
+          "per_class": {
+            "Good Fit": {
+              "n": 101,
+              "agreement": 0.1188118811881188
+            },
+            "Potential Fit": {
+              "n": 138,
+              "agreement": 0.7971014492753623
+            },
+            "No Fit": {
+              "n": 161,
+              "agreement": 0.7453416149068323
+            }
+          },
+          "confusion_rows_first": {
+            "Good Fit": {
+              "Good Fit": 12,
+              "Potential Fit": 85,
+              "No Fit": 4
+            },
+            "Potential Fit": {
+              "Good Fit": 4,
+              "Potential Fit": 110,
+              "No Fit": 24
+            },
+            "No Fit": {
+              "Good Fit": 0,
+              "Potential Fit": 41,
+              "No Fit": 120
+            }
+          },
+          "confusion_rows_second": {
+            "Good Fit": {
+              "Good Fit": 12,
+              "Potential Fit": 4,
+              "No Fit": 0
+            },
+            "Potential Fit": {
+              "Good Fit": 85,
+              "Potential Fit": 110,
+              "No Fit": 41
+            },
+            "No Fit": {
+              "Good Fit": 4,
+              "Potential Fit": 24,
+              "No Fit": 120
+            }
+          }
+        }
+      },
+      "human_ceiling": {
+        "van_vs_yc": {
+          "n": 126,
+          "three_class": {
+            "kappa": 0.25020286718961315,
+            "lo": 0.13988892365456818,
+            "hi": 0.3648626044373685,
+            "n": 126,
+            "agreement": 0.47619047619047616
+          },
+          "binary": {
+            "kappa": 0.4191114836546521,
+            "lo": 0.2780748663101603,
+            "hi": 0.5636363636363637,
+            "n": 126,
+            "agreement": 0.7380952380952381
+          },
+          "per_class": {
+            "Good Fit": {
+              "n": 65,
+              "agreement": 0.3384615384615385
+            },
+            "Potential Fit": {
+              "n": 37,
+              "agreement": 0.43243243243243246
+            },
+            "No Fit": {
+              "n": 24,
+              "agreement": 0.9166666666666666
+            }
+          },
+          "confusion_rows_first": {
+            "Good Fit": {
+              "Good Fit": 22,
+              "Potential Fit": 26,
+              "No Fit": 17
+            },
+            "Potential Fit": {
+              "Good Fit": 7,
+              "Potential Fit": 16,
+              "No Fit": 14
+            },
+            "No Fit": {
+              "Good Fit": 0,
+              "Potential Fit": 2,
+              "No Fit": 22
+            }
+          },
+          "confusion_rows_second": {
+            "Good Fit": {
+              "Good Fit": 22,
+              "Potential Fit": 7,
+              "No Fit": 0
+            },
+            "Potential Fit": {
+              "Good Fit": 26,
+              "Potential Fit": 16,
+              "No Fit": 2
+            },
+            "No Fit": {
+              "Good Fit": 17,
+              "Potential Fit": 14,
+              "No Fit": 22
+            }
+          }
+        }
+      },
       "n_scored": 400,
       "n_dispatched": 400,
-      "human_vs_llm": {
-        "kappa": 0.3803192532454799,
-        "lo": 0.31021613985443713,
-        "hi": 0.44745169517755556,
-        "n": 400,
-        "agreement": 0.605
-      },
-      "human_vs_llm_binary": {
-        "kappa": 0.6365743179184662,
-        "lo": 0.552751663587637,
-        "hi": 0.7079889481252427,
-        "n": 400,
-        "agreement": 0.8275
-      },
-      "per_class": {
-        "Good Fit": {
-          "n": 101,
-          "agreement": 0.1188118811881188
-        },
-        "Potential Fit": {
-          "n": 138,
-          "agreement": 0.7971014492753623
-        },
-        "No Fit": {
-          "n": 161,
-          "agreement": 0.7453416149068323
-        }
-      },
-      "confusion_human_rows": {
-        "Good Fit": {
-          "Good Fit": 12,
-          "Potential Fit": 85,
-          "No Fit": 4
-        },
-        "Potential Fit": {
-          "Good Fit": 4,
-          "Potential Fit": 110,
-          "No Fit": 24
-        },
-        "No Fit": {
-          "Good Fit": 0,
-          "Potential Fit": 41,
-          "No Fit": 120
-        }
-      },
-      "confusion_llm_rows": {
-        "Good Fit": {
-          "Good Fit": 12,
-          "Potential Fit": 4,
-          "No Fit": 0
-        },
-        "Potential Fit": {
-          "Good Fit": 85,
-          "Potential Fit": 110,
-          "No Fit": 41
-        },
-        "No Fit": {
-          "Good Fit": 4,
-          "Potential Fit": 24,
-          "No Fit": 120
-        }
-      },
+      "status": "scored",
       "self_consistency": {}
     },
     "targeted": {
@@ -104,15 +244,218 @@
           "complete": true
         }
       },
-      "n_human": 0,
+      "annotators": {
+        "van": 200,
+        "yc": 200
+      },
       "n_llm": 200,
-      "status": "no overlap",
-      "n_scored": 0,
+      "vs_llm": {
+        "van": {
+          "n": 200,
+          "three_class": {
+            "kappa": 0.20404102250114797,
+            "lo": 0.11545618325016005,
+            "hi": 0.29471252225457945,
+            "n": 200,
+            "agreement": 0.48
+          },
+          "binary": {
+            "kappa": 0.3943901402464939,
+            "lo": 0.25886073548624816,
+            "hi": 0.5158785566880583,
+            "n": 200,
+            "agreement": 0.715
+          },
+          "per_class": {
+            "Good Fit": {
+              "n": 60,
+              "agreement": 0.06666666666666667
+            },
+            "Potential Fit": {
+              "n": 68,
+              "agreement": 0.6617647058823529
+            },
+            "No Fit": {
+              "n": 72,
+              "agreement": 0.6527777777777778
+            }
+          },
+          "confusion_rows_first": {
+            "Good Fit": {
+              "Good Fit": 4,
+              "Potential Fit": 47,
+              "No Fit": 9
+            },
+            "Potential Fit": {
+              "Good Fit": 0,
+              "Potential Fit": 45,
+              "No Fit": 23
+            },
+            "No Fit": {
+              "Good Fit": 2,
+              "Potential Fit": 23,
+              "No Fit": 47
+            }
+          },
+          "confusion_rows_second": {
+            "Good Fit": {
+              "Good Fit": 4,
+              "Potential Fit": 0,
+              "No Fit": 2
+            },
+            "Potential Fit": {
+              "Good Fit": 47,
+              "Potential Fit": 45,
+              "No Fit": 23
+            },
+            "No Fit": {
+              "Good Fit": 9,
+              "Potential Fit": 23,
+              "No Fit": 47
+            }
+          }
+        },
+        "yc": {
+          "n": 200,
+          "three_class": {
+            "kappa": 0.24918257780648279,
+            "lo": 0.15021317111405844,
+            "hi": 0.3391032600708766,
+            "n": 200,
+            "agreement": 0.535
+          },
+          "binary": {
+            "kappa": 0.3711300309597524,
+            "lo": 0.24789807127087535,
+            "hi": 0.4853625146576866,
+            "n": 200,
+            "agreement": 0.675
+          },
+          "per_class": {
+            "Good Fit": {
+              "n": 33,
+              "agreement": 0.12121212121212122
+            },
+            "Potential Fit": {
+              "n": 51,
+              "agreement": 0.7450980392156863
+            },
+            "No Fit": {
+              "n": 116,
+              "agreement": 0.5603448275862069
+            }
+          },
+          "confusion_rows_first": {
+            "Good Fit": {
+              "Good Fit": 4,
+              "Potential Fit": 27,
+              "No Fit": 2
+            },
+            "Potential Fit": {
+              "Good Fit": 1,
+              "Potential Fit": 38,
+              "No Fit": 12
+            },
+            "No Fit": {
+              "Good Fit": 1,
+              "Potential Fit": 50,
+              "No Fit": 65
+            }
+          },
+          "confusion_rows_second": {
+            "Good Fit": {
+              "Good Fit": 4,
+              "Potential Fit": 1,
+              "No Fit": 1
+            },
+            "Potential Fit": {
+              "Good Fit": 27,
+              "Potential Fit": 38,
+              "No Fit": 50
+            },
+            "No Fit": {
+              "Good Fit": 2,
+              "Potential Fit": 12,
+              "No Fit": 65
+            }
+          }
+        }
+      },
+      "human_ceiling": {
+        "van_vs_yc": {
+          "n": 200,
+          "three_class": {
+            "kappa": 0.2137404580152672,
+            "lo": 0.11247183910948942,
+            "hi": 0.30872638830278154,
+            "n": 200,
+            "agreement": 0.485
+          },
+          "binary": {
+            "kappa": 0.2917304747320061,
+            "lo": 0.16528608276430343,
+            "hi": 0.41019605210885735,
+            "n": 200,
+            "agreement": 0.63
+          },
+          "per_class": {
+            "Good Fit": {
+              "n": 60,
+              "agreement": 0.3
+            },
+            "Potential Fit": {
+              "n": 68,
+              "agreement": 0.3235294117647059
+            },
+            "No Fit": {
+              "n": 72,
+              "agreement": 0.7916666666666666
+            }
+          },
+          "confusion_rows_first": {
+            "Good Fit": {
+              "Good Fit": 18,
+              "Potential Fit": 18,
+              "No Fit": 24
+            },
+            "Potential Fit": {
+              "Good Fit": 11,
+              "Potential Fit": 22,
+              "No Fit": 35
+            },
+            "No Fit": {
+              "Good Fit": 4,
+              "Potential Fit": 11,
+              "No Fit": 57
+            }
+          },
+          "confusion_rows_second": {
+            "Good Fit": {
+              "Good Fit": 18,
+              "Potential Fit": 11,
+              "No Fit": 4
+            },
+            "Potential Fit": {
+              "Good Fit": 18,
+              "Potential Fit": 22,
+              "No Fit": 11
+            },
+            "No Fit": {
+              "Good Fit": 24,
+              "Potential Fit": 35,
+              "No Fit": 57
+            }
+          }
+        }
+      },
+      "n_scored": 200,
       "n_dispatched": 200,
+      "status": "scored",
       "self_consistency": {}
     }
   },
   "current_agent_sha256": "75e00ea3d0c34ab92acd7e6436de2921a3b80b2ff4e8106c88bc7580d048cd23",
   "note_never_pooled": "`generic` and `targeted` are two populations (D29). Both figures are true statements; their average is not, and this report has no field holding one.",
+  "note_never_pooled_annotators": "Every judge figure is keyed by the annotator it is against, and there is no pooled `human`. Two annotators are two references, not two samples of one: on `generic` the same judge scores 0.380 against yc and 0.142 against van over the same 126 pairs. Read each against `human_ceiling`, never against 1.0.",
   "note_separate_from_a1": "These figures are over the in-domain corpus and share no code path with llm-recheck-report.json, which is the A1 recheck. `judge_frames` does not read the A2 files."
 }
