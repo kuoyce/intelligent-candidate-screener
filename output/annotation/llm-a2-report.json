@@ -1,17 +1,26 @@
 {
   "model": "claude-haiku-4-5",
   "seed": 0,
-  "generated_at": "2026-09-07T23:09:16+00:00",
+  "generated_at": "2026-09-07T23:44:18+00:00",
   "strata": {
     "generic": {
       "draw": "a2_generic",
       "file": "/home/yuchen/project/intelligent-candidate-screener/docs/data/manifests/llm-a2-generic.csv",
       "runs": [
-        5
+        5,
+        7
       ],
       "coverage": {
         "5": {
           "run": 5,
+          "n_dispatched": 400,
+          "n_answered": 400,
+          "n_quarantined": 0,
+          "n_missing": 0,
+          "complete": true
+        },
+        "7": {
+          "run": 7,
           "n_dispatched": 400,
           "n_answered": 400,
           "n_quarantined": 0,
@@ -25,7 +34,8 @@
       },
       "llm_model": "claude-haiku-4-5",
       "models_on_file": {
-        "claude-haiku-4-5": 400
+        "claude-haiku-4-5": 400,
+        "claude-sonnet-5": 400
       },
       "n_llm": 400,
       "vs_llm": {
@@ -224,6 +234,840 @@
               "Potential Fit": 14,
               "No Fit": 22
             }
+          }
+        }
+      },
+      "by_model": {
+        "claude-haiku-4-5": {
+          "n_llm": 400,
+          "vs_llm": {
+            "van": {
+              "n": 126,
+              "three_class": {
+                "kappa": 0.14212765957446805,
+                "lo": 0.050274679145131666,
+                "hi": 0.23597559098638088,
+                "n": 126,
+                "agreement": 0.36507936507936506
+              },
+              "binary": {
+                "kappa": 0.43050847457627117,
+                "lo": 0.2845362540022184,
+                "hi": 0.5749748364947985,
+                "n": 126,
+                "agreement": 0.746031746031746
+              },
+              "per_class": {
+                "Good Fit": {
+                  "n": 65,
+                  "agreement": 0.06153846153846154
+                },
+                "Potential Fit": {
+                  "n": 37,
+                  "agreement": 0.5405405405405406
+                },
+                "No Fit": {
+                  "n": 24,
+                  "agreement": 0.9166666666666666
+                }
+              },
+              "confusion_rows_first": {
+                "Good Fit": {
+                  "Good Fit": 4,
+                  "Potential Fit": 47,
+                  "No Fit": 14
+                },
+                "Potential Fit": {
+                  "Good Fit": 1,
+                  "Potential Fit": 20,
+                  "No Fit": 16
+                },
+                "No Fit": {
+                  "Good Fit": 0,
+                  "Potential Fit": 2,
+                  "No Fit": 22
+                }
+              },
+              "confusion_rows_second": {
+                "Good Fit": {
+                  "Good Fit": 4,
+                  "Potential Fit": 1,
+                  "No Fit": 0
+                },
+                "Potential Fit": {
+                  "Good Fit": 47,
+                  "Potential Fit": 20,
+                  "No Fit": 2
+                },
+                "No Fit": {
+                  "Good Fit": 14,
+                  "Potential Fit": 16,
+                  "No Fit": 22
+                }
+              }
+            },
+            "yc": {
+              "n": 400,
+              "three_class": {
+                "kappa": 0.3803192532454799,
+                "lo": 0.31021613985443713,
+                "hi": 0.44745169517755556,
+                "n": 400,
+                "agreement": 0.605
+              },
+              "binary": {
+                "kappa": 0.6365743179184662,
+                "lo": 0.552751663587637,
+                "hi": 0.7079889481252427,
+                "n": 400,
+                "agreement": 0.8275
+              },
+              "per_class": {
+                "Good Fit": {
+                  "n": 101,
+                  "agreement": 0.1188118811881188
+                },
+                "Potential Fit": {
+                  "n": 138,
+                  "agreement": 0.7971014492753623
+                },
+                "No Fit": {
+                  "n": 161,
+                  "agreement": 0.7453416149068323
+                }
+              },
+              "confusion_rows_first": {
+                "Good Fit": {
+                  "Good Fit": 12,
+                  "Potential Fit": 85,
+                  "No Fit": 4
+                },
+                "Potential Fit": {
+                  "Good Fit": 4,
+                  "Potential Fit": 110,
+                  "No Fit": 24
+                },
+                "No Fit": {
+                  "Good Fit": 0,
+                  "Potential Fit": 41,
+                  "No Fit": 120
+                }
+              },
+              "confusion_rows_second": {
+                "Good Fit": {
+                  "Good Fit": 12,
+                  "Potential Fit": 4,
+                  "No Fit": 0
+                },
+                "Potential Fit": {
+                  "Good Fit": 85,
+                  "Potential Fit": 110,
+                  "No Fit": 41
+                },
+                "No Fit": {
+                  "Good Fit": 4,
+                  "Potential Fit": 24,
+                  "No Fit": 120
+                }
+              }
+            }
+          },
+          "consensus": {
+            "annotators": [
+              "van",
+              "yc"
+            ],
+            "n_multi_labelled": 126,
+            "n_agreed": 60,
+            "coverage": 0.47619047619047616,
+            "label_distribution": {
+              "Good Fit": 22,
+              "Potential Fit": 16,
+              "No Fit": 22
+            },
+            "note_selection": "The pairs two annotators agreed on are not a random subsample: they are the pairs both found unambiguous. A judge scores higher there for the reason a student scores higher on the easy half of an exam, so this is an UPPER estimate of its performance on the stratum, never an unbiased one. It is also why consensus cannot license substitution \u2014 the pairs it excludes are exactly the population a substituting judge would label alone, with no reference and no appeal (design spec \u00a73).",
+            "vs_llm": {
+              "n": 60,
+              "three_class": {
+                "kappa": 0.3887530562347188,
+                "lo": 0.2345649477228425,
+                "hi": 0.5446727066562537,
+                "n": 60,
+                "agreement": 0.5833333333333334
+              },
+              "binary": {
+                "kappa": 0.7285067873303168,
+                "lo": 0.5400914334869494,
+                "hi": 0.8892161062325976,
+                "n": 60,
+                "agreement": 0.8666666666666667
+              },
+              "per_class": {
+                "Good Fit": {
+                  "n": 22,
+                  "agreement": 0.13636363636363635
+                },
+                "Potential Fit": {
+                  "n": 16,
+                  "agreement": 0.6875
+                },
+                "No Fit": {
+                  "n": 22,
+                  "agreement": 0.9545454545454546
+                }
+              },
+              "confusion_rows_consensus": {
+                "Good Fit": {
+                  "Good Fit": 3,
+                  "Potential Fit": 17,
+                  "No Fit": 2
+                },
+                "Potential Fit": {
+                  "Good Fit": 0,
+                  "Potential Fit": 11,
+                  "No Fit": 5
+                },
+                "No Fit": {
+                  "Good Fit": 0,
+                  "Potential Fit": 1,
+                  "No Fit": 21
+                }
+              },
+              "confusion_rows_llm": {
+                "Good Fit": {
+                  "Good Fit": 3,
+                  "Potential Fit": 0,
+                  "No Fit": 0
+                },
+                "Potential Fit": {
+                  "Good Fit": 17,
+                  "Potential Fit": 11,
+                  "No Fit": 1
+                },
+                "No Fit": {
+                  "Good Fit": 2,
+                  "Potential Fit": 5,
+                  "No Fit": 21
+                }
+              }
+            }
+          },
+          "interchangeability": {
+            "n": 126,
+            "band": 0.05,
+            "rows": {
+              "van": {
+                "retained": "van",
+                "replaced": "yc",
+                "n": 126,
+                "human_pair": {
+                  "three_class": {
+                    "kappa": 0.25020286718961315,
+                    "lo": 0.13366684597183542,
+                    "hi": 0.3660941586529765,
+                    "n": 126,
+                    "agreement": 0.47619047619047616
+                  },
+                  "binary": {
+                    "kappa": 0.4191114836546521,
+                    "lo": 0.2702668336604477,
+                    "hi": 0.5706730233935445,
+                    "n": 126,
+                    "agreement": 0.7380952380952381
+                  },
+                  "per_class": {
+                    "Good Fit": {
+                      "n": 65,
+                      "agreement": 0.3384615384615385
+                    },
+                    "Potential Fit": {
+                      "n": 37,
+                      "agreement": 0.43243243243243246
+                    },
+                    "No Fit": {
+                      "n": 24,
+                      "agreement": 0.9166666666666666
+                    }
+                  }
+                },
+                "judge": {
+                  "three_class": {
+                    "kappa": 0.14212765957446805,
+                    "lo": 0.050710577004709316,
+                    "hi": 0.23184393422028904,
+                    "n": 126,
+                    "agreement": 0.36507936507936506
+                  },
+                  "binary": {
+                    "kappa": 0.43050847457627117,
+                    "lo": 0.28183832809270754,
+                    "hi": 0.5780832619863013,
+                    "n": 126,
+                    "agreement": 0.746031746031746
+                  },
+                  "per_class": {
+                    "Good Fit": {
+                      "n": 65,
+                      "agreement": 0.06153846153846154
+                    },
+                    "Potential Fit": {
+                      "n": 37,
+                      "agreement": 0.5405405405405406
+                    },
+                    "No Fit": {
+                      "n": 24,
+                      "agreement": 0.9166666666666666
+                    }
+                  }
+                },
+                "verdict": {
+                  "three_class": "fail",
+                  "binary": "tie"
+                }
+              },
+              "yc": {
+                "retained": "yc",
+                "replaced": "van",
+                "n": 126,
+                "human_pair": {
+                  "three_class": {
+                    "kappa": 0.25020286718961315,
+                    "lo": 0.13366684597183542,
+                    "hi": 0.3660941586529765,
+                    "n": 126,
+                    "agreement": 0.47619047619047616
+                  },
+                  "binary": {
+                    "kappa": 0.4191114836546521,
+                    "lo": 0.2702668336604477,
+                    "hi": 0.5706730233935445,
+                    "n": 126,
+                    "agreement": 0.7380952380952381
+                  },
+                  "per_class": {
+                    "Good Fit": {
+                      "n": 29,
+                      "agreement": 0.7586206896551724
+                    },
+                    "Potential Fit": {
+                      "n": 44,
+                      "agreement": 0.36363636363636365
+                    },
+                    "No Fit": {
+                      "n": 53,
+                      "agreement": 0.41509433962264153
+                    }
+                  }
+                },
+                "judge": {
+                  "three_class": {
+                    "kappa": 0.45487473588892247,
+                    "lo": 0.33032490974729234,
+                    "hi": 0.5689630390471174,
+                    "n": 126,
+                    "agreement": 0.6587301587301587
+                  },
+                  "binary": {
+                    "kappa": 0.6898160145115315,
+                    "lo": 0.5535942626634905,
+                    "hi": 0.8087612975185704,
+                    "n": 126,
+                    "agreement": 0.8492063492063492
+                  },
+                  "per_class": {
+                    "Good Fit": {
+                      "n": 29,
+                      "agreement": 0.13793103448275862
+                    },
+                    "Potential Fit": {
+                      "n": 44,
+                      "agreement": 0.8181818181818182
+                    },
+                    "No Fit": {
+                      "n": 53,
+                      "agreement": 0.8113207547169812
+                    }
+                  }
+                },
+                "verdict": {
+                  "three_class": "pass",
+                  "binary": "pass"
+                }
+              }
+            },
+            "per_class": {
+              "Good Fit": {
+                "bar": 0.4,
+                "human_pair": {
+                  "van": 0.3384615384615385,
+                  "yc": 0.7586206896551724
+                },
+                "judge": {
+                  "van": 0.06153846153846154,
+                  "yc": 0.13793103448275862
+                },
+                "unidentified_by_instrument": true,
+                "judge_clears_bar": {
+                  "van": false,
+                  "yc": false
+                }
+              },
+              "Potential Fit": {
+                "bar": 0.4,
+                "human_pair": {
+                  "van": 0.43243243243243246,
+                  "yc": 0.36363636363636365
+                },
+                "judge": {
+                  "van": 0.5405405405405406,
+                  "yc": 0.8181818181818182
+                },
+                "unidentified_by_instrument": true,
+                "judge_clears_bar": {
+                  "van": true,
+                  "yc": true
+                }
+              },
+              "No Fit": {
+                "bar": 0.4,
+                "human_pair": {
+                  "van": 0.9166666666666666,
+                  "yc": 0.41509433962264153
+                },
+                "judge": {
+                  "van": 0.9166666666666666,
+                  "yc": 0.8113207547169812
+                },
+                "unidentified_by_instrument": false,
+                "judge_clears_bar": {
+                  "van": true,
+                  "yc": true
+                }
+              }
+            },
+            "note_not_separated": "Every interval in this block overlaps every other at this n. `pass` means the judge partners the retained annotator better than the replaced one did by more than the declared band, not that the two are distinguishable.",
+            "note_licences": "Passing licenses the judge as a *second* annotator in a double-labelling wave, where being as unreliable as a human is the specification. It does not license the judge as an answer key: no agreement figure between two fallible raters is a claim about correctness. D36 stays unmade."
+          },
+          "label_distribution": {
+            "Good Fit": 16,
+            "Potential Fit": 236,
+            "No Fit": 148
+          }
+        },
+        "claude-sonnet-5": {
+          "n_llm": 400,
+          "vs_llm": {
+            "van": {
+              "n": 126,
+              "three_class": {
+                "kappa": 0.19064748201438853,
+                "lo": 0.10304791646676023,
+                "hi": 0.2873334169234076,
+                "n": 126,
+                "agreement": 0.40476190476190477
+              },
+              "binary": {
+                "kappa": 0.28712871287128705,
+                "lo": 0.1767373461012312,
+                "hi": 0.41036717062634986,
+                "n": 126,
+                "agreement": 0.6190476190476191
+              },
+              "per_class": {
+                "Good Fit": {
+                  "n": 65,
+                  "agreement": 0.2153846153846154
+                },
+                "Potential Fit": {
+                  "n": 37,
+                  "agreement": 0.3783783783783784
+                },
+                "No Fit": {
+                  "n": 24,
+                  "agreement": 0.9583333333333334
+                }
+              },
+              "confusion_rows_first": {
+                "Good Fit": {
+                  "Good Fit": 14,
+                  "Potential Fit": 25,
+                  "No Fit": 26
+                },
+                "Potential Fit": {
+                  "Good Fit": 2,
+                  "Potential Fit": 14,
+                  "No Fit": 21
+                },
+                "No Fit": {
+                  "Good Fit": 0,
+                  "Potential Fit": 1,
+                  "No Fit": 23
+                }
+              },
+              "confusion_rows_second": {
+                "Good Fit": {
+                  "Good Fit": 14,
+                  "Potential Fit": 2,
+                  "No Fit": 0
+                },
+                "Potential Fit": {
+                  "Good Fit": 25,
+                  "Potential Fit": 14,
+                  "No Fit": 1
+                },
+                "No Fit": {
+                  "Good Fit": 26,
+                  "Potential Fit": 21,
+                  "No Fit": 23
+                }
+              }
+            },
+            "yc": {
+              "n": 400,
+              "three_class": {
+                "kappa": 0.35773038467221596,
+                "lo": 0.2859369491301529,
+                "hi": 0.43024690310072344,
+                "n": 400,
+                "agreement": 0.5925
+              },
+              "binary": {
+                "kappa": 0.4810714638726895,
+                "lo": 0.3939565540508877,
+                "hi": 0.5601533488519677,
+                "n": 400,
+                "agreement": 0.7375
+              },
+              "per_class": {
+                "Good Fit": {
+                  "n": 101,
+                  "agreement": 0.3069306930693069
+                },
+                "Potential Fit": {
+                  "n": 138,
+                  "agreement": 0.5217391304347826
+                },
+                "No Fit": {
+                  "n": 161,
+                  "agreement": 0.8322981366459627
+                }
+              },
+              "confusion_rows_first": {
+                "Good Fit": {
+                  "Good Fit": 31,
+                  "Potential Fit": 46,
+                  "No Fit": 24
+                },
+                "Potential Fit": {
+                  "Good Fit": 12,
+                  "Potential Fit": 72,
+                  "No Fit": 54
+                },
+                "No Fit": {
+                  "Good Fit": 0,
+                  "Potential Fit": 27,
+                  "No Fit": 134
+                }
+              },
+              "confusion_rows_second": {
+                "Good Fit": {
+                  "Good Fit": 31,
+                  "Potential Fit": 12,
+                  "No Fit": 0
+                },
+                "Potential Fit": {
+                  "Good Fit": 46,
+                  "Potential Fit": 72,
+                  "No Fit": 27
+                },
+                "No Fit": {
+                  "Good Fit": 24,
+                  "Potential Fit": 54,
+                  "No Fit": 134
+                }
+              }
+            }
+          },
+          "consensus": {
+            "annotators": [
+              "van",
+              "yc"
+            ],
+            "n_multi_labelled": 126,
+            "n_agreed": 60,
+            "coverage": 0.47619047619047616,
+            "label_distribution": {
+              "Good Fit": 22,
+              "Potential Fit": 16,
+              "No Fit": 22
+            },
+            "note_selection": "The pairs two annotators agreed on are not a random subsample: they are the pairs both found unambiguous. A judge scores higher there for the reason a student scores higher on the easy half of an exam, so this is an UPPER estimate of its performance on the stratum, never an unbiased one. It is also why consensus cannot license substitution \u2014 the pairs it excludes are exactly the population a substituting judge would label alone, with no reference and no appeal (design spec \u00a73).",
+            "vs_llm": {
+              "n": 60,
+              "three_class": {
+                "kappa": 0.41475826972010177,
+                "lo": 0.25478250230308613,
+                "hi": 0.5735331776798727,
+                "n": 60,
+                "agreement": 0.6166666666666667
+              },
+              "binary": {
+                "kappa": 0.47530864197530864,
+                "lo": 0.30434782608695654,
+                "hi": 0.6444156701890988,
+                "n": 60,
+                "agreement": 0.7166666666666667
+              },
+              "per_class": {
+                "Good Fit": {
+                  "n": 22,
+                  "agreement": 0.36363636363636365
+                },
+                "Potential Fit": {
+                  "n": 16,
+                  "agreement": 0.4375
+                },
+                "No Fit": {
+                  "n": 22,
+                  "agreement": 1.0
+                }
+              },
+              "confusion_rows_consensus": {
+                "Good Fit": {
+                  "Good Fit": 8,
+                  "Potential Fit": 6,
+                  "No Fit": 8
+                },
+                "Potential Fit": {
+                  "Good Fit": 0,
+                  "Potential Fit": 7,
+                  "No Fit": 9
+                },
+                "No Fit": {
+                  "Good Fit": 0,
+                  "Potential Fit": 0,
+                  "No Fit": 22
+                }
+              },
+              "confusion_rows_llm": {
+                "Good Fit": {
+                  "Good Fit": 8,
+                  "Potential Fit": 0,
+                  "No Fit": 0
+                },
+                "Potential Fit": {
+                  "Good Fit": 6,
+                  "Potential Fit": 7,
+                  "No Fit": 0
+                },
+                "No Fit": {
+                  "Good Fit": 8,
+                  "Potential Fit": 9,
+                  "No Fit": 22
+                }
+              }
+            }
+          },
+          "interchangeability": {
+            "n": 126,
+            "band": 0.05,
+            "rows": {
+              "van": {
+                "retained": "van",
+                "replaced": "yc",
+                "n": 126,
+                "human_pair": {
+                  "three_class": {
+                    "kappa": 0.25020286718961315,
+                    "lo": 0.13366684597183542,
+                    "hi": 0.3660941586529765,
+                    "n": 126,
+                    "agreement": 0.47619047619047616
+                  },
+                  "binary": {
+                    "kappa": 0.4191114836546521,
+                    "lo": 0.2702668336604477,
+                    "hi": 0.5706730233935445,
+                    "n": 126,
+                    "agreement": 0.7380952380952381
+                  },
+                  "per_class": {
+                    "Good Fit": {
+                      "n": 65,
+                      "agreement": 0.3384615384615385
+                    },
+                    "Potential Fit": {
+                      "n": 37,
+                      "agreement": 0.43243243243243246
+                    },
+                    "No Fit": {
+                      "n": 24,
+                      "agreement": 0.9166666666666666
+                    }
+                  }
+                },
+                "judge": {
+                  "three_class": {
+                    "kappa": 0.19064748201438853,
+                    "lo": 0.0982242347672982,
+                    "hi": 0.28347380349947693,
+                    "n": 126,
+                    "agreement": 0.40476190476190477
+                  },
+                  "binary": {
+                    "kappa": 0.28712871287128705,
+                    "lo": 0.18069511393343785,
+                    "hi": 0.41237113402061865,
+                    "n": 126,
+                    "agreement": 0.6190476190476191
+                  },
+                  "per_class": {
+                    "Good Fit": {
+                      "n": 65,
+                      "agreement": 0.2153846153846154
+                    },
+                    "Potential Fit": {
+                      "n": 37,
+                      "agreement": 0.3783783783783784
+                    },
+                    "No Fit": {
+                      "n": 24,
+                      "agreement": 0.9583333333333334
+                    }
+                  }
+                },
+                "verdict": {
+                  "three_class": "fail",
+                  "binary": "fail"
+                }
+              },
+              "yc": {
+                "retained": "yc",
+                "replaced": "van",
+                "n": 126,
+                "human_pair": {
+                  "three_class": {
+                    "kappa": 0.25020286718961315,
+                    "lo": 0.13366684597183542,
+                    "hi": 0.3660941586529765,
+                    "n": 126,
+                    "agreement": 0.47619047619047616
+                  },
+                  "binary": {
+                    "kappa": 0.4191114836546521,
+                    "lo": 0.2702668336604477,
+                    "hi": 0.5706730233935445,
+                    "n": 126,
+                    "agreement": 0.7380952380952381
+                  },
+                  "per_class": {
+                    "Good Fit": {
+                      "n": 29,
+                      "agreement": 0.7586206896551724
+                    },
+                    "Potential Fit": {
+                      "n": 44,
+                      "agreement": 0.36363636363636365
+                    },
+                    "No Fit": {
+                      "n": 53,
+                      "agreement": 0.41509433962264153
+                    }
+                  }
+                },
+                "judge": {
+                  "three_class": {
+                    "kappa": 0.3789981894990947,
+                    "lo": 0.2447680473528792,
+                    "hi": 0.495205120070285,
+                    "n": 126,
+                    "agreement": 0.6111111111111112
+                  },
+                  "binary": {
+                    "kappa": 0.4852686308492201,
+                    "lo": 0.3323826191427114,
+                    "hi": 0.6236020432326376,
+                    "n": 126,
+                    "agreement": 0.7380952380952381
+                  },
+                  "per_class": {
+                    "Good Fit": {
+                      "n": 29,
+                      "agreement": 0.3448275862068966
+                    },
+                    "Potential Fit": {
+                      "n": 44,
+                      "agreement": 0.5
+                    },
+                    "No Fit": {
+                      "n": 53,
+                      "agreement": 0.8490566037735849
+                    }
+                  }
+                },
+                "verdict": {
+                  "three_class": "pass",
+                  "binary": "pass"
+                }
+              }
+            },
+            "per_class": {
+              "Good Fit": {
+                "bar": 0.4,
+                "human_pair": {
+                  "van": 0.3384615384615385,
+                  "yc": 0.7586206896551724
+                },
+                "judge": {
+                  "van": 0.2153846153846154,
+                  "yc": 0.3448275862068966
+                },
+                "unidentified_by_instrument": true,
+                "judge_clears_bar": {
+                  "van": false,
+                  "yc": false
+                }
+              },
+              "Potential Fit": {
+                "bar": 0.4,
+                "human_pair": {
+                  "van": 0.43243243243243246,
+                  "yc": 0.36363636363636365
+                },
+                "judge": {
+                  "van": 0.3783783783783784,
+                  "yc": 0.5
+                },
+                "unidentified_by_instrument": true,
+                "judge_clears_bar": {
+                  "van": false,
+                  "yc": true
+                }
+              },
+              "No Fit": {
+                "bar": 0.4,
+                "human_pair": {
+                  "van": 0.9166666666666666,
+                  "yc": 0.41509433962264153
+                },
+                "judge": {
+                  "van": 0.9583333333333334,
+                  "yc": 0.8490566037735849
+                },
+                "unidentified_by_instrument": false,
+                "judge_clears_bar": {
+                  "van": true,
+                  "yc": true
+                }
+              }
+            },
+            "note_not_separated": "Every interval in this block overlaps every other at this n. `pass` means the judge partners the retained annotator better than the replaced one did by more than the declared band, not that the two are distinguishable.",
+            "note_licences": "Passing licenses the judge as a *second* annotator in a double-labelling wave, where being as unreliable as a human is the specification. It does not license the judge as an answer key: no agreement figure between two fallible raters is a claim about correctness. D36 stays unmade."
+          },
+          "label_distribution": {
+            "Good Fit": 43,
+            "Potential Fit": 145,
+            "No Fit": 212
           }
         }
       },
@@ -504,14 +1348,45 @@
         "note_licences": "Passing licenses the judge as a *second* annotator in a double-labelling wave, where being as unreliable as a human is the specification. It does not license the judge as an answer key: no agreement figure between two fallible raters is a claim about correctness. D36 stays unmade."
       },
       "n_scored": 400,
-      "n_dispatched": 400,
+      "n_dispatched": 800,
       "status": "scored",
       "self_consistency": {},
-      "not_self_consistency": {},
+      "not_self_consistency": {
+        "run5_vs_run7": {
+          "run_x": {
+            "models": [
+              "claude-haiku-4-5"
+            ],
+            "agents": [
+              "75e00ea3d0c34ab92acd7e6436de2921a3b80b2ff4e8106c88bc7580d048cd23"
+            ],
+            "rows": 400
+          },
+          "run_y": {
+            "models": [
+              "claude-sonnet-5"
+            ],
+            "agents": [
+              "75e00ea3d0c34ab92acd7e6436de2921a3b80b2ff4e8106c88bc7580d048cd23"
+            ],
+            "rows": 400
+          },
+          "why": "these two runs differ on instrument or model, so their agreement is a comparison between judges and not this judge repeating itself (D38)"
+        }
+      },
       "run_provenance": {
         "5": {
           "models": [
             "claude-haiku-4-5"
+          ],
+          "agents": [
+            "75e00ea3d0c34ab92acd7e6436de2921a3b80b2ff4e8106c88bc7580d048cd23"
+          ],
+          "rows": 400
+        },
+        "7": {
+          "models": [
+            "claude-sonnet-5"
           ],
           "agents": [
             "75e00ea3d0c34ab92acd7e6436de2921a3b80b2ff4e8106c88bc7580d048cd23"
@@ -524,11 +1399,20 @@
       "draw": "a2_targeted",
       "file": "/home/yuchen/project/intelligent-candidate-screener/docs/data/manifests/llm-a2-targeted.csv",
       "runs": [
-        6
+        6,
+        8
       ],
       "coverage": {
         "6": {
           "run": 6,
+          "n_dispatched": 200,
+          "n_answered": 200,
+          "n_quarantined": 0,
+          "n_missing": 0,
+          "complete": true
+        },
+        "8": {
+          "run": 8,
           "n_dispatched": 200,
           "n_answered": 200,
           "n_quarantined": 0,
@@ -542,7 +1426,8 @@
       },
       "llm_model": "claude-haiku-4-5",
       "models_on_file": {
-        "claude-haiku-4-5": 200
+        "claude-haiku-4-5": 200,
+        "claude-sonnet-5": 200
       },
       "n_llm": 200,
       "vs_llm": {
@@ -741,6 +1626,840 @@
               "Potential Fit": 35,
               "No Fit": 57
             }
+          }
+        }
+      },
+      "by_model": {
+        "claude-haiku-4-5": {
+          "n_llm": 200,
+          "vs_llm": {
+            "van": {
+              "n": 200,
+              "three_class": {
+                "kappa": 0.20404102250114797,
+                "lo": 0.11545618325016005,
+                "hi": 0.29471252225457945,
+                "n": 200,
+                "agreement": 0.48
+              },
+              "binary": {
+                "kappa": 0.3943901402464939,
+                "lo": 0.25886073548624816,
+                "hi": 0.5158785566880583,
+                "n": 200,
+                "agreement": 0.715
+              },
+              "per_class": {
+                "Good Fit": {
+                  "n": 60,
+                  "agreement": 0.06666666666666667
+                },
+                "Potential Fit": {
+                  "n": 68,
+                  "agreement": 0.6617647058823529
+                },
+                "No Fit": {
+                  "n": 72,
+                  "agreement": 0.6527777777777778
+                }
+              },
+              "confusion_rows_first": {
+                "Good Fit": {
+                  "Good Fit": 4,
+                  "Potential Fit": 47,
+                  "No Fit": 9
+                },
+                "Potential Fit": {
+                  "Good Fit": 0,
+                  "Potential Fit": 45,
+                  "No Fit": 23
+                },
+                "No Fit": {
+                  "Good Fit": 2,
+                  "Potential Fit": 23,
+                  "No Fit": 47
+                }
+              },
+              "confusion_rows_second": {
+                "Good Fit": {
+                  "Good Fit": 4,
+                  "Potential Fit": 0,
+                  "No Fit": 2
+                },
+                "Potential Fit": {
+                  "Good Fit": 47,
+                  "Potential Fit": 45,
+                  "No Fit": 23
+                },
+                "No Fit": {
+                  "Good Fit": 9,
+                  "Potential Fit": 23,
+                  "No Fit": 47
+                }
+              }
+            },
+            "yc": {
+              "n": 200,
+              "three_class": {
+                "kappa": 0.24918257780648279,
+                "lo": 0.15021317111405844,
+                "hi": 0.3391032600708766,
+                "n": 200,
+                "agreement": 0.535
+              },
+              "binary": {
+                "kappa": 0.3711300309597524,
+                "lo": 0.24789807127087535,
+                "hi": 0.4853625146576866,
+                "n": 200,
+                "agreement": 0.675
+              },
+              "per_class": {
+                "Good Fit": {
+                  "n": 33,
+                  "agreement": 0.12121212121212122
+                },
+                "Potential Fit": {
+                  "n": 51,
+                  "agreement": 0.7450980392156863
+                },
+                "No Fit": {
+                  "n": 116,
+                  "agreement": 0.5603448275862069
+                }
+              },
+              "confusion_rows_first": {
+                "Good Fit": {
+                  "Good Fit": 4,
+                  "Potential Fit": 27,
+                  "No Fit": 2
+                },
+                "Potential Fit": {
+                  "Good Fit": 1,
+                  "Potential Fit": 38,
+                  "No Fit": 12
+                },
+                "No Fit": {
+                  "Good Fit": 1,
+                  "Potential Fit": 50,
+                  "No Fit": 65
+                }
+              },
+              "confusion_rows_second": {
+                "Good Fit": {
+                  "Good Fit": 4,
+                  "Potential Fit": 1,
+                  "No Fit": 1
+                },
+                "Potential Fit": {
+                  "Good Fit": 27,
+                  "Potential Fit": 38,
+                  "No Fit": 50
+                },
+                "No Fit": {
+                  "Good Fit": 2,
+                  "Potential Fit": 12,
+                  "No Fit": 65
+                }
+              }
+            }
+          },
+          "consensus": {
+            "annotators": [
+              "van",
+              "yc"
+            ],
+            "n_multi_labelled": 200,
+            "n_agreed": 97,
+            "coverage": 0.485,
+            "label_distribution": {
+              "Good Fit": 18,
+              "Potential Fit": 22,
+              "No Fit": 57
+            },
+            "note_selection": "The pairs two annotators agreed on are not a random subsample: they are the pairs both found unambiguous. A judge scores higher there for the reason a student scores higher on the easy half of an exam, so this is an UPPER estimate of its performance on the stratum, never an unbiased one. It is also why consensus cannot license substitution \u2014 the pairs it excludes are exactly the population a substituting judge would label alone, with no reference and no appeal (design spec \u00a73).",
+            "vs_llm": {
+              "n": 97,
+              "three_class": {
+                "kappa": 0.40101707228478034,
+                "lo": 0.25940803177915817,
+                "hi": 0.5394516991222923,
+                "n": 97,
+                "agreement": 0.6494845360824743
+              },
+              "binary": {
+                "kappa": 0.5838695838695839,
+                "lo": 0.42187549633284815,
+                "hi": 0.7318048322970299,
+                "n": 97,
+                "agreement": 0.7938144329896907
+              },
+              "per_class": {
+                "Good Fit": {
+                  "n": 18,
+                  "agreement": 0.16666666666666666
+                },
+                "Potential Fit": {
+                  "n": 22,
+                  "agreement": 0.7272727272727273
+                },
+                "No Fit": {
+                  "n": 57,
+                  "agreement": 0.7719298245614035
+                }
+              },
+              "confusion_rows_consensus": {
+                "Good Fit": {
+                  "Good Fit": 3,
+                  "Potential Fit": 14,
+                  "No Fit": 1
+                },
+                "Potential Fit": {
+                  "Good Fit": 0,
+                  "Potential Fit": 16,
+                  "No Fit": 6
+                },
+                "No Fit": {
+                  "Good Fit": 1,
+                  "Potential Fit": 12,
+                  "No Fit": 44
+                }
+              },
+              "confusion_rows_llm": {
+                "Good Fit": {
+                  "Good Fit": 3,
+                  "Potential Fit": 0,
+                  "No Fit": 1
+                },
+                "Potential Fit": {
+                  "Good Fit": 14,
+                  "Potential Fit": 16,
+                  "No Fit": 12
+                },
+                "No Fit": {
+                  "Good Fit": 1,
+                  "Potential Fit": 6,
+                  "No Fit": 44
+                }
+              }
+            }
+          },
+          "interchangeability": {
+            "n": 200,
+            "band": 0.05,
+            "rows": {
+              "van": {
+                "retained": "van",
+                "replaced": "yc",
+                "n": 200,
+                "human_pair": {
+                  "three_class": {
+                    "kappa": 0.2137404580152672,
+                    "lo": 0.11873520291161638,
+                    "hi": 0.31156156393315204,
+                    "n": 200,
+                    "agreement": 0.485
+                  },
+                  "binary": {
+                    "kappa": 0.2917304747320061,
+                    "lo": 0.171911961335044,
+                    "hi": 0.4029604623056392,
+                    "n": 200,
+                    "agreement": 0.63
+                  },
+                  "per_class": {
+                    "Good Fit": {
+                      "n": 60,
+                      "agreement": 0.3
+                    },
+                    "Potential Fit": {
+                      "n": 68,
+                      "agreement": 0.3235294117647059
+                    },
+                    "No Fit": {
+                      "n": 72,
+                      "agreement": 0.7916666666666666
+                    }
+                  }
+                },
+                "judge": {
+                  "three_class": {
+                    "kappa": 0.20404102250114797,
+                    "lo": 0.11181893354881903,
+                    "hi": 0.2946655440453459,
+                    "n": 200,
+                    "agreement": 0.48
+                  },
+                  "binary": {
+                    "kappa": 0.3943901402464939,
+                    "lo": 0.25837248229265225,
+                    "hi": 0.5248382657629809,
+                    "n": 200,
+                    "agreement": 0.715
+                  },
+                  "per_class": {
+                    "Good Fit": {
+                      "n": 60,
+                      "agreement": 0.06666666666666667
+                    },
+                    "Potential Fit": {
+                      "n": 68,
+                      "agreement": 0.6617647058823529
+                    },
+                    "No Fit": {
+                      "n": 72,
+                      "agreement": 0.6527777777777778
+                    }
+                  }
+                },
+                "verdict": {
+                  "three_class": "tie",
+                  "binary": "pass"
+                }
+              },
+              "yc": {
+                "retained": "yc",
+                "replaced": "van",
+                "n": 200,
+                "human_pair": {
+                  "three_class": {
+                    "kappa": 0.2137404580152672,
+                    "lo": 0.11873520291161638,
+                    "hi": 0.31156156393315204,
+                    "n": 200,
+                    "agreement": 0.485
+                  },
+                  "binary": {
+                    "kappa": 0.2917304747320061,
+                    "lo": 0.171911961335044,
+                    "hi": 0.4029604623056392,
+                    "n": 200,
+                    "agreement": 0.63
+                  },
+                  "per_class": {
+                    "Good Fit": {
+                      "n": 33,
+                      "agreement": 0.5454545454545454
+                    },
+                    "Potential Fit": {
+                      "n": 51,
+                      "agreement": 0.43137254901960786
+                    },
+                    "No Fit": {
+                      "n": 116,
+                      "agreement": 0.49137931034482757
+                    }
+                  }
+                },
+                "judge": {
+                  "three_class": {
+                    "kappa": 0.24918257780648279,
+                    "lo": 0.15665354312045662,
+                    "hi": 0.3459898367320247,
+                    "n": 200,
+                    "agreement": 0.535
+                  },
+                  "binary": {
+                    "kappa": 0.3711300309597524,
+                    "lo": 0.24989118497510712,
+                    "hi": 0.4898321083643317,
+                    "n": 200,
+                    "agreement": 0.675
+                  },
+                  "per_class": {
+                    "Good Fit": {
+                      "n": 33,
+                      "agreement": 0.12121212121212122
+                    },
+                    "Potential Fit": {
+                      "n": 51,
+                      "agreement": 0.7450980392156863
+                    },
+                    "No Fit": {
+                      "n": 116,
+                      "agreement": 0.5603448275862069
+                    }
+                  }
+                },
+                "verdict": {
+                  "three_class": "tie",
+                  "binary": "pass"
+                }
+              }
+            },
+            "per_class": {
+              "Good Fit": {
+                "bar": 0.4,
+                "human_pair": {
+                  "van": 0.3,
+                  "yc": 0.5454545454545454
+                },
+                "judge": {
+                  "van": 0.06666666666666667,
+                  "yc": 0.12121212121212122
+                },
+                "unidentified_by_instrument": true,
+                "judge_clears_bar": {
+                  "van": false,
+                  "yc": false
+                }
+              },
+              "Potential Fit": {
+                "bar": 0.4,
+                "human_pair": {
+                  "van": 0.3235294117647059,
+                  "yc": 0.43137254901960786
+                },
+                "judge": {
+                  "van": 0.6617647058823529,
+                  "yc": 0.7450980392156863
+                },
+                "unidentified_by_instrument": true,
+                "judge_clears_bar": {
+                  "van": true,
+                  "yc": true
+                }
+              },
+              "No Fit": {
+                "bar": 0.4,
+                "human_pair": {
+                  "van": 0.7916666666666666,
+                  "yc": 0.49137931034482757
+                },
+                "judge": {
+                  "van": 0.6527777777777778,
+                  "yc": 0.5603448275862069
+                },
+                "unidentified_by_instrument": false,
+                "judge_clears_bar": {
+                  "van": true,
+                  "yc": true
+                }
+              }
+            },
+            "note_not_separated": "Every interval in this block overlaps every other at this n. `pass` means the judge partners the retained annotator better than the replaced one did by more than the declared band, not that the two are distinguishable.",
+            "note_licences": "Passing licenses the judge as a *second* annotator in a double-labelling wave, where being as unreliable as a human is the specification. It does not license the judge as an answer key: no agreement figure between two fallible raters is a claim about correctness. D36 stays unmade."
+          },
+          "label_distribution": {
+            "Good Fit": 6,
+            "Potential Fit": 115,
+            "No Fit": 79
+          }
+        },
+        "claude-sonnet-5": {
+          "n_llm": 200,
+          "vs_llm": {
+            "van": {
+              "n": 200,
+              "three_class": {
+                "kappa": 0.14084074869591912,
+                "lo": 0.04591908169994873,
+                "hi": 0.23566372647167327,
+                "n": 200,
+                "agreement": 0.44
+              },
+              "binary": {
+                "kappa": 0.26866820631254806,
+                "lo": 0.14460384057526304,
+                "hi": 0.3841740224852435,
+                "n": 200,
+                "agreement": 0.62
+              },
+              "per_class": {
+                "Good Fit": {
+                  "n": 60,
+                  "agreement": 0.15
+                },
+                "Potential Fit": {
+                  "n": 68,
+                  "agreement": 0.35294117647058826
+                },
+                "No Fit": {
+                  "n": 72,
+                  "agreement": 0.7638888888888888
+                }
+              },
+              "confusion_rows_first": {
+                "Good Fit": {
+                  "Good Fit": 9,
+                  "Potential Fit": 30,
+                  "No Fit": 21
+                },
+                "Potential Fit": {
+                  "Good Fit": 6,
+                  "Potential Fit": 24,
+                  "No Fit": 38
+                },
+                "No Fit": {
+                  "Good Fit": 1,
+                  "Potential Fit": 16,
+                  "No Fit": 55
+                }
+              },
+              "confusion_rows_second": {
+                "Good Fit": {
+                  "Good Fit": 9,
+                  "Potential Fit": 6,
+                  "No Fit": 1
+                },
+                "Potential Fit": {
+                  "Good Fit": 30,
+                  "Potential Fit": 24,
+                  "No Fit": 16
+                },
+                "No Fit": {
+                  "Good Fit": 21,
+                  "Potential Fit": 38,
+                  "No Fit": 55
+                }
+              }
+            },
+            "yc": {
+              "n": 200,
+              "three_class": {
+                "kappa": 0.4532145691859951,
+                "lo": 0.34249804715691906,
+                "hi": 0.5597832923630045,
+                "n": 200,
+                "agreement": 0.69
+              },
+              "binary": {
+                "kappa": 0.5908346972176759,
+                "lo": 0.4715231985381743,
+                "hi": 0.7061877791860994,
+                "n": 200,
+                "agreement": 0.8
+              },
+              "per_class": {
+                "Good Fit": {
+                  "n": 33,
+                  "agreement": 0.36363636363636365
+                },
+                "Potential Fit": {
+                  "n": 51,
+                  "agreement": 0.6078431372549019
+                },
+                "No Fit": {
+                  "n": 116,
+                  "agreement": 0.8189655172413793
+                }
+              },
+              "confusion_rows_first": {
+                "Good Fit": {
+                  "Good Fit": 12,
+                  "Potential Fit": 18,
+                  "No Fit": 3
+                },
+                "Potential Fit": {
+                  "Good Fit": 4,
+                  "Potential Fit": 31,
+                  "No Fit": 16
+                },
+                "No Fit": {
+                  "Good Fit": 0,
+                  "Potential Fit": 21,
+                  "No Fit": 95
+                }
+              },
+              "confusion_rows_second": {
+                "Good Fit": {
+                  "Good Fit": 12,
+                  "Potential Fit": 4,
+                  "No Fit": 0
+                },
+                "Potential Fit": {
+                  "Good Fit": 18,
+                  "Potential Fit": 31,
+                  "No Fit": 21
+                },
+                "No Fit": {
+                  "Good Fit": 3,
+                  "Potential Fit": 16,
+                  "No Fit": 95
+                }
+              }
+            }
+          },
+          "consensus": {
+            "annotators": [
+              "van",
+              "yc"
+            ],
+            "n_multi_labelled": 200,
+            "n_agreed": 97,
+            "coverage": 0.485,
+            "label_distribution": {
+              "Good Fit": 18,
+              "Potential Fit": 22,
+              "No Fit": 57
+            },
+            "note_selection": "The pairs two annotators agreed on are not a random subsample: they are the pairs both found unambiguous. A judge scores higher there for the reason a student scores higher on the easy half of an exam, so this is an UPPER estimate of its performance on the stratum, never an unbiased one. It is also why consensus cannot license substitution \u2014 the pairs it excludes are exactly the population a substituting judge would label alone, with no reference and no appeal (design spec \u00a73).",
+            "vs_llm": {
+              "n": 97,
+              "three_class": {
+                "kappa": 0.5224389320204507,
+                "lo": 0.38203602036836093,
+                "hi": 0.6642250612820778,
+                "n": 97,
+                "agreement": 0.7319587628865979
+              },
+              "binary": {
+                "kappa": 0.7224301122606207,
+                "lo": 0.5829616004891828,
+                "hi": 0.8527434396009542,
+                "n": 97,
+                "agreement": 0.865979381443299
+              },
+              "per_class": {
+                "Good Fit": {
+                  "n": 18,
+                  "agreement": 0.3888888888888889
+                },
+                "Potential Fit": {
+                  "n": 22,
+                  "agreement": 0.5909090909090909
+                },
+                "No Fit": {
+                  "n": 57,
+                  "agreement": 0.8947368421052632
+                }
+              },
+              "confusion_rows_consensus": {
+                "Good Fit": {
+                  "Good Fit": 7,
+                  "Potential Fit": 11,
+                  "No Fit": 0
+                },
+                "Potential Fit": {
+                  "Good Fit": 2,
+                  "Potential Fit": 13,
+                  "No Fit": 7
+                },
+                "No Fit": {
+                  "Good Fit": 0,
+                  "Potential Fit": 6,
+                  "No Fit": 51
+                }
+              },
+              "confusion_rows_llm": {
+                "Good Fit": {
+                  "Good Fit": 7,
+                  "Potential Fit": 2,
+                  "No Fit": 0
+                },
+                "Potential Fit": {
+                  "Good Fit": 11,
+                  "Potential Fit": 13,
+                  "No Fit": 6
+                },
+                "No Fit": {
+                  "Good Fit": 0,
+                  "Potential Fit": 7,
+                  "No Fit": 51
+                }
+              }
+            }
+          },
+          "interchangeability": {
+            "n": 200,
+            "band": 0.05,
+            "rows": {
+              "van": {
+                "retained": "van",
+                "replaced": "yc",
+                "n": 200,
+                "human_pair": {
+                  "three_class": {
+                    "kappa": 0.2137404580152672,
+                    "lo": 0.11873520291161638,
+                    "hi": 0.31156156393315204,
+                    "n": 200,
+                    "agreement": 0.485
+                  },
+                  "binary": {
+                    "kappa": 0.2917304747320061,
+                    "lo": 0.171911961335044,
+                    "hi": 0.4029604623056392,
+                    "n": 200,
+                    "agreement": 0.63
+                  },
+                  "per_class": {
+                    "Good Fit": {
+                      "n": 60,
+                      "agreement": 0.3
+                    },
+                    "Potential Fit": {
+                      "n": 68,
+                      "agreement": 0.3235294117647059
+                    },
+                    "No Fit": {
+                      "n": 72,
+                      "agreement": 0.7916666666666666
+                    }
+                  }
+                },
+                "judge": {
+                  "three_class": {
+                    "kappa": 0.14084074869591912,
+                    "lo": 0.04628780939224863,
+                    "hi": 0.2401117399667899,
+                    "n": 200,
+                    "agreement": 0.44
+                  },
+                  "binary": {
+                    "kappa": 0.26866820631254806,
+                    "lo": 0.1450541203501621,
+                    "hi": 0.38492546689358015,
+                    "n": 200,
+                    "agreement": 0.62
+                  },
+                  "per_class": {
+                    "Good Fit": {
+                      "n": 60,
+                      "agreement": 0.15
+                    },
+                    "Potential Fit": {
+                      "n": 68,
+                      "agreement": 0.35294117647058826
+                    },
+                    "No Fit": {
+                      "n": 72,
+                      "agreement": 0.7638888888888888
+                    }
+                  }
+                },
+                "verdict": {
+                  "three_class": "fail",
+                  "binary": "tie"
+                }
+              },
+              "yc": {
+                "retained": "yc",
+                "replaced": "van",
+                "n": 200,
+                "human_pair": {
+                  "three_class": {
+                    "kappa": 0.2137404580152672,
+                    "lo": 0.11873520291161638,
+                    "hi": 0.31156156393315204,
+                    "n": 200,
+                    "agreement": 0.485
+                  },
+                  "binary": {
+                    "kappa": 0.2917304747320061,
+                    "lo": 0.171911961335044,
+                    "hi": 0.4029604623056392,
+                    "n": 200,
+                    "agreement": 0.63
+                  },
+                  "per_class": {
+                    "Good Fit": {
+                      "n": 33,
+                      "agreement": 0.5454545454545454
+                    },
+                    "Potential Fit": {
+                      "n": 51,
+                      "agreement": 0.43137254901960786
+                    },
+                    "No Fit": {
+                      "n": 116,
+                      "agreement": 0.49137931034482757
+                    }
+                  }
+                },
+                "judge": {
+                  "three_class": {
+                    "kappa": 0.4532145691859951,
+                    "lo": 0.35074327749979617,
+                    "hi": 0.5555657132906708,
+                    "n": 200,
+                    "agreement": 0.69
+                  },
+                  "binary": {
+                    "kappa": 0.5908346972176759,
+                    "lo": 0.47387897142338303,
+                    "hi": 0.6981255613119306,
+                    "n": 200,
+                    "agreement": 0.8
+                  },
+                  "per_class": {
+                    "Good Fit": {
+                      "n": 33,
+                      "agreement": 0.36363636363636365
+                    },
+                    "Potential Fit": {
+                      "n": 51,
+                      "agreement": 0.6078431372549019
+                    },
+                    "No Fit": {
+                      "n": 116,
+                      "agreement": 0.8189655172413793
+                    }
+                  }
+                },
+                "verdict": {
+                  "three_class": "pass",
+                  "binary": "pass"
+                }
+              }
+            },
+            "per_class": {
+              "Good Fit": {
+                "bar": 0.4,
+                "human_pair": {
+                  "van": 0.3,
+                  "yc": 0.5454545454545454
+                },
+                "judge": {
+                  "van": 0.15,
+                  "yc": 0.36363636363636365
+                },
+                "unidentified_by_instrument": true,
+                "judge_clears_bar": {
+                  "van": false,
+                  "yc": false
+                }
+              },
+              "Potential Fit": {
+                "bar": 0.4,
+                "human_pair": {
+                  "van": 0.3235294117647059,
+                  "yc": 0.43137254901960786
+                },
+                "judge": {
+                  "van": 0.35294117647058826,
+                  "yc": 0.6078431372549019
+                },
+                "unidentified_by_instrument": true,
+                "judge_clears_bar": {
+                  "van": false,
+                  "yc": true
+                }
+              },
+              "No Fit": {
+                "bar": 0.4,
+                "human_pair": {
+                  "van": 0.7916666666666666,
+                  "yc": 0.49137931034482757
+                },
+                "judge": {
+                  "van": 0.7638888888888888,
+                  "yc": 0.8189655172413793
+                },
+                "unidentified_by_instrument": false,
+                "judge_clears_bar": {
+                  "van": true,
+                  "yc": true
+                }
+              }
+            },
+            "note_not_separated": "Every interval in this block overlaps every other at this n. `pass` means the judge partners the retained annotator better than the replaced one did by more than the declared band, not that the two are distinguishable.",
+            "note_licences": "Passing licenses the judge as a *second* annotator in a double-labelling wave, where being as unreliable as a human is the specification. It does not license the judge as an answer key: no agreement figure between two fallible raters is a claim about correctness. D36 stays unmade."
+          },
+          "label_distribution": {
+            "Good Fit": 16,
+            "Potential Fit": 70,
+            "No Fit": 114
           }
         }
       },
@@ -1021,14 +2740,45 @@
         "note_licences": "Passing licenses the judge as a *second* annotator in a double-labelling wave, where being as unreliable as a human is the specification. It does not license the judge as an answer key: no agreement figure between two fallible raters is a claim about correctness. D36 stays unmade."
       },
       "n_scored": 200,
-      "n_dispatched": 200,
+      "n_dispatched": 400,
       "status": "scored",
       "self_consistency": {},
-      "not_self_consistency": {},
+      "not_self_consistency": {
+        "run6_vs_run8": {
+          "run_x": {
+            "models": [
+              "claude-haiku-4-5"
+            ],
+            "agents": [
+              "75e00ea3d0c34ab92acd7e6436de2921a3b80b2ff4e8106c88bc7580d048cd23"
+            ],
+            "rows": 200
+          },
+          "run_y": {
+            "models": [
+              "claude-sonnet-5"
+            ],
+            "agents": [
+              "75e00ea3d0c34ab92acd7e6436de2921a3b80b2ff4e8106c88bc7580d048cd23"
+            ],
+            "rows": 200
+          },
+          "why": "these two runs differ on instrument or model, so their agreement is a comparison between judges and not this judge repeating itself (D38)"
+        }
+      },
       "run_provenance": {
         "6": {
           "models": [
             "claude-haiku-4-5"
+          ],
+          "agents": [
+            "75e00ea3d0c34ab92acd7e6436de2921a3b80b2ff4e8106c88bc7580d048cd23"
+          ],
+          "rows": 200
+        },
+        "8": {
+          "models": [
+            "claude-sonnet-5"
           ],
           "agents": [
             "75e00ea3d0c34ab92acd7e6436de2921a3b80b2ff4e8106c88bc7580d048cd23"

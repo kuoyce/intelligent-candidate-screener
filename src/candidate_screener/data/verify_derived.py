@@ -614,6 +614,36 @@ def check_llm_recheck() -> list[tuple[bool, str]]:
             off_corpus = frame[frame.corpus.astype(str) != "a2"]
             results.append((off_corpus.empty,
                             f"corpus: {len(off_corpus)} row(s) in {name} are not a2"))
+
+            # Model is an axis a figure may not be pooled across *(D38)*, and a row's
+            # model is copied out of the dispatch record — so a row naming a model its
+            # dispatch did not is a figure attributed to a judge that never ran. Runs 1-6
+            # predate M2 and their model was never passed to the subprocess at all
+            # (**Q43**); this checks the two agree, which is all that is checkable after
+            # the fact.
+            if dispatched:
+                off_model = [(r.pair_id, r.run, r.model)
+                             for r in frame.itertuples()
+                             if (r.pair_id, r.run) in dispatched
+                             and str(dispatched[(r.pair_id, r.run)].get("model", ""))
+                             != str(r.model)]
+                results.append((not off_model,
+                                f"model provenance: {len(off_model)} row(s) of {name} "
+                                "name a model its dispatch record does not (D38)"))
+                per_run = frame.groupby("run").model.nunique()
+                mixed = sorted(per_run[per_run > 1].index.tolist())
+                results.append((not mixed,
+                                f"one model per run: run(s) {mixed or 'none'} in {name} "
+                                "carry more than one model — a run is one sitting of one "
+                                "judge, and the model is part of which judge it is"))
+
+            # The instrument every A2 figure is quoted against. A row carrying a
+            # superseded agent is not an error — it is a previous instrument, reported
+            # under per_instrument — but a row carrying an agent that never existed is.
+            agents = sorted(frame.agent_sha256.astype(str).unique())
+            results.append((all(len(a) == 64 for a in agents),
+                            f"instrument: {name} names {len(agents)} agent_sha256 "
+                            f"value(s), all full-length"))
     return results
 
 

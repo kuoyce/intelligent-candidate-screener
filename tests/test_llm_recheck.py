@@ -1299,18 +1299,19 @@ def test_two_models_of_one_guide_are_never_one_series(tmp_path, monkeypatch):
                       extra_llm=[(7, "claude-sonnet-5", sonnet)])
 
     frames = llm.a2_frames("generic")
-    assert frames["_model"] == "claude-sonnet-5", (
-        "the default is the most recent run of the committed instrument")
+    assert frames["_model"] == llm.MODEL, (
+        "the default is the COMMITTED model, not the most recent run — otherwise "
+        "dispatching a control run silently changes what `vs_llm` refers to")
     assert len(frames["llm"]) == 10, (
         "the live series lost pairs — that is the two-model majority dropping every "
         "tie, and the survivors are the pairs the models agreed on")
     assert set(frames["per_model"]) == {"claude-haiku-4-5", "claude-sonnet-5"}
     assert len(frames["per_model"]["claude-haiku-4-5"]) == 10
-    assert frames["llm"].tolist() == [sonnet[p] for p in frames["llm"].index]
+    assert frames["llm"].tolist() == ["Good Fit"] * 10          # the haiku leg
 
     # And the caller may ask for the other one by name, rather than by re-deriving it.
-    assert llm.a2_frames("generic", model="claude-haiku-4-5")["llm"].tolist() == \
-        ["Good Fit"] * 10
+    other = llm.a2_frames("generic", model="claude-sonnet-5")["llm"]
+    assert other.tolist() == [sonnet[p] for p in other.index]
     with pytest.raises(ValueError, match="no rows under model"):
         llm.a2_frames("generic", model="claude-opus-5")
 
@@ -1335,8 +1336,15 @@ def test_a_model_comparison_is_not_reported_as_self_consistency(tmp_path, monkey
     section = llm.a2_report(strict=False)["strata"]["generic"]
     assert section["self_consistency"] == {}
     assert "run5_vs_run7" in section["not_self_consistency"]
-    assert section["llm_model"] == "claude-sonnet-5"
+    assert section["llm_model"] == llm.MODEL
     assert section["models_on_file"] == {"claude-haiku-4-5": 10, "claude-sonnet-5": 10}
+    # Each model carries its own complete figure set, and the section-level block is the
+    # committed one repeated — never a series built from both.
+    assert set(section["by_model"]) == {"claude-haiku-4-5", "claude-sonnet-5"}
+    for block in section["by_model"].values():
+        assert {"vs_llm", "consensus", "interchangeability"} <= set(block)
+    assert (section["consensus"]
+            == section["by_model"][llm.MODEL]["consensus"])
 
 
 def test_a_run_is_judged_by_the_model_its_dispatch_names(tmp_path, monkeypatch):

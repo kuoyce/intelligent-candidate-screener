@@ -1,9 +1,11 @@
 # Judge calibration — what to do with the LLM when the humans are spent
 
-**Status:** M1, M2 and move 1 **landed** 8 Sep 2026 — see
-[`03-consensus-findings.md`](03-consensus-findings.md). Moves 2 and 3 are separately
-approvable and **not started**: nothing has been dispatched, and no run number above 6
-is in use.
+**Status:** M1, M2, **move 1 and move 2 landed** 8 Sep 2026 — see
+[`03-consensus-findings.md`](03-consensus-findings.md) and
+[`05-model-control-findings.md`](05-model-control-findings.md). Q32 closes as **outcome
+D, stratum-dependent**: the committed model stays `claude-haiku-4-5` and **move 3
+proceeds**. Move 3 is separately approvable and **not started**; runs 7 and 8 are in use,
+so the next free run number is 9.
 **Date:** 8 Sep 2026
 **Depends on:** D29 (two strata, never pooled), D33 (the judge exists), D34 (the
 calibrated guide), D35 (one draw per run, one file per draw), Phase 2 of
@@ -105,6 +107,10 @@ exception, no wrong row count, a plausible figure — the D35 shape, one axis al
 - [`03-consensus-findings.md`](03-consensus-findings.md) — move 1's result, the rewritten
   gate, and the two prerequisite fixes (**deviation D1**: applied in both orientations,
   the per-class clause finds `Potential Fit` unidentified too, not `Good Fit` alone)
+- [`04-run7-registration.md`](04-run7-registration.md) — move 2's four outcomes, their cut
+  points and the seven sanity checks, all fixed **before** the dispatch existed
+- [`05-model-control-findings.md`](05-model-control-findings.md) — move 2's result:
+  outcome D, and why `sonnet` is a different judge rather than a better one
 
 ## Open questions carried in
 

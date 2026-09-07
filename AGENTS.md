@@ -378,6 +378,46 @@ re-stamped** — their provenance rests on the constant having been right at the
 re-stamping would swap one assertion for a later one. Whether that is trustworthy enough
 to keep quoting is **Q43**, raised by M2 and not resolved by it.
 
+**The model control has run, and the effect is stratum-dependent** *(8 Sep 2026,
+`plan/2026-09-08-judge-calibration/05-model-control-findings.md`, closing **Q32**)*. The
+committed instrument `75e00ea3` was run over the same 600 A2 pairs under
+`claude-sonnet-5` — runs 7 (`a2_generic`, 400) and 8 (`a2_targeted`, 200), 600 spawns,
+**zero failures and zero retries**. One variable: **every `prompt_sha256` equals run 5's
+or run 6's for the same pair**, so this is two models and not two dispatches, and runs
+7/8 are the first whose model was *passed to the subprocess* rather than asserted beside
+it (M2).
+
+The reading was registered in `04-run7-registration.md` before any prompt existed, and it
+is **outcome D**. Consensus `Good Fit` per-class agreement moves a long way on both
+strata — 0.136 → **0.364** on `generic`, 0.167 → **0.389** on `targeted` — and **clears
+the registered 0.40 bar on neither**; the `Good → Potential` collapse falls below half on
+`generic` (0.773 → 0.273) but not on `targeted` (0.778 → 0.611). Exactly one stratum, so
+**the committed model stays `claude-haiku-4-5`**, move 3 proceeds, and **runs 1-3
+(`sonnet`) and runs 4+ (`haiku`) on the A1 recheck remain incomparable** — the control
+D33 and D34 never had is still missing for that corpus, because the effect this move
+measured varies between populations. D29 forbids reading `generic`'s half as the result.
+
+**`sonnet` is a different judge, not a more accurate one.** On `targeted` it reaches
+kappa **0.453** against `yc` while falling to **0.141** against `van` — more than twice
+the human ceiling of 0.214 against one annotator and below it against the other. A judge
+that agrees with one person more than the two people agree with each other has found
+`yc`, not the truth, and the plan named this failure mode in advance as the thing not to
+chase. The interchangeability gate agrees: `sonnet` **fails** the `retain van` row on
+both strata. It also bought its `Good Fit` recall by getting harsher elsewhere — `No Fit`
+37.0% → 53.0% on `generic`, consensus binary kappa **0.729 → 0.475** — because
+`Potential ↔ No Fit` crosses the fit/no-fit line where `Good ↔ Potential` does not. That
+was not a registered statistic and is recorded as an unregistered finding (**Q40** is
+weakened, not settled: `sonnet` inverts which stratum has the defensible binary figure
+without making both defensible). Whether a judge that tracks one annotator this closely
+is useful at all is **Q44**, unanswerable without a third annotator.
+
+`a2_report` now emits **`by_model`** — a complete figure set per model, `vs_llm`,
+`consensus`, `interchangeability` and `label_distribution` — and the section-level blocks
+are the **committed** model's repeated inline, named by `llm_model`. `a2_frames` defaults
+to the committed `MODEL` rather than to the newest run, so dispatching a control cannot
+silently change what `vs_llm` refers to. `verify --derived` gains `model provenance` (a
+row's model matches its dispatch record) and `one model per run`.
+
 **A spawn that never answered is not a return** *(fix F1/F2, 6 Sep 2026,
 `plan/2026-09-06-a2-llm-prelabel/`)*. `judge()` resumes from `llm-recheck-raw.jsonl`, and
 `judge_one` used to write a non-zero exit there as a `<judge exited 1: …>` string. So a
@@ -444,7 +484,8 @@ judge is not what the guide renders, or if its frontmatter is not `tools: []`.
 there would pass every existing check and be silently pooled into the human kappa. They go to
 `docs/data/manifests/llm-recheck.csv` (the recheck draw, 240 rows),
 `docs/data/manifests/llm-recheck-full-a1.csv` (option D, 639) and, for the in-domain
-corpus, `llm-a2-generic.csv` (400) and `llm-a2-targeted.csv` (200). Quoted
+corpus, `llm-a2-generic.csv` (800: haiku run 5 + sonnet run 7) and `llm-a2-targeted.csv`
+(400: haiku run 6 + sonnet run 8). Quoted
 as `llm:{model}:run{N}` (runs 1-3: `claude-sonnet-5`, run 4+: `claude-haiku-4-5`).
 `collect()` preserves per-row model provenance from the dispatch record, takes
 corpus/batch/stratum from it too, and routes by `draw` (D35).

@@ -1262,6 +1262,16 @@ def consensus_of(humans: dict[str, pd.Series]) -> tuple[pd.Series, dict]:
                      else float("nan"))}
 
 
+#: Attached to every consensus block *(design spec §1)*.
+CONSENSUS_SELECTION_NOTE = (
+    "The pairs two annotators agreed on are not a random subsample: they are the pairs "
+    "both found unambiguous. A judge scores higher there for the reason a student scores "
+    "higher on the easy half of an exam, so this is an UPPER estimate of its performance "
+    "on the stratum, never an unbiased one. It is also why consensus cannot license "
+    "substitution — the pairs it excludes are exactly the population a substituting judge "
+    "would label alone, with no reference and no appeal (design spec §3).")
+
+
 def assert_consensus_carries_coverage(block: dict) -> None:
     """A consensus figure is refused unless its coverage is beside it *(design spec §1)*.
 
@@ -1470,10 +1480,16 @@ def a2_frames(stratum: str, model: str | None = None) -> dict:
             per_model[str(name)] = chunk.groupby("pair_id").label.apply(
                 lambda s: majority(list(s))).dropna()
         if per_model:
-            # The default is the most recent run of the committed instrument, so a fresh
-            # dispatch is what the report speaks about unless a caller names otherwise.
+            # The default is the **committed** model, not the most recent run *(D38)*.
+            # Defaulting to run order would mean that dispatching a control run silently
+            # changed what `vs_llm` refers to — the field would go on being read as the
+            # committed judge's figure while holding the challenger's, which is the
+            # rename-under-one-field this module refuses one axis at a time. A file with
+            # no rows under the committed model falls back to the newest run, and the
+            # report names whichever it got.
             newest = live.loc[live.run.astype(int).idxmax()]
-            live_model = str(model) if model is not None else str(newest.model)
+            default = MODEL if MODEL in per_model else str(newest.model)
+            live_model = str(model) if model is not None else default
             if live_model not in per_model:
                 raise ValueError(
                     f"the committed instrument has no rows under model {live_model!r} in "
@@ -1567,6 +1583,39 @@ def a2_report(seed: int = 0, strict: bool = True) -> dict:
             out["strata"][stratum] = section
             continue
 
+        def model_block(series: pd.Series) -> dict:
+            """Every judge figure, for **one** model *(D38, move 2)*.
+
+            Called once per model on file so `haiku` and `sonnet` are quoted side by
+            side and neither is the unqualified `llm`. The three references of D37 and
+            the gate of Q39 are all computed inside it, because each is a statement
+            about one judge and the model is part of which judge that is.
+            """
+            block: dict = {"n_llm": len(series)}
+            block["vs_llm"] = {
+                who: fig for who, h in sorted(humans.items())
+                if (fig := _pairwise(h, series, seed)) is not None}
+            consensus_fig = _pairwise(frames["consensus"], series, seed)
+            cblock = dict(frames["consensus_coverage"])
+            cblock["label_distribution"] = {
+                label: int((frames["consensus"] == label).sum())
+                for label in session.LABELS}
+            cblock["note_selection"] = CONSENSUS_SELECTION_NOTE
+            if consensus_fig is not None:
+                cblock["vs_llm"] = {
+                    "n": consensus_fig["n"],
+                    "three_class": consensus_fig["three_class"],
+                    "binary": consensus_fig["binary"],
+                    "per_class": consensus_fig["per_class"],
+                    "confusion_rows_consensus": consensus_fig["confusion_rows_first"],
+                    "confusion_rows_llm": consensus_fig["confusion_rows_second"]}
+            assert_consensus_carries_coverage(cblock)
+            block["consensus"] = cblock
+            block["interchangeability"] = interchangeability_gate(humans, series, seed)
+            block["label_distribution"] = {
+                label: int((series == label).sum()) for label in session.LABELS}
+            return block
+
         # One entry per annotator, keyed by name. Never a pooled "human".
         vs_llm = {who: fig for who, s in sorted(humans.items())
                   if (fig := _pairwise(s, frames["llm"], seed)) is not None}
@@ -1580,35 +1629,16 @@ def a2_report(seed: int = 0, strict: bool = True) -> dict:
         section["vs_llm"] = vs_llm
         section["human_ceiling"] = ceiling
 
-        # A third reference, and a fifth axis *(proposed D37)*. It is not a better
-        # measurement of the same thing: it is a different question asked of a different
-        # half of the corpus, and comparing kappa(consensus, llm) with kappa(yc, llm) as
-        # though one improved on the other is the pooling this report exists to refuse.
-        consensus_block = dict(frames["consensus_coverage"])
-        consensus_block["label_distribution"] = {
-            label: int((frames["consensus"] == label).sum())
-            for label in session.LABELS}
-        consensus_block["note_selection"] = (
-            "The pairs two annotators agreed on are not a random subsample: they are the "
-            "pairs both found unambiguous. A judge scores higher there for the reason a "
-            "student scores higher on the easy half of an exam, so this is an UPPER "
-            "estimate of its performance on the stratum, never an unbiased one. It is "
-            "also why consensus cannot license substitution — the pairs it excludes are "
-            "exactly the population a substituting judge would label alone, with no "
-            "reference and no appeal (design spec §3).")
-        if (fig := _pairwise(frames["consensus"], frames["llm"], seed)) is not None:
-            consensus_block["vs_llm"] = {
-                "n": fig["n"], "three_class": fig["three_class"],
-                "binary": fig["binary"], "per_class": fig["per_class"],
-                "confusion_rows_consensus": fig["confusion_rows_first"],
-                "confusion_rows_llm": fig["confusion_rows_second"]}
-        assert_consensus_carries_coverage(consensus_block)
-        section["consensus"] = consensus_block
-
-        # The rewritten gate *(Q39, design spec §4)*. Computed on the pairs all three
-        # series share, which is the only way its two columns are about one population.
-        section["interchangeability"] = interchangeability_gate(
-            humans, frames["llm"], seed)
+        # Every model on file, each with its own complete figure set. `by_model` is the
+        # authority; the section-level `vs_llm` / `consensus` / `interchangeability` are
+        # the committed model's block repeated inline for continuity, and `llm_model`
+        # says which that is. No field holds a series built from two *(D38)*.
+        by_model = {name: model_block(series)
+                    for name, series in sorted(frames["per_model"].items())}
+        section["by_model"] = by_model
+        committed = by_model.get(frames["_model"], {})
+        section["consensus"] = committed.get("consensus", {})
+        section["interchangeability"] = committed.get("interchangeability", {})
         section["n_scored"] = max((f["n"] for f in vs_llm.values()), default=0)
         section["n_dispatched"] = sum(c["n_dispatched"] for c in coverage.values())
         section["status"] = "scored" if vs_llm else "no overlap"
