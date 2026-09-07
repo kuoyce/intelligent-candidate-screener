@@ -1137,8 +1137,12 @@ def test_a_pair_the_judge_has_labelled_is_still_owed_by_the_human(tmp_path, monk
 # --- two annotators (Phase 2) ----------------------------------------------
 
 def _stage_a2_scoring(tmp_path, monkeypatch, judgements, llm_labels,
-                      stratum="generic", run=5):
-    """One A2 stratum on disk: human rows, judge rows, and a complete dispatch record."""
+                      stratum="generic", run=5, model="m", extra_llm=()):
+    """One A2 stratum on disk: human rows, judge rows, and a complete dispatch record.
+
+    `extra_llm` adds further judging legs as `(run, model, {pair_id: label})`, which is
+    how a second model of the same committed guide is staged.
+    """
     draw = next(d for d, s in llm.A2_DRAW_STRATUM.items() if s == stratum)
     agent = "a" * 64
     agent_def = tmp_path / "a1-judge.md"
@@ -1146,25 +1150,27 @@ def _stage_a2_scoring(tmp_path, monkeypatch, judgements, llm_labels,
     monkeypatch.setattr(llm, "AGENT_DEF", agent_def)
     monkeypatch.setattr(llm, "sha", lambda text: agent)
 
+    legs = [(run, model, llm_labels), *extra_llm]
     path = tmp_path / f"{draw}.csv"
     pd.DataFrame([{
         "pair_id": p, "batch": 1, "stratum": stratum, "corpus": "a2",
         "query_id": p.split("__")[0], "doc_id": p.split("__")[1],
-        "selection_reason": "indomain_banded", "annotator": f"llm:m:run{run}",
-        "label": lab, "shortlist_pick": "", "notes": "", "model": "m",
-        "agent_sha256": agent, "prompt_sha256": "p", "run": run, "chars_sent": 1,
+        "selection_reason": "indomain_banded", "annotator": f"llm:{mod}:run{r}",
+        "label": lab, "shortlist_pick": "", "notes": "", "model": mod,
+        "agent_sha256": agent, "prompt_sha256": "p", "run": r, "chars_sent": 1,
         "parsed_ok": True, "judged_at": "", "draw": draw}
-        for p, lab in llm_labels.items()]).to_csv(path, index=False)
+        for r, mod, labels in legs for p, lab in labels.items()]).to_csv(path, index=False)
     monkeypatch.setitem(llm.DRAW_FILES, draw, path)
 
     prompts = tmp_path / "p.jsonl"
     prompts.write_text("\n".join(json.dumps({
-        "pair_id": p, "run": run, "draw": draw}) for p in llm_labels) + "\n",
-        encoding="utf-8")
+        "pair_id": p, "run": r, "draw": draw, "model": mod})
+        for r, mod, labels in legs for p in labels) + "\n", encoding="utf-8")
     monkeypatch.setattr(llm, "PROMPTS", prompts)
     raw = tmp_path / "r.jsonl"
-    raw.write_text("\n".join(json.dumps({"pair_id": p, "run": run})
-                             for p in llm_labels) + "\n", encoding="utf-8")
+    raw.write_text("\n".join(json.dumps({"pair_id": p, "run": r})
+                             for r, _, labels in legs for p in labels) + "\n",
+                   encoding="utf-8")
     monkeypatch.setattr(llm, "RAW", raw)
 
     monkeypatch.setattr(llm.session, "load_judgements", lambda: pd.DataFrame(judgements))
@@ -1267,3 +1273,248 @@ def test_a2_report_says_so_when_two_annotators_share_no_pair(tmp_path, monkeypat
     section = llm.a2_report(strict=False)["strata"]["generic"]
     assert section["human_ceiling"] == {}
     assert "note_no_ceiling" in section
+
+
+# --- M1/M2: model is an axis (plan/2026-09-08-judge-calibration) -------------
+
+def test_two_models_of_one_guide_are_never_one_series(tmp_path, monkeypatch):
+    """Mutation: build `llm` as a majority over every run sharing `agent_sha256`.
+
+    That is the code as it stood on 8 Sep 2026, and it is correct only while there is
+    one model on file. A guide edit changes `agent_sha256`; a *model* change does not,
+    so run 5 (`haiku`) and run 7 (`sonnet`) of the same committed guide are a
+    two-element majority. `majority` returns `None` on a tie and `.dropna()` deletes it,
+    so every pair the two models disagreed on vanishes — and what survives is exactly
+    the subset two models agreed on. Here they disagree on half the pairs, so the old
+    selection returns n=5 of 10: a smaller, easier, non-random sample nobody ordered,
+    with no exception and no row count that looks wrong.
+    """
+    pairs = {f"j__c{i}": "Good Fit" for i in range(10)}
+    sonnet = {p: ("Good Fit" if i < 5 else "No Fit")
+              for i, p in enumerate(pairs)}
+    judgements = [{"pair_id": p, "corpus": "a2", "stratum": "generic",
+                   "annotator": "yc", "label": lab} for p, lab in pairs.items()]
+    _stage_a2_scoring(tmp_path, monkeypatch, judgements, llm_labels=pairs,
+                      run=5, model="claude-haiku-4-5",
+                      extra_llm=[(7, "claude-sonnet-5", sonnet)])
+
+    frames = llm.a2_frames("generic")
+    assert frames["_model"] == "claude-sonnet-5", (
+        "the default is the most recent run of the committed instrument")
+    assert len(frames["llm"]) == 10, (
+        "the live series lost pairs — that is the two-model majority dropping every "
+        "tie, and the survivors are the pairs the models agreed on")
+    assert set(frames["per_model"]) == {"claude-haiku-4-5", "claude-sonnet-5"}
+    assert len(frames["per_model"]["claude-haiku-4-5"]) == 10
+    assert frames["llm"].tolist() == [sonnet[p] for p in frames["llm"].index]
+
+    # And the caller may ask for the other one by name, rather than by re-deriving it.
+    assert llm.a2_frames("generic", model="claude-haiku-4-5")["llm"].tolist() == \
+        ["Good Fit"] * 10
+    with pytest.raises(ValueError, match="no rows under model"):
+        llm.a2_frames("generic", model="claude-opus-5")
+
+
+def test_a_model_comparison_is_not_reported_as_self_consistency(tmp_path, monkeypatch):
+    """Mutation: score every pair of runs that share a draw.
+
+    `self_consistency` is the figure D33 used to bound how high kappa(A1, llm) could
+    have reached — it means *this judge repeating itself*. Runs 5 and 7 are the same
+    guide under two models, which is the model control, and putting it in that field
+    would report a between-judge comparison under a name every reader takes for
+    test-retest reliability. It is listed instead, with its provenance.
+    """
+    pairs = {f"j__c{i}": "Good Fit" for i in range(10)}
+    sonnet = {p: ("Good Fit" if i < 5 else "No Fit") for i, p in enumerate(pairs)}
+    judgements = [{"pair_id": p, "corpus": "a2", "stratum": "generic",
+                   "annotator": "yc", "label": lab} for p, lab in pairs.items()]
+    _stage_a2_scoring(tmp_path, monkeypatch, judgements, llm_labels=pairs,
+                      run=5, model="claude-haiku-4-5",
+                      extra_llm=[(7, "claude-sonnet-5", sonnet)])
+
+    section = llm.a2_report(strict=False)["strata"]["generic"]
+    assert section["self_consistency"] == {}
+    assert "run5_vs_run7" in section["not_self_consistency"]
+    assert section["llm_model"] == "claude-sonnet-5"
+    assert section["models_on_file"] == {"claude-haiku-4-5": 10, "claude-sonnet-5": 10}
+
+
+def test_a_run_is_judged_by_the_model_its_dispatch_names(tmp_path, monkeypatch):
+    """Mutation: `claude -p --agent a1-judge` with no `--model`, as the argv stood.
+
+    The model column was written from the `MODEL` constant at dispatch and never passed
+    to the subprocess, so it recorded an assertion rather than a measurement. With one
+    model on file that is invisible; with two it is a model control whose second arm
+    never ran, wearing the label of the model that was dispatched.
+    """
+    assert "--model" in llm.judge_argv({"model": "claude-sonnet-5"})
+    assert llm.judge_argv({"model": "claude-sonnet-5"})[-1] == "claude-sonnet-5"
+    # A pre-M2 record names no model and falls back to the constant it was written under.
+    assert llm.judge_argv({})[-1] == llm.MODEL
+
+    prompts = tmp_path / "p.jsonl"
+    prompts.write_text("\n".join(json.dumps(
+        {"pair_id": f"j__c{i}", "run": 7, "draw": llm.A2_GENERIC_DRAW,
+         "model": "claude-sonnet-5"}) for i in range(3)) + "\n", encoding="utf-8")
+    monkeypatch.setattr(llm, "PROMPTS", prompts)
+
+    assert llm.assert_run_holds_one_model(7) == "claude-sonnet-5"
+    assert llm.assert_run_holds_one_model(7, "claude-sonnet-5") == "claude-sonnet-5"
+    with pytest.raises(llm.MixedModel, match="asked for"):
+        llm.assert_run_holds_one_model(7, "claude-haiku-4-5")
+
+    # One run, one model: rows carrying two would name a population no figure can.
+    with prompts.open("a", encoding="utf-8") as fh:
+        fh.write(json.dumps({"pair_id": "j__c9", "run": 7,
+                             "draw": llm.A2_GENERIC_DRAW,
+                             "model": "claude-haiku-4-5"}) + "\n")
+    with pytest.raises(llm.MixedModel, match="dispatched under"):
+        llm.assert_run_holds_one_model(7)
+
+
+# --- Move 1: consensus is a third reference, and an axis (design spec §1) ----
+
+def _consensus_fixture(tmp_path, monkeypatch, yc, van, llm_labels):
+    judgements = (
+        [{"pair_id": p, "corpus": "a2", "stratum": "generic", "annotator": "yc",
+          "label": lab} for p, lab in yc.items()]
+        + [{"pair_id": p, "corpus": "a2", "stratum": "generic", "annotator": "van",
+            "label": lab} for p, lab in van.items()])
+    return _stage_a2_scoring(tmp_path, monkeypatch, judgements, llm_labels)
+
+
+def test_a_pair_two_annotators_read_differently_is_not_in_the_consensus(
+        tmp_path, monkeypatch):
+    """Mutation: resolve a disagreement by order, or by a majority of two.
+
+    Neither is a rule. `drop_duplicates` keeps whichever row is first in
+    `judgements.csv`, which is file order; `majority` over two raters is a coin toss
+    dressed as arithmetic. A pair the two humans read differently has no consensus
+    label, and its absence is the whole content of the coverage figure — it is the
+    52% of the corpus a substituting judge would be labelling with no reference at
+    all (design spec §3).
+    """
+    yc = {"j__c0": "Good Fit", "j__c1": "No Fit", "j__c2": "Good Fit"}
+    van = {"j__c0": "Good Fit", "j__c1": "Potential Fit"}     # c2: single-labelled
+    _consensus_fixture(tmp_path, monkeypatch, yc, van,
+                       {p: "No Fit" for p in yc})
+
+    frames = llm.a2_frames("generic")
+    consensus, coverage = frames["consensus"], frames["consensus_coverage"]
+    assert list(consensus.index) == ["j__c0"], "a disagreement is not a consensus label"
+    assert consensus["j__c0"] == "Good Fit"
+    # A pair only one person saw had no opportunity to disagree and is in neither term.
+    assert coverage["n_multi_labelled"] == 2
+    assert coverage["n_agreed"] == 1
+    assert coverage["coverage"] == 0.5
+    assert coverage["annotators"] == ["van", "yc"]
+
+
+def test_a_consensus_figure_never_travels_without_its_coverage(tmp_path, monkeypatch):
+    """Mutation: emit the consensus kappa and drop the coverage beside it.
+
+    kappa(consensus, llm) = 0.401 on `targeted` reads as the judge doing better than
+    the 0.249 above it. It is not the same measurement: it is over the 48.5% of pairs
+    two annotators agreed on, which is the easy half by construction. A reader shown
+    the figure without the fraction has been told something false by omission, so the
+    report refuses to build rather than emitting one.
+    """
+    with pytest.raises(ValueError, match="false by omission"):
+        llm.assert_consensus_carries_coverage(
+            {"n_agreed": 60, "vs_llm": {}, "note_selection": "x"})
+    with pytest.raises(ValueError, match="false by omission"):
+        llm.assert_consensus_carries_coverage(
+            {"n_agreed": 60, "n_multi_labelled": 126, "coverage": 0.476})
+
+    yc = {f"j__c{i}": "Good Fit" for i in range(6)}
+    van = dict(yc)
+    _consensus_fixture(tmp_path, monkeypatch, yc, van, dict(yc))
+
+    real = llm.a2_frames
+
+    def stripped(stratum, model=None):
+        frames = real(stratum, model)
+        frames["consensus_coverage"] = {"annotators": ["van", "yc"]}
+        return frames
+
+    monkeypatch.setattr(llm, "a2_frames", stripped)
+    with pytest.raises(ValueError, match="false by omission"):
+        llm.a2_report(strict=False)
+
+
+def test_consensus_and_single_annotator_figures_are_not_the_same_field(
+        tmp_path, monkeypatch):
+    """Mutation: fold consensus into `vs_llm`, or let it overwrite an annotator's row.
+
+    They are computed over different sets of pairs — 400 / 126 / 60 on the real
+    `generic` — so one is not an improvement on the other and no field may hold both.
+    The reference is a fifth axis beside agent_sha256, draw, stratum and annotator
+    (D37), and, like the others, the API cannot express the pooled version.
+    """
+    yc = {f"j__c{i}": ("Good Fit" if i < 4 else "No Fit") for i in range(8)}
+    van = {p: ("Good Fit" if i < 2 else "Potential Fit")
+           for i, p in enumerate(yc)}
+    _consensus_fixture(tmp_path, monkeypatch, yc, van, dict(yc))
+
+    section = llm.a2_report(strict=False)["strata"]["generic"]
+    assert set(section["vs_llm"]) == {"yc", "van"}, "consensus is not an annotator"
+    assert "consensus" not in section["vs_llm"]
+    consensus = section["consensus"]
+    assert consensus["n_agreed"] == 2 and consensus["n_multi_labelled"] == 8
+    assert consensus["vs_llm"]["n"] == 2
+    assert consensus["vs_llm"]["n"] != section["vs_llm"]["yc"]["n"], (
+        "a consensus figure and a single-annotator figure are over different pairs, "
+        "and the report has to say so by carrying both n")
+    assert "upper" in consensus["note_selection"].lower()
+    assert "note_never_pooled_references" in llm.a2_report(strict=False)
+
+
+def test_the_gate_compares_on_the_pairs_the_three_series_share(tmp_path, monkeypatch):
+    """Mutation: read kappa(yc, llm) from the whole-stratum block.
+
+    That is the n=400 figure, 0.380, and the ceiling beside it is measured on the 126
+    pairs `van` also labelled. Reading one against the other compares two populations
+    — and it is not a small effect: restricted to those same 126 pairs the judge
+    scores 0.455, not 0.380. Here `yc` labels every pair and `van` only half, so a
+    gate that did not restrict would put an n=8 judge figure beside an n=4 ceiling.
+    """
+    yc = {f"j__c{i}": ("Good Fit" if i % 2 else "No Fit") for i in range(8)}
+    van = {p: yc[p] for i, p in enumerate(yc) if i < 4}
+    _consensus_fixture(tmp_path, monkeypatch, yc, van, dict(yc))
+
+    gate = llm.a2_report(strict=False)["strata"]["generic"]["interchangeability"]
+    assert gate["n"] == 4, "the gate is over the pairs all three series share"
+    for row in gate["rows"].values():
+        assert row["n"] == 4
+        assert row["human_pair"]["three_class"]["n"] == 4
+        assert row["judge"]["three_class"]["n"] == 4, (
+            "the judge column is measured on a different population from the human "
+            "column it is read against")
+    assert gate["rows"]["yc"]["replaced"] == "van"
+    assert gate["band"] == llm.INTERCHANGEABILITY_BAND
+
+
+def test_a_class_the_humans_miss_is_unidentified_not_failed_by_the_judge(
+        tmp_path, monkeypatch):
+    """Mutation: apply the 0.40 per-class bar to the judge alone, as the old gate did.
+
+    That gate refuses the judge on `Good Fit` at 0.119 — while the two humans hold
+    that class between themselves at 0.338 / 0.300, which fails the same bar. A bar no
+    human pair can clear is not measuring the judge, and reporting it as a judge
+    failure attributes to the model what belongs to the guide (design spec §4).
+    """
+    yc = {f"j__c{i}": ("Good Fit" if i < 4 else "No Fit") for i in range(8)}
+    # `van` calls three of `yc`'s four Good Fits Potential: the class is drawn in two
+    # places, and `van` recovers 25% of `yc`'s instances of it — below the 0.40 bar the
+    # old gate applied to the judge alone.
+    van = {p: ("Potential Fit" if i in (0, 1, 2) else yc[p]) for i, p in enumerate(yc)}
+    _consensus_fixture(tmp_path, monkeypatch, yc, van, dict(yc))
+
+    per_class = (llm.a2_report(strict=False)["strata"]["generic"]
+                 ["interchangeability"]["per_class"])
+    assert per_class["Good Fit"]["unidentified_by_instrument"] is True
+    assert per_class["No Fit"]["unidentified_by_instrument"] is False
+    assert per_class["Good Fit"]["bar"] == llm.PER_CLASS_BAR
+    assert set(per_class["Good Fit"]["human_pair"]) == {"yc", "van"}, (
+        "per-class agreement is conditioned on a reference, so the human pair gives "
+        "two numbers and the class fails if either does")

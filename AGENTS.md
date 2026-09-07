@@ -297,6 +297,87 @@ like a batch spec. `session.labels_wanted` is the single place the rule lives, a
 than when it is *judged* (holds one) — the older reading would have removed 200 `targeted`
 pairs from the key that one annotator has labelled and the other still owes.
 
+**The reference a judge is scored against is an axis, and consensus is a third one**
+*(decision D37, 8 Sep 2026, `plan/2026-09-08-judge-calibration/03-consensus-findings.md`)*.
+`agent_sha256`, `draw`, `stratum` and `annotator` were four; this is the fifth. Three
+references now exist on A2 — `yc` (n=400/200), `van` (126/200) and **`consensus`**, the
+label every annotator present gave, over the pairs where two or more looked: 60 of 126
+on `generic` (**47.6%**) and 97 of 200 on `targeted` (**48.5%**). Against consensus the
+committed instrument scores **0.389** [0.235, 0.545] and **0.401** [0.259, 0.539]
+three-class, **0.729** / 0.584 binary, and **the residual collapses to one cell** —
+consensus `Good Fit` returning llm `Potential Fit`, 17 of 22 and 14 of 18 — while
+consensus `No Fit` holds at 0.955 / 0.772. Phase 2's "two boundaries in opposite
+directions" was substantially an artefact of measuring against `yc` alone, whose `No Fit`
+rate rose to 0.580 on `targeted` while `van`'s stayed at 0.360. **Zero spawns, zero human
+hours**: all of it was already on file.
+
+**A consensus figure is never compared to a single-annotator figure as though one improved
+on the other**, and never travels without its coverage. They are computed over different
+sets of pairs — 200 against 97 — so 0.401 beside kappa(yc, llm) = 0.249 is a different
+question asked of a different half of the corpus, not the judge getting better.
+`assert_consensus_carries_coverage` refuses to emit the block without
+`n_multi_labelled`, `n_agreed`, `coverage` and the selection note, the way D26's ceiling
+travels with every Precision@k. **The subset is not a random subsample** — it selects the
+pairs both humans found unambiguous, so every consensus figure is an **upper** estimate.
+**It therefore licenses measurement and not substitution**: substitution needs a reference
+on 100% of pairs, and the excluded 52% is exactly the population a substituting judge
+would label alone, with no reference and no appeal, and is the harder half by
+construction. **D36 stays unmade.**
+
+**The gate asks interchangeability, not ground truth** *(closing Q39)*. Both old clauses
+assumed a truth this corpus does not have: the relative clause divided by a 0.214 ceiling
+while the judge sat at 0.204-0.249 — one overlapping cluster, so "passed" and "not
+measuring" produced the same output — and the absolute per-class clause refused the judge
+on `Good Fit` at 0.119 while the two humans fail the same bar against each other. So each
+row now **retains** one annotator and asks whether the judge, in the other's seat, is as
+good a partner as the person it replaced, **on the pairs all three series share**. That
+restriction is not cosmetic: kappa(yc, llm) is 0.380 at n=400 and **0.455** on the 126
+pairs `van` also labelled. On `generic` the judge is a good replacement for `van`
+(0.455 against a 0.250 ceiling) and a poor one for `yc` (0.142); on `targeted` it is
+indistinguishable from either (0.249 / 0.204 against 0.214). **Binary passes or ties all
+four.** Nothing is *separated* — every interval overlaps every other at this n — so the
+verdict column is a declared indifference band (`INTERCHANGEABILITY_BAND = 0.05`), fixed
+before the run, and `pass` never means "better than a human". **What it licenses is the
+judge as a second annotator** in a future double-labelling wave, where being about as
+unreliable as a human is the specification; never as an answer key, which no agreement
+figure between two fallible raters can support.
+
+**The per-class bar is now applied to the human pair too, and a class both miss is
+`unidentified_by_instrument`** rather than failed by the judge. It stays absolute at 0.40.
+Per-class agreement is conditioned on a reference, so a human pair gives two numbers per
+class and the class fails if **either** does — otherwise `Good Fit` would count as
+identified on the strength of the direction pointing from the rarer user of the class to
+the more frequent one (`van` recovers 33.8% of `yc`'s, `yc` recovers 75.9% of `van`'s).
+On that reading **two of three classes are unidentified**: `Good Fit` (0.338/0.759 and
+0.300/0.545) and `Potential Fit` (0.432/0.364 and 0.324/0.431). Only `No Fit` is held.
+The design spec named `Good Fit` alone; `Potential Fit` is deviation D1 of this plan, and
+it widens what a guide edit would have to address.
+
+**Model is an axis, and `a2_frames` did not know it** *(decision D38, fix M1)*. `llm` was
+a per-pair majority across every run sharing the committed `agent_sha256` — and a guide
+is not the whole judge. The same guide under a second model has the **same** hash, so two
+runs of it are a two-element majority: `majority` returns `None` on a tie and `.dropna()`
+deletes it, so every pair the two models disagreed on would vanish and the survivors
+would be exactly the pairs two models agreed on — a non-random, easier sample, a smaller
+n nobody ordered, and a kappa that rises for the wrong reason. Measured against a staged
+10-pair draw where the models disagree on half, the old selection returns **5 of 10**, all
+five agreeing. It had never fired: runs 5 and 6 are both `haiku`. `llm` now keys on
+`(agent_sha256, model)`, other models return under `per_model`, each stratum names its
+`llm_model`, and **`self_consistency` refuses a run pair differing on either axis** —
+runs 5 and 7 are a model comparison, and reporting them under the field D33 used to bound
+how high kappa(A1, llm) could have reached would be a between-judge figure wearing a
+test-retest name. They are listed under `not_self_consistency` instead.
+
+**The recorded model is now the model that ran** *(fix M2)*. `MODEL` was a module constant
+written into the dispatch record while the subprocess launched as
+`claude -p --agent a1-judge` with **no `--model` flag**: the column asserted what the
+constant said, not what answered. `judge_argv` passes it; `assert_run_holds_one_model`
+refuses a run whose prompts name two models and a `--judge` asked for a model the dispatch
+did not name; `--model` is on both `--dispatch` and `--judge`. **Runs 1-6 are not
+re-stamped** — their provenance rests on the constant having been right at the time, and
+re-stamping would swap one assertion for a later one. Whether that is trustworthy enough
+to keep quoting is **Q43**, raised by M2 and not resolved by it.
+
 **A spawn that never answered is not a return** *(fix F1/F2, 6 Sep 2026,
 `plan/2026-09-06-a2-llm-prelabel/`)*. `judge()` resumes from `llm-recheck-raw.jsonl`, and
 `judge_one` used to write a non-zero exit there as a `<judge exited 1: …>` string. So a
@@ -363,7 +444,7 @@ judge is not what the guide renders, or if its frontmatter is not `tools: []`.
 there would pass every existing check and be silently pooled into the human kappa. They go to
 `docs/data/manifests/llm-recheck.csv` (the recheck draw, 240 rows),
 `docs/data/manifests/llm-recheck-full-a1.csv` (option D, 639) and, for the in-domain
-corpus, `llm-a2-generic.csv` (400) and `llm-a2-targeted.csv` (not yet dispatched). Quoted
+corpus, `llm-a2-generic.csv` (400) and `llm-a2-targeted.csv` (200). Quoted
 as `llm:{model}:run{N}` (runs 1-3: `claude-sonnet-5`, run 4+: `claude-haiku-4-5`).
 `collect()` preserves per-row model provenance from the dispatch record, takes
 corpus/batch/stratum from it too, and routes by `draw` (D35).

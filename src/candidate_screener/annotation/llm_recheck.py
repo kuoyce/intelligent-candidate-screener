@@ -122,7 +122,13 @@ A2_DRAW_STRATUM = {A2_GENERIC_DRAW: "generic", A2_TARGETED_DRAW: "targeted"}
 DRAW_FILES = {RECHECK_DRAW: RECHECK_CSV, FULL_A1_DRAW: FULL_A1_CSV,
               A2_GENERIC_DRAW: A2_GENERIC_CSV, A2_TARGETED_DRAW: A2_TARGETED_CSV}
 
-#: The judge. Named in every output row, because a different model is a different judge.
+#: The judge's default model. Named in every output row, because a different model is a
+#: different judge — and, since M2 (8 Sep 2026), **passed to the subprocess** rather than
+#: merely recorded beside it. Before that the argv carried no `--model` at all, so the
+#: column asserted what the constant said rather than what answered; runs 1-6 are not
+#: re-stamped and their model provenance rests on the constant having been right at the
+#: time (**Q43**). `--model` overrides it per dispatch, which is what makes the model an
+#: axis a figure may be quoted along (D38) instead of a property of the whole file.
 MODEL = "claude-haiku-4-5"
 
 #: Sections of the guide that describe the *human workflow* and are dropped from the
@@ -313,6 +319,17 @@ class MixedDraw(ValueError):
     """One run number, two populations *(D35)*."""
 
 
+class MixedModel(ValueError):
+    """One run, two models — or a judge asked to run a model the dispatch did not name.
+
+    Model is an axis a figure may not be pooled across (**D38**), and the run is where
+    that starts: a run whose prompts name `haiku` and whose spawns answered as `sonnet`
+    produces rows no later check can separate, because `collect()` copies the model out
+    of the dispatch record. The refusal is here, at the only two points where the two
+    could diverge.
+    """
+
+
 def assert_run_holds_one_draw(run: int, draw: str) -> None:
     """A run number is a sitting of **one** draw, and dispatch refuses to widen it.
 
@@ -340,7 +357,8 @@ def assert_run_holds_one_draw(run: int, draw: str) -> None:
             f"{draw!r}. A run number holds one draw (D35) — choose an unused run number.")
 
 
-def dispatch(run: int, seed: int = 0, subsample: int | None = None) -> dict:
+def dispatch(run: int, seed: int = 0, subsample: int | None = None,
+             model: str = MODEL) -> dict:
     from candidate_screener.annotation import ui
 
     agent_hash = assert_agent_definition_current()
@@ -364,7 +382,7 @@ def dispatch(run: int, seed: int = 0, subsample: int | None = None) -> dict:
                             "draw": RECHECK_DRAW,
                             "prompt": prompt, "prompt_sha256": sha(prompt),
                             "chars_sent": len(prompt),
-                            "agent_sha256": agent_hash, "model": MODEL})
+                            "agent_sha256": agent_hash, "model": model})
 
     if subsample:
         keep = set(subsample_ids([r["pair_id"] for r in records], subsample, seed))
@@ -394,13 +412,13 @@ def dispatch(run: int, seed: int = 0, subsample: int | None = None) -> dict:
     return {"run": run, "seed": seed, "draw": RECHECK_DRAW, "pairs": len(records),
             "already_dispatched": len(skipped),
             "jds": len({r["query_id"] for r in records}),
-            "subsample": subsample, "agent_sha256": agent_hash, "model": MODEL,
+            "subsample": subsample, "agent_sha256": agent_hash, "model": model,
             "chars_sent_median": int(np.median([r["chars_sent"] for r in records]))
             if records else 0,
             "prompts": str(PROMPTS)}
 
 
-def dispatch_all_a1(run: int, seed: int = 0) -> dict:
+def dispatch_all_a1(run: int, seed: int = 0, model: str = MODEL) -> dict:
     """Option D: dispatch every A1 pair (all 659) through the same judge.
 
     Uses the same prompt rendering, anchoring check, and redaction as the recheck path
@@ -427,7 +445,7 @@ def dispatch_all_a1(run: int, seed: int = 0) -> dict:
                         "run": run, "draw": FULL_A1_DRAW,
                         "prompt": prompt, "prompt_sha256": sha(prompt),
                         "chars_sent": len(prompt), "agent_sha256": agent_hash,
-                        "model": MODEL})
+                        "model": model})
 
     overlap = guide_example_pairs() & {r["pair_id"] for r in records}
     if overlap:
@@ -449,13 +467,13 @@ def dispatch_all_a1(run: int, seed: int = 0) -> dict:
             "already_dispatched": len(skipped),
             "total_a1": len(test),
             "jds": len({r["query_id"] for r in records}),
-            "agent_sha256": agent_hash, "model": MODEL,
+            "agent_sha256": agent_hash, "model": model,
             "chars_sent_median": int(np.median([r["chars_sent"] for r in records]))
             if records else 0,
             "prompts": str(PROMPTS)}
 
 
-def dispatch_a2(stratum: str, run: int, seed: int = 0) -> dict:
+def dispatch_a2(stratum: str, run: int, seed: int = 0, model: str = MODEL) -> dict:
     """Dispatch one in-domain stratum through the committed judge.
 
     The judge's agreement with `yc` has only ever been measured on A1 pairs, which are 3x
@@ -503,7 +521,7 @@ def dispatch_a2(stratum: str, run: int, seed: int = 0) -> dict:
                         "selection_reason": str(row.selection_reason),
                         "prompt": prompt, "prompt_sha256": sha(prompt),
                         "chars_sent": len(prompt), "agent_sha256": agent_hash,
-                        "model": MODEL})
+                        "model": model})
 
     overlap = guide_example_pairs() & {r["pair_id"] for r in records}
     if overlap:
@@ -525,7 +543,7 @@ def dispatch_a2(stratum: str, run: int, seed: int = 0) -> dict:
             "pairs": len(records), "already_dispatched": len(skipped),
             "total_in_stratum": len(rows),
             "jds": len({r["query_id"] for r in records}),
-            "agent_sha256": agent_hash, "model": MODEL,
+            "agent_sha256": agent_hash, "model": model,
             "chars_sent_median": int(np.median([r["chars_sent"] for r in records]))
             if records else 0,
             "prompts": str(PROMPTS)}
@@ -779,6 +797,23 @@ def judge_sandbox(stack) -> Path:
     return cwd
 
 
+def judge_argv(record: dict) -> list[str]:
+    """The subprocess command for one dispatched pair, **naming its model** *(M2)*.
+
+    Until 8 Sep 2026 this was `claude -p --agent a1-judge` with no `--model`, so the
+    model column recorded what the `MODEL` constant said at dispatch time and nothing
+    made the spawn honour it. That is fine while there is one model and fatal the moment
+    there are two: move 2 of `plan/2026-09-08-judge-calibration` dispatches the same
+    instrument under `sonnet`, and a run whose prompts say `sonnet` while the CLI answers
+    on its own default is a model comparison with one arm missing — no exception, no
+    wrong row count, a plausible kappa. The record is the authority; a record with no
+    model is a pre-M2 dispatch and falls back to the constant it was written under.
+    """
+    model = str(record.get("model") or MODEL).strip()
+    return [shutil.which("claude") or "claude", "-p", "--agent", "a1-judge",
+            "--model", model]
+
+
 def judge_one(record: dict, cwd: Path) -> dict:
     """One pair, one process, one label. The process holds no tools and no repository.
 
@@ -791,7 +826,7 @@ def judge_one(record: dict, cwd: Path) -> dict:
     """
     try:
         proc = subprocess.run(
-            [shutil.which("claude") or "claude", "-p", "--agent", "a1-judge"],
+            judge_argv(record),
             input=record["prompt"], cwd=str(cwd), capture_output=True, text=True,
             timeout=JUDGE_TIMEOUT_S, check=False)
     except subprocess.TimeoutExpired as exc:
@@ -809,7 +844,37 @@ def judge_one(record: dict, cwd: Path) -> dict:
             "raw": proc.stdout.strip()}
 
 
-def judge(run: int, concurrency: int = CONCURRENCY, limit: int | None = None) -> dict:
+def assert_run_holds_one_model(run: int, model: str | None = None) -> str:
+    """The model a run is judged under is the one its dispatch named *(M2, D38)*.
+
+    Two refusals, both about the same axis. A run whose prompts name two models could
+    not be quoted as either, because `collect()` takes the model from the dispatch
+    record per row and no later check compares it with what answered. And a `--judge`
+    told to run a model the dispatch did not name would write rows labelled with the
+    dispatch's model and produced by a different judge — the D35 shape, one axis along.
+    """
+    named = {str(r.get("model") or MODEL)
+             for r in read_jsonl(PROMPTS) if r["run"] == run}
+    if not named:
+        raise FileNotFoundError(
+            f"no run {run} in {PROMPTS} — `--dispatch --run {run}` first")
+    if len(named) > 1:
+        raise MixedModel(
+            f"run {run} was dispatched under {sorted(named)}. A run is one sitting of one "
+            "judge, and a model is part of which judge it is (D38): the rows would carry "
+            "two models under one run number and no figure could name a population.")
+    dispatched_model = named.pop()
+    if model is not None and model != dispatched_model:
+        raise MixedModel(
+            f"run {run} was dispatched against {dispatched_model!r} but --judge was asked "
+            f"for {model!r}. `collect()` copies the model out of the dispatch record, so "
+            "the rows would name the model that was dispatched and hold the answers of "
+            "the one that ran. Re-dispatch under a free run number instead.")
+    return dispatched_model
+
+
+def judge(run: int, concurrency: int = CONCURRENCY, limit: int | None = None,
+          model: str | None = None) -> dict:
     """Run every dispatched pair of `run` that has no raw return yet.
 
     Idempotent per `(pair_id, run)` for the reason dispatch is: a second return matched
@@ -823,6 +888,7 @@ def judge(run: int, concurrency: int = CONCURRENCY, limit: int | None = None) ->
     dispatched = [r for r in read_jsonl(PROMPTS) if r["run"] == run]
     if not dispatched:
         raise FileNotFoundError(f"no run {run} in {PROMPTS} — `--dispatch --run {run}` first")
+    run_model = assert_run_holds_one_model(run, model)
 
     on_disk = {r["agent_sha256"] for r in dispatched}
     if on_disk != {sha(AGENT_DEF.read_text(encoding="utf-8"))}:
@@ -871,7 +937,7 @@ def judge(run: int, concurrency: int = CONCURRENCY, limit: int | None = None) ->
                 sink.write(json.dumps(row, ensure_ascii=False) + "\n")
                 sink.flush()
 
-    summary = {"run": run, "dispatched": len(dispatched),
+    summary = {"run": run, "model": run_model, "dispatched": len(dispatched),
                # Scoped to this run. `done` spans every run in RAW, so the unscoped count
                # read 884 on a 400-pair run — a number that invites the wrong conclusion
                # about what just happened.
@@ -1144,7 +1210,187 @@ def confusion(reference: list[str], other: list[str]) -> dict:
     return counts
 
 
-def a2_frames(stratum: str) -> dict:
+#: The per-class bar the substitution gate has always applied, unchanged *(D33)*: a
+#: pooled kappa carried entirely by the easy class is not agreement about the task. What
+#: changed on 8 Sep 2026 is who it is applied to — the **human pair** as well as the
+#: judge. A class the two annotators cannot hold between themselves is not a class the
+#: judge is failing; it is a class the instrument does not identify.
+PER_CLASS_BAR = 0.40
+
+#: The declared indifference band on the interchangeability gate. Not a significance
+#: test: at n=126-200 every interval in that table overlaps every other, so nothing here
+#: is *separated*, and a verdict of `pass` means "at least as good a partner as the human
+#: it replaces, by more than the band", never "better". Stated as a number so the reading
+#: is fixed before the run rather than chosen after it.
+INTERCHANGEABILITY_BAND = 0.05
+
+
+def consensus_of(humans: dict[str, pd.Series]) -> tuple[pd.Series, dict]:
+    """The label **every** annotator present gave, and the coverage that qualifies it.
+
+    Written for *n* annotators, not two, so a third does not change the API. A pair with
+    one label is not consensus and is not in the denominator either: the question the
+    coverage answers is "of the pairs where two or more people looked, on how many did
+    they agree", and a single-labelled pair had no opportunity to disagree.
+
+    **The two travel together and this function is why** *(design spec §1)*. A consensus
+    figure without its coverage tells the reader something false by omission: kappa
+    0.401 is over the 48.5% of `targeted` pairs two annotators agreed on, and the other
+    51.5% is not missing at random. It is the harder half, selected by exactly the
+    property being measured, so a consensus figure is an **upper** estimate of the
+    judge's performance on the stratum and never an unbiased one.
+    """
+    if not humans:
+        return pd.Series(dtype=str), {
+            "annotators": [], "n_multi_labelled": 0, "n_agreed": 0,
+            "coverage": float("nan")}
+    wide = pd.DataFrame(humans)
+    multi = wide[wide.notna().sum(axis=1) >= 2]
+    if multi.empty:
+        agreed = multi
+        series = pd.Series(dtype=str)
+    else:
+        agreed = multi[multi.apply(lambda row: row.dropna().nunique() == 1, axis=1)]
+        series = (agreed.apply(lambda row: row.dropna().iloc[0], axis=1)
+                  if not agreed.empty else pd.Series(dtype=str))
+    series.name = "label"
+    return series, {
+        "annotators": sorted(humans),
+        "n_multi_labelled": int(len(multi)),
+        "n_agreed": int(len(agreed)),
+        "coverage": (float(len(agreed) / len(multi)) if len(multi)
+                     else float("nan"))}
+
+
+def assert_consensus_carries_coverage(block: dict) -> None:
+    """A consensus figure is refused unless its coverage is beside it *(design spec §1)*.
+
+    The same shape as `run_coverage` guarding a kappa over a short run: the figure is
+    computable either way and is a different statement depending on a number that is not
+    in it. Enforced here rather than in prose so a report cannot be emitted without it.
+    """
+    missing = [k for k in ("n_multi_labelled", "n_agreed", "coverage", "note_selection")
+               if k not in block]
+    if missing:
+        raise ValueError(
+            f"a consensus block is missing {missing}. A consensus kappa is over the "
+            "pairs two annotators agreed on — a non-random, easier subset of the "
+            "stratum — and quoting it without saying what fraction that was, and that "
+            "it is an upper estimate, is false by omission (design spec §1).")
+    if block["n_agreed"] > block["n_multi_labelled"]:
+        raise ValueError("more agreed pairs than multi-labelled ones — not a consensus")
+
+
+def interchangeability_gate(humans: dict[str, pd.Series], llm: pd.Series,
+                            seed: int = 0) -> dict:
+    """Would the judge, in one annotator's seat, partner the other as well as they did?
+
+    This replaces the old gate's relative clause *(Q39)*. That clause divided by the
+    human ceiling, and on `targeted` the ceiling is 0.214 with the judge at 0.204-0.249:
+    one overlapping cluster, so 0.75 x ceiling separated nothing and "the gate passed"
+    and "the gate is not measuring" produced the same output. The deeper problem is that
+    both old clauses assume a ground truth this corpus does not have — a question of the
+    form "does the judge match the true label" is unanswerable where two people who read
+    the same guide match each other at 0.214.
+
+    So the question is changed rather than the threshold. Each row **retains** one
+    annotator and asks whether the judge, standing in for the other, is as good a partner
+    to the retained one as the person it replaced. Every figure is computed on the pairs
+    **all three series share**, which is what makes the two comparable: kappa(yc, llm) is
+    0.380 at n=400 and 0.455 on the 126 pairs `van` also labelled, and reading the first
+    against a ceiling measured on the second is comparing two populations.
+
+    **What passing licenses**: the judge may serve as a *second* annotator in a future
+    double-labelling wave, a role whose specification is being about as unreliable as a
+    human. It does **not** license the judge as an answer key. No agreement figure
+    between two fallible raters can support a claim about correctness, and D36 stays
+    unmade *(design spec §3-4)*.
+    """
+    names = sorted(humans)
+    if len(names) < 2 or llm.empty:
+        return {}
+    shared = llm.index
+    for who in names:
+        shared = shared.intersection(humans[who].index)
+    if len(shared) < 2:
+        return {}
+
+    band = INTERCHANGEABILITY_BAND
+
+    def verdict(judge_k: float, human_k: float) -> str:
+        if not np.isfinite(judge_k) or not np.isfinite(human_k):
+            return "undefined"
+        if judge_k > human_k + band:
+            return "pass"
+        if judge_k < human_k - band:
+            return "fail"
+        return "tie"
+
+    rows = {}
+    for retained in names:
+        for replaced in names:
+            if replaced == retained:
+                continue
+            keep = humans[retained].loc[shared]
+            human_fig = _pairwise(keep, humans[replaced].loc[shared], seed)
+            judge_fig = _pairwise(keep, llm.loc[shared], seed)
+            if human_fig is None or judge_fig is None:
+                continue
+            rows[retained] = {
+                "retained": retained, "replaced": replaced, "n": len(shared),
+                "human_pair": {"three_class": human_fig["three_class"],
+                               "binary": human_fig["binary"],
+                               "per_class": human_fig["per_class"]},
+                "judge": {"three_class": judge_fig["three_class"],
+                          "binary": judge_fig["binary"],
+                          "per_class": judge_fig["per_class"]},
+                "verdict": {
+                    "three_class": verdict(judge_fig["three_class"]["kappa"],
+                                           human_fig["three_class"]["kappa"]),
+                    "binary": verdict(judge_fig["binary"]["kappa"],
+                                      human_fig["binary"]["kappa"])}}
+
+    # The absolute per-class clause, applied to the human pair as well *(design spec §4)*.
+    # A class both humans miss against each other is not a class the judge failed; it is
+    # one the instrument does not identify, and that is a finding about the guide.
+    per_class = {}
+    for label in session.LABELS:
+        human_scores = {r: rows[r]["human_pair"]["per_class"][label]["agreement"]
+                        for r in rows}
+        judge_scores = {r: rows[r]["judge"]["per_class"][label]["agreement"]
+                        for r in rows}
+        # Per-class agreement is asymmetric — it is conditioned on the reference — so
+        # the human pair produces two numbers per class, and the class is unidentified
+        # if **either** falls below the bar. `van` recovers 33.8% of `yc`'s `Good Fit`s
+        # while `yc` recovers 75.9% of `van`'s; that is not one of them being right, it
+        # is the class being drawn in two different places, and a judge cannot be scored
+        # against a boundary the instrument does not fix. Requiring both directions to
+        # fail would call `Good Fit` identified on the strength of the direction that
+        # happens to point from the rarer user of the class to the more frequent one.
+        finite = [v for v in human_scores.values() if np.isfinite(v)]
+        unidentified = bool(finite) and any(v < PER_CLASS_BAR for v in finite)
+        per_class[label] = {
+            "bar": PER_CLASS_BAR,
+            "human_pair": human_scores,
+            "judge": judge_scores,
+            "unidentified_by_instrument": unidentified,
+            "judge_clears_bar": {r: bool(np.isfinite(v) and v >= PER_CLASS_BAR)
+                                 for r, v in judge_scores.items()}}
+    return {"n": len(shared), "band": band, "rows": rows, "per_class": per_class,
+            "note_not_separated": (
+                "Every interval in this block overlaps every other at this n. `pass` "
+                "means the judge partners the retained annotator better than the "
+                "replaced one did by more than the declared band, not that the two are "
+                "distinguishable."),
+            "note_licences": (
+                "Passing licenses the judge as a *second* annotator in a double-"
+                "labelling wave, where being as unreliable as a human is the "
+                "specification. It does not license the judge as an answer key: no "
+                "agreement figure between two fallible raters is a claim about "
+                "correctness. D36 stays unmade.")}
+
+
+def a2_frames(stratum: str, model: str | None = None) -> dict:
     """Each annotator's labels, separately, and the judge's, for **one** in-domain stratum.
 
     Deliberately not `judge_frames`. That function reads `RECHECK_CSV` and nothing else
@@ -1167,6 +1413,22 @@ def a2_frames(stratum: str) -> dict:
     shape as D35's `run1_vs_run2`: no exception, no row count that looks wrong, a
     plausible figure. An annotator is now an axis a figure may not be pooled across, like
     `agent_sha256` and `draw`, and the API cannot express the pooled version.
+
+    **`model` is an axis too** *(fix M1, proposed D38)*. `llm` used to be a per-pair
+    majority across every run sharing the committed `agent_sha256` — and a guide is not
+    the whole judge. The same guide under a second model has the *same* `agent_sha256`,
+    so two runs of it are a two-element majority: `majority` returns `None` on a tie and
+    `.dropna()` deletes it, which means **every pair the two models disagreed on would be
+    silently dropped** and the survivors would be exactly the pairs two models agreed on.
+    A non-random, easier sample, a smaller n nobody ordered, and a kappa that rises for
+    the wrong reason — the D35 shape one axis along. It has never fired: runs 5 and 6 are
+    the only A2 runs and both are `haiku`. Move 2 of
+    `plan/2026-09-08-judge-calibration` fires it on its first dispatch, which is why this
+    is a prerequisite to that dispatch rather than a cleanup after it.
+
+    So `llm` is the committed instrument under **one** model — `model` if given, else the
+    model of the highest-numbered run of that instrument — and every other model on file
+    is returned under `per_model`, the way `judge_frames` returns `_instruments`.
     """
     if stratum not in A2_DRAW_STRATUM.values():
         raise ValueError(
@@ -1182,21 +1444,47 @@ def a2_frames(stratum: str) -> dict:
     humans = {
         str(who): chunk.drop_duplicates("pair_id").set_index("pair_id").label
         for who, chunk in rows.groupby(rows.annotator.astype(str))}
+    consensus, consensus_coverage = consensus_of(humans)
 
     llm = pd.Series(dtype=str)
+    per_model: dict[str, pd.Series] = {}
     runs: dict[int, pd.Series] = {}
+    run_meta: dict[int, dict] = {}
+    live_model = ""
     current = sha(AGENT_DEF.read_text(encoding="utf-8")) if AGENT_DEF.exists() else ""
     if path.exists():
         frame = pd.read_csv(path)
         frame = frame[frame.parsed_ok.astype(str).str.lower().isin(("true", "1"))]
         for run, chunk in frame.groupby("run"):
             runs[int(run)] = chunk.drop_duplicates("pair_id").set_index("pair_id").label
+            # Both axes, per run. `self_consistency` is a property of one judge repeating
+            # itself, and two runs that differ on either are a comparison, not a
+            # reliability check.
+            run_meta[int(run)] = {
+                "models": sorted(chunk.model.dropna().astype(str).unique().tolist()),
+                "agents": sorted(chunk.agent_sha256.dropna().astype(str)
+                                 .unique().tolist()),
+                "rows": int(len(chunk))}
         live = frame[frame.agent_sha256.astype(str) == current]
-        if len(live):
-            llm = live.groupby("pair_id").label.apply(
+        for name, chunk in live.groupby(live.model.astype(str)):
+            per_model[str(name)] = chunk.groupby("pair_id").label.apply(
                 lambda s: majority(list(s))).dropna()
-    return {"humans": humans, "llm": llm, "_runs": runs, "_draw": draw,
-            "_current": current, "_path": path}
+        if per_model:
+            # The default is the most recent run of the committed instrument, so a fresh
+            # dispatch is what the report speaks about unless a caller names otherwise.
+            newest = live.loc[live.run.astype(int).idxmax()]
+            live_model = str(model) if model is not None else str(newest.model)
+            if live_model not in per_model:
+                raise ValueError(
+                    f"the committed instrument has no rows under model {live_model!r} in "
+                    f"{path.name}. On file: {sorted(per_model)}. A model is part of which "
+                    "judge this is (D38) and there is no series that blends two.")
+            llm = per_model[live_model]
+    return {"humans": humans, "consensus": consensus,
+            "consensus_coverage": consensus_coverage,
+            "llm": llm, "per_model": per_model,
+            "_runs": runs, "_run_meta": run_meta, "_model": live_model,
+            "_draw": draw, "_current": current, "_path": path}
 
 
 def _pairwise(a: pd.Series, b: pd.Series, seed: int) -> dict | None:
@@ -1257,6 +1545,14 @@ def a2_report(seed: int = 0, strict: bool = True) -> dict:
         section: dict = {"draw": draw, "file": str(frames["_path"]),
                          "runs": dispatched_runs, "coverage": coverage,
                          "annotators": {who: len(s) for who, s in sorted(humans.items())},
+                         # Which judge every figure below is against. `llm_model` is not
+                         # decoration: the committed guide under two models is two judges
+                         # sharing one agent_sha256 (D38), and a `vs_llm` that did not
+                         # name its model would be the pooled field this report already
+                         # refuses one axis along.
+                         "llm_model": frames["_model"],
+                         "models_on_file": {m: len(s) for m, s
+                                            in sorted(frames["per_model"].items())},
                          "n_llm": len(frames["llm"])}
         if not dispatched_runs:
             section["status"] = "not dispatched"
@@ -1283,6 +1579,36 @@ def a2_report(seed: int = 0, strict: bool = True) -> dict:
                    if (fig := _pairwise(humans[x], humans[y], seed)) is not None}
         section["vs_llm"] = vs_llm
         section["human_ceiling"] = ceiling
+
+        # A third reference, and a fifth axis *(proposed D37)*. It is not a better
+        # measurement of the same thing: it is a different question asked of a different
+        # half of the corpus, and comparing kappa(consensus, llm) with kappa(yc, llm) as
+        # though one improved on the other is the pooling this report exists to refuse.
+        consensus_block = dict(frames["consensus_coverage"])
+        consensus_block["label_distribution"] = {
+            label: int((frames["consensus"] == label).sum())
+            for label in session.LABELS}
+        consensus_block["note_selection"] = (
+            "The pairs two annotators agreed on are not a random subsample: they are the "
+            "pairs both found unambiguous. A judge scores higher there for the reason a "
+            "student scores higher on the easy half of an exam, so this is an UPPER "
+            "estimate of its performance on the stratum, never an unbiased one. It is "
+            "also why consensus cannot license substitution — the pairs it excludes are "
+            "exactly the population a substituting judge would label alone, with no "
+            "reference and no appeal (design spec §3).")
+        if (fig := _pairwise(frames["consensus"], frames["llm"], seed)) is not None:
+            consensus_block["vs_llm"] = {
+                "n": fig["n"], "three_class": fig["three_class"],
+                "binary": fig["binary"], "per_class": fig["per_class"],
+                "confusion_rows_consensus": fig["confusion_rows_first"],
+                "confusion_rows_llm": fig["confusion_rows_second"]}
+        assert_consensus_carries_coverage(consensus_block)
+        section["consensus"] = consensus_block
+
+        # The rewritten gate *(Q39, design spec §4)*. Computed on the pairs all three
+        # series share, which is the only way its two columns are about one population.
+        section["interchangeability"] = interchangeability_gate(
+            humans, frames["llm"], seed)
         section["n_scored"] = max((f["n"] for f in vs_llm.values()), default=0)
         section["n_dispatched"] = sum(c["n_dispatched"] for c in coverage.values())
         section["status"] = "scored" if vs_llm else "no overlap"
@@ -1291,20 +1617,55 @@ def a2_report(seed: int = 0, strict: bool = True) -> dict:
                 f"{sorted(humans)} both labelled in this stratum but share no pair, so "
                 "there is no human ceiling here and no judge figure in it can be read as "
                 "a fraction of one.")
-        # Self-consistency is a property of one judge over one draw.
+        # Self-consistency is a property of one judge over one draw, and the judge is
+        # the guide **and** the model *(D38)*. Runs 5 and 7 are the same guide under two
+        # models: that is the model control, and reporting it here would put a
+        # between-judge comparison under a field every reader takes for test-retest
+        # reliability — the number D33 used to bound how high kappa(A1, llm) could have
+        # gone. Pairs that differ on either axis are listed, not scored.
+        meta = frames["_run_meta"]
+        same = lambda x, y: (meta.get(x, {}).get("models") ==                # noqa: E731
+                             meta.get(y, {}).get("models") and
+                             meta.get(x, {}).get("agents") ==
+                             meta.get(y, {}).get("agents"))
         section["self_consistency"] = {
             f"run{x}_vs_run{y}": kappa_ci(
                 frames["_runs"][x].loc[idx].tolist(),
                 frames["_runs"][y].loc[idx].tolist(), seed=seed)
             for i, x in enumerate(sorted(frames["_runs"]))
             for y in sorted(frames["_runs"])[i + 1:]
-            if len(idx := frames["_runs"][x].index.intersection(
+            if same(x, y) and len(idx := frames["_runs"][x].index.intersection(
                 frames["_runs"][y].index))}
+        section["not_self_consistency"] = {
+            f"run{x}_vs_run{y}": {
+                "run_x": meta.get(x, {}), "run_y": meta.get(y, {}),
+                "why": ("these two runs differ on instrument or model, so their "
+                        "agreement is a comparison between judges and not this judge "
+                        "repeating itself (D38)")}
+            for i, x in enumerate(sorted(frames["_runs"]))
+            for y in sorted(frames["_runs"])[i + 1:]
+            if not same(x, y)}
+        section["run_provenance"] = {str(r): m for r, m in sorted(meta.items())}
         out["strata"][stratum] = section
 
     out["note_never_pooled"] = (
         "`generic` and `targeted` are two populations (D29). Both figures are true "
         "statements; their average is not, and this report has no field holding one.")
+    out["note_never_pooled_references"] = (
+        "`yc`, `van` and `consensus` are three references, not three samples of one, and "
+        "a figure names which it is against. They are computed over different sets of "
+        "pairs — 400 / 126 / 60 on `generic` — so kappa(consensus, llm) = 0.401 beside "
+        "kappa(yc, llm) = 0.249 is not the judge improving; it is a different question "
+        "asked of a different half of the corpus. Every consensus figure carries its "
+        "coverage and its selection-bias note, enforced by "
+        "`assert_consensus_carries_coverage`.")
+    out["note_never_pooled_models"] = (
+        "The committed guide under two models is two judges that share one "
+        "agent_sha256. Every stratum names the model its `vs_llm` block is against in "
+        "`llm_model`, other models on file are counted in `models_on_file`, and no field "
+        "holds a series built from two. Before this fix a second model would have been "
+        "folded into the same per-pair majority, where a two-element tie is dropped: the "
+        "surviving pairs would have been exactly those the two models agreed on (D38).")
     out["note_never_pooled_annotators"] = (
         "Every judge figure is keyed by the annotator it is against, and there is no "
         "pooled `human`. Two annotators are two references, not two samples of one: on "
@@ -1482,6 +1843,11 @@ def main() -> int:
                     help="dispatched vs answered vs quarantined, for --run (F3)")
     ap.add_argument("--report", action="store_true")
     ap.add_argument("--run", type=int, default=1)
+    ap.add_argument("--model", default=None,
+                    help="the model to dispatch under, and the model --judge is willing "
+                         f"to run (default {MODEL}). Model is an axis a figure may not be "
+                         "pooled across (D38): --judge refuses a run whose dispatch names "
+                         "a different one")
     ap.add_argument("--subsample", type=int, default=None)
     ap.add_argument("--seed", type=int, default=0)
     args = ap.parse_args()
@@ -1490,17 +1856,21 @@ def main() -> int:
         AGENT_DEF.parent.mkdir(parents=True, exist_ok=True)
         AGENT_DEF.write_text(render_agent_definition(), encoding="utf-8")
         print(f"wrote {AGENT_DEF}  sha256={sha(render_agent_definition())[:12]}")
+    dispatch_model = args.model or MODEL
     if args.dispatch and args.all_a1:
-        print(json.dumps(dispatch_all_a1(args.run, args.seed), indent=2))
+        print(json.dumps(dispatch_all_a1(args.run, args.seed, dispatch_model), indent=2))
     elif args.dispatch and args.a2:
-        print(json.dumps(dispatch_a2(args.a2, args.run, args.seed), indent=2))
+        print(json.dumps(dispatch_a2(args.a2, args.run, args.seed, dispatch_model),
+                         indent=2))
     elif args.dispatch:
-        print(json.dumps(dispatch(args.run, args.seed, args.subsample), indent=2))
+        print(json.dumps(dispatch(args.run, args.seed, args.subsample, dispatch_model),
+                         indent=2))
     if args.backfill_draw:
         print(json.dumps(backfill_draw(args.seed), indent=2))
     if args.judge:
         try:
-            print(json.dumps(judge(args.run, args.concurrency, args.limit), indent=2))
+            print(json.dumps(judge(args.run, args.concurrency, args.limit, args.model),
+                             indent=2))
         except JudgeFailures as exc:
             # Exit non-zero and say what to do. A failed judging pass that printed a
             # summary and returned 0 is how a short run reaches `--collect` (F2).

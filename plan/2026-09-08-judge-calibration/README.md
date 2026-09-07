@@ -1,6 +1,9 @@
 # Judge calibration — what to do with the LLM when the humans are spent
 
-**Status:** draft, awaiting approval
+**Status:** M1, M2 and move 1 **landed** 8 Sep 2026 — see
+[`03-consensus-findings.md`](03-consensus-findings.md). Moves 2 and 3 are separately
+approvable and **not started**: nothing has been dispatched, and no run number above 6
+is in use.
 **Date:** 8 Sep 2026
 **Depends on:** D29 (two strata, never pooled), D33 (the judge exists), D34 (the
 calibrated guide), D35 (one draw per run, one file per draw), Phase 2 of
@@ -99,6 +102,9 @@ exception, no wrong row count, a plausible figure — the D35 shape, one axis al
 
 - [`01-design-spec.md`](01-design-spec.md) — the reference axis, the rewritten gate, what each move licenses
 - [`02-work-plan.md`](02-work-plan.md) — tasks, order, acceptance checks, cost
+- [`03-consensus-findings.md`](03-consensus-findings.md) — move 1's result, the rewritten
+  gate, and the two prerequisite fixes (**deviation D1**: applied in both orientations,
+  the per-class clause finds `Potential Fit` unidentified too, not `Good Fit` alone)
 
 ## Open questions carried in
 
