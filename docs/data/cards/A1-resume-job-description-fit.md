@@ -81,6 +81,14 @@ Good Fit resumes per test JD: min 1, Q1 3, **median 18**, Q3 24, max 48.
    they carry the **pre-D34 instrument** (`47fc2e48`), so they describe a judge the guide
    no longer renders (**Q34**, deferred). Evidence:
    `plan/2026-09-06-recheck-file-split/`.
+
+   *Amended 8 Sep 2026 (move 3).* **No figure above moves and no A1 label changes.** Both
+   manifests gain an empty `score` column: the committed judge is now the graded
+   instrument `5d986c82`, which returns a 0-100 score beside the class, and runs 1-4 were
+   dispatched under the label-only scheme and are not failed for withholding it. **The A1
+   recheck has not been re-judged under the graded instrument**, so every kappa on this
+   card is still the pre-move-3 judge's, and the guide edit does not touch them. Evidence:
+   `plan/2026-09-08-judge-calibration/06-graded-registration.md`.
 6. **Label provenance is unrecorded** *(Q28)*. The publisher does not say how the labels
    were produced. It no longer blocks reading defect 5 — shared machine bias would have
    *inflated* kappa(A1, llm), and the observed value is at chance — but it is still unknown.

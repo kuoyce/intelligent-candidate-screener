@@ -160,10 +160,13 @@ REASON_CHARS = 120
 #: `queue.JUDGEMENT_COLUMNS` plus provenance. `run` and the two hashes are what make a row
 #: attributable to an instrument, since no seed will reproduce it. `draw` names the
 #: population that was sampled *(D35)* — run 2 held two of them under one run number and one
-#: `agent_sha256`, so it is not derivable from the columns that preceded it.
+#: `agent_sha256`, so it is not derivable from the columns that preceded it. `score` is the
+#: graded instrument's second answer (move 3); it is empty for every run dispatched under
+#: `SCHEME_LABEL`, which is runs 1-8, and a run dispatched under `SCHEME_SCORED` has no
+#: parsed row without one.
 LLM_COLUMNS = judging.JUDGEMENT_COLUMNS + (
     "model", "agent_sha256", "prompt_sha256", "run", "chars_sent", "parsed_ok",
-    "judged_at", "draw")
+    "judged_at", "draw", "score")
 
 
 def sha(text: str) -> str:
@@ -197,19 +200,18 @@ def render_agent_definition(guide: str | None = None) -> str:
                                    else GUIDE.read_text(encoding="utf-8"))
     return f"""---
 name: a1-judge
-description: Judges one job-description/CV pair against the annotation guide's three classes. Returns one JSON object and nothing else. Tool-free by design.
-model: haiku
+description: Judges one job-description/CV pair against the annotation guide's three classes and a 0-100 score. Returns one JSON object and nothing else. Tool-free by design.
 tools: []
 ---
 
 You are one annotator in a labelling session. You will be shown **one** job description
-and **one** candidate CV, and you return **one** label.
+and **one** candidate CV, and you return **one** label and **one** score.
 
 Two rules override anything else:
 
 1. **Reply with exactly one JSON object and no other text.** No prose before it, no
    markdown fence around it, no explanation after it.
-   `{{"label":"Good Fit"|"Potential Fit"|"No Fit","reason":"<={REASON_CHARS} chars"}}`
+   `{{"label":"Good Fit"|"Potential Fit"|"No Fit","score":<0-100 integer>,"reason":"<={REASON_CHARS} chars"}}`
 2. **Judge only what is in front of you.** You have no tools and nothing to look up. If
    the CV is thin, that is evidence about the CV, not a reason to seek more.
 
@@ -242,11 +244,36 @@ def assert_agent_definition_current() -> str:
 
 # --- the per-pair prompt ---------------------------------------------------
 
+#: What a dispatch asks the judge to return, stamped on every prompt record.
+#:
+#: Move 3 of `plan/2026-09-08-judge-calibration` added the score, and `collect` requires
+#: one of a row whose dispatch asked for one and of no other row. Without the stamp,
+#: re-collecting runs 1-8 would mark every one of their rows `parsed_ok=False` for
+#: withholding a field they were never asked for — and the frame builders drop unparsed
+#: rows, so the committed A1 and A2 figures would silently recompute over nothing. Same
+#: shape as `draw` *(D35)*: a property of the dispatch that is not derivable from the
+#: columns that preceded it, so it is written at dispatch and read back, never guessed.
+#: A record without one is pre-move-3 and asked for a label alone.
+SCHEME_LABEL = "label"
+SCHEME_SCORED = "label+score"
+RESPONSE_SCHEME = SCHEME_SCORED
+
+#: Inclusive, and whole numbers only — the guide says so and `parse_score` enforces it.
+SCORE_MIN, SCORE_MAX = 0, 100
+
+
 def render_prompt(jd_text: str, cv_text: str) -> str:
-    """The whole user message. No preamble — the guide is in the agent definition."""
+    """The whole user message. No preamble — the guide is in the agent definition.
+
+    The scheme it names is the scheme the agent definition names, and the two move in one
+    edit. A prompt asking for `label` alone while the guide asked for a score would leave
+    the judge to choose which instruction to follow, and `parse_return` would refuse
+    whichever it did not pick — 600 spawns spent on a contradiction this file wrote.
+    """
     return (f"JOB DESCRIPTION\n{jd_text}\n\nCANDIDATE\n{cv_text}\n\n"
             "Reply with one JSON object, no prose, no markdown fence:\n"
             f'{{"label":"Good Fit"|"Potential Fit"|"No Fit",'
+            f'"score":<{SCORE_MIN}-{SCORE_MAX} integer>,'
             f'"reason":"<={REASON_CHARS} chars"}}')
 
 
@@ -382,7 +409,8 @@ def dispatch(run: int, seed: int = 0, subsample: int | None = None,
                             "draw": RECHECK_DRAW,
                             "prompt": prompt, "prompt_sha256": sha(prompt),
                             "chars_sent": len(prompt),
-                            "agent_sha256": agent_hash, "model": model})
+                            "agent_sha256": agent_hash, "model": model,
+                            "response_scheme": RESPONSE_SCHEME})
 
     if subsample:
         keep = set(subsample_ids([r["pair_id"] for r in records], subsample, seed))
@@ -413,6 +441,7 @@ def dispatch(run: int, seed: int = 0, subsample: int | None = None,
             "already_dispatched": len(skipped),
             "jds": len({r["query_id"] for r in records}),
             "subsample": subsample, "agent_sha256": agent_hash, "model": model,
+            "response_scheme": RESPONSE_SCHEME,
             "chars_sent_median": int(np.median([r["chars_sent"] for r in records]))
             if records else 0,
             "prompts": str(PROMPTS)}
@@ -445,7 +474,7 @@ def dispatch_all_a1(run: int, seed: int = 0, model: str = MODEL) -> dict:
                         "run": run, "draw": FULL_A1_DRAW,
                         "prompt": prompt, "prompt_sha256": sha(prompt),
                         "chars_sent": len(prompt), "agent_sha256": agent_hash,
-                        "model": model})
+                        "model": model, "response_scheme": RESPONSE_SCHEME})
 
     overlap = guide_example_pairs() & {r["pair_id"] for r in records}
     if overlap:
@@ -468,6 +497,7 @@ def dispatch_all_a1(run: int, seed: int = 0, model: str = MODEL) -> dict:
             "total_a1": len(test),
             "jds": len({r["query_id"] for r in records}),
             "agent_sha256": agent_hash, "model": model,
+            "response_scheme": RESPONSE_SCHEME,
             "chars_sent_median": int(np.median([r["chars_sent"] for r in records]))
             if records else 0,
             "prompts": str(PROMPTS)}
@@ -521,7 +551,7 @@ def dispatch_a2(stratum: str, run: int, seed: int = 0, model: str = MODEL) -> di
                         "selection_reason": str(row.selection_reason),
                         "prompt": prompt, "prompt_sha256": sha(prompt),
                         "chars_sent": len(prompt), "agent_sha256": agent_hash,
-                        "model": model})
+                        "model": model, "response_scheme": RESPONSE_SCHEME})
 
     overlap = guide_example_pairs() & {r["pair_id"] for r in records}
     if overlap:
@@ -544,6 +574,7 @@ def dispatch_a2(stratum: str, run: int, seed: int = 0, model: str = MODEL) -> di
             "total_in_stratum": len(rows),
             "jds": len({r["query_id"] for r in records}),
             "agent_sha256": agent_hash, "model": model,
+            "response_scheme": RESPONSE_SCHEME,
             "chars_sent_median": int(np.median([r["chars_sent"] for r in records]))
             if records else 0,
             "prompts": str(PROMPTS)}
@@ -988,11 +1019,41 @@ class BadReturn(ValueError):
     pass
 
 
-def parse_return(raw: str) -> dict:
+def parse_score(value) -> int:
+    """A whole number in `SCORE_MIN..SCORE_MAX`, or a `BadReturn`.
+
+    As strict as the label check and for the same reason. A judge that answered `"high"`,
+    `85.5` or `120` did not answer the question the guide asks, and a cut point fitted
+    over a column holding those describes no instrument. `85.0` is accepted as 85 — JSON
+    has one number type and a model writing a trailing `.0` has still given a whole
+    number — but nothing else that merely looks numeric is.
+    """
+    if isinstance(value, bool):                    # bool is an int in Python; not a score
+        raise BadReturn(f"score {value!r} is not a number")
+    try:
+        number = float(str(value).strip())
+    except (TypeError, ValueError) as exc:
+        raise BadReturn(f"score {value!r} is not a number") from exc
+    if number != int(number):
+        raise BadReturn(f"score {value!r} is not a whole number")
+    number = int(number)
+    if not SCORE_MIN <= number <= SCORE_MAX:
+        raise BadReturn(f"score {number} is outside {SCORE_MIN}-{SCORE_MAX}")
+    return number
+
+
+def parse_return(raw: str, require_score: bool = False) -> dict:
     """One JSON object, one in-scheme label. Anything else is a `BadReturn`.
 
     Deliberately strict. A judge that returned prose, or a fourth class, did not do the
     task the guide describes, and averaging its output into a kappa would hide that.
+
+    `require_score` is the dispatch's `response_scheme`, never a default read off this
+    module's constant. A row is parsed under the scheme it was *asked* for: runs 1-8 were
+    asked for a label alone and are still complete returns, and a run 9 row that answered
+    without a score is **`parsed_ok=False`, not a row with a null score** — a null would
+    survive into the frame and be skipped by whatever later took a mean, which is the
+    silent-partial-sample shape F1 closed one axis along.
     """
     text = str(raw).strip()
     fence = re.match(r"^```(?:json)?\s*(.*?)\s*```$", text, re.S)
@@ -1007,8 +1068,12 @@ def parse_return(raw: str) -> dict:
     label = str(obj["label"]).strip()
     if label not in session.LABELS:
         raise BadReturn(f"label {label!r} is not one of {session.LABELS}")
+    if require_score and obj.get("score") is None:
+        raise BadReturn("no `score` key, and this run was dispatched under "
+                        f"{SCHEME_SCORED!r}")
+    score = None if obj.get("score") is None else parse_score(obj["score"])
     reason = str(obj.get("reason", "")).strip()
-    return {"label": label, "reason": reason[:REASON_CHARS],
+    return {"label": label, "score": score, "reason": reason[:REASON_CHARS],
             "reason_overlong": len(reason) > REASON_CHARS}
 
 
@@ -1036,11 +1101,16 @@ def collect() -> dict:
             raise BadReturn(f"{key} was never dispatched — a judged pair that was not "
                             "served is a bookkeeping error, not a label")
         sent = dispatched[key]
+        # The scheme the dispatch asked for, not the one this module asks for today. A
+        # pre-move-3 record has none and asked for a label alone; requiring a score of it
+        # would fail 1,679 complete returns on a field they were never asked for.
+        scheme = str(sent.get("response_scheme", SCHEME_LABEL))
         try:
-            parsed = parse_return(got["raw"])
+            parsed = parse_return(got["raw"], require_score=(scheme == SCHEME_SCORED))
             ok, label, reason = True, parsed["label"], parsed["reason"]
+            score = parsed["score"]
         except BadReturn as exc:
-            ok, label, reason = False, "", f"unparsed: {exc}"
+            ok, label, reason, score = False, "", f"unparsed: {exc}", None
             bad.append(key)
         row_model = sent.get("model", MODEL)
         draw = sent.get("draw")
@@ -1064,7 +1134,8 @@ def collect() -> dict:
             "model": row_model, "agent_sha256": sent["agent_sha256"],
             "prompt_sha256": sent["prompt_sha256"], "run": got["run"],
             "chars_sent": sent["chars_sent"], "parsed_ok": ok,
-            "judged_at": got.get("returned_at", ""), "draw": draw})
+            "judged_at": got.get("returned_at", ""), "draw": draw,
+            "score": score})
 
     frame = pd.DataFrame(rows, columns=list(LLM_COLUMNS))
     written = {}
@@ -1080,6 +1151,7 @@ def collect() -> dict:
         written[draw] = {"path": str(path), "rows": len(part),
                          "runs": sorted(part.run.unique().tolist())}
     return {"rows": len(frame), "parsed_ok": int(frame.parsed_ok.sum()),
+            "scored": int(frame.score.notna().sum()),
             "unparsed": len(bad), "unparsed_pairs": bad[:10],
             "runs": sorted(frame.run.unique().tolist()) if len(frame) else [],
             "written": written}
@@ -1400,6 +1472,168 @@ def interchangeability_gate(humans: dict[str, pd.Series], llm: pd.Series,
                 "correctness. D36 stays unmade.")}
 
 
+#: The score is defined to increase with fit, so a cut point is a pair of thresholds and
+#: the classes are contiguous. That is an assumption the guide makes explicit — the bands
+#: describe one scale — and it is what makes "fit two numbers" the whole search.
+CUT_POINT_SEED = 0
+
+FITTED_NOTE = (
+    "These cut points were fitted against the consensus reference on the pairs named in "
+    "`fitted_on`. A kappa on the pairs a parameter was fitted on is not an out-of-sample "
+    "result and may not be compared with the emitted label's kappa as though the two "
+    "were measured the same way. `held_out` is the only figure here that may.")
+
+
+def assert_score_figure_names_its_fit(block: dict) -> None:
+    """A fitted figure carries the pairs it was fitted on, or it is not emitted.
+
+    Same rule as `assert_consensus_carries_coverage`, one parameter along. A cut point is
+    fitted, and a fitted parameter quoted without saying what it was fitted on reads as a
+    measurement of the judge — which is the one thing it is not. Enforced here rather
+    than in prose so a later edit to `a2_report` cannot drop it and still build.
+    """
+    for key in ("cut_points", "kappa", "n", "fitted_on"):
+        if key not in block:
+            raise AssertionError(
+                f"a fitted cut-point block is missing {key!r}. A fitted parameter travels "
+                "with the pairs it was fitted on (move 3, work-plan task 3.4), the way a "
+                "consensus figure travels with its coverage (D37).")
+    if not block["fitted_on"]:
+        raise AssertionError("`fitted_on` is empty — name the pairs or do not emit the "
+                             "figure")
+
+
+def labels_from_score(scores: pd.Series, lo: float, hi: float) -> list[str]:
+    """`No Fit` below `lo`, `Good Fit` at or above `hi`, `Potential Fit` between."""
+    return ["No Fit" if v < lo else ("Good Fit" if v >= hi else "Potential Fit")
+            for v in scores]
+
+
+def fit_cut_points(scores: pd.Series, reference: pd.Series,
+                   seed: int = CUT_POINT_SEED) -> dict | None:
+    """The two thresholds that best reproduce `reference` from the score.
+
+    Exhaustive over the midpoints between observed scores: the search space is at most
+    101 values and the criterion is three-class kappa, so there is nothing to be gained
+    by a smarter optimiser and something to be lost — a local optimum here would be
+    indistinguishable from a score that does not separate the classes.
+
+    Ties are broken by the wider `Potential Fit` band, which is the conservative choice:
+    it is the class the judge already over-issues, so a tie resolved that way cannot
+    manufacture the `Good Fit` recall this move is measuring.
+    """
+    m = pd.concat([pd.to_numeric(scores, errors="coerce").rename("s"),
+                   reference.rename("r")], axis=1).dropna()
+    if m.empty or m.r.nunique() < 2:
+        return None
+    values = sorted(set(m.s.tolist()))
+    edges = ([values[0] - 0.5]
+             + [(a + b) / 2 for a, b in zip(values, values[1:])]
+             + [values[-1] + 0.5])
+    best = None
+    for i, lo in enumerate(edges):
+        for hi in edges[i:]:
+            fitted = labels_from_score(m.s, lo, hi)
+            k = cohen_kappa(m.r.tolist(), fitted)
+            k = -1.0 if pd.isna(k) else float(k)
+            width = hi - lo
+            if best is None or (k, width) > (best["kappa"], best["_width"]):
+                best = {"kappa": k, "_width": width, "lo": float(lo), "hi": float(hi)}
+    fitted = labels_from_score(m.s, best["lo"], best["hi"])
+    out = {"cut_points": {"no_fit_below": best["lo"], "good_fit_at_or_above": best["hi"]},
+           "n": int(len(m)),
+           "fitted_on": sorted(m.index.astype(str).tolist()),
+           "kappa": kappa_ci(m.r.tolist(), fitted, seed=seed),
+           "binary": kappa_ci(collapse(m.r.tolist()), collapse(fitted), seed=seed,
+                              labels=BINARY),
+           "per_class": per_class_agreement(m.r.tolist(), fitted),
+           "label_distribution": {label: fitted.count(label) for label in session.LABELS},
+           "note_fitted": FITTED_NOTE}
+    assert_score_figure_names_its_fit(out)
+    return out
+
+
+def rank_separation(scores: pd.Series, reference: pd.Series,
+                    higher: str, lower: str) -> dict | None:
+    """P(score of a `higher` pair > score of a `lower` pair), ties at 0.5.
+
+    The registered S1 statistic. It asks whether the score separates a boundary the
+    emitted label collapses, and it needs no threshold to do it — which is the point,
+    since a threshold is the thing move 3 wants to stop having to re-dispatch for.
+    """
+    m = pd.concat([pd.to_numeric(scores, errors="coerce").rename("s"),
+                   reference.rename("r")], axis=1).dropna()
+    a = m[m.r == higher].s.tolist()
+    b = m[m.r == lower].s.tolist()
+    if not a or not b:
+        return None
+    wins = sum((x > y) + 0.5 * (x == y) for x in a for y in b)
+    return {"auc": wins / (len(a) * len(b)), "n_higher": len(a), "n_lower": len(b),
+            "higher": higher, "lower": lower}
+
+
+def score_analysis(scores: pd.Series, reference: pd.Series,
+                   seed: int = CUT_POINT_SEED) -> dict | None:
+    """S1, S2 and S3 of `plan/2026-09-08-judge-calibration/06-graded-registration.md`.
+
+    The held-out half is the only figure in here that is an out-of-sample estimate, and
+    it is computed by a seeded split fixed before the scores existed. Reporting the
+    full-data fit alone would let a wide held-out interval be quietly replaced by the
+    number that cannot miss.
+    """
+    m = pd.concat([pd.to_numeric(scores, errors="coerce").rename("s"),
+                   reference.rename("r")], axis=1).dropna()
+    if m.empty:
+        return None
+    out: dict = {"n": int(len(m)), "seed": seed}
+    out["distribution_by_reference_class"] = {
+        label: {"n": int(len(chunk)), "mean": float(chunk.s.mean()),
+                "median": float(chunk.s.median()),
+                "q1": float(chunk.s.quantile(0.25)), "q3": float(chunk.s.quantile(0.75))}
+        for label, chunk in m.groupby("r") if label in session.LABELS}
+    out["separation"] = {
+        name: fig for name, (hi, lo) in {
+            "good_vs_potential": ("Good Fit", "Potential Fit"),
+            "potential_vs_no": ("Potential Fit", "No Fit"),
+            "good_vs_no": ("Good Fit", "No Fit")}.items()
+        if (fig := rank_separation(m.s, m.r, hi, lo)) is not None}
+    fitted = fit_cut_points(m.s, m.r, seed=seed)
+    if fitted is not None:
+        out["fitted_full"] = fitted
+    # S3. The split is over the shared pairs in sorted order under a fixed seed, so it is
+    # reproducible from the report alone and was fixed before any score existed.
+    ids = sorted(m.index.astype(str).tolist())
+    if len(ids) >= 8:
+        order = np.random.default_rng(seed).permutation(len(ids))
+        half = len(ids) // 2
+        fit_ids = [ids[i] for i in sorted(order[:half])]
+        test_ids = [ids[i] for i in sorted(order[half:])]
+        fit_part = fit_cut_points(m.s.loc[fit_ids], m.r.loc[fit_ids], seed=seed)
+        if fit_part is not None:
+            cuts = fit_part["cut_points"]
+            held = labels_from_score(m.s.loc[test_ids],
+                                     cuts["no_fit_below"], cuts["good_fit_at_or_above"])
+            ref = m.r.loc[test_ids].tolist()
+            out["held_out"] = {
+                "cut_points": cuts,
+                "fitted_on": fit_ids, "quoted_on": test_ids,
+                "n_fit": len(fit_ids), "n": len(test_ids),
+                "kappa": kappa_ci(ref, held, seed=seed),
+                "binary": kappa_ci(collapse(ref), collapse(held), seed=seed,
+                                   labels=BINARY),
+                "per_class": per_class_agreement(ref, held),
+                "note": ("fitted on one seeded half of the consensus pairs and quoted on "
+                         "the other. This is the only out-of-sample figure in this "
+                         "block, and its n is half the consensus coverage, so its "
+                         "interval is wide by construction and is reported as it fell.")}
+            if set(out["held_out"]["fitted_on"]) & set(out["held_out"]["quoted_on"]):
+                raise AssertionError(
+                    "the held-out half shares pairs with the fitted half — that is a "
+                    "fitted figure wearing an out-of-sample name")
+    out["note_fitted"] = FITTED_NOTE
+    return out
+
+
 def a2_frames(stratum: str, model: str | None = None) -> dict:
     """Each annotator's labels, separately, and the judge's, for **one** in-domain stratum.
 
@@ -1439,6 +1673,15 @@ def a2_frames(stratum: str, model: str | None = None) -> dict:
     So `llm` is the committed instrument under **one** model — `model` if given, else the
     model of the highest-numbered run of that instrument — and every other model on file
     is returned under `per_model`, the way `judge_frames` returns `_instruments`.
+
+    **`per_instrument` is the axis above it.** Keyed by `agent_sha256`, each value the
+    same model-keyed dict, it is what keeps a superseded instrument quotable after the
+    guide moves on: move 3's edit gives the judge a new hash, and a builder that returned
+    only the committed one would have dropped runs 5-8 out of the report on the commit
+    that changed the guide — a figure disappearing is as misleading as a figure blending,
+    and a reader cannot tell "withdrawn" from "superseded" by absence. `scores` is the
+    same shape once more, holding the graded instrument's 0-100 column for the runs that
+    have one; it is empty for every pre-move-3 run and carries no pair the parser refused.
     """
     if stratum not in A2_DRAW_STRATUM.values():
         raise ValueError(
@@ -1458,6 +1701,8 @@ def a2_frames(stratum: str, model: str | None = None) -> dict:
 
     llm = pd.Series(dtype=str)
     per_model: dict[str, pd.Series] = {}
+    per_instrument: dict[str, dict[str, pd.Series]] = {}
+    scores: dict[str, dict[str, pd.Series]] = {}
     runs: dict[int, pd.Series] = {}
     run_meta: dict[int, dict] = {}
     live_model = ""
@@ -1474,11 +1719,30 @@ def a2_frames(stratum: str, model: str | None = None) -> dict:
                 "models": sorted(chunk.model.dropna().astype(str).unique().tolist()),
                 "agents": sorted(chunk.agent_sha256.dropna().astype(str)
                                  .unique().tolist()),
-                "rows": int(len(chunk))}
+                "rows": int(len(chunk)),
+                "scored": int(chunk.score.notna().sum()) if "score" in chunk else 0}
+        # Every instrument on file, each split by model — the two axes that make a judge,
+        # nested in the order a reader asks them. A guide edit supersedes an instrument
+        # (move 3 is one); it does not delete the runs made under the old one, and a
+        # report that showed only the committed hash would drop runs 5-8 from the file
+        # entirely the moment the guide changed, leaving the reader to infer that the
+        # figures had been withdrawn rather than superseded. No figure pools two of
+        # these, which is the whole reason they are separate keys *(D38, one axis up)*.
+        for agent, agent_chunk in frame.groupby(frame.agent_sha256.astype(str)):
+            by_model = {}
+            for name, chunk in agent_chunk.groupby(agent_chunk.model.astype(str)):
+                by_model[str(name)] = chunk.groupby("pair_id").label.apply(
+                    lambda s: majority(list(s))).dropna()
+                if "score" in chunk:
+                    numeric = pd.to_numeric(chunk.score, errors="coerce").dropna()
+                    if len(numeric):
+                        scores.setdefault(str(agent), {})[str(name)] = (
+                            chunk.loc[numeric.index]
+                            .drop_duplicates("pair_id").set_index("pair_id")
+                            .score.astype(float))
+            per_instrument[str(agent)] = by_model
+        per_model = dict(per_instrument.get(current, {}))
         live = frame[frame.agent_sha256.astype(str) == current]
-        for name, chunk in live.groupby(live.model.astype(str)):
-            per_model[str(name)] = chunk.groupby("pair_id").label.apply(
-                lambda s: majority(list(s))).dropna()
         if per_model:
             # The default is the **committed** model, not the most recent run *(D38)*.
             # Defaulting to run order would mean that dispatching a control run silently
@@ -1498,7 +1762,8 @@ def a2_frames(stratum: str, model: str | None = None) -> dict:
             llm = per_model[live_model]
     return {"humans": humans, "consensus": consensus,
             "consensus_coverage": consensus_coverage,
-            "llm": llm, "per_model": per_model,
+            "llm": llm, "per_model": per_model, "per_instrument": per_instrument,
+            "scores": scores,
             "_runs": runs, "_run_meta": run_meta, "_model": live_model,
             "_draw": draw, "_current": current, "_path": path}
 
@@ -1583,7 +1848,7 @@ def a2_report(seed: int = 0, strict: bool = True) -> dict:
             out["strata"][stratum] = section
             continue
 
-        def model_block(series: pd.Series) -> dict:
+        def model_block(series: pd.Series, agent: str = "", name: str = "") -> dict:
             """Every judge figure, for **one** model *(D38, move 2)*.
 
             Called once per model on file so `haiku` and `sonnet` are quoted side by
@@ -1614,6 +1879,15 @@ def a2_report(seed: int = 0, strict: bool = True) -> dict:
             block["interchangeability"] = interchangeability_gate(humans, series, seed)
             block["label_distribution"] = {
                 label: int((series == label).sum()) for label in session.LABELS}
+            # Only the graded instrument has one. Every figure in here is fitted against
+            # consensus and says so in a field, not in prose (work-plan task 3.4).
+            graded = frames["scores"].get(agent, {}).get(name)
+            if graded is not None:
+                analysis = score_analysis(graded, frames["consensus"])
+                if analysis is not None:
+                    analysis.update(frames["consensus_coverage"])
+                    analysis["note_selection"] = CONSENSUS_SELECTION_NOTE
+                    block["score"] = analysis
             return block
 
         # One entry per annotator, keyed by name. Never a pooled "human".
@@ -1629,12 +1903,23 @@ def a2_report(seed: int = 0, strict: bool = True) -> dict:
         section["vs_llm"] = vs_llm
         section["human_ceiling"] = ceiling
 
-        # Every model on file, each with its own complete figure set. `by_model` is the
-        # authority; the section-level `vs_llm` / `consensus` / `interchangeability` are
-        # the committed model's block repeated inline for continuity, and `llm_model`
-        # says which that is. No field holds a series built from two *(D38)*.
-        by_model = {name: model_block(series)
-                    for name, series in sorted(frames["per_model"].items())}
+        # Every instrument on file, each split by model, each with its own complete
+        # figure set. Two nested axes and no field crossing either: a guide edit makes a
+        # new judge (move 3) and a second model makes another (D38), so runs 5-8 stay
+        # quotable under their own hash after the committed instrument moves on rather
+        # than vanishing from the report. `by_model` is `by_instrument[current]`, kept
+        # under its old name because that is what move 2's finding cites.
+        by_instrument = {
+            agent: {name: model_block(series, agent, name)
+                    for name, series in sorted(models.items())}
+            for agent, models in sorted(frames["per_instrument"].items())}
+        section["by_instrument"] = by_instrument
+        section["instruments_on_file"] = {
+            agent: {"committed": agent == frames["_current"],
+                    "models": {name: len(series) for name, series
+                               in sorted(models.items())}}
+            for agent, models in sorted(frames["per_instrument"].items())}
+        by_model = by_instrument.get(frames["_current"], {})
         section["by_model"] = by_model
         committed = by_model.get(frames["_model"], {})
         section["consensus"] = committed.get("consensus", {})
@@ -1689,6 +1974,12 @@ def a2_report(seed: int = 0, strict: bool = True) -> dict:
         "asked of a different half of the corpus. Every consensus figure carries its "
         "coverage and its selection-bias note, enforced by "
         "`assert_consensus_carries_coverage`.")
+    out["note_never_pooled_instruments"] = (
+        "A guide edit is a new judge. `by_instrument` is keyed by agent_sha256 and no "
+        "figure spans two of its keys; `by_model` and every section-level block are the "
+        "**committed** instrument's, named in `current_agent_sha256`. Runs made under a "
+        "superseded instrument keep their own key rather than being dropped — they were "
+        "not withdrawn, they describe a judge this repository no longer commits.")
     out["note_never_pooled_models"] = (
         "The committed guide under two models is two judges that share one "
         "agent_sha256. Every stratum names the model its `vs_llm` block is against in "

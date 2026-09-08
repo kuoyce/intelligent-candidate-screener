@@ -529,10 +529,34 @@ def check_llm_recheck() -> list[tuple[bool, str]]:
             results.append((True, f"provenance: dispatch file not built (git-ignored) — "
                                   f"prompt_sha256 unverifiable for {path.name}"))
 
-        scored = frame[frame.parsed_ok.astype(str).str.lower().isin(("true", "1"))]
-        bad = sorted(set(scored.label.dropna()) - set(session.LABELS))
+        parsed = frame[frame.parsed_ok.astype(str).str.lower().isin(("true", "1"))]
+        bad = sorted(set(parsed.label.dropna()) - set(session.LABELS))
         results.append((not bad, f"scheme: {bad or 'no'} labels outside A1's 3 classes in "
                                  f"{path.name}"))
+
+        # A score is present exactly when the dispatch asked for one (move 3 of
+        # `plan/2026-09-08-judge-calibration`). Both directions matter: a scored run with
+        # a null score is a row a later mean would skip without saying so, and a
+        # pre-move-3 run carrying one would mean a column was populated by something
+        # other than the judge that answered.
+        if dispatched and "score" in frame:
+            wants = lambda r: str(dispatched.get((r.pair_id, r.run), {})       # noqa: E731
+                                  .get("response_scheme", llm.SCHEME_LABEL))
+            has = lambda r: pd.notna(r.score)                                  # noqa: E731
+            off = [(r.pair_id, r.run) for r in parsed.itertuples()
+                   if (r.pair_id, r.run) in dispatched
+                   and has(r) != (wants(r) == llm.SCHEME_SCORED)]
+            results.append((not off,
+                            f"score scheme: {len(off)} parsed row(s) of {path.name} "
+                            "carry a score their dispatch did not ask for, or withhold "
+                            "one it did — a null score in a graded run is a row every "
+                            "later mean skips in silence"))
+            graded = parsed[parsed.score.notna()]
+            out_of_range = graded[~pd.to_numeric(graded.score, errors="coerce")
+                                  .between(llm.SCORE_MIN, llm.SCORE_MAX)]
+            results.append((out_of_range.empty,
+                            f"score range: {len(out_of_range)} row(s) of {path.name} "
+                            f"outside {llm.SCORE_MIN}-{llm.SCORE_MAX}"))
 
     # A run number holds one draw *(D35)*. The two files are the only place that invariant
     # is visible after the fact, because a mixed run reads as one instrument, one run and a

@@ -1141,7 +1141,9 @@ def _stage_a2_scoring(tmp_path, monkeypatch, judgements, llm_labels,
     """One A2 stratum on disk: human rows, judge rows, and a complete dispatch record.
 
     `extra_llm` adds further judging legs as `(run, model, {pair_id: label})`, which is
-    how a second model of the same committed guide is staged.
+    how a second model of the same committed guide is staged. A leg may carry two more
+    elements — `agent_sha256` and `{pair_id: score}` — which is how a *second instrument*
+    is staged beside the committed one, the axis above model.
     """
     draw = next(d for d, s in llm.A2_DRAW_STRATUM.items() if s == stratum)
     agent = "a" * 64
@@ -1150,26 +1152,28 @@ def _stage_a2_scoring(tmp_path, monkeypatch, judgements, llm_labels,
     monkeypatch.setattr(llm, "AGENT_DEF", agent_def)
     monkeypatch.setattr(llm, "sha", lambda text: agent)
 
-    legs = [(run, model, llm_labels), *extra_llm]
+    legs = [(leg + (agent, {}))[:5] if len(leg) == 3 else (leg + ({},))[:5]
+            for leg in [(run, model, llm_labels), *extra_llm]]
     path = tmp_path / f"{draw}.csv"
     pd.DataFrame([{
         "pair_id": p, "batch": 1, "stratum": stratum, "corpus": "a2",
         "query_id": p.split("__")[0], "doc_id": p.split("__")[1],
         "selection_reason": "indomain_banded", "annotator": f"llm:{mod}:run{r}",
         "label": lab, "shortlist_pick": "", "notes": "", "model": mod,
-        "agent_sha256": agent, "prompt_sha256": "p", "run": r, "chars_sent": 1,
-        "parsed_ok": True, "judged_at": "", "draw": draw}
-        for r, mod, labels in legs for p, lab in labels.items()]).to_csv(path, index=False)
+        "agent_sha256": ag, "prompt_sha256": "p", "run": r, "chars_sent": 1,
+        "parsed_ok": True, "judged_at": "", "draw": draw, "score": sc.get(p)}
+        for r, mod, labels, ag, sc in legs
+        for p, lab in labels.items()]).to_csv(path, index=False)
     monkeypatch.setitem(llm.DRAW_FILES, draw, path)
 
     prompts = tmp_path / "p.jsonl"
     prompts.write_text("\n".join(json.dumps({
         "pair_id": p, "run": r, "draw": draw, "model": mod})
-        for r, mod, labels in legs for p in labels) + "\n", encoding="utf-8")
+        for r, mod, labels, _, _ in legs for p in labels) + "\n", encoding="utf-8")
     monkeypatch.setattr(llm, "PROMPTS", prompts)
     raw = tmp_path / "r.jsonl"
     raw.write_text("\n".join(json.dumps({"pair_id": p, "run": r})
-                             for r, _, labels in legs for p in labels) + "\n",
+                             for r, _, labels, _, _ in legs for p in labels) + "\n",
                    encoding="utf-8")
     monkeypatch.setattr(llm, "RAW", raw)
 
@@ -1526,3 +1530,222 @@ def test_a_class_the_humans_miss_is_unidentified_not_failed_by_the_judge(
     assert set(per_class["Good Fit"]["human_pair"]) == {"yc", "van"}, (
         "per-class agreement is conditioned on a reference, so the human pair gives "
         "two numbers and the class fails if either does")
+
+
+# --- Move 3: the graded instrument (design spec §6) --------------------------
+
+def test_the_prompt_asks_for_the_scheme_the_agent_definition_asks_for():
+    """Mutation: leave `render_prompt` naming `label` and `reason` alone — this fails.
+
+    The guide and the per-pair message are two places the scheme is written and they are
+    one edit. A prompt asking for a label alone under a guide that asks for a score
+    leaves the judge to pick which instruction to obey, and `parse_return` refuses
+    whichever it did not pick — 600 spawns spent on a contradiction this module wrote.
+    """
+    prompt = llm.render_prompt("jd", "cv")
+    agent = llm.render_agent_definition(GUIDE)
+    assert '"score"' in prompt, "the per-pair message does not ask for the score"
+    assert f"<{llm.SCORE_MIN}-{llm.SCORE_MAX} integer>" in prompt
+    assert '"score"' in agent, "the agent definition does not ask for the score"
+
+
+def test_a_score_outside_the_scale_is_not_a_score():
+    """Mutation: `int(obj["score"])` — this fails on every case below.
+
+    A cut point fitted over a column holding `120`, `"high"` or `85.5` describes no
+    instrument, and each of those coerces or truncates into something plausible.
+    """
+    for bad in ("high", 120, -1, 85.5, None, True, ""):
+        with pytest.raises(llm.BadReturn):
+            llm.parse_score(bad)
+    assert llm.parse_score(85) == 85
+    assert llm.parse_score("85") == 85
+    assert llm.parse_score(85.0) == 85, "JSON has one number type; 85.0 is a whole number"
+
+
+def test_a_graded_run_has_no_parsed_row_without_a_score(tmp_path, monkeypatch):
+    """Mutation: store `score = obj.get("score")` and keep `parsed_ok = True`.
+
+    That version files a row whose class is usable and whose score is null, and every
+    later mean skips it in silence over a sample nobody chose — the F1 shape one column
+    along. A return that did not answer the question it was asked is not a partial
+    answer, it is an unparsed return.
+    """
+    dispatched = [
+        {"pair_id": "j_0__r_00", "query_id": "j_0", "doc_id": "r_00", "run": 9,
+         "draw": llm.RECHECK_DRAW, "prompt": "p", "prompt_sha256": "abc",
+         "chars_sent": 1, "agent_sha256": "def", "model": llm.MODEL,
+         "response_scheme": llm.SCHEME_SCORED},
+        {"pair_id": "j_0__r_01", "query_id": "j_0", "doc_id": "r_01", "run": 9,
+         "draw": llm.RECHECK_DRAW, "prompt": "p", "prompt_sha256": "abc",
+         "chars_sent": 1, "agent_sha256": "def", "model": llm.MODEL,
+         "response_scheme": llm.SCHEME_SCORED}]
+    out, _ = _stage(tmp_path, monkeypatch, [
+        {"pair_id": "j_0__r_00", "run": 9,
+         "raw": '{"label": "Good Fit", "reason": "a"}'},
+        {"pair_id": "j_0__r_01", "run": 9,
+         "raw": '{"label": "Good Fit", "score": 88, "reason": "b"}'},
+    ], dispatched=dispatched)
+
+    result = llm.collect()
+    assert result["unparsed"] == 1 and result["scored"] == 1
+    rows = pd.read_csv(out).set_index("pair_id")
+    assert rows.loc["j_0__r_00"].parsed_ok in (False, "False"), (
+        "a scored run's return with no score was filed as a usable label with a null "
+        "score — which no later figure would report as missing")
+    assert rows.loc["j_0__r_01"].score == 88
+
+
+def test_a_label_only_run_is_not_failed_for_a_field_it_was_never_asked_for(
+        tmp_path, monkeypatch):
+    """Mutation: require a score of every return, from this module's constant.
+
+    Runs 1-8 were dispatched under `SCHEME_LABEL` and answered it completely. Reading
+    the requirement off today's constant rather than off the dispatch record would mark
+    all 1,679 of their rows `parsed_ok=False` on the next `--collect`, and the frame
+    builders drop unparsed rows — so every committed D33/D34/A2 figure would recompute
+    over nothing at all. A row is parsed under the scheme it was *asked* for.
+    """
+    dispatched = [{"pair_id": "j_0__r_00", "query_id": "j_0", "doc_id": "r_00", "run": 4,
+                   "draw": llm.RECHECK_DRAW, "prompt": "p", "prompt_sha256": "abc",
+                   "chars_sent": 1, "agent_sha256": "def", "model": llm.MODEL}]
+    out, _ = _stage(tmp_path, monkeypatch, [
+        {"pair_id": "j_0__r_00", "run": 4,
+         "raw": '{"label": "Good Fit", "reason": "a"}'}], dispatched=dispatched)
+
+    result = llm.collect()
+    assert result["unparsed"] == 0 and result["parsed_ok"] == 1
+    row = pd.read_csv(out).iloc[0]
+    assert row.parsed_ok in (True, "True")
+    assert pd.isna(row.score), "a pre-move-3 row gained a score no judge produced"
+
+
+def test_a_superseded_instrument_keeps_its_own_key_rather_than_vanishing(
+        tmp_path, monkeypatch):
+    """Mutation: report only rows whose `agent_sha256` is the committed one.
+
+    That is the builder as it stood before move 3, and it is correct only while there
+    has never been a guide edit on this corpus. Move 3's edit gives the judge a new
+    hash, so on the commit that changes the guide runs 5-8 would drop out of
+    `llm-a2-report.json` entirely — not superseded, *absent*, which a reader cannot tell
+    from withdrawn. `by_instrument` keys them separately and no figure spans two keys.
+    """
+    old_agent = "b" * 64
+    pairs = {f"j__c{i}": "Good Fit" for i in range(10)}
+    graded = {p: ("Good Fit" if i < 5 else "No Fit") for i, p in enumerate(pairs)}
+    scores = {p: 90 if i < 5 else 10 for i, p in enumerate(pairs)}
+    judgements = [{"pair_id": p, "corpus": "a2", "stratum": "generic",
+                   "annotator": "yc", "label": lab} for p, lab in pairs.items()]
+    # Leg one is the superseded instrument; leg two is the committed one, graded.
+    path = _stage_a2_scoring(tmp_path, monkeypatch, judgements, llm_labels=pairs,
+                             run=5, model=llm.MODEL,
+                             extra_llm=[(9, llm.MODEL, graded, "a" * 64, scores)])
+    # `_stage_a2_scoring` stamps a leg with no agent of its own with the committed hash;
+    # run 5 is the superseded instrument, so move it back.
+    frame = pd.read_csv(path)
+    frame.loc[frame.run == 5, "agent_sha256"] = old_agent
+    frame.to_csv(path, index=False)
+
+    frames = llm.a2_frames("generic")
+    assert set(frames["per_instrument"]) == {old_agent, "a" * 64}, (
+        "an instrument on file is missing from the report — a superseded judge is not "
+        "a withdrawn one")
+    assert frames["_current"] == "a" * 64
+    assert frames["llm"].tolist() == [graded[p] for p in frames["llm"].index], (
+        "the live series is not the committed instrument's")
+    assert len(frames["per_instrument"][old_agent][llm.MODEL]) == 10
+    assert frames["scores"]["a" * 64][llm.MODEL].tolist() == [
+        float(scores[p]) for p in frames["scores"]["a" * 64][llm.MODEL].index]
+    assert old_agent not in frames["scores"], "a pre-move-3 instrument has no scores"
+
+    report = llm.a2_report(strict=False)
+    section = report["strata"]["generic"]
+    assert set(section["by_instrument"]) == {old_agent, "a" * 64}
+    assert set(section["by_model"]) == {llm.MODEL}, (
+        "`by_model` is the committed instrument's models, never a pool of two guides")
+    assert section["instruments_on_file"][old_agent]["committed"] is False
+    assert section["instruments_on_file"]["a" * 64]["committed"] is True
+
+
+def test_a_fitted_cut_point_names_the_pairs_it_was_fitted_on():
+    """Mutation: return `{"cut_points": ..., "kappa": ...}` with no `fitted_on`.
+
+    A cut point is a fitted parameter and its kappa on the pairs it was fitted on cannot
+    miss. Quoted without saying what it was fitted on, it reads as a measurement of the
+    judge — the one thing it is not — and it would sit in the same report beside the
+    emitted label's genuinely out-of-sample kappa with nothing to tell them apart. The
+    rule is `assert_consensus_carries_coverage`'s, one parameter along.
+    """
+    scores = pd.Series({f"p{i}": i * 10 for i in range(10)})
+    reference = pd.Series({f"p{i}": ("No Fit" if i < 4 else
+                                     "Potential Fit" if i < 7 else "Good Fit")
+                           for i in range(10)})
+    fitted = llm.fit_cut_points(scores, reference)
+    assert fitted["fitted_on"] == sorted(scores.index), (
+        "a fitted cut point does not name the pairs it was fitted on")
+    assert fitted["kappa"]["kappa"] == pytest.approx(1.0), (
+        "a monotone score should be reproducible by two thresholds exactly")
+    assert "note_fitted" in fitted
+
+    with pytest.raises(AssertionError, match="fitted_on"):
+        llm.assert_score_figure_names_its_fit(
+            {"cut_points": {}, "kappa": {}, "n": 10})
+    with pytest.raises(AssertionError, match="fitted_on"):
+        llm.assert_score_figure_names_its_fit(
+            {"cut_points": {}, "kappa": {}, "n": 10, "fitted_on": []})
+
+
+def test_a_held_out_score_figure_is_not_fitted_on_the_pairs_it_is_quoted_on():
+    """Mutation: fit on every pair and quote the same kappa as `held_out`.
+
+    S3 of the registration is the only out-of-sample number move 3 produces, and it is
+    registered in advance precisely so a wide interval on half the pairs cannot
+    afterwards be replaced by the full-data fit, which is the number that cannot miss.
+    The two halves are disjoint by construction, and the code raises rather than emits if
+    they ever stop being.
+    """
+    scores = pd.Series({f"p{i:02d}": (i * 5) % 101 for i in range(40)})
+    reference = pd.Series({p: ("No Fit" if v < 35 else
+                               "Potential Fit" if v < 70 else "Good Fit")
+                           for p, v in scores.items()})
+    analysis = llm.score_analysis(scores, reference)
+    held = analysis["held_out"]
+    assert not set(held["fitted_on"]) & set(held["quoted_on"]), (
+        "the held-out half shares pairs with the fitted half")
+    assert held["n_fit"] + held["n"] == len(scores)
+    assert analysis["fitted_full"]["n"] == len(scores), (
+        "the full-data fit and the held-out figure are two different figures and the "
+        "report carries both")
+    assert analysis["separation"]["good_vs_potential"]["auc"] == pytest.approx(1.0), (
+        "a score that orders the classes perfectly should separate them perfectly")
+
+
+def test_the_score_block_is_reported_for_the_graded_instrument_alone(
+        tmp_path, monkeypatch):
+    """Mutation: run `score_analysis` over the committed model's series unconditionally.
+
+    Runs 5-8 carry no score. A block computed for them would be an empty or a
+    part-populated figure under an instrument that never emitted one — and `by_model`'s
+    reader has no way to tell "this judge scored badly" from "this judge was never asked".
+    """
+    old_agent = "b" * 64
+    pairs = {f"j__c{i}": "Good Fit" for i in range(12)}
+    graded = {p: ("Good Fit" if i < 6 else "No Fit") for i, p in enumerate(pairs)}
+    scores = {p: 90 if i < 6 else 10 for i, p in enumerate(pairs)}
+    judgements = [{"pair_id": p, "corpus": "a2", "stratum": "generic",
+                   "annotator": who, "label": lab}
+                  for who in ("yc", "van") for p, lab in graded.items()]
+    path = _stage_a2_scoring(tmp_path, monkeypatch, judgements, llm_labels=pairs,
+                             run=5, model=llm.MODEL,
+                             extra_llm=[(9, llm.MODEL, graded, "a" * 64, scores)])
+    frame = pd.read_csv(path)
+    frame.loc[frame.run == 5, "agent_sha256"] = old_agent
+    frame.to_csv(path, index=False)
+
+    section = llm.a2_report(strict=False)["strata"]["generic"]
+    assert "score" not in section["by_instrument"][old_agent][llm.MODEL], (
+        "an instrument that never emitted a score has a score block")
+    graded_block = section["by_instrument"]["a" * 64][llm.MODEL]["score"]
+    assert graded_block["n"] > 0 and "fitted_full" in graded_block
+    assert "coverage" in graded_block and "note_selection" in graded_block, (
+        "a consensus-fitted figure travels with its coverage and its selection note")

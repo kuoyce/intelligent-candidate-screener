@@ -1,11 +1,19 @@
 # Judge calibration — what to do with the LLM when the humans are spent
 
-**Status:** M1, M2, **move 1 and move 2 landed** 8 Sep 2026 — see
+**Status:** M1, M2, **moves 1 and 2 landed** 8 Sep 2026 — see
 [`03-consensus-findings.md`](03-consensus-findings.md) and
 [`05-model-control-findings.md`](05-model-control-findings.md). Q32 closes as **outcome
 D, stratum-dependent**: the committed model stays `claude-haiku-4-5` and **move 3
-proceeds**. Move 3 is separately approvable and **not started**; runs 7 and 8 are in use,
-so the next free run number is 9.
+proceeds**.
+
+**Move 3 is started.** Its instrument edit, its score plumbing and its reading are
+committed ([`06-graded-registration.md`](06-graded-registration.md), registered before
+any run 9 prompt existed). **The dispatch has not run**: runs 9 (`a2_generic`, 400) and
+10 (`a2_targeted`, 200) under `claude-haiku-4-5` are ~600 spawns and are the next step.
+Until they land, the committed instrument has no rows on the A2 corpus, so
+`llm-a2-report.json` reports `no overlap` at section level and every runs-5-8 figure is
+under `by_instrument`, keyed by the superseded `agent_sha256` — superseded, not withdrawn.
+
 **Date:** 8 Sep 2026
 **Depends on:** D29 (two strata, never pooled), D33 (the judge exists), D34 (the
 calibrated guide), D35 (one draw per run, one file per draw), Phase 2 of
@@ -111,6 +119,11 @@ exception, no wrong row count, a plausible figure — the D35 shape, one axis al
   points and the seven sanity checks, all fixed **before** the dispatch existed
 - [`05-model-control-findings.md`](05-model-control-findings.md) — move 2's result:
   outcome D, and why `sonnet` is a different judge rather than a better one
+- [`06-graded-registration.md`](06-graded-registration.md) — move 3's four outcomes, the
+  five registered statistics and their bars, and what a fitted cut point is not, all
+  fixed **before** the dispatch existed (**deviation D2**: the work plan named no
+  registration task for move 3; this one fits a parameter against the reference it is
+  then scored on, so it has more freedom to be read after the fact than move 2 did)
 
 ## Open questions carried in
 

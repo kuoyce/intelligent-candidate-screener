@@ -418,6 +418,56 @@ to the committed `MODEL` rather than to the newest run, so dispatching a control
 silently change what `vs_llm` refers to. `verify --derived` gains `model provenance` (a
 row's model matches its dispatch record) and `one model per run`.
 
+**The judge is graded now, and it has not been run yet** *(8 Sep 2026,
+`plan/2026-09-08-judge-calibration/06-graded-registration.md`, move 3)*. The guide gives
+`Good Fit` a **positive condition** — the CV evidences the role's core activity in a
+substantive capacity, and neither step 1 nor step 2 applies, *and then assign it* — the
+way D34 gave one to `No Fit`; the tie-break is scoped down again, to whether the core
+activity is evidenced at all, and explicitly does not reach the case where it is
+evidenced and something else is missing. Beside the class the judge now returns a
+**`score`, 0-100**, described on a scale the guide says in terms is **not** a set of
+label boundaries: a score and a label that disagree are information. That is what buys
+the future — after it, moving a boundary is a re-scoring of labels on file rather than a
+new `agent_sha256` and 600 spawns. The agent's `model: haiku` frontmatter is also gone:
+M2 made the subprocess argv the authority, and a `model:` line was a second, unenforced
+assertion of the same fact. All of it is **one instrument**, `5d986c82`, and no finding
+may attribute anything to one clause of it.
+
+**Runs 9 (`a2_generic`, 400) and 10 (`a2_targeted`, 200) under `claude-haiku-4-5` have
+not been dispatched.** Until they are, the committed instrument has no A2 rows:
+`llm-a2-report.json` reads `no overlap` at section level, and **runs 5-8's figures are
+under `by_instrument`**, keyed by the superseded `75e00ea3`. They were not withdrawn.
+Move 2's finding cites them as `by_model`, which is now `by_instrument[current]` and is
+empty until run 9 lands.
+
+**An instrument is an axis in `a2_report` too, and the score is present exactly where it
+was asked for.** `a2_frames` returns `per_instrument` (keyed by `agent_sha256`, each an
+`{model: series}` dict) and `scores` in the same shape; a builder that returned only the
+committed hash would have dropped runs 5-8 out of the report on the commit that changed
+the guide, and a reader cannot tell *absent* from *withdrawn*. On the collection side,
+`response_scheme` is stamped at dispatch — `label` for runs 1-8, `label+score` after —
+and `collect` requires a score of a row **whose dispatch asked for one and of no other**.
+Reading the requirement off the module constant instead would mark all 1,679 pre-move-3
+rows `parsed_ok=False` on the next `--collect`, and the frame builders drop unparsed
+rows, so every committed D33/D34/A2 figure would recompute over nothing. A graded run's
+return with no score is `parsed_ok=False`, **never a row with a null score** a later mean
+would skip in silence. `verify --derived` gains `score scheme` (both directions) and
+`score range`.
+
+**A fitted cut point names the pairs it was fitted on** *(work-plan task 3.4)*.
+`fit_cut_points` searches both thresholds exhaustively against the **consensus**
+reference; `assert_score_figure_names_its_fit` refuses to emit one without `fitted_on`,
+the way `assert_consensus_carries_coverage` refuses a consensus figure without its
+coverage. A kappa on the pairs a parameter was fitted on is not an out-of-sample result
+and may not be set beside the emitted label's as though the two were measured the same
+way. `score_analysis` therefore reports three things and labels each: the score's
+distribution and rank separation per consensus class (no threshold, so nothing is
+fitted), the full-data fit (fitted, and says so), and **`held_out`** — cut points fitted
+on one seeded half of the consensus pairs and quoted on the other, which is the only
+out-of-sample figure move 3 produces. The split is seeded and was fixed before any score
+existed, so a wide interval on half the pairs cannot later be replaced by the full-data
+fit that cannot miss.
+
 **A spawn that never answered is not a return** *(fix F1/F2, 6 Sep 2026,
 `plan/2026-09-06-a2-llm-prelabel/`)*. `judge()` resumes from `llm-recheck-raw.jsonl`, and
 `judge_one` used to write a non-zero exit there as a `<judge exited 1: …>` string. So a
@@ -486,9 +536,13 @@ there would pass every existing check and be silently pooled into the human kapp
 `docs/data/manifests/llm-recheck-full-a1.csv` (option D, 639) and, for the in-domain
 corpus, `llm-a2-generic.csv` (800: haiku run 5 + sonnet run 7) and `llm-a2-targeted.csv`
 (400: haiku run 6 + sonnet run 8). Quoted
-as `llm:{model}:run{N}` (runs 1-3: `claude-sonnet-5`, run 4+: `claude-haiku-4-5`).
+as `llm:{model}:run{N}` — runs 1-3 and 7-8 are `claude-sonnet-5`, runs 4-6 are
+`claude-haiku-4-5`, and the model is **read per row from the dispatch record**, never
+inferred from the run number, which is why that sentence is a description and not a rule.
 `collect()` preserves per-row model provenance from the dispatch record, takes
-corpus/batch/stratum from it too, and routes by `draw` (D35).
+corpus/batch/stratum and `response_scheme` from it too, and routes by `draw` (D35). Every
+row of every file also carries a `score` column: empty for runs 1-8, which were dispatched
+under `SCHEME_LABEL` and never asked for one.
 
 **It is collected data, not derived** *(Q31)*. No seed reproduces a subagent run, so
 `check_llm_recheck` verifies **provenance** — `agent_sha256`, `prompt_sha256` against the
