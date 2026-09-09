@@ -2015,6 +2015,14 @@ def report(seed: int = 0) -> dict:
                 common = frames[x].index.intersection(frames[y].index)
                 if restrict is not None:
                     common = common.intersection(pd.Index(sorted(restrict)))
+                # A kappa over no pairs is not a figure. A guide edit leaves the recheck
+                # draw unjudged by the committed instrument until it is re-judged, and
+                # emitting NaN here would read as a measurement that came out empty
+                # rather than one never made — the same absent-vs-withdrawn ambiguity
+                # `per_instrument` exists to remove. The runs on file keep their figures
+                # there; `status` says which case the section level is in.
+                if not len(common):
+                    continue
                 a, b = frames[x].loc[common].tolist(), frames[y].loc[common].tolist()
                 out[f"{x}_vs_{y}"] = kappa_ci(a, b, seed=seed)
                 out[f"{x}_vs_{y}_binary"] = kappa_ci(
@@ -2077,6 +2085,7 @@ def report(seed: int = 0) -> dict:
     out = {
         "model": MODEL, "seed": seed,
         "current_agent_sha256": current,
+        "status": "scored" if len(frames["llm"]) else "no overlap",
         "generated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "coverage": {n: int(len(frames[n])) for n in names} | {
             "all_three": int(len(all_three)),
@@ -2095,14 +2104,14 @@ def report(seed: int = 0) -> dict:
                 "llm_agrees": float((frames["llm"].loc[all_three][
                     frames["a1"].loc[all_three] == cls] == cls).mean())
                 if (frames["a1"].loc[all_three] == cls).any() else float("nan"),
-            } for cls in session.LABELS},
+            } for cls in (session.LABELS if len(all_three) else ())},
         "per_class_llm_vs_a1": {
             cls: {"n": int((frames["a1"].loc[llm_covered] == cls).sum()),
                   "llm_agrees": float(
                       (frames["llm"].loc[llm_covered][
                           frames["a1"].loc[llm_covered] == cls] == cls).mean())
                   if (frames["a1"].loc[llm_covered] == cls).any() else float("nan")}
-            for cls in session.LABELS},
+            for cls in (session.LABELS if len(llm_covered) else ())},
         "disagreements": disagreements,
         "note_not_ground_truth": (
             "The LLM is a third judge with its own bias, known to exist and not measured "
@@ -2117,6 +2126,15 @@ def report(seed: int = 0) -> dict:
             "else. A guide edit makes a new judge; its labels are a separate "
             "measurement. Every instrument on file is reported under per_instrument, "
             "and self_consistency_kappa compares only runs that share one."),
+        "note_no_overlap": (
+            "The committed instrument has judged none of the A1 recheck draw, so every "
+            "section-level figure involving `llm` is absent rather than zero: it was "
+            "never measured, not measured empty. The instruments that did judge this "
+            "draw are under per_instrument, unwithdrawn, with their runs, models and n. "
+            "Re-judging the recheck under the committed instrument is what would fill "
+            "the section level back in."
+            if not len(frames["llm"]) else
+            f"The committed instrument covers {len(frames['llm'])} pairs of the draw."),
         "note_human_leg": (
             f"The human leg covers {len(frames['human'])} of the {len(human_50)} pairs "
             "drawn for it. Every kappa involving `human` is provisional until that "

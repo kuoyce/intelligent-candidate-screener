@@ -1749,3 +1749,59 @@ def test_the_score_block_is_reported_for_the_graded_instrument_alone(
     assert graded_block["n"] > 0 and "fitted_full" in graded_block
     assert "coverage" in graded_block and "note_selection" in graded_block, (
         "a consensus-fitted figure travels with its coverage and its selection note")
+
+
+def test_a_recheck_report_with_no_committed_rows_says_so_rather_than_reporting_nan(
+        tmp_path, monkeypatch):
+    """Mutation: drop the `if not len(common): continue` guard in `pairwise_over` — this
+    fails, because `a1_vs_llm` comes back with `kappa: NaN, n: 0`.
+
+    A guide edit is a new judge, and `judge_frames` returns `llm` for the committed
+    instrument alone. So the commit that changes the guide leaves the A1 recheck draw
+    judged by nobody current, and every section-level figure involving `llm` becomes a
+    kappa over zero pairs. Emitted as NaN that reads as a measurement that came out
+    empty; what actually happened is that it was never made. D33's and D34's figures are
+    not withdrawn — they are under `per_instrument` with their runs and n — and the
+    report has to let a reader tell those two cases apart. Move 3 hit this for real:
+    regenerating the report after the graded instrument landed turned kappa(A1, llm) =
+    0.085 and kappa(yc, llm) = 0.352 into NaN.
+    """
+    import math
+
+    import pandas as pd
+
+    pairs = [f"j{i}__r{i}" for i in range(6)]
+    a1 = pd.Series(["Good Fit", "No Fit", "Good Fit", "No Fit", "Good Fit", "No Fit"],
+                   index=pairs)
+    human = pd.Series(["Good Fit", "No Fit", "No Fit", "No Fit", "Good Fit", "No Fit"],
+                      index=pairs)
+    superseded = pd.Series(["No Fit"] * 6, index=pairs)
+
+    monkeypatch.setattr(llm, "judge_frames", lambda seed=0: {
+        "a1": a1, "human": human, "llm": pd.Series(dtype=str), "_runs": {},
+        "_current": "c0ffee" * 10,
+        "_instruments": {"5up3r5ed": {
+            "runs": [4], "models": ["claude-haiku-4-5"], "rows": 6,
+            "is_current": False, "labels": superseded}}})
+    monkeypatch.setattr(llm.judging, "a1_recheck", lambda strata, seed=0: pd.DataFrame(
+        {"query_id": [p.split("__")[0] for p in pairs],
+         "doc_id": [p.split("__")[1] for p in pairs]}))
+    monkeypatch.setattr(llm, "REPORT", tmp_path / "report.json")
+
+    out = llm.report(0)
+
+    # the section level says "never measured", not zero
+    assert out["status"] == "no overlap"
+    assert "a1_vs_llm" not in out["pairwise_kappa"]
+    assert "human_vs_llm" not in out["pairwise_kappa"]
+    assert out["per_class_llm_vs_a1"] == {}
+    assert out["per_class_agreement"] == {}
+    for name, block in out["pairwise_kappa"].items():
+        assert not math.isnan(block["kappa"]), f"{name} emitted a kappa over no pairs"
+
+    # the leg with no llm dependency is untouched, and stays quotable
+    assert out["pairwise_kappa"]["a1_vs_human"]["n"] == len(pairs)
+
+    # and the instrument that did judge this draw is unwithdrawn
+    assert out["per_instrument"]["5up3r5ed"]["vs_a1"]["n"] == len(pairs)
+    assert out["per_instrument"]["5up3r5ed"]["runs"] == [4]

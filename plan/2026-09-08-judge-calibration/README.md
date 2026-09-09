@@ -1,18 +1,31 @@
 # Judge calibration — what to do with the LLM when the humans are spent
 
-**Status:** M1, M2, **moves 1 and 2 landed** 8 Sep 2026 — see
-[`03-consensus-findings.md`](03-consensus-findings.md) and
-[`05-model-control-findings.md`](05-model-control-findings.md). Q32 closes as **outcome
-D, stratum-dependent**: the committed model stays `claude-haiku-4-5` and **move 3
-proceeds**.
+**Status:** M1, M2, M3 and **all three moves landed** — moves 1 and 2 on 8 Sep 2026, move
+3 on 10 Sep 2026. See [`03-consensus-findings.md`](03-consensus-findings.md),
+[`05-model-control-findings.md`](05-model-control-findings.md) and
+[`07-graded-instrument-findings.md`](07-graded-instrument-findings.md). **The plan is
+complete.**
 
-**Move 3 is started.** Its instrument edit, its score plumbing and its reading are
-committed ([`06-graded-registration.md`](06-graded-registration.md), registered before
-any run 9 prompt existed). **The dispatch has not run**: runs 9 (`a2_generic`, 400) and
-10 (`a2_targeted`, 200) under `claude-haiku-4-5` are ~600 spawns and are the next step.
-Until they land, the committed instrument has no rows on the A2 corpus, so
-`llm-a2-report.json` reports `no overlap` at section level and every runs-5-8 figure is
-under `by_instrument`, keyed by the superseded `agent_sha256` — superseded, not withdrawn.
+**Move 3 returned outcome B — no material change.** Runs 9 (`a2_generic`, 400) and 10
+(`a2_targeted`, 200) ran under `claude-haiku-4-5`: 600 spawns, 600 scores, zero unparsed,
+across nine sittings broken by account usage limits. Against consensus, `Good Fit`
+per-class agreement rose 0.136 → 0.273 (`generic`) and 0.167 → 0.389 (`targeted`) and
+cleared the registered 0.40 bar on neither, with G's interval overlapping the baseline's
+on both strata. **Q38 closes**: the boundary is not reachable by editing the instrument.
+Model and guide have now both been tried; the untried lever is the *reference*, and the
+two humans do not clear 0.40 against each other on `Good Fit` either.
+
+**Outcome C was checked first and did not fire** — unlike `sonnet` in move 2, this
+instrument did not buy `Good Fit` recall by getting harsher elsewhere. **The score is what
+survives**: it ranks consensus `Good Fit` above consensus `Potential Fit` at AUC 0.832 /
+0.756, the boundary the emitted label collapses, and held-out cut points reach 0.601 and
+0.406. No cut point is committed.
+
+**Q45 is open and is the user's call** — outcome B's two clauses conflict (the committed
+instrument stays `75e00ea3` *and* the score survives, but only `5d986c82` emits a score).
+The tree keeps `5d986c82` as the reversible choice; while it stands, the **A1 recheck**
+has no rows under the committed instrument, so `llm-recheck-report.json` reads
+`status: no overlap` and D33/D34's figures sit under `per_instrument`, unwithdrawn.
 
 **Date:** 8 Sep 2026
 **Depends on:** D29 (two strata, never pooled), D33 (the judge exists), D34 (the
@@ -124,12 +137,15 @@ exception, no wrong row count, a plausible figure — the D35 shape, one axis al
   fixed **before** the dispatch existed (**deviation D2**: the work plan named no
   registration task for move 3; this one fits a parameter against the reference it is
   then scored on, so it has more freedom to be read after the fact than move 2 did)
+- [`07-graded-instrument-findings.md`](07-graded-instrument-findings.md) — move 3's
+  result: outcome B, why the score is the part that survives it, and fix M3
 
 ## Open questions carried in
 
 - **Q32** — `sonnet` (runs 1-3) against `haiku` (runs 4+) with no control. **Move 2 answers it.**
 - **Q38** — whether the `Good`/`Potential` boundary needs a D34-style pass. Sharpened by the
-  consensus figures: the residual is one cell. **Move 3 acts on it, gated on move 2.**
+  consensus figures: the residual is one cell. **Move 3 answers it — outcome B, the
+  boundary is not reachable by editing the instrument.**
 - **Q39** — the relative gate no longer measures at a 0.21 ceiling. **Design spec §4 replaces it.**
 - **Q40** — binary substitution is not defensible on both strata. Re-examined under the
   consensus reference and the interchangeability gate.

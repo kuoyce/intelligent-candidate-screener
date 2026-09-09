@@ -1,14 +1,15 @@
 {
   "model": "claude-haiku-4-5",
   "seed": 0,
-  "generated_at": "2026-09-08T10:30:30+00:00",
+  "generated_at": "2026-09-09T23:26:52+00:00",
   "strata": {
     "generic": {
       "draw": "a2_generic",
       "file": "/home/yuchen/project/intelligent-candidate-screener/docs/data/manifests/llm-a2-generic.csv",
       "runs": [
         5,
-        7
+        7,
+        9
       ],
       "coverage": {
         "5": {
@@ -26,16 +27,157 @@
           "n_quarantined": 0,
           "n_missing": 0,
           "complete": true
+        },
+        "9": {
+          "run": 9,
+          "n_dispatched": 400,
+          "n_answered": 400,
+          "n_quarantined": 0,
+          "n_missing": 0,
+          "complete": true
         }
       },
       "annotators": {
         "van": 126,
         "yc": 400
       },
-      "llm_model": "",
-      "models_on_file": {},
-      "n_llm": 0,
-      "vs_llm": {},
+      "llm_model": "claude-haiku-4-5",
+      "models_on_file": {
+        "claude-haiku-4-5": 400
+      },
+      "n_llm": 400,
+      "vs_llm": {
+        "van": {
+          "n": 126,
+          "three_class": {
+            "kappa": 0.17717820931431516,
+            "lo": 0.08394135933033695,
+            "hi": 0.2756775812511826,
+            "n": 126,
+            "agreement": 0.3968253968253968
+          },
+          "binary": {
+            "kappa": 0.43050847457627117,
+            "lo": 0.2862200805942613,
+            "hi": 0.570639194397262,
+            "n": 126,
+            "agreement": 0.746031746031746
+          },
+          "per_class": {
+            "Good Fit": {
+              "n": 65,
+              "agreement": 0.12307692307692308
+            },
+            "Potential Fit": {
+              "n": 37,
+              "agreement": 0.5405405405405406
+            },
+            "No Fit": {
+              "n": 24,
+              "agreement": 0.9166666666666666
+            }
+          },
+          "confusion_rows_first": {
+            "Good Fit": {
+              "Good Fit": 8,
+              "Potential Fit": 43,
+              "No Fit": 14
+            },
+            "Potential Fit": {
+              "Good Fit": 1,
+              "Potential Fit": 20,
+              "No Fit": 16
+            },
+            "No Fit": {
+              "Good Fit": 0,
+              "Potential Fit": 2,
+              "No Fit": 22
+            }
+          },
+          "confusion_rows_second": {
+            "Good Fit": {
+              "Good Fit": 8,
+              "Potential Fit": 1,
+              "No Fit": 0
+            },
+            "Potential Fit": {
+              "Good Fit": 43,
+              "Potential Fit": 20,
+              "No Fit": 2
+            },
+            "No Fit": {
+              "Good Fit": 14,
+              "Potential Fit": 16,
+              "No Fit": 22
+            }
+          }
+        },
+        "yc": {
+          "n": 400,
+          "three_class": {
+            "kappa": 0.41307368646085385,
+            "lo": 0.34418642730108784,
+            "hi": 0.4820240009277284,
+            "n": 400,
+            "agreement": 0.6225
+          },
+          "binary": {
+            "kappa": 0.5807896874263108,
+            "lo": 0.49903750714923933,
+            "hi": 0.6565892491871127,
+            "n": 400,
+            "agreement": 0.8
+          },
+          "per_class": {
+            "Good Fit": {
+              "n": 101,
+              "agreement": 0.32673267326732675
+            },
+            "Potential Fit": {
+              "n": 138,
+              "agreement": 0.717391304347826
+            },
+            "No Fit": {
+              "n": 161,
+              "agreement": 0.7267080745341615
+            }
+          },
+          "confusion_rows_first": {
+            "Good Fit": {
+              "Good Fit": 33,
+              "Potential Fit": 63,
+              "No Fit": 5
+            },
+            "Potential Fit": {
+              "Good Fit": 8,
+              "Potential Fit": 99,
+              "No Fit": 31
+            },
+            "No Fit": {
+              "Good Fit": 3,
+              "Potential Fit": 41,
+              "No Fit": 117
+            }
+          },
+          "confusion_rows_second": {
+            "Good Fit": {
+              "Good Fit": 33,
+              "Potential Fit": 8,
+              "No Fit": 3
+            },
+            "Potential Fit": {
+              "Good Fit": 63,
+              "Potential Fit": 99,
+              "No Fit": 41
+            },
+            "No Fit": {
+              "Good Fit": 5,
+              "Potential Fit": 31,
+              "No Fit": 117
+            }
+          }
+        }
+      },
       "human_ceiling": {
         "van_vs_yc": {
           "n": 126,
@@ -104,6 +246,687 @@
         }
       },
       "by_instrument": {
+        "5d986c8232ea3c985ebf8e3044049d3dd7ba709ad7037043d726aa9590bc77a3": {
+          "claude-haiku-4-5": {
+            "n_llm": 400,
+            "vs_llm": {
+              "van": {
+                "n": 126,
+                "three_class": {
+                  "kappa": 0.17717820931431516,
+                  "lo": 0.08394135933033695,
+                  "hi": 0.2756775812511826,
+                  "n": 126,
+                  "agreement": 0.3968253968253968
+                },
+                "binary": {
+                  "kappa": 0.43050847457627117,
+                  "lo": 0.2862200805942613,
+                  "hi": 0.570639194397262,
+                  "n": 126,
+                  "agreement": 0.746031746031746
+                },
+                "per_class": {
+                  "Good Fit": {
+                    "n": 65,
+                    "agreement": 0.12307692307692308
+                  },
+                  "Potential Fit": {
+                    "n": 37,
+                    "agreement": 0.5405405405405406
+                  },
+                  "No Fit": {
+                    "n": 24,
+                    "agreement": 0.9166666666666666
+                  }
+                },
+                "confusion_rows_first": {
+                  "Good Fit": {
+                    "Good Fit": 8,
+                    "Potential Fit": 43,
+                    "No Fit": 14
+                  },
+                  "Potential Fit": {
+                    "Good Fit": 1,
+                    "Potential Fit": 20,
+                    "No Fit": 16
+                  },
+                  "No Fit": {
+                    "Good Fit": 0,
+                    "Potential Fit": 2,
+                    "No Fit": 22
+                  }
+                },
+                "confusion_rows_second": {
+                  "Good Fit": {
+                    "Good Fit": 8,
+                    "Potential Fit": 1,
+                    "No Fit": 0
+                  },
+                  "Potential Fit": {
+                    "Good Fit": 43,
+                    "Potential Fit": 20,
+                    "No Fit": 2
+                  },
+                  "No Fit": {
+                    "Good Fit": 14,
+                    "Potential Fit": 16,
+                    "No Fit": 22
+                  }
+                }
+              },
+              "yc": {
+                "n": 400,
+                "three_class": {
+                  "kappa": 0.41307368646085385,
+                  "lo": 0.34418642730108784,
+                  "hi": 0.4820240009277284,
+                  "n": 400,
+                  "agreement": 0.6225
+                },
+                "binary": {
+                  "kappa": 0.5807896874263108,
+                  "lo": 0.49903750714923933,
+                  "hi": 0.6565892491871127,
+                  "n": 400,
+                  "agreement": 0.8
+                },
+                "per_class": {
+                  "Good Fit": {
+                    "n": 101,
+                    "agreement": 0.32673267326732675
+                  },
+                  "Potential Fit": {
+                    "n": 138,
+                    "agreement": 0.717391304347826
+                  },
+                  "No Fit": {
+                    "n": 161,
+                    "agreement": 0.7267080745341615
+                  }
+                },
+                "confusion_rows_first": {
+                  "Good Fit": {
+                    "Good Fit": 33,
+                    "Potential Fit": 63,
+                    "No Fit": 5
+                  },
+                  "Potential Fit": {
+                    "Good Fit": 8,
+                    "Potential Fit": 99,
+                    "No Fit": 31
+                  },
+                  "No Fit": {
+                    "Good Fit": 3,
+                    "Potential Fit": 41,
+                    "No Fit": 117
+                  }
+                },
+                "confusion_rows_second": {
+                  "Good Fit": {
+                    "Good Fit": 33,
+                    "Potential Fit": 8,
+                    "No Fit": 3
+                  },
+                  "Potential Fit": {
+                    "Good Fit": 63,
+                    "Potential Fit": 99,
+                    "No Fit": 41
+                  },
+                  "No Fit": {
+                    "Good Fit": 5,
+                    "Potential Fit": 31,
+                    "No Fit": 117
+                  }
+                }
+              }
+            },
+            "consensus": {
+              "annotators": [
+                "van",
+                "yc"
+              ],
+              "n_multi_labelled": 126,
+              "n_agreed": 60,
+              "coverage": 0.47619047619047616,
+              "label_distribution": {
+                "Good Fit": 22,
+                "Potential Fit": 16,
+                "No Fit": 22
+              },
+              "note_selection": "The pairs two annotators agreed on are not a random subsample: they are the pairs both found unambiguous. A judge scores higher there for the reason a student scores higher on the easy half of an exam, so this is an UPPER estimate of its performance on the stratum, never an unbiased one. It is also why consensus cannot license substitution \u2014 the pairs it excludes are exactly the population a substituting judge would label alone, with no reference and no appeal (design spec \u00a73).",
+              "vs_llm": {
+                "n": 60,
+                "three_class": {
+                  "kappa": 0.48275862068965514,
+                  "lo": 0.32400087834870445,
+                  "hi": 0.6410371318822022,
+                  "n": 60,
+                  "agreement": 0.65
+                },
+                "binary": {
+                  "kappa": 0.7285067873303168,
+                  "lo": 0.5471392146863845,
+                  "hi": 0.8832611832611824,
+                  "n": 60,
+                  "agreement": 0.8666666666666667
+                },
+                "per_class": {
+                  "Good Fit": {
+                    "n": 22,
+                    "agreement": 0.2727272727272727
+                  },
+                  "Potential Fit": {
+                    "n": 16,
+                    "agreement": 0.75
+                  },
+                  "No Fit": {
+                    "n": 22,
+                    "agreement": 0.9545454545454546
+                  }
+                },
+                "confusion_rows_consensus": {
+                  "Good Fit": {
+                    "Good Fit": 6,
+                    "Potential Fit": 13,
+                    "No Fit": 3
+                  },
+                  "Potential Fit": {
+                    "Good Fit": 0,
+                    "Potential Fit": 12,
+                    "No Fit": 4
+                  },
+                  "No Fit": {
+                    "Good Fit": 0,
+                    "Potential Fit": 1,
+                    "No Fit": 21
+                  }
+                },
+                "confusion_rows_llm": {
+                  "Good Fit": {
+                    "Good Fit": 6,
+                    "Potential Fit": 0,
+                    "No Fit": 0
+                  },
+                  "Potential Fit": {
+                    "Good Fit": 13,
+                    "Potential Fit": 12,
+                    "No Fit": 1
+                  },
+                  "No Fit": {
+                    "Good Fit": 3,
+                    "Potential Fit": 4,
+                    "No Fit": 21
+                  }
+                }
+              }
+            },
+            "interchangeability": {
+              "n": 126,
+              "band": 0.05,
+              "rows": {
+                "van": {
+                  "retained": "van",
+                  "replaced": "yc",
+                  "n": 126,
+                  "human_pair": {
+                    "three_class": {
+                      "kappa": 0.25020286718961315,
+                      "lo": 0.13366684597183542,
+                      "hi": 0.3660941586529765,
+                      "n": 126,
+                      "agreement": 0.47619047619047616
+                    },
+                    "binary": {
+                      "kappa": 0.4191114836546521,
+                      "lo": 0.2702668336604477,
+                      "hi": 0.5706730233935445,
+                      "n": 126,
+                      "agreement": 0.7380952380952381
+                    },
+                    "per_class": {
+                      "Good Fit": {
+                        "n": 65,
+                        "agreement": 0.3384615384615385
+                      },
+                      "Potential Fit": {
+                        "n": 37,
+                        "agreement": 0.43243243243243246
+                      },
+                      "No Fit": {
+                        "n": 24,
+                        "agreement": 0.9166666666666666
+                      }
+                    }
+                  },
+                  "judge": {
+                    "three_class": {
+                      "kappa": 0.17717820931431516,
+                      "lo": 0.07965533205993658,
+                      "hi": 0.2701030270944499,
+                      "n": 126,
+                      "agreement": 0.3968253968253968
+                    },
+                    "binary": {
+                      "kappa": 0.43050847457627117,
+                      "lo": 0.2857501748444805,
+                      "hi": 0.5771873733904067,
+                      "n": 126,
+                      "agreement": 0.746031746031746
+                    },
+                    "per_class": {
+                      "Good Fit": {
+                        "n": 65,
+                        "agreement": 0.12307692307692308
+                      },
+                      "Potential Fit": {
+                        "n": 37,
+                        "agreement": 0.5405405405405406
+                      },
+                      "No Fit": {
+                        "n": 24,
+                        "agreement": 0.9166666666666666
+                      }
+                    }
+                  },
+                  "verdict": {
+                    "three_class": "fail",
+                    "binary": "tie"
+                  }
+                },
+                "yc": {
+                  "retained": "yc",
+                  "replaced": "van",
+                  "n": 126,
+                  "human_pair": {
+                    "three_class": {
+                      "kappa": 0.25020286718961315,
+                      "lo": 0.13366684597183542,
+                      "hi": 0.3660941586529765,
+                      "n": 126,
+                      "agreement": 0.47619047619047616
+                    },
+                    "binary": {
+                      "kappa": 0.4191114836546521,
+                      "lo": 0.2702668336604477,
+                      "hi": 0.5706730233935445,
+                      "n": 126,
+                      "agreement": 0.7380952380952381
+                    },
+                    "per_class": {
+                      "Good Fit": {
+                        "n": 29,
+                        "agreement": 0.7586206896551724
+                      },
+                      "Potential Fit": {
+                        "n": 44,
+                        "agreement": 0.36363636363636365
+                      },
+                      "No Fit": {
+                        "n": 53,
+                        "agreement": 0.41509433962264153
+                      }
+                    }
+                  },
+                  "judge": {
+                    "three_class": {
+                      "kappa": 0.4455445544554456,
+                      "lo": 0.3126915526866018,
+                      "hi": 0.5710772986727186,
+                      "n": 126,
+                      "agreement": 0.6507936507936508
+                    },
+                    "binary": {
+                      "kappa": 0.5918631769888572,
+                      "lo": 0.44336753022697745,
+                      "hi": 0.7285239849911466,
+                      "n": 126,
+                      "agreement": 0.8015873015873016
+                    },
+                    "per_class": {
+                      "Good Fit": {
+                        "n": 29,
+                        "agreement": 0.2413793103448276
+                      },
+                      "Potential Fit": {
+                        "n": 44,
+                        "agreement": 0.7954545454545454
+                      },
+                      "No Fit": {
+                        "n": 53,
+                        "agreement": 0.7547169811320755
+                      }
+                    }
+                  },
+                  "verdict": {
+                    "three_class": "pass",
+                    "binary": "pass"
+                  }
+                }
+              },
+              "per_class": {
+                "Good Fit": {
+                  "bar": 0.4,
+                  "human_pair": {
+                    "van": 0.3384615384615385,
+                    "yc": 0.7586206896551724
+                  },
+                  "judge": {
+                    "van": 0.12307692307692308,
+                    "yc": 0.2413793103448276
+                  },
+                  "unidentified_by_instrument": true,
+                  "judge_clears_bar": {
+                    "van": false,
+                    "yc": false
+                  }
+                },
+                "Potential Fit": {
+                  "bar": 0.4,
+                  "human_pair": {
+                    "van": 0.43243243243243246,
+                    "yc": 0.36363636363636365
+                  },
+                  "judge": {
+                    "van": 0.5405405405405406,
+                    "yc": 0.7954545454545454
+                  },
+                  "unidentified_by_instrument": true,
+                  "judge_clears_bar": {
+                    "van": true,
+                    "yc": true
+                  }
+                },
+                "No Fit": {
+                  "bar": 0.4,
+                  "human_pair": {
+                    "van": 0.9166666666666666,
+                    "yc": 0.41509433962264153
+                  },
+                  "judge": {
+                    "van": 0.9166666666666666,
+                    "yc": 0.7547169811320755
+                  },
+                  "unidentified_by_instrument": false,
+                  "judge_clears_bar": {
+                    "van": true,
+                    "yc": true
+                  }
+                }
+              },
+              "note_not_separated": "Every interval in this block overlaps every other at this n. `pass` means the judge partners the retained annotator better than the replaced one did by more than the declared band, not that the two are distinguishable.",
+              "note_licences": "Passing licenses the judge as a *second* annotator in a double-labelling wave, where being as unreliable as a human is the specification. It does not license the judge as an answer key: no agreement figure between two fallible raters is a claim about correctness. D36 stays unmade."
+            },
+            "label_distribution": {
+              "Good Fit": 44,
+              "Potential Fit": 203,
+              "No Fit": 153
+            },
+            "score": {
+              "n": 60,
+              "seed": 0,
+              "distribution_by_reference_class": {
+                "Good Fit": {
+                  "n": 22,
+                  "mean": 58.63636363636363,
+                  "median": 65.0,
+                  "q1": 50.0,
+                  "q3": 73.0
+                },
+                "No Fit": {
+                  "n": 22,
+                  "mean": 13.363636363636363,
+                  "median": 10.0,
+                  "q1": 8.0,
+                  "q3": 15.0
+                },
+                "Potential Fit": {
+                  "n": 16,
+                  "mean": 38.6875,
+                  "median": 43.5,
+                  "q1": 35.5,
+                  "q3": 48.0
+                }
+              },
+              "separation": {
+                "good_vs_potential": {
+                  "auc": 0.8323863636363636,
+                  "n_higher": 22,
+                  "n_lower": 16,
+                  "higher": "Good Fit",
+                  "lower": "Potential Fit"
+                },
+                "potential_vs_no": {
+                  "auc": 0.9303977272727273,
+                  "n_higher": 16,
+                  "n_lower": 22,
+                  "higher": "Potential Fit",
+                  "lower": "No Fit"
+                },
+                "good_vs_no": {
+                  "auc": 0.9824380165289256,
+                  "n_higher": 22,
+                  "n_lower": 22,
+                  "higher": "Good Fit",
+                  "lower": "No Fit"
+                }
+              },
+              "fitted_full": {
+                "cut_points": {
+                  "no_fit_below": 19.0,
+                  "good_fit_at_or_above": 49.0
+                },
+                "n": 60,
+                "fitted_on": [
+                  "00909f22-605e-5904-a53b-ec1b9b38d54f__11d652b8-a3db-5fb7-951b-d820fa655137",
+                  "00909f22-605e-5904-a53b-ec1b9b38d54f__99ba1fb9-c99c-5abd-adb7-7557618a963a",
+                  "1f26be02-51ac-5e5e-8acd-41e68b413b1d__a432e71d-c6e7-5e47-a107-e232f8834e40",
+                  "22397d17-9ef9-579d-8c59-5fdb0b631a79__79b8908c-dfcf-5242-b9f0-88dc3305b8d3",
+                  "22397d17-9ef9-579d-8c59-5fdb0b631a79__f27b1a78-d782-5c9d-b9f2-bd65e24d02c3",
+                  "2a584887-901e-58f9-8a84-8665a51756c9__67f39fa8-f6ce-57f8-8abc-a7c1b8f7aff4",
+                  "2a584887-901e-58f9-8a84-8665a51756c9__a85c9249-3e5a-5e35-b385-fd6c0c256611",
+                  "352781ec-86e3-5363-bc65-7b6f79cdcfe2__9a11e001-e67c-5eaa-8950-109f24bf53fe",
+                  "352781ec-86e3-5363-bc65-7b6f79cdcfe2__9e743854-4886-5258-8bb8-4b1ac332f52e",
+                  "4aa0db66-b017-53c2-9cb6-c320f63b5f6f__8e15e56a-99b2-5e2b-97ac-7df6373c668c",
+                  "4aa0db66-b017-53c2-9cb6-c320f63b5f6f__d9f513d7-de07-53a0-9af8-495572cb308b",
+                  "4b8d2c54-1699-5ef7-b227-340fb69c8aee__8bb84309-4436-571f-9ffb-f9b51c60ffd5",
+                  "4b8d2c54-1699-5ef7-b227-340fb69c8aee__d6ec1fa1-7599-5249-a39b-8048b7ae7f81",
+                  "542c1d55-03ef-59a3-b099-ea6c826fc3da__22bbac82-4f0d-5a9f-bcf3-bc35fc328150",
+                  "542c1d55-03ef-59a3-b099-ea6c826fc3da__27c48f67-5206-507e-8a5b-f34054e2075d",
+                  "542c1d55-03ef-59a3-b099-ea6c826fc3da__298f675d-239c-58a2-ad84-c824be14cd62",
+                  "542c1d55-03ef-59a3-b099-ea6c826fc3da__314931c8-37a1-5a87-9b72-bd0d0513e55d",
+                  "542c1d55-03ef-59a3-b099-ea6c826fc3da__8eb3f8ef-26fb-5d81-832b-5f5c9dfb7611",
+                  "542c1d55-03ef-59a3-b099-ea6c826fc3da__91b5fdb2-6870-5ac3-89a2-5ddefd2a9ebc",
+                  "5d6212b4-0afe-56eb-a0a2-813955140467__00e44be7-6318-5be8-8bd8-24e81c1a471b",
+                  "60aac018-c8be-5669-85ef-892997b1a3ec__0294a9a9-aaf1-519b-b0fa-74af9aff366f",
+                  "60aac018-c8be-5669-85ef-892997b1a3ec__3cf2f2c6-811f-5f69-8d05-9ed11f573b89",
+                  "76890a89-5a6a-59d0-802f-79db17b3cfad__259d592a-fdf0-5559-a95f-f18ecfe2af02",
+                  "76890a89-5a6a-59d0-802f-79db17b3cfad__aa41f1e8-137c-546d-a42f-a992a4be8d77",
+                  "76890a89-5a6a-59d0-802f-79db17b3cfad__d966166a-3aac-55cb-99e5-24799ea0df38",
+                  "7a745ba8-00d8-59b8-8e7e-3a45a7f5cc76__1b1eb6ba-e6e2-5c70-b995-f9c8d6d999bb",
+                  "7a745ba8-00d8-59b8-8e7e-3a45a7f5cc76__8b78847e-84a4-516e-aa13-6d2bbcbdc96b",
+                  "7ed77b7f-4356-5aa7-9472-16949c00aafb__05933697-619b-559f-b28b-b8cabfb6a456",
+                  "7ed77b7f-4356-5aa7-9472-16949c00aafb__75a00c43-a33f-5343-9941-b9122118a777",
+                  "846f2d8b-b721-5258-a3e4-720495320e78__4ba34626-98a9-5f87-8656-cb6145ea093f",
+                  "846f2d8b-b721-5258-a3e4-720495320e78__50ac008f-33b6-5459-bdc6-2f4907e381fb",
+                  "846f2d8b-b721-5258-a3e4-720495320e78__db861200-6524-5ea4-99e0-081ad801db60",
+                  "93ea44b7-06e8-5f73-86c9-fcf12b8afcca__c1ccce27-0177-52bd-bdbe-906289266cf3",
+                  "9dcb0aab-696f-5a0c-9b65-5f06e859aa9c__0b760cc7-5751-5a61-986d-c7571c10add6",
+                  "9dcb0aab-696f-5a0c-9b65-5f06e859aa9c__22a41009-1ee8-57c5-bb7c-cb6b308f51c6",
+                  "9dcb0aab-696f-5a0c-9b65-5f06e859aa9c__26ebc4d9-e4fc-5be6-9885-ce7411734366",
+                  "a77b2346-51c8-5eef-b743-9cf1ef8d40d7__49d4dda3-4911-573d-808d-d129acbc0308",
+                  "a8a46ef9-88dd-595c-813e-db693d0adcb1__66067664-f72a-5f9a-a288-a9ead14a7573",
+                  "a8a46ef9-88dd-595c-813e-db693d0adcb1__e0aa9af6-760c-594e-8abf-11f4fb7c5ef5",
+                  "b82ccdd2-b0e1-50ee-8213-625f677ac416__6ec9a81d-86a3-5e21-aca2-8802a9fb468d",
+                  "ba343927-2814-5eb7-b056-ba7bb00a9156__fe427543-2071-5a8a-8b8f-521f9ceae2a2",
+                  "bedaf677-a731-56e8-bf2a-30e09c8dff58__2d346185-0004-54cf-a7cd-7a86c84d3bc7",
+                  "c1c4f634-8132-5705-af1b-0ad83deeb31f__1ec4fd00-9df3-52eb-9ef3-642024e5d0be",
+                  "c63e4cc9-55f8-5e36-af46-62962a586864__2a8a1702-a7ad-5f43-9ffa-4bdeb527ae67",
+                  "c63e4cc9-55f8-5e36-af46-62962a586864__f5bc3dfc-0c15-587e-905a-6086b34a8ba2",
+                  "df5bdaf7-8af6-5cd1-90d2-d312effb9253__20436e2e-72fb-5dd9-8f4d-861104db4467",
+                  "df5bdaf7-8af6-5cd1-90d2-d312effb9253__4af85b34-8264-5f8b-a753-ae7fd13c2a35",
+                  "df5bdaf7-8af6-5cd1-90d2-d312effb9253__9f7fb0ee-3c9d-5943-8337-3bf4feac7d9f",
+                  "df5bdaf7-8af6-5cd1-90d2-d312effb9253__a6692210-0397-5f26-8b4e-0c9bfe642e65",
+                  "e9cd4e0d-1104-5954-b7b7-cef596d5a5ae__53fcccc4-4f70-5ef6-955f-c54285766934",
+                  "eb13616d-1be6-5a9b-bd19-e7e9d27d500a__9b5b5412-1470-5ffc-91d4-95e07742f548",
+                  "eb13616d-1be6-5a9b-bd19-e7e9d27d500a__ab289407-1399-5791-9858-127dbc91d8e4",
+                  "eb34811e-627e-5eae-b16b-4c90f7b97162__571a6955-10da-5826-9223-f45db6371b55",
+                  "eb34811e-627e-5eae-b16b-4c90f7b97162__7dc97ffe-4aca-55db-a58b-e6856d5e4cac",
+                  "eb34811e-627e-5eae-b16b-4c90f7b97162__98932f26-ce6c-5932-88eb-df0720b5e752",
+                  "ecad0df2-46d2-5a14-95c5-788b8136f83c__73eb3a71-91c0-5b7d-a037-20b39dbba1f6",
+                  "ecad0df2-46d2-5a14-95c5-788b8136f83c__dfc37872-0d4b-5597-b4af-fb5603ba36e6",
+                  "f8fe22f9-ed0b-57d8-8470-e709363a1e32__1c4a5279-82a0-54b8-a1c9-9462eb657c92",
+                  "f8fe22f9-ed0b-57d8-8470-e709363a1e32__36733bdc-ed04-5b04-b402-58bf774c9976",
+                  "f8fe22f9-ed0b-57d8-8470-e709363a1e32__94aeb14f-c6ca-5ee9-9757-d40da10f379d"
+                ],
+                "kappa": {
+                  "kappa": 0.7493734335839599,
+                  "lo": 0.6003247293921732,
+                  "hi": 0.8747926247542317,
+                  "n": 60,
+                  "agreement": 0.8333333333333334
+                },
+                "binary": {
+                  "kappa": 0.8222748815165877,
+                  "lo": 0.6491228070175439,
+                  "hi": 0.9637681159420289,
+                  "n": 60,
+                  "agreement": 0.9166666666666666
+                },
+                "per_class": {
+                  "Good Fit": {
+                    "n": 22,
+                    "agreement": 0.7727272727272727
+                  },
+                  "Potential Fit": {
+                    "n": 16,
+                    "agreement": 0.8125
+                  },
+                  "No Fit": {
+                    "n": 22,
+                    "agreement": 0.9090909090909091
+                  }
+                },
+                "label_distribution": {
+                  "Good Fit": 18,
+                  "Potential Fit": 19,
+                  "No Fit": 23
+                },
+                "note_fitted": "These cut points were fitted against the consensus reference on the pairs named in `fitted_on`. A kappa on the pairs a parameter was fitted on is not an out-of-sample result and may not be compared with the emitted label's kappa as though the two were measured the same way. `held_out` is the only figure here that may."
+              },
+              "held_out": {
+                "cut_points": {
+                  "no_fit_below": 21.5,
+                  "good_fit_at_or_above": 49.0
+                },
+                "fitted_on": [
+                  "00909f22-605e-5904-a53b-ec1b9b38d54f__11d652b8-a3db-5fb7-951b-d820fa655137",
+                  "00909f22-605e-5904-a53b-ec1b9b38d54f__99ba1fb9-c99c-5abd-adb7-7557618a963a",
+                  "1f26be02-51ac-5e5e-8acd-41e68b413b1d__a432e71d-c6e7-5e47-a107-e232f8834e40",
+                  "22397d17-9ef9-579d-8c59-5fdb0b631a79__79b8908c-dfcf-5242-b9f0-88dc3305b8d3",
+                  "22397d17-9ef9-579d-8c59-5fdb0b631a79__f27b1a78-d782-5c9d-b9f2-bd65e24d02c3",
+                  "2a584887-901e-58f9-8a84-8665a51756c9__a85c9249-3e5a-5e35-b385-fd6c0c256611",
+                  "352781ec-86e3-5363-bc65-7b6f79cdcfe2__9e743854-4886-5258-8bb8-4b1ac332f52e",
+                  "4aa0db66-b017-53c2-9cb6-c320f63b5f6f__d9f513d7-de07-53a0-9af8-495572cb308b",
+                  "4b8d2c54-1699-5ef7-b227-340fb69c8aee__8bb84309-4436-571f-9ffb-f9b51c60ffd5",
+                  "542c1d55-03ef-59a3-b099-ea6c826fc3da__314931c8-37a1-5a87-9b72-bd0d0513e55d",
+                  "542c1d55-03ef-59a3-b099-ea6c826fc3da__8eb3f8ef-26fb-5d81-832b-5f5c9dfb7611",
+                  "542c1d55-03ef-59a3-b099-ea6c826fc3da__91b5fdb2-6870-5ac3-89a2-5ddefd2a9ebc",
+                  "60aac018-c8be-5669-85ef-892997b1a3ec__0294a9a9-aaf1-519b-b0fa-74af9aff366f",
+                  "60aac018-c8be-5669-85ef-892997b1a3ec__3cf2f2c6-811f-5f69-8d05-9ed11f573b89",
+                  "76890a89-5a6a-59d0-802f-79db17b3cfad__aa41f1e8-137c-546d-a42f-a992a4be8d77",
+                  "76890a89-5a6a-59d0-802f-79db17b3cfad__d966166a-3aac-55cb-99e5-24799ea0df38",
+                  "7ed77b7f-4356-5aa7-9472-16949c00aafb__05933697-619b-559f-b28b-b8cabfb6a456",
+                  "7ed77b7f-4356-5aa7-9472-16949c00aafb__75a00c43-a33f-5343-9941-b9122118a777",
+                  "846f2d8b-b721-5258-a3e4-720495320e78__50ac008f-33b6-5459-bdc6-2f4907e381fb",
+                  "9dcb0aab-696f-5a0c-9b65-5f06e859aa9c__22a41009-1ee8-57c5-bb7c-cb6b308f51c6",
+                  "9dcb0aab-696f-5a0c-9b65-5f06e859aa9c__26ebc4d9-e4fc-5be6-9885-ce7411734366",
+                  "a77b2346-51c8-5eef-b743-9cf1ef8d40d7__49d4dda3-4911-573d-808d-d129acbc0308",
+                  "c1c4f634-8132-5705-af1b-0ad83deeb31f__1ec4fd00-9df3-52eb-9ef3-642024e5d0be",
+                  "c63e4cc9-55f8-5e36-af46-62962a586864__2a8a1702-a7ad-5f43-9ffa-4bdeb527ae67",
+                  "c63e4cc9-55f8-5e36-af46-62962a586864__f5bc3dfc-0c15-587e-905a-6086b34a8ba2",
+                  "eb13616d-1be6-5a9b-bd19-e7e9d27d500a__ab289407-1399-5791-9858-127dbc91d8e4",
+                  "eb34811e-627e-5eae-b16b-4c90f7b97162__571a6955-10da-5826-9223-f45db6371b55",
+                  "eb34811e-627e-5eae-b16b-4c90f7b97162__98932f26-ce6c-5932-88eb-df0720b5e752",
+                  "ecad0df2-46d2-5a14-95c5-788b8136f83c__73eb3a71-91c0-5b7d-a037-20b39dbba1f6",
+                  "f8fe22f9-ed0b-57d8-8470-e709363a1e32__1c4a5279-82a0-54b8-a1c9-9462eb657c92"
+                ],
+                "quoted_on": [
+                  "2a584887-901e-58f9-8a84-8665a51756c9__67f39fa8-f6ce-57f8-8abc-a7c1b8f7aff4",
+                  "352781ec-86e3-5363-bc65-7b6f79cdcfe2__9a11e001-e67c-5eaa-8950-109f24bf53fe",
+                  "4aa0db66-b017-53c2-9cb6-c320f63b5f6f__8e15e56a-99b2-5e2b-97ac-7df6373c668c",
+                  "4b8d2c54-1699-5ef7-b227-340fb69c8aee__d6ec1fa1-7599-5249-a39b-8048b7ae7f81",
+                  "542c1d55-03ef-59a3-b099-ea6c826fc3da__22bbac82-4f0d-5a9f-bcf3-bc35fc328150",
+                  "542c1d55-03ef-59a3-b099-ea6c826fc3da__27c48f67-5206-507e-8a5b-f34054e2075d",
+                  "542c1d55-03ef-59a3-b099-ea6c826fc3da__298f675d-239c-58a2-ad84-c824be14cd62",
+                  "5d6212b4-0afe-56eb-a0a2-813955140467__00e44be7-6318-5be8-8bd8-24e81c1a471b",
+                  "76890a89-5a6a-59d0-802f-79db17b3cfad__259d592a-fdf0-5559-a95f-f18ecfe2af02",
+                  "7a745ba8-00d8-59b8-8e7e-3a45a7f5cc76__1b1eb6ba-e6e2-5c70-b995-f9c8d6d999bb",
+                  "7a745ba8-00d8-59b8-8e7e-3a45a7f5cc76__8b78847e-84a4-516e-aa13-6d2bbcbdc96b",
+                  "846f2d8b-b721-5258-a3e4-720495320e78__4ba34626-98a9-5f87-8656-cb6145ea093f",
+                  "846f2d8b-b721-5258-a3e4-720495320e78__db861200-6524-5ea4-99e0-081ad801db60",
+                  "93ea44b7-06e8-5f73-86c9-fcf12b8afcca__c1ccce27-0177-52bd-bdbe-906289266cf3",
+                  "9dcb0aab-696f-5a0c-9b65-5f06e859aa9c__0b760cc7-5751-5a61-986d-c7571c10add6",
+                  "a8a46ef9-88dd-595c-813e-db693d0adcb1__66067664-f72a-5f9a-a288-a9ead14a7573",
+                  "a8a46ef9-88dd-595c-813e-db693d0adcb1__e0aa9af6-760c-594e-8abf-11f4fb7c5ef5",
+                  "b82ccdd2-b0e1-50ee-8213-625f677ac416__6ec9a81d-86a3-5e21-aca2-8802a9fb468d",
+                  "ba343927-2814-5eb7-b056-ba7bb00a9156__fe427543-2071-5a8a-8b8f-521f9ceae2a2",
+                  "bedaf677-a731-56e8-bf2a-30e09c8dff58__2d346185-0004-54cf-a7cd-7a86c84d3bc7",
+                  "df5bdaf7-8af6-5cd1-90d2-d312effb9253__20436e2e-72fb-5dd9-8f4d-861104db4467",
+                  "df5bdaf7-8af6-5cd1-90d2-d312effb9253__4af85b34-8264-5f8b-a753-ae7fd13c2a35",
+                  "df5bdaf7-8af6-5cd1-90d2-d312effb9253__9f7fb0ee-3c9d-5943-8337-3bf4feac7d9f",
+                  "df5bdaf7-8af6-5cd1-90d2-d312effb9253__a6692210-0397-5f26-8b4e-0c9bfe642e65",
+                  "e9cd4e0d-1104-5954-b7b7-cef596d5a5ae__53fcccc4-4f70-5ef6-955f-c54285766934",
+                  "eb13616d-1be6-5a9b-bd19-e7e9d27d500a__9b5b5412-1470-5ffc-91d4-95e07742f548",
+                  "eb34811e-627e-5eae-b16b-4c90f7b97162__7dc97ffe-4aca-55db-a58b-e6856d5e4cac",
+                  "ecad0df2-46d2-5a14-95c5-788b8136f83c__dfc37872-0d4b-5597-b4af-fb5603ba36e6",
+                  "f8fe22f9-ed0b-57d8-8470-e709363a1e32__36733bdc-ed04-5b04-b402-58bf774c9976",
+                  "f8fe22f9-ed0b-57d8-8470-e709363a1e32__94aeb14f-c6ca-5ee9-9757-d40da10f379d"
+                ],
+                "n_fit": 30,
+                "n": 30,
+                "kappa": {
+                  "kappa": 0.6013289036544851,
+                  "lo": 0.3648208469055375,
+                  "hi": 0.8,
+                  "n": 30,
+                  "agreement": 0.7333333333333333
+                },
+                "binary": {
+                  "kappa": 0.5909090909090909,
+                  "lo": 0.3076923076923077,
+                  "hi": 0.8571428571428572,
+                  "n": 30,
+                  "agreement": 0.8
+                },
+                "per_class": {
+                  "Good Fit": {
+                    "n": 11,
+                    "agreement": 0.6363636363636364
+                  },
+                  "Potential Fit": {
+                    "n": 9,
+                    "agreement": 0.6666666666666666
+                  },
+                  "No Fit": {
+                    "n": 10,
+                    "agreement": 0.9
+                  }
+                },
+                "note": "fitted on one seeded half of the consensus pairs and quoted on the other. This is the only out-of-sample figure in this block, and its n is half the consensus coverage, so its interval is wide by construction and is reported as it fell."
+              },
+              "note_fitted": "These cut points were fitted against the consensus reference on the pairs named in `fitted_on`. A kappa on the pairs a parameter was fitted on is not an out-of-sample result and may not be compared with the emitted label's kappa as though the two were measured the same way. `held_out` is the only figure here that may.",
+              "annotators": [
+                "van",
+                "yc"
+              ],
+              "n_multi_labelled": 126,
+              "n_agreed": 60,
+              "coverage": 0.47619047619047616,
+              "note_selection": "The pairs two annotators agreed on are not a random subsample: they are the pairs both found unambiguous. A judge scores higher there for the reason a student scores higher on the easy half of an exam, so this is an UPPER estimate of its performance on the stratum, never an unbiased one. It is also why consensus cannot license substitution \u2014 the pairs it excludes are exactly the population a substituting judge would label alone, with no reference and no appeal (design spec \u00a73)."
+            }
+          }
+        },
         "75e00ea3d0c34ab92acd7e6436de2921a3b80b2ff4e8106c88bc7580d048cd23": {
           "claude-haiku-4-5": {
             "n_llm": 400,
@@ -940,6 +1763,12 @@
         }
       },
       "instruments_on_file": {
+        "5d986c8232ea3c985ebf8e3044049d3dd7ba709ad7037043d726aa9590bc77a3": {
+          "committed": true,
+          "models": {
+            "claude-haiku-4-5": 400
+          }
+        },
         "75e00ea3d0c34ab92acd7e6436de2921a3b80b2ff4e8106c88bc7580d048cd23": {
           "committed": false,
           "models": {
@@ -948,12 +1777,966 @@
           }
         }
       },
-      "by_model": {},
-      "consensus": {},
-      "interchangeability": {},
-      "n_scored": 0,
-      "n_dispatched": 800,
-      "status": "no overlap",
+      "by_model": {
+        "claude-haiku-4-5": {
+          "n_llm": 400,
+          "vs_llm": {
+            "van": {
+              "n": 126,
+              "three_class": {
+                "kappa": 0.17717820931431516,
+                "lo": 0.08394135933033695,
+                "hi": 0.2756775812511826,
+                "n": 126,
+                "agreement": 0.3968253968253968
+              },
+              "binary": {
+                "kappa": 0.43050847457627117,
+                "lo": 0.2862200805942613,
+                "hi": 0.570639194397262,
+                "n": 126,
+                "agreement": 0.746031746031746
+              },
+              "per_class": {
+                "Good Fit": {
+                  "n": 65,
+                  "agreement": 0.12307692307692308
+                },
+                "Potential Fit": {
+                  "n": 37,
+                  "agreement": 0.5405405405405406
+                },
+                "No Fit": {
+                  "n": 24,
+                  "agreement": 0.9166666666666666
+                }
+              },
+              "confusion_rows_first": {
+                "Good Fit": {
+                  "Good Fit": 8,
+                  "Potential Fit": 43,
+                  "No Fit": 14
+                },
+                "Potential Fit": {
+                  "Good Fit": 1,
+                  "Potential Fit": 20,
+                  "No Fit": 16
+                },
+                "No Fit": {
+                  "Good Fit": 0,
+                  "Potential Fit": 2,
+                  "No Fit": 22
+                }
+              },
+              "confusion_rows_second": {
+                "Good Fit": {
+                  "Good Fit": 8,
+                  "Potential Fit": 1,
+                  "No Fit": 0
+                },
+                "Potential Fit": {
+                  "Good Fit": 43,
+                  "Potential Fit": 20,
+                  "No Fit": 2
+                },
+                "No Fit": {
+                  "Good Fit": 14,
+                  "Potential Fit": 16,
+                  "No Fit": 22
+                }
+              }
+            },
+            "yc": {
+              "n": 400,
+              "three_class": {
+                "kappa": 0.41307368646085385,
+                "lo": 0.34418642730108784,
+                "hi": 0.4820240009277284,
+                "n": 400,
+                "agreement": 0.6225
+              },
+              "binary": {
+                "kappa": 0.5807896874263108,
+                "lo": 0.49903750714923933,
+                "hi": 0.6565892491871127,
+                "n": 400,
+                "agreement": 0.8
+              },
+              "per_class": {
+                "Good Fit": {
+                  "n": 101,
+                  "agreement": 0.32673267326732675
+                },
+                "Potential Fit": {
+                  "n": 138,
+                  "agreement": 0.717391304347826
+                },
+                "No Fit": {
+                  "n": 161,
+                  "agreement": 0.7267080745341615
+                }
+              },
+              "confusion_rows_first": {
+                "Good Fit": {
+                  "Good Fit": 33,
+                  "Potential Fit": 63,
+                  "No Fit": 5
+                },
+                "Potential Fit": {
+                  "Good Fit": 8,
+                  "Potential Fit": 99,
+                  "No Fit": 31
+                },
+                "No Fit": {
+                  "Good Fit": 3,
+                  "Potential Fit": 41,
+                  "No Fit": 117
+                }
+              },
+              "confusion_rows_second": {
+                "Good Fit": {
+                  "Good Fit": 33,
+                  "Potential Fit": 8,
+                  "No Fit": 3
+                },
+                "Potential Fit": {
+                  "Good Fit": 63,
+                  "Potential Fit": 99,
+                  "No Fit": 41
+                },
+                "No Fit": {
+                  "Good Fit": 5,
+                  "Potential Fit": 31,
+                  "No Fit": 117
+                }
+              }
+            }
+          },
+          "consensus": {
+            "annotators": [
+              "van",
+              "yc"
+            ],
+            "n_multi_labelled": 126,
+            "n_agreed": 60,
+            "coverage": 0.47619047619047616,
+            "label_distribution": {
+              "Good Fit": 22,
+              "Potential Fit": 16,
+              "No Fit": 22
+            },
+            "note_selection": "The pairs two annotators agreed on are not a random subsample: they are the pairs both found unambiguous. A judge scores higher there for the reason a student scores higher on the easy half of an exam, so this is an UPPER estimate of its performance on the stratum, never an unbiased one. It is also why consensus cannot license substitution \u2014 the pairs it excludes are exactly the population a substituting judge would label alone, with no reference and no appeal (design spec \u00a73).",
+            "vs_llm": {
+              "n": 60,
+              "three_class": {
+                "kappa": 0.48275862068965514,
+                "lo": 0.32400087834870445,
+                "hi": 0.6410371318822022,
+                "n": 60,
+                "agreement": 0.65
+              },
+              "binary": {
+                "kappa": 0.7285067873303168,
+                "lo": 0.5471392146863845,
+                "hi": 0.8832611832611824,
+                "n": 60,
+                "agreement": 0.8666666666666667
+              },
+              "per_class": {
+                "Good Fit": {
+                  "n": 22,
+                  "agreement": 0.2727272727272727
+                },
+                "Potential Fit": {
+                  "n": 16,
+                  "agreement": 0.75
+                },
+                "No Fit": {
+                  "n": 22,
+                  "agreement": 0.9545454545454546
+                }
+              },
+              "confusion_rows_consensus": {
+                "Good Fit": {
+                  "Good Fit": 6,
+                  "Potential Fit": 13,
+                  "No Fit": 3
+                },
+                "Potential Fit": {
+                  "Good Fit": 0,
+                  "Potential Fit": 12,
+                  "No Fit": 4
+                },
+                "No Fit": {
+                  "Good Fit": 0,
+                  "Potential Fit": 1,
+                  "No Fit": 21
+                }
+              },
+              "confusion_rows_llm": {
+                "Good Fit": {
+                  "Good Fit": 6,
+                  "Potential Fit": 0,
+                  "No Fit": 0
+                },
+                "Potential Fit": {
+                  "Good Fit": 13,
+                  "Potential Fit": 12,
+                  "No Fit": 1
+                },
+                "No Fit": {
+                  "Good Fit": 3,
+                  "Potential Fit": 4,
+                  "No Fit": 21
+                }
+              }
+            }
+          },
+          "interchangeability": {
+            "n": 126,
+            "band": 0.05,
+            "rows": {
+              "van": {
+                "retained": "van",
+                "replaced": "yc",
+                "n": 126,
+                "human_pair": {
+                  "three_class": {
+                    "kappa": 0.25020286718961315,
+                    "lo": 0.13366684597183542,
+                    "hi": 0.3660941586529765,
+                    "n": 126,
+                    "agreement": 0.47619047619047616
+                  },
+                  "binary": {
+                    "kappa": 0.4191114836546521,
+                    "lo": 0.2702668336604477,
+                    "hi": 0.5706730233935445,
+                    "n": 126,
+                    "agreement": 0.7380952380952381
+                  },
+                  "per_class": {
+                    "Good Fit": {
+                      "n": 65,
+                      "agreement": 0.3384615384615385
+                    },
+                    "Potential Fit": {
+                      "n": 37,
+                      "agreement": 0.43243243243243246
+                    },
+                    "No Fit": {
+                      "n": 24,
+                      "agreement": 0.9166666666666666
+                    }
+                  }
+                },
+                "judge": {
+                  "three_class": {
+                    "kappa": 0.17717820931431516,
+                    "lo": 0.07965533205993658,
+                    "hi": 0.2701030270944499,
+                    "n": 126,
+                    "agreement": 0.3968253968253968
+                  },
+                  "binary": {
+                    "kappa": 0.43050847457627117,
+                    "lo": 0.2857501748444805,
+                    "hi": 0.5771873733904067,
+                    "n": 126,
+                    "agreement": 0.746031746031746
+                  },
+                  "per_class": {
+                    "Good Fit": {
+                      "n": 65,
+                      "agreement": 0.12307692307692308
+                    },
+                    "Potential Fit": {
+                      "n": 37,
+                      "agreement": 0.5405405405405406
+                    },
+                    "No Fit": {
+                      "n": 24,
+                      "agreement": 0.9166666666666666
+                    }
+                  }
+                },
+                "verdict": {
+                  "three_class": "fail",
+                  "binary": "tie"
+                }
+              },
+              "yc": {
+                "retained": "yc",
+                "replaced": "van",
+                "n": 126,
+                "human_pair": {
+                  "three_class": {
+                    "kappa": 0.25020286718961315,
+                    "lo": 0.13366684597183542,
+                    "hi": 0.3660941586529765,
+                    "n": 126,
+                    "agreement": 0.47619047619047616
+                  },
+                  "binary": {
+                    "kappa": 0.4191114836546521,
+                    "lo": 0.2702668336604477,
+                    "hi": 0.5706730233935445,
+                    "n": 126,
+                    "agreement": 0.7380952380952381
+                  },
+                  "per_class": {
+                    "Good Fit": {
+                      "n": 29,
+                      "agreement": 0.7586206896551724
+                    },
+                    "Potential Fit": {
+                      "n": 44,
+                      "agreement": 0.36363636363636365
+                    },
+                    "No Fit": {
+                      "n": 53,
+                      "agreement": 0.41509433962264153
+                    }
+                  }
+                },
+                "judge": {
+                  "three_class": {
+                    "kappa": 0.4455445544554456,
+                    "lo": 0.3126915526866018,
+                    "hi": 0.5710772986727186,
+                    "n": 126,
+                    "agreement": 0.6507936507936508
+                  },
+                  "binary": {
+                    "kappa": 0.5918631769888572,
+                    "lo": 0.44336753022697745,
+                    "hi": 0.7285239849911466,
+                    "n": 126,
+                    "agreement": 0.8015873015873016
+                  },
+                  "per_class": {
+                    "Good Fit": {
+                      "n": 29,
+                      "agreement": 0.2413793103448276
+                    },
+                    "Potential Fit": {
+                      "n": 44,
+                      "agreement": 0.7954545454545454
+                    },
+                    "No Fit": {
+                      "n": 53,
+                      "agreement": 0.7547169811320755
+                    }
+                  }
+                },
+                "verdict": {
+                  "three_class": "pass",
+                  "binary": "pass"
+                }
+              }
+            },
+            "per_class": {
+              "Good Fit": {
+                "bar": 0.4,
+                "human_pair": {
+                  "van": 0.3384615384615385,
+                  "yc": 0.7586206896551724
+                },
+                "judge": {
+                  "van": 0.12307692307692308,
+                  "yc": 0.2413793103448276
+                },
+                "unidentified_by_instrument": true,
+                "judge_clears_bar": {
+                  "van": false,
+                  "yc": false
+                }
+              },
+              "Potential Fit": {
+                "bar": 0.4,
+                "human_pair": {
+                  "van": 0.43243243243243246,
+                  "yc": 0.36363636363636365
+                },
+                "judge": {
+                  "van": 0.5405405405405406,
+                  "yc": 0.7954545454545454
+                },
+                "unidentified_by_instrument": true,
+                "judge_clears_bar": {
+                  "van": true,
+                  "yc": true
+                }
+              },
+              "No Fit": {
+                "bar": 0.4,
+                "human_pair": {
+                  "van": 0.9166666666666666,
+                  "yc": 0.41509433962264153
+                },
+                "judge": {
+                  "van": 0.9166666666666666,
+                  "yc": 0.7547169811320755
+                },
+                "unidentified_by_instrument": false,
+                "judge_clears_bar": {
+                  "van": true,
+                  "yc": true
+                }
+              }
+            },
+            "note_not_separated": "Every interval in this block overlaps every other at this n. `pass` means the judge partners the retained annotator better than the replaced one did by more than the declared band, not that the two are distinguishable.",
+            "note_licences": "Passing licenses the judge as a *second* annotator in a double-labelling wave, where being as unreliable as a human is the specification. It does not license the judge as an answer key: no agreement figure between two fallible raters is a claim about correctness. D36 stays unmade."
+          },
+          "label_distribution": {
+            "Good Fit": 44,
+            "Potential Fit": 203,
+            "No Fit": 153
+          },
+          "score": {
+            "n": 60,
+            "seed": 0,
+            "distribution_by_reference_class": {
+              "Good Fit": {
+                "n": 22,
+                "mean": 58.63636363636363,
+                "median": 65.0,
+                "q1": 50.0,
+                "q3": 73.0
+              },
+              "No Fit": {
+                "n": 22,
+                "mean": 13.363636363636363,
+                "median": 10.0,
+                "q1": 8.0,
+                "q3": 15.0
+              },
+              "Potential Fit": {
+                "n": 16,
+                "mean": 38.6875,
+                "median": 43.5,
+                "q1": 35.5,
+                "q3": 48.0
+              }
+            },
+            "separation": {
+              "good_vs_potential": {
+                "auc": 0.8323863636363636,
+                "n_higher": 22,
+                "n_lower": 16,
+                "higher": "Good Fit",
+                "lower": "Potential Fit"
+              },
+              "potential_vs_no": {
+                "auc": 0.9303977272727273,
+                "n_higher": 16,
+                "n_lower": 22,
+                "higher": "Potential Fit",
+                "lower": "No Fit"
+              },
+              "good_vs_no": {
+                "auc": 0.9824380165289256,
+                "n_higher": 22,
+                "n_lower": 22,
+                "higher": "Good Fit",
+                "lower": "No Fit"
+              }
+            },
+            "fitted_full": {
+              "cut_points": {
+                "no_fit_below": 19.0,
+                "good_fit_at_or_above": 49.0
+              },
+              "n": 60,
+              "fitted_on": [
+                "00909f22-605e-5904-a53b-ec1b9b38d54f__11d652b8-a3db-5fb7-951b-d820fa655137",
+                "00909f22-605e-5904-a53b-ec1b9b38d54f__99ba1fb9-c99c-5abd-adb7-7557618a963a",
+                "1f26be02-51ac-5e5e-8acd-41e68b413b1d__a432e71d-c6e7-5e47-a107-e232f8834e40",
+                "22397d17-9ef9-579d-8c59-5fdb0b631a79__79b8908c-dfcf-5242-b9f0-88dc3305b8d3",
+                "22397d17-9ef9-579d-8c59-5fdb0b631a79__f27b1a78-d782-5c9d-b9f2-bd65e24d02c3",
+                "2a584887-901e-58f9-8a84-8665a51756c9__67f39fa8-f6ce-57f8-8abc-a7c1b8f7aff4",
+                "2a584887-901e-58f9-8a84-8665a51756c9__a85c9249-3e5a-5e35-b385-fd6c0c256611",
+                "352781ec-86e3-5363-bc65-7b6f79cdcfe2__9a11e001-e67c-5eaa-8950-109f24bf53fe",
+                "352781ec-86e3-5363-bc65-7b6f79cdcfe2__9e743854-4886-5258-8bb8-4b1ac332f52e",
+                "4aa0db66-b017-53c2-9cb6-c320f63b5f6f__8e15e56a-99b2-5e2b-97ac-7df6373c668c",
+                "4aa0db66-b017-53c2-9cb6-c320f63b5f6f__d9f513d7-de07-53a0-9af8-495572cb308b",
+                "4b8d2c54-1699-5ef7-b227-340fb69c8aee__8bb84309-4436-571f-9ffb-f9b51c60ffd5",
+                "4b8d2c54-1699-5ef7-b227-340fb69c8aee__d6ec1fa1-7599-5249-a39b-8048b7ae7f81",
+                "542c1d55-03ef-59a3-b099-ea6c826fc3da__22bbac82-4f0d-5a9f-bcf3-bc35fc328150",
+                "542c1d55-03ef-59a3-b099-ea6c826fc3da__27c48f67-5206-507e-8a5b-f34054e2075d",
+                "542c1d55-03ef-59a3-b099-ea6c826fc3da__298f675d-239c-58a2-ad84-c824be14cd62",
+                "542c1d55-03ef-59a3-b099-ea6c826fc3da__314931c8-37a1-5a87-9b72-bd0d0513e55d",
+                "542c1d55-03ef-59a3-b099-ea6c826fc3da__8eb3f8ef-26fb-5d81-832b-5f5c9dfb7611",
+                "542c1d55-03ef-59a3-b099-ea6c826fc3da__91b5fdb2-6870-5ac3-89a2-5ddefd2a9ebc",
+                "5d6212b4-0afe-56eb-a0a2-813955140467__00e44be7-6318-5be8-8bd8-24e81c1a471b",
+                "60aac018-c8be-5669-85ef-892997b1a3ec__0294a9a9-aaf1-519b-b0fa-74af9aff366f",
+                "60aac018-c8be-5669-85ef-892997b1a3ec__3cf2f2c6-811f-5f69-8d05-9ed11f573b89",
+                "76890a89-5a6a-59d0-802f-79db17b3cfad__259d592a-fdf0-5559-a95f-f18ecfe2af02",
+                "76890a89-5a6a-59d0-802f-79db17b3cfad__aa41f1e8-137c-546d-a42f-a992a4be8d77",
+                "76890a89-5a6a-59d0-802f-79db17b3cfad__d966166a-3aac-55cb-99e5-24799ea0df38",
+                "7a745ba8-00d8-59b8-8e7e-3a45a7f5cc76__1b1eb6ba-e6e2-5c70-b995-f9c8d6d999bb",
+                "7a745ba8-00d8-59b8-8e7e-3a45a7f5cc76__8b78847e-84a4-516e-aa13-6d2bbcbdc96b",
+                "7ed77b7f-4356-5aa7-9472-16949c00aafb__05933697-619b-559f-b28b-b8cabfb6a456",
+                "7ed77b7f-4356-5aa7-9472-16949c00aafb__75a00c43-a33f-5343-9941-b9122118a777",
+                "846f2d8b-b721-5258-a3e4-720495320e78__4ba34626-98a9-5f87-8656-cb6145ea093f",
+                "846f2d8b-b721-5258-a3e4-720495320e78__50ac008f-33b6-5459-bdc6-2f4907e381fb",
+                "846f2d8b-b721-5258-a3e4-720495320e78__db861200-6524-5ea4-99e0-081ad801db60",
+                "93ea44b7-06e8-5f73-86c9-fcf12b8afcca__c1ccce27-0177-52bd-bdbe-906289266cf3",
+                "9dcb0aab-696f-5a0c-9b65-5f06e859aa9c__0b760cc7-5751-5a61-986d-c7571c10add6",
+                "9dcb0aab-696f-5a0c-9b65-5f06e859aa9c__22a41009-1ee8-57c5-bb7c-cb6b308f51c6",
+                "9dcb0aab-696f-5a0c-9b65-5f06e859aa9c__26ebc4d9-e4fc-5be6-9885-ce7411734366",
+                "a77b2346-51c8-5eef-b743-9cf1ef8d40d7__49d4dda3-4911-573d-808d-d129acbc0308",
+                "a8a46ef9-88dd-595c-813e-db693d0adcb1__66067664-f72a-5f9a-a288-a9ead14a7573",
+                "a8a46ef9-88dd-595c-813e-db693d0adcb1__e0aa9af6-760c-594e-8abf-11f4fb7c5ef5",
+                "b82ccdd2-b0e1-50ee-8213-625f677ac416__6ec9a81d-86a3-5e21-aca2-8802a9fb468d",
+                "ba343927-2814-5eb7-b056-ba7bb00a9156__fe427543-2071-5a8a-8b8f-521f9ceae2a2",
+                "bedaf677-a731-56e8-bf2a-30e09c8dff58__2d346185-0004-54cf-a7cd-7a86c84d3bc7",
+                "c1c4f634-8132-5705-af1b-0ad83deeb31f__1ec4fd00-9df3-52eb-9ef3-642024e5d0be",
+                "c63e4cc9-55f8-5e36-af46-62962a586864__2a8a1702-a7ad-5f43-9ffa-4bdeb527ae67",
+                "c63e4cc9-55f8-5e36-af46-62962a586864__f5bc3dfc-0c15-587e-905a-6086b34a8ba2",
+                "df5bdaf7-8af6-5cd1-90d2-d312effb9253__20436e2e-72fb-5dd9-8f4d-861104db4467",
+                "df5bdaf7-8af6-5cd1-90d2-d312effb9253__4af85b34-8264-5f8b-a753-ae7fd13c2a35",
+                "df5bdaf7-8af6-5cd1-90d2-d312effb9253__9f7fb0ee-3c9d-5943-8337-3bf4feac7d9f",
+                "df5bdaf7-8af6-5cd1-90d2-d312effb9253__a6692210-0397-5f26-8b4e-0c9bfe642e65",
+                "e9cd4e0d-1104-5954-b7b7-cef596d5a5ae__53fcccc4-4f70-5ef6-955f-c54285766934",
+                "eb13616d-1be6-5a9b-bd19-e7e9d27d500a__9b5b5412-1470-5ffc-91d4-95e07742f548",
+                "eb13616d-1be6-5a9b-bd19-e7e9d27d500a__ab289407-1399-5791-9858-127dbc91d8e4",
+                "eb34811e-627e-5eae-b16b-4c90f7b97162__571a6955-10da-5826-9223-f45db6371b55",
+                "eb34811e-627e-5eae-b16b-4c90f7b97162__7dc97ffe-4aca-55db-a58b-e6856d5e4cac",
+                "eb34811e-627e-5eae-b16b-4c90f7b97162__98932f26-ce6c-5932-88eb-df0720b5e752",
+                "ecad0df2-46d2-5a14-95c5-788b8136f83c__73eb3a71-91c0-5b7d-a037-20b39dbba1f6",
+                "ecad0df2-46d2-5a14-95c5-788b8136f83c__dfc37872-0d4b-5597-b4af-fb5603ba36e6",
+                "f8fe22f9-ed0b-57d8-8470-e709363a1e32__1c4a5279-82a0-54b8-a1c9-9462eb657c92",
+                "f8fe22f9-ed0b-57d8-8470-e709363a1e32__36733bdc-ed04-5b04-b402-58bf774c9976",
+                "f8fe22f9-ed0b-57d8-8470-e709363a1e32__94aeb14f-c6ca-5ee9-9757-d40da10f379d"
+              ],
+              "kappa": {
+                "kappa": 0.7493734335839599,
+                "lo": 0.6003247293921732,
+                "hi": 0.8747926247542317,
+                "n": 60,
+                "agreement": 0.8333333333333334
+              },
+              "binary": {
+                "kappa": 0.8222748815165877,
+                "lo": 0.6491228070175439,
+                "hi": 0.9637681159420289,
+                "n": 60,
+                "agreement": 0.9166666666666666
+              },
+              "per_class": {
+                "Good Fit": {
+                  "n": 22,
+                  "agreement": 0.7727272727272727
+                },
+                "Potential Fit": {
+                  "n": 16,
+                  "agreement": 0.8125
+                },
+                "No Fit": {
+                  "n": 22,
+                  "agreement": 0.9090909090909091
+                }
+              },
+              "label_distribution": {
+                "Good Fit": 18,
+                "Potential Fit": 19,
+                "No Fit": 23
+              },
+              "note_fitted": "These cut points were fitted against the consensus reference on the pairs named in `fitted_on`. A kappa on the pairs a parameter was fitted on is not an out-of-sample result and may not be compared with the emitted label's kappa as though the two were measured the same way. `held_out` is the only figure here that may."
+            },
+            "held_out": {
+              "cut_points": {
+                "no_fit_below": 21.5,
+                "good_fit_at_or_above": 49.0
+              },
+              "fitted_on": [
+                "00909f22-605e-5904-a53b-ec1b9b38d54f__11d652b8-a3db-5fb7-951b-d820fa655137",
+                "00909f22-605e-5904-a53b-ec1b9b38d54f__99ba1fb9-c99c-5abd-adb7-7557618a963a",
+                "1f26be02-51ac-5e5e-8acd-41e68b413b1d__a432e71d-c6e7-5e47-a107-e232f8834e40",
+                "22397d17-9ef9-579d-8c59-5fdb0b631a79__79b8908c-dfcf-5242-b9f0-88dc3305b8d3",
+                "22397d17-9ef9-579d-8c59-5fdb0b631a79__f27b1a78-d782-5c9d-b9f2-bd65e24d02c3",
+                "2a584887-901e-58f9-8a84-8665a51756c9__a85c9249-3e5a-5e35-b385-fd6c0c256611",
+                "352781ec-86e3-5363-bc65-7b6f79cdcfe2__9e743854-4886-5258-8bb8-4b1ac332f52e",
+                "4aa0db66-b017-53c2-9cb6-c320f63b5f6f__d9f513d7-de07-53a0-9af8-495572cb308b",
+                "4b8d2c54-1699-5ef7-b227-340fb69c8aee__8bb84309-4436-571f-9ffb-f9b51c60ffd5",
+                "542c1d55-03ef-59a3-b099-ea6c826fc3da__314931c8-37a1-5a87-9b72-bd0d0513e55d",
+                "542c1d55-03ef-59a3-b099-ea6c826fc3da__8eb3f8ef-26fb-5d81-832b-5f5c9dfb7611",
+                "542c1d55-03ef-59a3-b099-ea6c826fc3da__91b5fdb2-6870-5ac3-89a2-5ddefd2a9ebc",
+                "60aac018-c8be-5669-85ef-892997b1a3ec__0294a9a9-aaf1-519b-b0fa-74af9aff366f",
+                "60aac018-c8be-5669-85ef-892997b1a3ec__3cf2f2c6-811f-5f69-8d05-9ed11f573b89",
+                "76890a89-5a6a-59d0-802f-79db17b3cfad__aa41f1e8-137c-546d-a42f-a992a4be8d77",
+                "76890a89-5a6a-59d0-802f-79db17b3cfad__d966166a-3aac-55cb-99e5-24799ea0df38",
+                "7ed77b7f-4356-5aa7-9472-16949c00aafb__05933697-619b-559f-b28b-b8cabfb6a456",
+                "7ed77b7f-4356-5aa7-9472-16949c00aafb__75a00c43-a33f-5343-9941-b9122118a777",
+                "846f2d8b-b721-5258-a3e4-720495320e78__50ac008f-33b6-5459-bdc6-2f4907e381fb",
+                "9dcb0aab-696f-5a0c-9b65-5f06e859aa9c__22a41009-1ee8-57c5-bb7c-cb6b308f51c6",
+                "9dcb0aab-696f-5a0c-9b65-5f06e859aa9c__26ebc4d9-e4fc-5be6-9885-ce7411734366",
+                "a77b2346-51c8-5eef-b743-9cf1ef8d40d7__49d4dda3-4911-573d-808d-d129acbc0308",
+                "c1c4f634-8132-5705-af1b-0ad83deeb31f__1ec4fd00-9df3-52eb-9ef3-642024e5d0be",
+                "c63e4cc9-55f8-5e36-af46-62962a586864__2a8a1702-a7ad-5f43-9ffa-4bdeb527ae67",
+                "c63e4cc9-55f8-5e36-af46-62962a586864__f5bc3dfc-0c15-587e-905a-6086b34a8ba2",
+                "eb13616d-1be6-5a9b-bd19-e7e9d27d500a__ab289407-1399-5791-9858-127dbc91d8e4",
+                "eb34811e-627e-5eae-b16b-4c90f7b97162__571a6955-10da-5826-9223-f45db6371b55",
+                "eb34811e-627e-5eae-b16b-4c90f7b97162__98932f26-ce6c-5932-88eb-df0720b5e752",
+                "ecad0df2-46d2-5a14-95c5-788b8136f83c__73eb3a71-91c0-5b7d-a037-20b39dbba1f6",
+                "f8fe22f9-ed0b-57d8-8470-e709363a1e32__1c4a5279-82a0-54b8-a1c9-9462eb657c92"
+              ],
+              "quoted_on": [
+                "2a584887-901e-58f9-8a84-8665a51756c9__67f39fa8-f6ce-57f8-8abc-a7c1b8f7aff4",
+                "352781ec-86e3-5363-bc65-7b6f79cdcfe2__9a11e001-e67c-5eaa-8950-109f24bf53fe",
+                "4aa0db66-b017-53c2-9cb6-c320f63b5f6f__8e15e56a-99b2-5e2b-97ac-7df6373c668c",
+                "4b8d2c54-1699-5ef7-b227-340fb69c8aee__d6ec1fa1-7599-5249-a39b-8048b7ae7f81",
+                "542c1d55-03ef-59a3-b099-ea6c826fc3da__22bbac82-4f0d-5a9f-bcf3-bc35fc328150",
+                "542c1d55-03ef-59a3-b099-ea6c826fc3da__27c48f67-5206-507e-8a5b-f34054e2075d",
+                "542c1d55-03ef-59a3-b099-ea6c826fc3da__298f675d-239c-58a2-ad84-c824be14cd62",
+                "5d6212b4-0afe-56eb-a0a2-813955140467__00e44be7-6318-5be8-8bd8-24e81c1a471b",
+                "76890a89-5a6a-59d0-802f-79db17b3cfad__259d592a-fdf0-5559-a95f-f18ecfe2af02",
+                "7a745ba8-00d8-59b8-8e7e-3a45a7f5cc76__1b1eb6ba-e6e2-5c70-b995-f9c8d6d999bb",
+                "7a745ba8-00d8-59b8-8e7e-3a45a7f5cc76__8b78847e-84a4-516e-aa13-6d2bbcbdc96b",
+                "846f2d8b-b721-5258-a3e4-720495320e78__4ba34626-98a9-5f87-8656-cb6145ea093f",
+                "846f2d8b-b721-5258-a3e4-720495320e78__db861200-6524-5ea4-99e0-081ad801db60",
+                "93ea44b7-06e8-5f73-86c9-fcf12b8afcca__c1ccce27-0177-52bd-bdbe-906289266cf3",
+                "9dcb0aab-696f-5a0c-9b65-5f06e859aa9c__0b760cc7-5751-5a61-986d-c7571c10add6",
+                "a8a46ef9-88dd-595c-813e-db693d0adcb1__66067664-f72a-5f9a-a288-a9ead14a7573",
+                "a8a46ef9-88dd-595c-813e-db693d0adcb1__e0aa9af6-760c-594e-8abf-11f4fb7c5ef5",
+                "b82ccdd2-b0e1-50ee-8213-625f677ac416__6ec9a81d-86a3-5e21-aca2-8802a9fb468d",
+                "ba343927-2814-5eb7-b056-ba7bb00a9156__fe427543-2071-5a8a-8b8f-521f9ceae2a2",
+                "bedaf677-a731-56e8-bf2a-30e09c8dff58__2d346185-0004-54cf-a7cd-7a86c84d3bc7",
+                "df5bdaf7-8af6-5cd1-90d2-d312effb9253__20436e2e-72fb-5dd9-8f4d-861104db4467",
+                "df5bdaf7-8af6-5cd1-90d2-d312effb9253__4af85b34-8264-5f8b-a753-ae7fd13c2a35",
+                "df5bdaf7-8af6-5cd1-90d2-d312effb9253__9f7fb0ee-3c9d-5943-8337-3bf4feac7d9f",
+                "df5bdaf7-8af6-5cd1-90d2-d312effb9253__a6692210-0397-5f26-8b4e-0c9bfe642e65",
+                "e9cd4e0d-1104-5954-b7b7-cef596d5a5ae__53fcccc4-4f70-5ef6-955f-c54285766934",
+                "eb13616d-1be6-5a9b-bd19-e7e9d27d500a__9b5b5412-1470-5ffc-91d4-95e07742f548",
+                "eb34811e-627e-5eae-b16b-4c90f7b97162__7dc97ffe-4aca-55db-a58b-e6856d5e4cac",
+                "ecad0df2-46d2-5a14-95c5-788b8136f83c__dfc37872-0d4b-5597-b4af-fb5603ba36e6",
+                "f8fe22f9-ed0b-57d8-8470-e709363a1e32__36733bdc-ed04-5b04-b402-58bf774c9976",
+                "f8fe22f9-ed0b-57d8-8470-e709363a1e32__94aeb14f-c6ca-5ee9-9757-d40da10f379d"
+              ],
+              "n_fit": 30,
+              "n": 30,
+              "kappa": {
+                "kappa": 0.6013289036544851,
+                "lo": 0.3648208469055375,
+                "hi": 0.8,
+                "n": 30,
+                "agreement": 0.7333333333333333
+              },
+              "binary": {
+                "kappa": 0.5909090909090909,
+                "lo": 0.3076923076923077,
+                "hi": 0.8571428571428572,
+                "n": 30,
+                "agreement": 0.8
+              },
+              "per_class": {
+                "Good Fit": {
+                  "n": 11,
+                  "agreement": 0.6363636363636364
+                },
+                "Potential Fit": {
+                  "n": 9,
+                  "agreement": 0.6666666666666666
+                },
+                "No Fit": {
+                  "n": 10,
+                  "agreement": 0.9
+                }
+              },
+              "note": "fitted on one seeded half of the consensus pairs and quoted on the other. This is the only out-of-sample figure in this block, and its n is half the consensus coverage, so its interval is wide by construction and is reported as it fell."
+            },
+            "note_fitted": "These cut points were fitted against the consensus reference on the pairs named in `fitted_on`. A kappa on the pairs a parameter was fitted on is not an out-of-sample result and may not be compared with the emitted label's kappa as though the two were measured the same way. `held_out` is the only figure here that may.",
+            "annotators": [
+              "van",
+              "yc"
+            ],
+            "n_multi_labelled": 126,
+            "n_agreed": 60,
+            "coverage": 0.47619047619047616,
+            "note_selection": "The pairs two annotators agreed on are not a random subsample: they are the pairs both found unambiguous. A judge scores higher there for the reason a student scores higher on the easy half of an exam, so this is an UPPER estimate of its performance on the stratum, never an unbiased one. It is also why consensus cannot license substitution \u2014 the pairs it excludes are exactly the population a substituting judge would label alone, with no reference and no appeal (design spec \u00a73)."
+          }
+        }
+      },
+      "consensus": {
+        "annotators": [
+          "van",
+          "yc"
+        ],
+        "n_multi_labelled": 126,
+        "n_agreed": 60,
+        "coverage": 0.47619047619047616,
+        "label_distribution": {
+          "Good Fit": 22,
+          "Potential Fit": 16,
+          "No Fit": 22
+        },
+        "note_selection": "The pairs two annotators agreed on are not a random subsample: they are the pairs both found unambiguous. A judge scores higher there for the reason a student scores higher on the easy half of an exam, so this is an UPPER estimate of its performance on the stratum, never an unbiased one. It is also why consensus cannot license substitution \u2014 the pairs it excludes are exactly the population a substituting judge would label alone, with no reference and no appeal (design spec \u00a73).",
+        "vs_llm": {
+          "n": 60,
+          "three_class": {
+            "kappa": 0.48275862068965514,
+            "lo": 0.32400087834870445,
+            "hi": 0.6410371318822022,
+            "n": 60,
+            "agreement": 0.65
+          },
+          "binary": {
+            "kappa": 0.7285067873303168,
+            "lo": 0.5471392146863845,
+            "hi": 0.8832611832611824,
+            "n": 60,
+            "agreement": 0.8666666666666667
+          },
+          "per_class": {
+            "Good Fit": {
+              "n": 22,
+              "agreement": 0.2727272727272727
+            },
+            "Potential Fit": {
+              "n": 16,
+              "agreement": 0.75
+            },
+            "No Fit": {
+              "n": 22,
+              "agreement": 0.9545454545454546
+            }
+          },
+          "confusion_rows_consensus": {
+            "Good Fit": {
+              "Good Fit": 6,
+              "Potential Fit": 13,
+              "No Fit": 3
+            },
+            "Potential Fit": {
+              "Good Fit": 0,
+              "Potential Fit": 12,
+              "No Fit": 4
+            },
+            "No Fit": {
+              "Good Fit": 0,
+              "Potential Fit": 1,
+              "No Fit": 21
+            }
+          },
+          "confusion_rows_llm": {
+            "Good Fit": {
+              "Good Fit": 6,
+              "Potential Fit": 0,
+              "No Fit": 0
+            },
+            "Potential Fit": {
+              "Good Fit": 13,
+              "Potential Fit": 12,
+              "No Fit": 1
+            },
+            "No Fit": {
+              "Good Fit": 3,
+              "Potential Fit": 4,
+              "No Fit": 21
+            }
+          }
+        }
+      },
+      "interchangeability": {
+        "n": 126,
+        "band": 0.05,
+        "rows": {
+          "van": {
+            "retained": "van",
+            "replaced": "yc",
+            "n": 126,
+            "human_pair": {
+              "three_class": {
+                "kappa": 0.25020286718961315,
+                "lo": 0.13366684597183542,
+                "hi": 0.3660941586529765,
+                "n": 126,
+                "agreement": 0.47619047619047616
+              },
+              "binary": {
+                "kappa": 0.4191114836546521,
+                "lo": 0.2702668336604477,
+                "hi": 0.5706730233935445,
+                "n": 126,
+                "agreement": 0.7380952380952381
+              },
+              "per_class": {
+                "Good Fit": {
+                  "n": 65,
+                  "agreement": 0.3384615384615385
+                },
+                "Potential Fit": {
+                  "n": 37,
+                  "agreement": 0.43243243243243246
+                },
+                "No Fit": {
+                  "n": 24,
+                  "agreement": 0.9166666666666666
+                }
+              }
+            },
+            "judge": {
+              "three_class": {
+                "kappa": 0.17717820931431516,
+                "lo": 0.07965533205993658,
+                "hi": 0.2701030270944499,
+                "n": 126,
+                "agreement": 0.3968253968253968
+              },
+              "binary": {
+                "kappa": 0.43050847457627117,
+                "lo": 0.2857501748444805,
+                "hi": 0.5771873733904067,
+                "n": 126,
+                "agreement": 0.746031746031746
+              },
+              "per_class": {
+                "Good Fit": {
+                  "n": 65,
+                  "agreement": 0.12307692307692308
+                },
+                "Potential Fit": {
+                  "n": 37,
+                  "agreement": 0.5405405405405406
+                },
+                "No Fit": {
+                  "n": 24,
+                  "agreement": 0.9166666666666666
+                }
+              }
+            },
+            "verdict": {
+              "three_class": "fail",
+              "binary": "tie"
+            }
+          },
+          "yc": {
+            "retained": "yc",
+            "replaced": "van",
+            "n": 126,
+            "human_pair": {
+              "three_class": {
+                "kappa": 0.25020286718961315,
+                "lo": 0.13366684597183542,
+                "hi": 0.3660941586529765,
+                "n": 126,
+                "agreement": 0.47619047619047616
+              },
+              "binary": {
+                "kappa": 0.4191114836546521,
+                "lo": 0.2702668336604477,
+                "hi": 0.5706730233935445,
+                "n": 126,
+                "agreement": 0.7380952380952381
+              },
+              "per_class": {
+                "Good Fit": {
+                  "n": 29,
+                  "agreement": 0.7586206896551724
+                },
+                "Potential Fit": {
+                  "n": 44,
+                  "agreement": 0.36363636363636365
+                },
+                "No Fit": {
+                  "n": 53,
+                  "agreement": 0.41509433962264153
+                }
+              }
+            },
+            "judge": {
+              "three_class": {
+                "kappa": 0.4455445544554456,
+                "lo": 0.3126915526866018,
+                "hi": 0.5710772986727186,
+                "n": 126,
+                "agreement": 0.6507936507936508
+              },
+              "binary": {
+                "kappa": 0.5918631769888572,
+                "lo": 0.44336753022697745,
+                "hi": 0.7285239849911466,
+                "n": 126,
+                "agreement": 0.8015873015873016
+              },
+              "per_class": {
+                "Good Fit": {
+                  "n": 29,
+                  "agreement": 0.2413793103448276
+                },
+                "Potential Fit": {
+                  "n": 44,
+                  "agreement": 0.7954545454545454
+                },
+                "No Fit": {
+                  "n": 53,
+                  "agreement": 0.7547169811320755
+                }
+              }
+            },
+            "verdict": {
+              "three_class": "pass",
+              "binary": "pass"
+            }
+          }
+        },
+        "per_class": {
+          "Good Fit": {
+            "bar": 0.4,
+            "human_pair": {
+              "van": 0.3384615384615385,
+              "yc": 0.7586206896551724
+            },
+            "judge": {
+              "van": 0.12307692307692308,
+              "yc": 0.2413793103448276
+            },
+            "unidentified_by_instrument": true,
+            "judge_clears_bar": {
+              "van": false,
+              "yc": false
+            }
+          },
+          "Potential Fit": {
+            "bar": 0.4,
+            "human_pair": {
+              "van": 0.43243243243243246,
+              "yc": 0.36363636363636365
+            },
+            "judge": {
+              "van": 0.5405405405405406,
+              "yc": 0.7954545454545454
+            },
+            "unidentified_by_instrument": true,
+            "judge_clears_bar": {
+              "van": true,
+              "yc": true
+            }
+          },
+          "No Fit": {
+            "bar": 0.4,
+            "human_pair": {
+              "van": 0.9166666666666666,
+              "yc": 0.41509433962264153
+            },
+            "judge": {
+              "van": 0.9166666666666666,
+              "yc": 0.7547169811320755
+            },
+            "unidentified_by_instrument": false,
+            "judge_clears_bar": {
+              "van": true,
+              "yc": true
+            }
+          }
+        },
+        "note_not_separated": "Every interval in this block overlaps every other at this n. `pass` means the judge partners the retained annotator better than the replaced one did by more than the declared band, not that the two are distinguishable.",
+        "note_licences": "Passing licenses the judge as a *second* annotator in a double-labelling wave, where being as unreliable as a human is the specification. It does not license the judge as an answer key: no agreement figure between two fallible raters is a claim about correctness. D36 stays unmade."
+      },
+      "n_scored": 400,
+      "n_dispatched": 1200,
+      "status": "scored",
       "self_consistency": {},
       "not_self_consistency": {
         "run5_vs_run7": {
@@ -978,6 +2761,52 @@
             "scored": 0
           },
           "why": "these two runs differ on instrument or model, so their agreement is a comparison between judges and not this judge repeating itself (D38)"
+        },
+        "run5_vs_run9": {
+          "run_x": {
+            "models": [
+              "claude-haiku-4-5"
+            ],
+            "agents": [
+              "75e00ea3d0c34ab92acd7e6436de2921a3b80b2ff4e8106c88bc7580d048cd23"
+            ],
+            "rows": 400,
+            "scored": 0
+          },
+          "run_y": {
+            "models": [
+              "claude-haiku-4-5"
+            ],
+            "agents": [
+              "5d986c8232ea3c985ebf8e3044049d3dd7ba709ad7037043d726aa9590bc77a3"
+            ],
+            "rows": 400,
+            "scored": 400
+          },
+          "why": "these two runs differ on instrument or model, so their agreement is a comparison between judges and not this judge repeating itself (D38)"
+        },
+        "run7_vs_run9": {
+          "run_x": {
+            "models": [
+              "claude-sonnet-5"
+            ],
+            "agents": [
+              "75e00ea3d0c34ab92acd7e6436de2921a3b80b2ff4e8106c88bc7580d048cd23"
+            ],
+            "rows": 400,
+            "scored": 0
+          },
+          "run_y": {
+            "models": [
+              "claude-haiku-4-5"
+            ],
+            "agents": [
+              "5d986c8232ea3c985ebf8e3044049d3dd7ba709ad7037043d726aa9590bc77a3"
+            ],
+            "rows": 400,
+            "scored": 400
+          },
+          "why": "these two runs differ on instrument or model, so their agreement is a comparison between judges and not this judge repeating itself (D38)"
         }
       },
       "run_provenance": {
@@ -1000,6 +2829,16 @@
           ],
           "rows": 400,
           "scored": 0
+        },
+        "9": {
+          "models": [
+            "claude-haiku-4-5"
+          ],
+          "agents": [
+            "5d986c8232ea3c985ebf8e3044049d3dd7ba709ad7037043d726aa9590bc77a3"
+          ],
+          "rows": 400,
+          "scored": 400
         }
       }
     },
@@ -1008,7 +2847,8 @@
       "file": "/home/yuchen/project/intelligent-candidate-screener/docs/data/manifests/llm-a2-targeted.csv",
       "runs": [
         6,
-        8
+        8,
+        10
       ],
       "coverage": {
         "6": {
@@ -1026,16 +2866,157 @@
           "n_quarantined": 0,
           "n_missing": 0,
           "complete": true
+        },
+        "10": {
+          "run": 10,
+          "n_dispatched": 200,
+          "n_answered": 200,
+          "n_quarantined": 0,
+          "n_missing": 0,
+          "complete": true
         }
       },
       "annotators": {
         "van": 200,
         "yc": 200
       },
-      "llm_model": "",
-      "models_on_file": {},
-      "n_llm": 0,
-      "vs_llm": {},
+      "llm_model": "claude-haiku-4-5",
+      "models_on_file": {
+        "claude-haiku-4-5": 200
+      },
+      "n_llm": 200,
+      "vs_llm": {
+        "van": {
+          "n": 200,
+          "three_class": {
+            "kappa": 0.19207317073170727,
+            "lo": 0.09673670863303124,
+            "hi": 0.29606132982762884,
+            "n": 200,
+            "agreement": 0.47
+          },
+          "binary": {
+            "kappa": 0.3393009377664109,
+            "lo": 0.2024496180937898,
+            "hi": 0.4733668480910549,
+            "n": 200,
+            "agreement": 0.69
+          },
+          "per_class": {
+            "Good Fit": {
+              "n": 60,
+              "agreement": 0.18333333333333332
+            },
+            "Potential Fit": {
+              "n": 68,
+              "agreement": 0.5735294117647058
+            },
+            "No Fit": {
+              "n": 72,
+              "agreement": 0.6111111111111112
+            }
+          },
+          "confusion_rows_first": {
+            "Good Fit": {
+              "Good Fit": 11,
+              "Potential Fit": 37,
+              "No Fit": 12
+            },
+            "Potential Fit": {
+              "Good Fit": 7,
+              "Potential Fit": 39,
+              "No Fit": 22
+            },
+            "No Fit": {
+              "Good Fit": 1,
+              "Potential Fit": 27,
+              "No Fit": 44
+            }
+          },
+          "confusion_rows_second": {
+            "Good Fit": {
+              "Good Fit": 11,
+              "Potential Fit": 7,
+              "No Fit": 1
+            },
+            "Potential Fit": {
+              "Good Fit": 37,
+              "Potential Fit": 39,
+              "No Fit": 27
+            },
+            "No Fit": {
+              "Good Fit": 12,
+              "Potential Fit": 22,
+              "No Fit": 44
+            }
+          }
+        },
+        "yc": {
+          "n": 200,
+          "three_class": {
+            "kappa": 0.2501595405232929,
+            "lo": 0.15415601350504668,
+            "hi": 0.34440289806753527,
+            "n": 200,
+            "agreement": 0.53
+          },
+          "binary": {
+            "kappa": 0.36244204018547144,
+            "lo": 0.24241135723058166,
+            "hi": 0.47699757869249393,
+            "n": 200,
+            "agreement": 0.67
+          },
+          "per_class": {
+            "Good Fit": {
+              "n": 33,
+              "agreement": 0.30303030303030304
+            },
+            "Potential Fit": {
+              "n": 51,
+              "agreement": 0.6274509803921569
+            },
+            "No Fit": {
+              "n": 116,
+              "agreement": 0.5517241379310345
+            }
+          },
+          "confusion_rows_first": {
+            "Good Fit": {
+              "Good Fit": 10,
+              "Potential Fit": 20,
+              "No Fit": 3
+            },
+            "Potential Fit": {
+              "Good Fit": 8,
+              "Potential Fit": 32,
+              "No Fit": 11
+            },
+            "No Fit": {
+              "Good Fit": 1,
+              "Potential Fit": 51,
+              "No Fit": 64
+            }
+          },
+          "confusion_rows_second": {
+            "Good Fit": {
+              "Good Fit": 10,
+              "Potential Fit": 8,
+              "No Fit": 1
+            },
+            "Potential Fit": {
+              "Good Fit": 20,
+              "Potential Fit": 32,
+              "No Fit": 51
+            },
+            "No Fit": {
+              "Good Fit": 3,
+              "Potential Fit": 11,
+              "No Fit": 64
+            }
+          }
+        }
+      },
       "human_ceiling": {
         "van_vs_yc": {
           "n": 200,
@@ -1104,6 +3085,761 @@
         }
       },
       "by_instrument": {
+        "5d986c8232ea3c985ebf8e3044049d3dd7ba709ad7037043d726aa9590bc77a3": {
+          "claude-haiku-4-5": {
+            "n_llm": 200,
+            "vs_llm": {
+              "van": {
+                "n": 200,
+                "three_class": {
+                  "kappa": 0.19207317073170727,
+                  "lo": 0.09673670863303124,
+                  "hi": 0.29606132982762884,
+                  "n": 200,
+                  "agreement": 0.47
+                },
+                "binary": {
+                  "kappa": 0.3393009377664109,
+                  "lo": 0.2024496180937898,
+                  "hi": 0.4733668480910549,
+                  "n": 200,
+                  "agreement": 0.69
+                },
+                "per_class": {
+                  "Good Fit": {
+                    "n": 60,
+                    "agreement": 0.18333333333333332
+                  },
+                  "Potential Fit": {
+                    "n": 68,
+                    "agreement": 0.5735294117647058
+                  },
+                  "No Fit": {
+                    "n": 72,
+                    "agreement": 0.6111111111111112
+                  }
+                },
+                "confusion_rows_first": {
+                  "Good Fit": {
+                    "Good Fit": 11,
+                    "Potential Fit": 37,
+                    "No Fit": 12
+                  },
+                  "Potential Fit": {
+                    "Good Fit": 7,
+                    "Potential Fit": 39,
+                    "No Fit": 22
+                  },
+                  "No Fit": {
+                    "Good Fit": 1,
+                    "Potential Fit": 27,
+                    "No Fit": 44
+                  }
+                },
+                "confusion_rows_second": {
+                  "Good Fit": {
+                    "Good Fit": 11,
+                    "Potential Fit": 7,
+                    "No Fit": 1
+                  },
+                  "Potential Fit": {
+                    "Good Fit": 37,
+                    "Potential Fit": 39,
+                    "No Fit": 27
+                  },
+                  "No Fit": {
+                    "Good Fit": 12,
+                    "Potential Fit": 22,
+                    "No Fit": 44
+                  }
+                }
+              },
+              "yc": {
+                "n": 200,
+                "three_class": {
+                  "kappa": 0.2501595405232929,
+                  "lo": 0.15415601350504668,
+                  "hi": 0.34440289806753527,
+                  "n": 200,
+                  "agreement": 0.53
+                },
+                "binary": {
+                  "kappa": 0.36244204018547144,
+                  "lo": 0.24241135723058166,
+                  "hi": 0.47699757869249393,
+                  "n": 200,
+                  "agreement": 0.67
+                },
+                "per_class": {
+                  "Good Fit": {
+                    "n": 33,
+                    "agreement": 0.30303030303030304
+                  },
+                  "Potential Fit": {
+                    "n": 51,
+                    "agreement": 0.6274509803921569
+                  },
+                  "No Fit": {
+                    "n": 116,
+                    "agreement": 0.5517241379310345
+                  }
+                },
+                "confusion_rows_first": {
+                  "Good Fit": {
+                    "Good Fit": 10,
+                    "Potential Fit": 20,
+                    "No Fit": 3
+                  },
+                  "Potential Fit": {
+                    "Good Fit": 8,
+                    "Potential Fit": 32,
+                    "No Fit": 11
+                  },
+                  "No Fit": {
+                    "Good Fit": 1,
+                    "Potential Fit": 51,
+                    "No Fit": 64
+                  }
+                },
+                "confusion_rows_second": {
+                  "Good Fit": {
+                    "Good Fit": 10,
+                    "Potential Fit": 8,
+                    "No Fit": 1
+                  },
+                  "Potential Fit": {
+                    "Good Fit": 20,
+                    "Potential Fit": 32,
+                    "No Fit": 51
+                  },
+                  "No Fit": {
+                    "Good Fit": 3,
+                    "Potential Fit": 11,
+                    "No Fit": 64
+                  }
+                }
+              }
+            },
+            "consensus": {
+              "annotators": [
+                "van",
+                "yc"
+              ],
+              "n_multi_labelled": 200,
+              "n_agreed": 97,
+              "coverage": 0.485,
+              "label_distribution": {
+                "Good Fit": 18,
+                "Potential Fit": 22,
+                "No Fit": 57
+              },
+              "note_selection": "The pairs two annotators agreed on are not a random subsample: they are the pairs both found unambiguous. A judge scores higher there for the reason a student scores higher on the easy half of an exam, so this is an UPPER estimate of its performance on the stratum, never an unbiased one. It is also why consensus cannot license substitution \u2014 the pairs it excludes are exactly the population a substituting judge would label alone, with no reference and no appeal (design spec \u00a73).",
+              "vs_llm": {
+                "n": 97,
+                "three_class": {
+                  "kappa": 0.38499471644945404,
+                  "lo": 0.2391423620079163,
+                  "hi": 0.5303658149051849,
+                  "n": 97,
+                  "agreement": 0.6288659793814433
+                },
+                "binary": {
+                  "kappa": 0.5488372093023255,
+                  "lo": 0.3847584776938595,
+                  "hi": 0.7103334888704045,
+                  "n": 97,
+                  "agreement": 0.7731958762886598
+                },
+                "per_class": {
+                  "Good Fit": {
+                    "n": 18,
+                    "agreement": 0.3888888888888889
+                  },
+                  "Potential Fit": {
+                    "n": 22,
+                    "agreement": 0.5909090909090909
+                  },
+                  "No Fit": {
+                    "n": 57,
+                    "agreement": 0.7192982456140351
+                  }
+                },
+                "confusion_rows_consensus": {
+                  "Good Fit": {
+                    "Good Fit": 7,
+                    "Potential Fit": 9,
+                    "No Fit": 2
+                  },
+                  "Potential Fit": {
+                    "Good Fit": 5,
+                    "Potential Fit": 13,
+                    "No Fit": 4
+                  },
+                  "No Fit": {
+                    "Good Fit": 0,
+                    "Potential Fit": 16,
+                    "No Fit": 41
+                  }
+                },
+                "confusion_rows_llm": {
+                  "Good Fit": {
+                    "Good Fit": 7,
+                    "Potential Fit": 5,
+                    "No Fit": 0
+                  },
+                  "Potential Fit": {
+                    "Good Fit": 9,
+                    "Potential Fit": 13,
+                    "No Fit": 16
+                  },
+                  "No Fit": {
+                    "Good Fit": 2,
+                    "Potential Fit": 4,
+                    "No Fit": 41
+                  }
+                }
+              }
+            },
+            "interchangeability": {
+              "n": 200,
+              "band": 0.05,
+              "rows": {
+                "van": {
+                  "retained": "van",
+                  "replaced": "yc",
+                  "n": 200,
+                  "human_pair": {
+                    "three_class": {
+                      "kappa": 0.2137404580152672,
+                      "lo": 0.11873520291161638,
+                      "hi": 0.31156156393315204,
+                      "n": 200,
+                      "agreement": 0.485
+                    },
+                    "binary": {
+                      "kappa": 0.2917304747320061,
+                      "lo": 0.171911961335044,
+                      "hi": 0.4029604623056392,
+                      "n": 200,
+                      "agreement": 0.63
+                    },
+                    "per_class": {
+                      "Good Fit": {
+                        "n": 60,
+                        "agreement": 0.3
+                      },
+                      "Potential Fit": {
+                        "n": 68,
+                        "agreement": 0.3235294117647059
+                      },
+                      "No Fit": {
+                        "n": 72,
+                        "agreement": 0.7916666666666666
+                      }
+                    }
+                  },
+                  "judge": {
+                    "three_class": {
+                      "kappa": 0.19207317073170727,
+                      "lo": 0.09318363568123458,
+                      "hi": 0.29170892685177485,
+                      "n": 200,
+                      "agreement": 0.47
+                    },
+                    "binary": {
+                      "kappa": 0.3393009377664109,
+                      "lo": 0.20307303403885532,
+                      "hi": 0.4721297714735479,
+                      "n": 200,
+                      "agreement": 0.69
+                    },
+                    "per_class": {
+                      "Good Fit": {
+                        "n": 60,
+                        "agreement": 0.18333333333333332
+                      },
+                      "Potential Fit": {
+                        "n": 68,
+                        "agreement": 0.5735294117647058
+                      },
+                      "No Fit": {
+                        "n": 72,
+                        "agreement": 0.6111111111111112
+                      }
+                    }
+                  },
+                  "verdict": {
+                    "three_class": "tie",
+                    "binary": "tie"
+                  }
+                },
+                "yc": {
+                  "retained": "yc",
+                  "replaced": "van",
+                  "n": 200,
+                  "human_pair": {
+                    "three_class": {
+                      "kappa": 0.2137404580152672,
+                      "lo": 0.11873520291161638,
+                      "hi": 0.31156156393315204,
+                      "n": 200,
+                      "agreement": 0.485
+                    },
+                    "binary": {
+                      "kappa": 0.2917304747320061,
+                      "lo": 0.171911961335044,
+                      "hi": 0.4029604623056392,
+                      "n": 200,
+                      "agreement": 0.63
+                    },
+                    "per_class": {
+                      "Good Fit": {
+                        "n": 33,
+                        "agreement": 0.5454545454545454
+                      },
+                      "Potential Fit": {
+                        "n": 51,
+                        "agreement": 0.43137254901960786
+                      },
+                      "No Fit": {
+                        "n": 116,
+                        "agreement": 0.49137931034482757
+                      }
+                    }
+                  },
+                  "judge": {
+                    "three_class": {
+                      "kappa": 0.2501595405232929,
+                      "lo": 0.1550652414515029,
+                      "hi": 0.35470097859013633,
+                      "n": 200,
+                      "agreement": 0.53
+                    },
+                    "binary": {
+                      "kappa": 0.36244204018547144,
+                      "lo": 0.2480272374510708,
+                      "hi": 0.4836321122369446,
+                      "n": 200,
+                      "agreement": 0.67
+                    },
+                    "per_class": {
+                      "Good Fit": {
+                        "n": 33,
+                        "agreement": 0.30303030303030304
+                      },
+                      "Potential Fit": {
+                        "n": 51,
+                        "agreement": 0.6274509803921569
+                      },
+                      "No Fit": {
+                        "n": 116,
+                        "agreement": 0.5517241379310345
+                      }
+                    }
+                  },
+                  "verdict": {
+                    "three_class": "tie",
+                    "binary": "pass"
+                  }
+                }
+              },
+              "per_class": {
+                "Good Fit": {
+                  "bar": 0.4,
+                  "human_pair": {
+                    "van": 0.3,
+                    "yc": 0.5454545454545454
+                  },
+                  "judge": {
+                    "van": 0.18333333333333332,
+                    "yc": 0.30303030303030304
+                  },
+                  "unidentified_by_instrument": true,
+                  "judge_clears_bar": {
+                    "van": false,
+                    "yc": false
+                  }
+                },
+                "Potential Fit": {
+                  "bar": 0.4,
+                  "human_pair": {
+                    "van": 0.3235294117647059,
+                    "yc": 0.43137254901960786
+                  },
+                  "judge": {
+                    "van": 0.5735294117647058,
+                    "yc": 0.6274509803921569
+                  },
+                  "unidentified_by_instrument": true,
+                  "judge_clears_bar": {
+                    "van": true,
+                    "yc": true
+                  }
+                },
+                "No Fit": {
+                  "bar": 0.4,
+                  "human_pair": {
+                    "van": 0.7916666666666666,
+                    "yc": 0.49137931034482757
+                  },
+                  "judge": {
+                    "van": 0.6111111111111112,
+                    "yc": 0.5517241379310345
+                  },
+                  "unidentified_by_instrument": false,
+                  "judge_clears_bar": {
+                    "van": true,
+                    "yc": true
+                  }
+                }
+              },
+              "note_not_separated": "Every interval in this block overlaps every other at this n. `pass` means the judge partners the retained annotator better than the replaced one did by more than the declared band, not that the two are distinguishable.",
+              "note_licences": "Passing licenses the judge as a *second* annotator in a double-labelling wave, where being as unreliable as a human is the specification. It does not license the judge as an answer key: no agreement figure between two fallible raters is a claim about correctness. D36 stays unmade."
+            },
+            "label_distribution": {
+              "Good Fit": 19,
+              "Potential Fit": 103,
+              "No Fit": 78
+            },
+            "score": {
+              "n": 97,
+              "seed": 0,
+              "distribution_by_reference_class": {
+                "Good Fit": {
+                  "n": 18,
+                  "mean": 65.33333333333333,
+                  "median": 65.0,
+                  "q1": 62.75,
+                  "q3": 74.75
+                },
+                "No Fit": {
+                  "n": 57,
+                  "mean": 23.105263157894736,
+                  "median": 18.0,
+                  "q1": 12.0,
+                  "q3": 32.0
+                },
+                "Potential Fit": {
+                  "n": 22,
+                  "mean": 50.54545454545455,
+                  "median": 50.0,
+                  "q1": 40.5,
+                  "q3": 65.0
+                }
+              },
+              "separation": {
+                "good_vs_potential": {
+                  "auc": 0.7563131313131313,
+                  "n_higher": 18,
+                  "n_lower": 22,
+                  "higher": "Good Fit",
+                  "lower": "Potential Fit"
+                },
+                "potential_vs_no": {
+                  "auc": 0.8883572567783095,
+                  "n_higher": 22,
+                  "n_lower": 57,
+                  "higher": "Potential Fit",
+                  "lower": "No Fit"
+                },
+                "good_vs_no": {
+                  "auc": 0.9668615984405458,
+                  "n_higher": 18,
+                  "n_lower": 57,
+                  "higher": "Good Fit",
+                  "lower": "No Fit"
+                }
+              },
+              "fitted_full": {
+                "cut_points": {
+                  "no_fit_below": 51.0,
+                  "good_fit_at_or_above": 55.5
+                },
+                "n": 97,
+                "fitted_on": [
+                  "0b04e287-8e84-594b-b448-98ab6725580f__340fde1d-aa87-5f15-83f2-0d5c4689d876",
+                  "0b04e287-8e84-594b-b448-98ab6725580f__d2d03fab-94f7-5e46-8181-04394ba65f80",
+                  "0b04e287-8e84-594b-b448-98ab6725580f__fc29d69e-5ddf-5ef6-8898-6ae11a623f66",
+                  "13d7da99-d0dc-5a93-aa2a-874b84dc70cd__0926c9fb-8762-5f43-9745-a597738d1159",
+                  "13d7da99-d0dc-5a93-aa2a-874b84dc70cd__3d3fc8f4-759e-586b-a323-06cc348f878f",
+                  "13d7da99-d0dc-5a93-aa2a-874b84dc70cd__a53dd65a-4248-5d75-b362-933babe6bb81",
+                  "2701fb0a-3208-5642-b9ed-c7475da92b79__0a46c8a3-af89-5f59-ac54-302fe79c046c",
+                  "2701fb0a-3208-5642-b9ed-c7475da92b79__7abafd55-47eb-5dd8-90ae-e9ba84c73e83",
+                  "2701fb0a-3208-5642-b9ed-c7475da92b79__c81a5ff8-0439-554a-a1b7-3c5625af6d40",
+                  "2701fb0a-3208-5642-b9ed-c7475da92b79__ccf47979-40ca-5e8a-835d-a274baf35ff3",
+                  "2701fb0a-3208-5642-b9ed-c7475da92b79__e4fd0734-f42b-56d5-960b-fa0aded4976e",
+                  "34c35393-ae1c-5bd9-be10-ef760e2335a6__3329cb9f-1213-51ce-84fc-38c22b186d96",
+                  "34c35393-ae1c-5bd9-be10-ef760e2335a6__6fdeaec8-1928-51f1-aefc-3283fae84c4b",
+                  "34c35393-ae1c-5bd9-be10-ef760e2335a6__d644a00c-7476-511b-adf0-8f3eed453a18",
+                  "466f6e3f-2a7d-5247-97cc-0089b94bca0f__20c5b812-c95c-5c02-8558-d14e5c64f417",
+                  "466f6e3f-2a7d-5247-97cc-0089b94bca0f__21e99480-a930-522e-8c6c-74a1faad3d64",
+                  "466f6e3f-2a7d-5247-97cc-0089b94bca0f__3c5752ef-9651-55a9-887b-099b5441ca2f",
+                  "466f6e3f-2a7d-5247-97cc-0089b94bca0f__6631c8cf-4bc1-56a0-892c-2e51818e6aa7",
+                  "466f6e3f-2a7d-5247-97cc-0089b94bca0f__6e7bde4d-79d9-5640-ae55-4e50053ee51d",
+                  "466f6e3f-2a7d-5247-97cc-0089b94bca0f__faf9e716-0b3a-5d00-93ed-0c9a4ff2301d",
+                  "4db862c9-85f1-529d-a2dd-a42e80a559c5__2299c455-4c6e-573c-a4c7-20eeca8dae88",
+                  "4db862c9-85f1-529d-a2dd-a42e80a559c5__35b4f8ae-c223-5a50-8642-0aab0d3a745d",
+                  "4db862c9-85f1-529d-a2dd-a42e80a559c5__a79dea42-aded-54df-9b5d-66d683d45be2",
+                  "4db862c9-85f1-529d-a2dd-a42e80a559c5__f4d1a459-4fc0-5f06-b70f-197da13ab948",
+                  "4e36c31f-4eb4-5509-b7ad-493d63573d80__371785c3-986a-5995-9d75-b27c52d3c2ad",
+                  "4e36c31f-4eb4-5509-b7ad-493d63573d80__5b8119cf-4b2b-5ee0-9720-eb94ad516f48",
+                  "4e36c31f-4eb4-5509-b7ad-493d63573d80__73805ac0-c0d2-5e46-9c76-8189096e6bac",
+                  "4e36c31f-4eb4-5509-b7ad-493d63573d80__7d0b00fa-1219-5f49-bda2-27ba8b2636a5",
+                  "4e36c31f-4eb4-5509-b7ad-493d63573d80__9620b250-7a7d-5a2e-846b-f4a6434676fa",
+                  "4e36c31f-4eb4-5509-b7ad-493d63573d80__a7134aac-16f7-5b6a-9a42-4e4de3fc9f24",
+                  "4e36c31f-4eb4-5509-b7ad-493d63573d80__e99f0fbd-0ef5-5990-bec9-97a5afca5b51",
+                  "4e36c31f-4eb4-5509-b7ad-493d63573d80__fd8ee08b-8b9f-5828-8dae-454a18414a2f",
+                  "624e4a73-e337-5dad-8e9a-84df8528f548__4d8619fe-d3b4-5549-988c-55c42e04c55d",
+                  "624e4a73-e337-5dad-8e9a-84df8528f548__59dfd08f-fa42-5d34-88c2-109e0ad6e837",
+                  "624e4a73-e337-5dad-8e9a-84df8528f548__8c65c10e-752f-57f2-a6ad-9f1091c56aa6",
+                  "624e4a73-e337-5dad-8e9a-84df8528f548__c9ad45b7-d5ab-51af-8266-4de5af6e3f14",
+                  "624e4a73-e337-5dad-8e9a-84df8528f548__e9cb08d6-d597-56b5-aedc-7fabe2a616b4",
+                  "624e4a73-e337-5dad-8e9a-84df8528f548__f45f4bcf-6855-56b3-876c-bca8f4d3b196",
+                  "624e4a73-e337-5dad-8e9a-84df8528f548__f8041fd9-1899-50df-8076-4d80e0ec15d0",
+                  "624e4a73-e337-5dad-8e9a-84df8528f548__fd5d7de5-015e-5db2-89e8-b5d9ee1714f0",
+                  "663d2b7c-9af6-5c83-a0bc-e003ccbc1934__1086b55d-a6f2-5d5f-bcdb-6fd5745ea1fd",
+                  "663d2b7c-9af6-5c83-a0bc-e003ccbc1934__75bde58e-d6f5-54c8-83d6-dfa48f32f76a",
+                  "663d2b7c-9af6-5c83-a0bc-e003ccbc1934__b455e92a-2134-5c39-9679-00ccb66b76e5",
+                  "663d2b7c-9af6-5c83-a0bc-e003ccbc1934__e6a4369c-4e05-5b57-9af4-ababdc977595",
+                  "663d2b7c-9af6-5c83-a0bc-e003ccbc1934__fd3cac68-42e7-5dd7-80cd-ec60d8bce4f6",
+                  "777c8c4e-e2a6-5cfa-a87e-0ff547991a22__7aec7523-9ca8-5a16-949e-30a945bdae05",
+                  "777c8c4e-e2a6-5cfa-a87e-0ff547991a22__8abdb85a-8920-51c5-b5a3-e838aace88bb",
+                  "777c8c4e-e2a6-5cfa-a87e-0ff547991a22__b1a8efc1-a619-521e-8055-db9379a4fcb2",
+                  "777c8c4e-e2a6-5cfa-a87e-0ff547991a22__dd115fa1-61b3-5f44-a6ec-997e3924b343",
+                  "79a3f5dc-e83d-53a6-9340-c980d58073b8__26f50761-33a5-5e2a-9267-db95f7aef960",
+                  "79a3f5dc-e83d-53a6-9340-c980d58073b8__9787be75-53f2-5629-ad91-56fb15582ee0",
+                  "79a3f5dc-e83d-53a6-9340-c980d58073b8__aa4bbfb6-5fd0-5be2-b5a2-29e1764b75c5",
+                  "79a3f5dc-e83d-53a6-9340-c980d58073b8__ad6fe2da-b054-5cf5-9d01-8257bc50fe08",
+                  "79a3f5dc-e83d-53a6-9340-c980d58073b8__c4fa531e-87f6-5f71-b968-647ae794f6b5",
+                  "79a3f5dc-e83d-53a6-9340-c980d58073b8__c93d9810-9d7d-5374-b553-97e3b66a867e",
+                  "79a3f5dc-e83d-53a6-9340-c980d58073b8__d959c78c-8c8b-5dec-9d35-eba361135cc2",
+                  "9ba59992-a92b-5b44-9889-aae2d2efb1a0__2e847480-62ce-55f0-b480-4bc09faf4e88",
+                  "9ba59992-a92b-5b44-9889-aae2d2efb1a0__4a0b9f20-1852-5af2-9412-4bdb98cd6b70",
+                  "9ba59992-a92b-5b44-9889-aae2d2efb1a0__79215ce6-7217-517b-b94f-d5fd593f6545",
+                  "9ba59992-a92b-5b44-9889-aae2d2efb1a0__937f63be-b781-572e-b24b-13a4264ab2f9",
+                  "9ba59992-a92b-5b44-9889-aae2d2efb1a0__a0e6be39-baf1-5896-bf7f-5fc73b31d563",
+                  "9ba59992-a92b-5b44-9889-aae2d2efb1a0__a5a24b2d-6952-59bd-b46e-aa7e72651e6d",
+                  "9ba59992-a92b-5b44-9889-aae2d2efb1a0__c4696565-38cd-519e-bc1c-8f2a2010e3e6",
+                  "af695b70-61d3-52fc-9b17-1f8f416b08d5__0dc1da24-b562-53f5-97d1-49901ed57013",
+                  "af695b70-61d3-52fc-9b17-1f8f416b08d5__2cbf7ced-c5d5-5531-9243-9ed46380956c",
+                  "af695b70-61d3-52fc-9b17-1f8f416b08d5__319a00a3-325a-5469-b604-47fbb3f1143f",
+                  "af695b70-61d3-52fc-9b17-1f8f416b08d5__e783ba0d-1310-5128-8af4-20437b77af7b",
+                  "bcf37686-a318-504f-9282-477bd03da13d__1146a607-d470-586a-bc39-b73e93b5cdcd",
+                  "bcf37686-a318-504f-9282-477bd03da13d__2b05f73d-3097-51b1-8d10-a41f7e77dadb",
+                  "bcf37686-a318-504f-9282-477bd03da13d__687cbecb-f9bd-52b0-bc50-1c74d3f70f97",
+                  "bcf37686-a318-504f-9282-477bd03da13d__814c2844-3019-5bad-ab55-f6769c71d912",
+                  "bcf37686-a318-504f-9282-477bd03da13d__c993b740-bdc8-527d-b298-957b78b43e74",
+                  "bf6daec1-2487-5782-8b25-df9d12edec12__4cc295c5-179b-5a4f-8a88-dbabd7ff7eef",
+                  "bf6daec1-2487-5782-8b25-df9d12edec12__ca48282d-1523-5ba0-a0fa-f11a69d4af66",
+                  "bf6daec1-2487-5782-8b25-df9d12edec12__daf4f4bd-a0a6-5904-be8c-d6d1ea45a395",
+                  "c28f1951-f952-59c0-8a61-e4c28f6e6bd7__4406b154-b686-528d-8bd8-78fad22be4ff",
+                  "c28f1951-f952-59c0-8a61-e4c28f6e6bd7__8329834a-e4d7-51f7-89d2-58fcaa983152",
+                  "c28f1951-f952-59c0-8a61-e4c28f6e6bd7__d0096e63-043e-5de5-9992-70119ab14b10",
+                  "d13583eb-022e-5e93-a514-96b6d01c9392__176a05ab-fdb2-53da-924d-58a7f6453842",
+                  "d13583eb-022e-5e93-a514-96b6d01c9392__676082c3-5589-5b2d-a1e8-b0f595cdfc9d",
+                  "d13583eb-022e-5e93-a514-96b6d01c9392__92332264-f2b9-5cef-8391-3c58cc6792ca",
+                  "d13583eb-022e-5e93-a514-96b6d01c9392__e4e4bd58-b228-5988-ab91-87d04ab77e89",
+                  "dd453aec-17e3-59e0-929d-5310d8538066__397408fd-db63-5f4a-8618-59119f9e5c34",
+                  "dd453aec-17e3-59e0-929d-5310d8538066__51a68d4f-cdf3-5c20-a544-79bf73f0aceb",
+                  "dd453aec-17e3-59e0-929d-5310d8538066__522fcc52-472e-50b8-80dc-45d939d3fea2",
+                  "dd453aec-17e3-59e0-929d-5310d8538066__5bcb1446-c6be-5df6-b0c4-a419822307b3",
+                  "dd453aec-17e3-59e0-929d-5310d8538066__6a3ae6a4-0ecb-5ad3-8389-e62c0ca1d357",
+                  "e6d7e1a7-3433-5e3d-9766-74b6771afffb__a64f4424-7818-51aa-b978-d2accdb151cb",
+                  "e6d7e1a7-3433-5e3d-9766-74b6771afffb__a7d2b4e3-41d6-5430-90d6-9cbc3b38c0bc",
+                  "e6d7e1a7-3433-5e3d-9766-74b6771afffb__abcb5278-ee20-5c1b-a07c-479f1ea286e5",
+                  "e6d7e1a7-3433-5e3d-9766-74b6771afffb__ec5013e8-75ed-52fd-8240-2dad8e323c1a",
+                  "f4fb3202-2868-5d4d-9444-45c5760e3857__0207241f-d534-594d-bf0d-645f15b12675",
+                  "f4fb3202-2868-5d4d-9444-45c5760e3857__312c73bb-9601-5a63-a2b5-8d49104fc6e4",
+                  "f4fb3202-2868-5d4d-9444-45c5760e3857__31673cb1-3552-5f6a-b136-30aa59da3e28",
+                  "f4fb3202-2868-5d4d-9444-45c5760e3857__6cb100df-17ab-5401-8b56-1fef1953cd70",
+                  "f4fb3202-2868-5d4d-9444-45c5760e3857__73a7c1c6-af40-5df8-87c6-ef4232513e17",
+                  "f4fb3202-2868-5d4d-9444-45c5760e3857__f26508d4-21c7-553a-8809-8f58d0b9d7a5"
+                ],
+                "kappa": {
+                  "kappa": 0.547005076142132,
+                  "lo": 0.4113481568549291,
+                  "hi": 0.6767438358280602,
+                  "n": 97,
+                  "agreement": 0.7628865979381443
+                },
+                "binary": {
+                  "kappa": 0.6646692786356303,
+                  "lo": 0.5063067050232353,
+                  "hi": 0.801202285943198,
+                  "n": 97,
+                  "agreement": 0.845360824742268
+                },
+                "per_class": {
+                  "Good Fit": {
+                    "n": 18,
+                    "agreement": 0.8888888888888888
+                  },
+                  "Potential Fit": {
+                    "n": 22,
+                    "agreement": 0.09090909090909091
+                  },
+                  "No Fit": {
+                    "n": 57,
+                    "agreement": 0.9824561403508771
+                  }
+                },
+                "label_distribution": {
+                  "Good Fit": 25,
+                  "Potential Fit": 2,
+                  "No Fit": 70
+                },
+                "note_fitted": "These cut points were fitted against the consensus reference on the pairs named in `fitted_on`. A kappa on the pairs a parameter was fitted on is not an out-of-sample result and may not be compared with the emitted label's kappa as though the two were measured the same way. `held_out` is the only figure here that may."
+              },
+              "held_out": {
+                "cut_points": {
+                  "no_fit_below": 51.0,
+                  "good_fit_at_or_above": 72.5
+                },
+                "fitted_on": [
+                  "0b04e287-8e84-594b-b448-98ab6725580f__fc29d69e-5ddf-5ef6-8898-6ae11a623f66",
+                  "13d7da99-d0dc-5a93-aa2a-874b84dc70cd__3d3fc8f4-759e-586b-a323-06cc348f878f",
+                  "13d7da99-d0dc-5a93-aa2a-874b84dc70cd__a53dd65a-4248-5d75-b362-933babe6bb81",
+                  "2701fb0a-3208-5642-b9ed-c7475da92b79__c81a5ff8-0439-554a-a1b7-3c5625af6d40",
+                  "2701fb0a-3208-5642-b9ed-c7475da92b79__ccf47979-40ca-5e8a-835d-a274baf35ff3",
+                  "2701fb0a-3208-5642-b9ed-c7475da92b79__e4fd0734-f42b-56d5-960b-fa0aded4976e",
+                  "34c35393-ae1c-5bd9-be10-ef760e2335a6__3329cb9f-1213-51ce-84fc-38c22b186d96",
+                  "34c35393-ae1c-5bd9-be10-ef760e2335a6__d644a00c-7476-511b-adf0-8f3eed453a18",
+                  "466f6e3f-2a7d-5247-97cc-0089b94bca0f__21e99480-a930-522e-8c6c-74a1faad3d64",
+                  "466f6e3f-2a7d-5247-97cc-0089b94bca0f__3c5752ef-9651-55a9-887b-099b5441ca2f",
+                  "466f6e3f-2a7d-5247-97cc-0089b94bca0f__6631c8cf-4bc1-56a0-892c-2e51818e6aa7",
+                  "466f6e3f-2a7d-5247-97cc-0089b94bca0f__faf9e716-0b3a-5d00-93ed-0c9a4ff2301d",
+                  "4db862c9-85f1-529d-a2dd-a42e80a559c5__2299c455-4c6e-573c-a4c7-20eeca8dae88",
+                  "4db862c9-85f1-529d-a2dd-a42e80a559c5__f4d1a459-4fc0-5f06-b70f-197da13ab948",
+                  "4e36c31f-4eb4-5509-b7ad-493d63573d80__5b8119cf-4b2b-5ee0-9720-eb94ad516f48",
+                  "4e36c31f-4eb4-5509-b7ad-493d63573d80__7d0b00fa-1219-5f49-bda2-27ba8b2636a5",
+                  "4e36c31f-4eb4-5509-b7ad-493d63573d80__9620b250-7a7d-5a2e-846b-f4a6434676fa",
+                  "4e36c31f-4eb4-5509-b7ad-493d63573d80__e99f0fbd-0ef5-5990-bec9-97a5afca5b51",
+                  "624e4a73-e337-5dad-8e9a-84df8528f548__8c65c10e-752f-57f2-a6ad-9f1091c56aa6",
+                  "624e4a73-e337-5dad-8e9a-84df8528f548__c9ad45b7-d5ab-51af-8266-4de5af6e3f14",
+                  "624e4a73-e337-5dad-8e9a-84df8528f548__e9cb08d6-d597-56b5-aedc-7fabe2a616b4",
+                  "624e4a73-e337-5dad-8e9a-84df8528f548__f45f4bcf-6855-56b3-876c-bca8f4d3b196",
+                  "624e4a73-e337-5dad-8e9a-84df8528f548__fd5d7de5-015e-5db2-89e8-b5d9ee1714f0",
+                  "663d2b7c-9af6-5c83-a0bc-e003ccbc1934__b455e92a-2134-5c39-9679-00ccb66b76e5",
+                  "663d2b7c-9af6-5c83-a0bc-e003ccbc1934__e6a4369c-4e05-5b57-9af4-ababdc977595",
+                  "663d2b7c-9af6-5c83-a0bc-e003ccbc1934__fd3cac68-42e7-5dd7-80cd-ec60d8bce4f6",
+                  "79a3f5dc-e83d-53a6-9340-c980d58073b8__9787be75-53f2-5629-ad91-56fb15582ee0",
+                  "79a3f5dc-e83d-53a6-9340-c980d58073b8__ad6fe2da-b054-5cf5-9d01-8257bc50fe08",
+                  "79a3f5dc-e83d-53a6-9340-c980d58073b8__d959c78c-8c8b-5dec-9d35-eba361135cc2",
+                  "9ba59992-a92b-5b44-9889-aae2d2efb1a0__4a0b9f20-1852-5af2-9412-4bdb98cd6b70",
+                  "9ba59992-a92b-5b44-9889-aae2d2efb1a0__a0e6be39-baf1-5896-bf7f-5fc73b31d563",
+                  "9ba59992-a92b-5b44-9889-aae2d2efb1a0__c4696565-38cd-519e-bc1c-8f2a2010e3e6",
+                  "bcf37686-a318-504f-9282-477bd03da13d__1146a607-d470-586a-bc39-b73e93b5cdcd",
+                  "bcf37686-a318-504f-9282-477bd03da13d__2b05f73d-3097-51b1-8d10-a41f7e77dadb",
+                  "bcf37686-a318-504f-9282-477bd03da13d__c993b740-bdc8-527d-b298-957b78b43e74",
+                  "bf6daec1-2487-5782-8b25-df9d12edec12__4cc295c5-179b-5a4f-8a88-dbabd7ff7eef",
+                  "bf6daec1-2487-5782-8b25-df9d12edec12__daf4f4bd-a0a6-5904-be8c-d6d1ea45a395",
+                  "d13583eb-022e-5e93-a514-96b6d01c9392__92332264-f2b9-5cef-8391-3c58cc6792ca",
+                  "d13583eb-022e-5e93-a514-96b6d01c9392__e4e4bd58-b228-5988-ab91-87d04ab77e89",
+                  "dd453aec-17e3-59e0-929d-5310d8538066__397408fd-db63-5f4a-8618-59119f9e5c34",
+                  "dd453aec-17e3-59e0-929d-5310d8538066__51a68d4f-cdf3-5c20-a544-79bf73f0aceb",
+                  "dd453aec-17e3-59e0-929d-5310d8538066__522fcc52-472e-50b8-80dc-45d939d3fea2",
+                  "e6d7e1a7-3433-5e3d-9766-74b6771afffb__a64f4424-7818-51aa-b978-d2accdb151cb",
+                  "e6d7e1a7-3433-5e3d-9766-74b6771afffb__a7d2b4e3-41d6-5430-90d6-9cbc3b38c0bc",
+                  "e6d7e1a7-3433-5e3d-9766-74b6771afffb__ec5013e8-75ed-52fd-8240-2dad8e323c1a",
+                  "f4fb3202-2868-5d4d-9444-45c5760e3857__0207241f-d534-594d-bf0d-645f15b12675",
+                  "f4fb3202-2868-5d4d-9444-45c5760e3857__6cb100df-17ab-5401-8b56-1fef1953cd70",
+                  "f4fb3202-2868-5d4d-9444-45c5760e3857__f26508d4-21c7-553a-8809-8f58d0b9d7a5"
+                ],
+                "quoted_on": [
+                  "0b04e287-8e84-594b-b448-98ab6725580f__340fde1d-aa87-5f15-83f2-0d5c4689d876",
+                  "0b04e287-8e84-594b-b448-98ab6725580f__d2d03fab-94f7-5e46-8181-04394ba65f80",
+                  "13d7da99-d0dc-5a93-aa2a-874b84dc70cd__0926c9fb-8762-5f43-9745-a597738d1159",
+                  "2701fb0a-3208-5642-b9ed-c7475da92b79__0a46c8a3-af89-5f59-ac54-302fe79c046c",
+                  "2701fb0a-3208-5642-b9ed-c7475da92b79__7abafd55-47eb-5dd8-90ae-e9ba84c73e83",
+                  "34c35393-ae1c-5bd9-be10-ef760e2335a6__6fdeaec8-1928-51f1-aefc-3283fae84c4b",
+                  "466f6e3f-2a7d-5247-97cc-0089b94bca0f__20c5b812-c95c-5c02-8558-d14e5c64f417",
+                  "466f6e3f-2a7d-5247-97cc-0089b94bca0f__6e7bde4d-79d9-5640-ae55-4e50053ee51d",
+                  "4db862c9-85f1-529d-a2dd-a42e80a559c5__35b4f8ae-c223-5a50-8642-0aab0d3a745d",
+                  "4db862c9-85f1-529d-a2dd-a42e80a559c5__a79dea42-aded-54df-9b5d-66d683d45be2",
+                  "4e36c31f-4eb4-5509-b7ad-493d63573d80__371785c3-986a-5995-9d75-b27c52d3c2ad",
+                  "4e36c31f-4eb4-5509-b7ad-493d63573d80__73805ac0-c0d2-5e46-9c76-8189096e6bac",
+                  "4e36c31f-4eb4-5509-b7ad-493d63573d80__a7134aac-16f7-5b6a-9a42-4e4de3fc9f24",
+                  "4e36c31f-4eb4-5509-b7ad-493d63573d80__fd8ee08b-8b9f-5828-8dae-454a18414a2f",
+                  "624e4a73-e337-5dad-8e9a-84df8528f548__4d8619fe-d3b4-5549-988c-55c42e04c55d",
+                  "624e4a73-e337-5dad-8e9a-84df8528f548__59dfd08f-fa42-5d34-88c2-109e0ad6e837",
+                  "624e4a73-e337-5dad-8e9a-84df8528f548__f8041fd9-1899-50df-8076-4d80e0ec15d0",
+                  "663d2b7c-9af6-5c83-a0bc-e003ccbc1934__1086b55d-a6f2-5d5f-bcdb-6fd5745ea1fd",
+                  "663d2b7c-9af6-5c83-a0bc-e003ccbc1934__75bde58e-d6f5-54c8-83d6-dfa48f32f76a",
+                  "777c8c4e-e2a6-5cfa-a87e-0ff547991a22__7aec7523-9ca8-5a16-949e-30a945bdae05",
+                  "777c8c4e-e2a6-5cfa-a87e-0ff547991a22__8abdb85a-8920-51c5-b5a3-e838aace88bb",
+                  "777c8c4e-e2a6-5cfa-a87e-0ff547991a22__b1a8efc1-a619-521e-8055-db9379a4fcb2",
+                  "777c8c4e-e2a6-5cfa-a87e-0ff547991a22__dd115fa1-61b3-5f44-a6ec-997e3924b343",
+                  "79a3f5dc-e83d-53a6-9340-c980d58073b8__26f50761-33a5-5e2a-9267-db95f7aef960",
+                  "79a3f5dc-e83d-53a6-9340-c980d58073b8__aa4bbfb6-5fd0-5be2-b5a2-29e1764b75c5",
+                  "79a3f5dc-e83d-53a6-9340-c980d58073b8__c4fa531e-87f6-5f71-b968-647ae794f6b5",
+                  "79a3f5dc-e83d-53a6-9340-c980d58073b8__c93d9810-9d7d-5374-b553-97e3b66a867e",
+                  "9ba59992-a92b-5b44-9889-aae2d2efb1a0__2e847480-62ce-55f0-b480-4bc09faf4e88",
+                  "9ba59992-a92b-5b44-9889-aae2d2efb1a0__79215ce6-7217-517b-b94f-d5fd593f6545",
+                  "9ba59992-a92b-5b44-9889-aae2d2efb1a0__937f63be-b781-572e-b24b-13a4264ab2f9",
+                  "9ba59992-a92b-5b44-9889-aae2d2efb1a0__a5a24b2d-6952-59bd-b46e-aa7e72651e6d",
+                  "af695b70-61d3-52fc-9b17-1f8f416b08d5__0dc1da24-b562-53f5-97d1-49901ed57013",
+                  "af695b70-61d3-52fc-9b17-1f8f416b08d5__2cbf7ced-c5d5-5531-9243-9ed46380956c",
+                  "af695b70-61d3-52fc-9b17-1f8f416b08d5__319a00a3-325a-5469-b604-47fbb3f1143f",
+                  "af695b70-61d3-52fc-9b17-1f8f416b08d5__e783ba0d-1310-5128-8af4-20437b77af7b",
+                  "bcf37686-a318-504f-9282-477bd03da13d__687cbecb-f9bd-52b0-bc50-1c74d3f70f97",
+                  "bcf37686-a318-504f-9282-477bd03da13d__814c2844-3019-5bad-ab55-f6769c71d912",
+                  "bf6daec1-2487-5782-8b25-df9d12edec12__ca48282d-1523-5ba0-a0fa-f11a69d4af66",
+                  "c28f1951-f952-59c0-8a61-e4c28f6e6bd7__4406b154-b686-528d-8bd8-78fad22be4ff",
+                  "c28f1951-f952-59c0-8a61-e4c28f6e6bd7__8329834a-e4d7-51f7-89d2-58fcaa983152",
+                  "c28f1951-f952-59c0-8a61-e4c28f6e6bd7__d0096e63-043e-5de5-9992-70119ab14b10",
+                  "d13583eb-022e-5e93-a514-96b6d01c9392__176a05ab-fdb2-53da-924d-58a7f6453842",
+                  "d13583eb-022e-5e93-a514-96b6d01c9392__676082c3-5589-5b2d-a1e8-b0f595cdfc9d",
+                  "dd453aec-17e3-59e0-929d-5310d8538066__5bcb1446-c6be-5df6-b0c4-a419822307b3",
+                  "dd453aec-17e3-59e0-929d-5310d8538066__6a3ae6a4-0ecb-5ad3-8389-e62c0ca1d357",
+                  "e6d7e1a7-3433-5e3d-9766-74b6771afffb__abcb5278-ee20-5c1b-a07c-479f1ea286e5",
+                  "f4fb3202-2868-5d4d-9444-45c5760e3857__312c73bb-9601-5a63-a2b5-8d49104fc6e4",
+                  "f4fb3202-2868-5d4d-9444-45c5760e3857__31673cb1-3552-5f6a-b136-30aa59da3e28",
+                  "f4fb3202-2868-5d4d-9444-45c5760e3857__73a7c1c6-af40-5df8-87c6-ef4232513e17"
+                ],
+                "n_fit": 48,
+                "n": 49,
+                "kappa": {
+                  "kappa": 0.4055459272097054,
+                  "lo": 0.2136616567621839,
+                  "hi": 0.6061271031744752,
+                  "n": 49,
+                  "agreement": 0.7142857142857143
+                },
+                "binary": {
+                  "kappa": 0.6223506743737958,
+                  "lo": 0.3917898652229879,
+                  "hi": 0.8297271583675928,
+                  "n": 49,
+                  "agreement": 0.8367346938775511
+                },
+                "per_class": {
+                  "Good Fit": {
+                    "n": 10,
+                    "agreement": 0.2
+                  },
+                  "Potential Fit": {
+                    "n": 8,
+                    "agreement": 0.375
+                  },
+                  "No Fit": {
+                    "n": 31,
+                    "agreement": 0.967741935483871
+                  }
+                },
+                "note": "fitted on one seeded half of the consensus pairs and quoted on the other. This is the only out-of-sample figure in this block, and its n is half the consensus coverage, so its interval is wide by construction and is reported as it fell."
+              },
+              "note_fitted": "These cut points were fitted against the consensus reference on the pairs named in `fitted_on`. A kappa on the pairs a parameter was fitted on is not an out-of-sample result and may not be compared with the emitted label's kappa as though the two were measured the same way. `held_out` is the only figure here that may.",
+              "annotators": [
+                "van",
+                "yc"
+              ],
+              "n_multi_labelled": 200,
+              "n_agreed": 97,
+              "coverage": 0.485,
+              "note_selection": "The pairs two annotators agreed on are not a random subsample: they are the pairs both found unambiguous. A judge scores higher there for the reason a student scores higher on the easy half of an exam, so this is an UPPER estimate of its performance on the stratum, never an unbiased one. It is also why consensus cannot license substitution \u2014 the pairs it excludes are exactly the population a substituting judge would label alone, with no reference and no appeal (design spec \u00a73)."
+            }
+          }
+        },
         "75e00ea3d0c34ab92acd7e6436de2921a3b80b2ff4e8106c88bc7580d048cd23": {
           "claude-haiku-4-5": {
             "n_llm": 200,
@@ -1940,6 +4676,12 @@
         }
       },
       "instruments_on_file": {
+        "5d986c8232ea3c985ebf8e3044049d3dd7ba709ad7037043d726aa9590bc77a3": {
+          "committed": true,
+          "models": {
+            "claude-haiku-4-5": 200
+          }
+        },
         "75e00ea3d0c34ab92acd7e6436de2921a3b80b2ff4e8106c88bc7580d048cd23": {
           "committed": false,
           "models": {
@@ -1948,12 +4690,1040 @@
           }
         }
       },
-      "by_model": {},
-      "consensus": {},
-      "interchangeability": {},
-      "n_scored": 0,
-      "n_dispatched": 400,
-      "status": "no overlap",
+      "by_model": {
+        "claude-haiku-4-5": {
+          "n_llm": 200,
+          "vs_llm": {
+            "van": {
+              "n": 200,
+              "three_class": {
+                "kappa": 0.19207317073170727,
+                "lo": 0.09673670863303124,
+                "hi": 0.29606132982762884,
+                "n": 200,
+                "agreement": 0.47
+              },
+              "binary": {
+                "kappa": 0.3393009377664109,
+                "lo": 0.2024496180937898,
+                "hi": 0.4733668480910549,
+                "n": 200,
+                "agreement": 0.69
+              },
+              "per_class": {
+                "Good Fit": {
+                  "n": 60,
+                  "agreement": 0.18333333333333332
+                },
+                "Potential Fit": {
+                  "n": 68,
+                  "agreement": 0.5735294117647058
+                },
+                "No Fit": {
+                  "n": 72,
+                  "agreement": 0.6111111111111112
+                }
+              },
+              "confusion_rows_first": {
+                "Good Fit": {
+                  "Good Fit": 11,
+                  "Potential Fit": 37,
+                  "No Fit": 12
+                },
+                "Potential Fit": {
+                  "Good Fit": 7,
+                  "Potential Fit": 39,
+                  "No Fit": 22
+                },
+                "No Fit": {
+                  "Good Fit": 1,
+                  "Potential Fit": 27,
+                  "No Fit": 44
+                }
+              },
+              "confusion_rows_second": {
+                "Good Fit": {
+                  "Good Fit": 11,
+                  "Potential Fit": 7,
+                  "No Fit": 1
+                },
+                "Potential Fit": {
+                  "Good Fit": 37,
+                  "Potential Fit": 39,
+                  "No Fit": 27
+                },
+                "No Fit": {
+                  "Good Fit": 12,
+                  "Potential Fit": 22,
+                  "No Fit": 44
+                }
+              }
+            },
+            "yc": {
+              "n": 200,
+              "three_class": {
+                "kappa": 0.2501595405232929,
+                "lo": 0.15415601350504668,
+                "hi": 0.34440289806753527,
+                "n": 200,
+                "agreement": 0.53
+              },
+              "binary": {
+                "kappa": 0.36244204018547144,
+                "lo": 0.24241135723058166,
+                "hi": 0.47699757869249393,
+                "n": 200,
+                "agreement": 0.67
+              },
+              "per_class": {
+                "Good Fit": {
+                  "n": 33,
+                  "agreement": 0.30303030303030304
+                },
+                "Potential Fit": {
+                  "n": 51,
+                  "agreement": 0.6274509803921569
+                },
+                "No Fit": {
+                  "n": 116,
+                  "agreement": 0.5517241379310345
+                }
+              },
+              "confusion_rows_first": {
+                "Good Fit": {
+                  "Good Fit": 10,
+                  "Potential Fit": 20,
+                  "No Fit": 3
+                },
+                "Potential Fit": {
+                  "Good Fit": 8,
+                  "Potential Fit": 32,
+                  "No Fit": 11
+                },
+                "No Fit": {
+                  "Good Fit": 1,
+                  "Potential Fit": 51,
+                  "No Fit": 64
+                }
+              },
+              "confusion_rows_second": {
+                "Good Fit": {
+                  "Good Fit": 10,
+                  "Potential Fit": 8,
+                  "No Fit": 1
+                },
+                "Potential Fit": {
+                  "Good Fit": 20,
+                  "Potential Fit": 32,
+                  "No Fit": 51
+                },
+                "No Fit": {
+                  "Good Fit": 3,
+                  "Potential Fit": 11,
+                  "No Fit": 64
+                }
+              }
+            }
+          },
+          "consensus": {
+            "annotators": [
+              "van",
+              "yc"
+            ],
+            "n_multi_labelled": 200,
+            "n_agreed": 97,
+            "coverage": 0.485,
+            "label_distribution": {
+              "Good Fit": 18,
+              "Potential Fit": 22,
+              "No Fit": 57
+            },
+            "note_selection": "The pairs two annotators agreed on are not a random subsample: they are the pairs both found unambiguous. A judge scores higher there for the reason a student scores higher on the easy half of an exam, so this is an UPPER estimate of its performance on the stratum, never an unbiased one. It is also why consensus cannot license substitution \u2014 the pairs it excludes are exactly the population a substituting judge would label alone, with no reference and no appeal (design spec \u00a73).",
+            "vs_llm": {
+              "n": 97,
+              "three_class": {
+                "kappa": 0.38499471644945404,
+                "lo": 0.2391423620079163,
+                "hi": 0.5303658149051849,
+                "n": 97,
+                "agreement": 0.6288659793814433
+              },
+              "binary": {
+                "kappa": 0.5488372093023255,
+                "lo": 0.3847584776938595,
+                "hi": 0.7103334888704045,
+                "n": 97,
+                "agreement": 0.7731958762886598
+              },
+              "per_class": {
+                "Good Fit": {
+                  "n": 18,
+                  "agreement": 0.3888888888888889
+                },
+                "Potential Fit": {
+                  "n": 22,
+                  "agreement": 0.5909090909090909
+                },
+                "No Fit": {
+                  "n": 57,
+                  "agreement": 0.7192982456140351
+                }
+              },
+              "confusion_rows_consensus": {
+                "Good Fit": {
+                  "Good Fit": 7,
+                  "Potential Fit": 9,
+                  "No Fit": 2
+                },
+                "Potential Fit": {
+                  "Good Fit": 5,
+                  "Potential Fit": 13,
+                  "No Fit": 4
+                },
+                "No Fit": {
+                  "Good Fit": 0,
+                  "Potential Fit": 16,
+                  "No Fit": 41
+                }
+              },
+              "confusion_rows_llm": {
+                "Good Fit": {
+                  "Good Fit": 7,
+                  "Potential Fit": 5,
+                  "No Fit": 0
+                },
+                "Potential Fit": {
+                  "Good Fit": 9,
+                  "Potential Fit": 13,
+                  "No Fit": 16
+                },
+                "No Fit": {
+                  "Good Fit": 2,
+                  "Potential Fit": 4,
+                  "No Fit": 41
+                }
+              }
+            }
+          },
+          "interchangeability": {
+            "n": 200,
+            "band": 0.05,
+            "rows": {
+              "van": {
+                "retained": "van",
+                "replaced": "yc",
+                "n": 200,
+                "human_pair": {
+                  "three_class": {
+                    "kappa": 0.2137404580152672,
+                    "lo": 0.11873520291161638,
+                    "hi": 0.31156156393315204,
+                    "n": 200,
+                    "agreement": 0.485
+                  },
+                  "binary": {
+                    "kappa": 0.2917304747320061,
+                    "lo": 0.171911961335044,
+                    "hi": 0.4029604623056392,
+                    "n": 200,
+                    "agreement": 0.63
+                  },
+                  "per_class": {
+                    "Good Fit": {
+                      "n": 60,
+                      "agreement": 0.3
+                    },
+                    "Potential Fit": {
+                      "n": 68,
+                      "agreement": 0.3235294117647059
+                    },
+                    "No Fit": {
+                      "n": 72,
+                      "agreement": 0.7916666666666666
+                    }
+                  }
+                },
+                "judge": {
+                  "three_class": {
+                    "kappa": 0.19207317073170727,
+                    "lo": 0.09318363568123458,
+                    "hi": 0.29170892685177485,
+                    "n": 200,
+                    "agreement": 0.47
+                  },
+                  "binary": {
+                    "kappa": 0.3393009377664109,
+                    "lo": 0.20307303403885532,
+                    "hi": 0.4721297714735479,
+                    "n": 200,
+                    "agreement": 0.69
+                  },
+                  "per_class": {
+                    "Good Fit": {
+                      "n": 60,
+                      "agreement": 0.18333333333333332
+                    },
+                    "Potential Fit": {
+                      "n": 68,
+                      "agreement": 0.5735294117647058
+                    },
+                    "No Fit": {
+                      "n": 72,
+                      "agreement": 0.6111111111111112
+                    }
+                  }
+                },
+                "verdict": {
+                  "three_class": "tie",
+                  "binary": "tie"
+                }
+              },
+              "yc": {
+                "retained": "yc",
+                "replaced": "van",
+                "n": 200,
+                "human_pair": {
+                  "three_class": {
+                    "kappa": 0.2137404580152672,
+                    "lo": 0.11873520291161638,
+                    "hi": 0.31156156393315204,
+                    "n": 200,
+                    "agreement": 0.485
+                  },
+                  "binary": {
+                    "kappa": 0.2917304747320061,
+                    "lo": 0.171911961335044,
+                    "hi": 0.4029604623056392,
+                    "n": 200,
+                    "agreement": 0.63
+                  },
+                  "per_class": {
+                    "Good Fit": {
+                      "n": 33,
+                      "agreement": 0.5454545454545454
+                    },
+                    "Potential Fit": {
+                      "n": 51,
+                      "agreement": 0.43137254901960786
+                    },
+                    "No Fit": {
+                      "n": 116,
+                      "agreement": 0.49137931034482757
+                    }
+                  }
+                },
+                "judge": {
+                  "three_class": {
+                    "kappa": 0.2501595405232929,
+                    "lo": 0.1550652414515029,
+                    "hi": 0.35470097859013633,
+                    "n": 200,
+                    "agreement": 0.53
+                  },
+                  "binary": {
+                    "kappa": 0.36244204018547144,
+                    "lo": 0.2480272374510708,
+                    "hi": 0.4836321122369446,
+                    "n": 200,
+                    "agreement": 0.67
+                  },
+                  "per_class": {
+                    "Good Fit": {
+                      "n": 33,
+                      "agreement": 0.30303030303030304
+                    },
+                    "Potential Fit": {
+                      "n": 51,
+                      "agreement": 0.6274509803921569
+                    },
+                    "No Fit": {
+                      "n": 116,
+                      "agreement": 0.5517241379310345
+                    }
+                  }
+                },
+                "verdict": {
+                  "three_class": "tie",
+                  "binary": "pass"
+                }
+              }
+            },
+            "per_class": {
+              "Good Fit": {
+                "bar": 0.4,
+                "human_pair": {
+                  "van": 0.3,
+                  "yc": 0.5454545454545454
+                },
+                "judge": {
+                  "van": 0.18333333333333332,
+                  "yc": 0.30303030303030304
+                },
+                "unidentified_by_instrument": true,
+                "judge_clears_bar": {
+                  "van": false,
+                  "yc": false
+                }
+              },
+              "Potential Fit": {
+                "bar": 0.4,
+                "human_pair": {
+                  "van": 0.3235294117647059,
+                  "yc": 0.43137254901960786
+                },
+                "judge": {
+                  "van": 0.5735294117647058,
+                  "yc": 0.6274509803921569
+                },
+                "unidentified_by_instrument": true,
+                "judge_clears_bar": {
+                  "van": true,
+                  "yc": true
+                }
+              },
+              "No Fit": {
+                "bar": 0.4,
+                "human_pair": {
+                  "van": 0.7916666666666666,
+                  "yc": 0.49137931034482757
+                },
+                "judge": {
+                  "van": 0.6111111111111112,
+                  "yc": 0.5517241379310345
+                },
+                "unidentified_by_instrument": false,
+                "judge_clears_bar": {
+                  "van": true,
+                  "yc": true
+                }
+              }
+            },
+            "note_not_separated": "Every interval in this block overlaps every other at this n. `pass` means the judge partners the retained annotator better than the replaced one did by more than the declared band, not that the two are distinguishable.",
+            "note_licences": "Passing licenses the judge as a *second* annotator in a double-labelling wave, where being as unreliable as a human is the specification. It does not license the judge as an answer key: no agreement figure between two fallible raters is a claim about correctness. D36 stays unmade."
+          },
+          "label_distribution": {
+            "Good Fit": 19,
+            "Potential Fit": 103,
+            "No Fit": 78
+          },
+          "score": {
+            "n": 97,
+            "seed": 0,
+            "distribution_by_reference_class": {
+              "Good Fit": {
+                "n": 18,
+                "mean": 65.33333333333333,
+                "median": 65.0,
+                "q1": 62.75,
+                "q3": 74.75
+              },
+              "No Fit": {
+                "n": 57,
+                "mean": 23.105263157894736,
+                "median": 18.0,
+                "q1": 12.0,
+                "q3": 32.0
+              },
+              "Potential Fit": {
+                "n": 22,
+                "mean": 50.54545454545455,
+                "median": 50.0,
+                "q1": 40.5,
+                "q3": 65.0
+              }
+            },
+            "separation": {
+              "good_vs_potential": {
+                "auc": 0.7563131313131313,
+                "n_higher": 18,
+                "n_lower": 22,
+                "higher": "Good Fit",
+                "lower": "Potential Fit"
+              },
+              "potential_vs_no": {
+                "auc": 0.8883572567783095,
+                "n_higher": 22,
+                "n_lower": 57,
+                "higher": "Potential Fit",
+                "lower": "No Fit"
+              },
+              "good_vs_no": {
+                "auc": 0.9668615984405458,
+                "n_higher": 18,
+                "n_lower": 57,
+                "higher": "Good Fit",
+                "lower": "No Fit"
+              }
+            },
+            "fitted_full": {
+              "cut_points": {
+                "no_fit_below": 51.0,
+                "good_fit_at_or_above": 55.5
+              },
+              "n": 97,
+              "fitted_on": [
+                "0b04e287-8e84-594b-b448-98ab6725580f__340fde1d-aa87-5f15-83f2-0d5c4689d876",
+                "0b04e287-8e84-594b-b448-98ab6725580f__d2d03fab-94f7-5e46-8181-04394ba65f80",
+                "0b04e287-8e84-594b-b448-98ab6725580f__fc29d69e-5ddf-5ef6-8898-6ae11a623f66",
+                "13d7da99-d0dc-5a93-aa2a-874b84dc70cd__0926c9fb-8762-5f43-9745-a597738d1159",
+                "13d7da99-d0dc-5a93-aa2a-874b84dc70cd__3d3fc8f4-759e-586b-a323-06cc348f878f",
+                "13d7da99-d0dc-5a93-aa2a-874b84dc70cd__a53dd65a-4248-5d75-b362-933babe6bb81",
+                "2701fb0a-3208-5642-b9ed-c7475da92b79__0a46c8a3-af89-5f59-ac54-302fe79c046c",
+                "2701fb0a-3208-5642-b9ed-c7475da92b79__7abafd55-47eb-5dd8-90ae-e9ba84c73e83",
+                "2701fb0a-3208-5642-b9ed-c7475da92b79__c81a5ff8-0439-554a-a1b7-3c5625af6d40",
+                "2701fb0a-3208-5642-b9ed-c7475da92b79__ccf47979-40ca-5e8a-835d-a274baf35ff3",
+                "2701fb0a-3208-5642-b9ed-c7475da92b79__e4fd0734-f42b-56d5-960b-fa0aded4976e",
+                "34c35393-ae1c-5bd9-be10-ef760e2335a6__3329cb9f-1213-51ce-84fc-38c22b186d96",
+                "34c35393-ae1c-5bd9-be10-ef760e2335a6__6fdeaec8-1928-51f1-aefc-3283fae84c4b",
+                "34c35393-ae1c-5bd9-be10-ef760e2335a6__d644a00c-7476-511b-adf0-8f3eed453a18",
+                "466f6e3f-2a7d-5247-97cc-0089b94bca0f__20c5b812-c95c-5c02-8558-d14e5c64f417",
+                "466f6e3f-2a7d-5247-97cc-0089b94bca0f__21e99480-a930-522e-8c6c-74a1faad3d64",
+                "466f6e3f-2a7d-5247-97cc-0089b94bca0f__3c5752ef-9651-55a9-887b-099b5441ca2f",
+                "466f6e3f-2a7d-5247-97cc-0089b94bca0f__6631c8cf-4bc1-56a0-892c-2e51818e6aa7",
+                "466f6e3f-2a7d-5247-97cc-0089b94bca0f__6e7bde4d-79d9-5640-ae55-4e50053ee51d",
+                "466f6e3f-2a7d-5247-97cc-0089b94bca0f__faf9e716-0b3a-5d00-93ed-0c9a4ff2301d",
+                "4db862c9-85f1-529d-a2dd-a42e80a559c5__2299c455-4c6e-573c-a4c7-20eeca8dae88",
+                "4db862c9-85f1-529d-a2dd-a42e80a559c5__35b4f8ae-c223-5a50-8642-0aab0d3a745d",
+                "4db862c9-85f1-529d-a2dd-a42e80a559c5__a79dea42-aded-54df-9b5d-66d683d45be2",
+                "4db862c9-85f1-529d-a2dd-a42e80a559c5__f4d1a459-4fc0-5f06-b70f-197da13ab948",
+                "4e36c31f-4eb4-5509-b7ad-493d63573d80__371785c3-986a-5995-9d75-b27c52d3c2ad",
+                "4e36c31f-4eb4-5509-b7ad-493d63573d80__5b8119cf-4b2b-5ee0-9720-eb94ad516f48",
+                "4e36c31f-4eb4-5509-b7ad-493d63573d80__73805ac0-c0d2-5e46-9c76-8189096e6bac",
+                "4e36c31f-4eb4-5509-b7ad-493d63573d80__7d0b00fa-1219-5f49-bda2-27ba8b2636a5",
+                "4e36c31f-4eb4-5509-b7ad-493d63573d80__9620b250-7a7d-5a2e-846b-f4a6434676fa",
+                "4e36c31f-4eb4-5509-b7ad-493d63573d80__a7134aac-16f7-5b6a-9a42-4e4de3fc9f24",
+                "4e36c31f-4eb4-5509-b7ad-493d63573d80__e99f0fbd-0ef5-5990-bec9-97a5afca5b51",
+                "4e36c31f-4eb4-5509-b7ad-493d63573d80__fd8ee08b-8b9f-5828-8dae-454a18414a2f",
+                "624e4a73-e337-5dad-8e9a-84df8528f548__4d8619fe-d3b4-5549-988c-55c42e04c55d",
+                "624e4a73-e337-5dad-8e9a-84df8528f548__59dfd08f-fa42-5d34-88c2-109e0ad6e837",
+                "624e4a73-e337-5dad-8e9a-84df8528f548__8c65c10e-752f-57f2-a6ad-9f1091c56aa6",
+                "624e4a73-e337-5dad-8e9a-84df8528f548__c9ad45b7-d5ab-51af-8266-4de5af6e3f14",
+                "624e4a73-e337-5dad-8e9a-84df8528f548__e9cb08d6-d597-56b5-aedc-7fabe2a616b4",
+                "624e4a73-e337-5dad-8e9a-84df8528f548__f45f4bcf-6855-56b3-876c-bca8f4d3b196",
+                "624e4a73-e337-5dad-8e9a-84df8528f548__f8041fd9-1899-50df-8076-4d80e0ec15d0",
+                "624e4a73-e337-5dad-8e9a-84df8528f548__fd5d7de5-015e-5db2-89e8-b5d9ee1714f0",
+                "663d2b7c-9af6-5c83-a0bc-e003ccbc1934__1086b55d-a6f2-5d5f-bcdb-6fd5745ea1fd",
+                "663d2b7c-9af6-5c83-a0bc-e003ccbc1934__75bde58e-d6f5-54c8-83d6-dfa48f32f76a",
+                "663d2b7c-9af6-5c83-a0bc-e003ccbc1934__b455e92a-2134-5c39-9679-00ccb66b76e5",
+                "663d2b7c-9af6-5c83-a0bc-e003ccbc1934__e6a4369c-4e05-5b57-9af4-ababdc977595",
+                "663d2b7c-9af6-5c83-a0bc-e003ccbc1934__fd3cac68-42e7-5dd7-80cd-ec60d8bce4f6",
+                "777c8c4e-e2a6-5cfa-a87e-0ff547991a22__7aec7523-9ca8-5a16-949e-30a945bdae05",
+                "777c8c4e-e2a6-5cfa-a87e-0ff547991a22__8abdb85a-8920-51c5-b5a3-e838aace88bb",
+                "777c8c4e-e2a6-5cfa-a87e-0ff547991a22__b1a8efc1-a619-521e-8055-db9379a4fcb2",
+                "777c8c4e-e2a6-5cfa-a87e-0ff547991a22__dd115fa1-61b3-5f44-a6ec-997e3924b343",
+                "79a3f5dc-e83d-53a6-9340-c980d58073b8__26f50761-33a5-5e2a-9267-db95f7aef960",
+                "79a3f5dc-e83d-53a6-9340-c980d58073b8__9787be75-53f2-5629-ad91-56fb15582ee0",
+                "79a3f5dc-e83d-53a6-9340-c980d58073b8__aa4bbfb6-5fd0-5be2-b5a2-29e1764b75c5",
+                "79a3f5dc-e83d-53a6-9340-c980d58073b8__ad6fe2da-b054-5cf5-9d01-8257bc50fe08",
+                "79a3f5dc-e83d-53a6-9340-c980d58073b8__c4fa531e-87f6-5f71-b968-647ae794f6b5",
+                "79a3f5dc-e83d-53a6-9340-c980d58073b8__c93d9810-9d7d-5374-b553-97e3b66a867e",
+                "79a3f5dc-e83d-53a6-9340-c980d58073b8__d959c78c-8c8b-5dec-9d35-eba361135cc2",
+                "9ba59992-a92b-5b44-9889-aae2d2efb1a0__2e847480-62ce-55f0-b480-4bc09faf4e88",
+                "9ba59992-a92b-5b44-9889-aae2d2efb1a0__4a0b9f20-1852-5af2-9412-4bdb98cd6b70",
+                "9ba59992-a92b-5b44-9889-aae2d2efb1a0__79215ce6-7217-517b-b94f-d5fd593f6545",
+                "9ba59992-a92b-5b44-9889-aae2d2efb1a0__937f63be-b781-572e-b24b-13a4264ab2f9",
+                "9ba59992-a92b-5b44-9889-aae2d2efb1a0__a0e6be39-baf1-5896-bf7f-5fc73b31d563",
+                "9ba59992-a92b-5b44-9889-aae2d2efb1a0__a5a24b2d-6952-59bd-b46e-aa7e72651e6d",
+                "9ba59992-a92b-5b44-9889-aae2d2efb1a0__c4696565-38cd-519e-bc1c-8f2a2010e3e6",
+                "af695b70-61d3-52fc-9b17-1f8f416b08d5__0dc1da24-b562-53f5-97d1-49901ed57013",
+                "af695b70-61d3-52fc-9b17-1f8f416b08d5__2cbf7ced-c5d5-5531-9243-9ed46380956c",
+                "af695b70-61d3-52fc-9b17-1f8f416b08d5__319a00a3-325a-5469-b604-47fbb3f1143f",
+                "af695b70-61d3-52fc-9b17-1f8f416b08d5__e783ba0d-1310-5128-8af4-20437b77af7b",
+                "bcf37686-a318-504f-9282-477bd03da13d__1146a607-d470-586a-bc39-b73e93b5cdcd",
+                "bcf37686-a318-504f-9282-477bd03da13d__2b05f73d-3097-51b1-8d10-a41f7e77dadb",
+                "bcf37686-a318-504f-9282-477bd03da13d__687cbecb-f9bd-52b0-bc50-1c74d3f70f97",
+                "bcf37686-a318-504f-9282-477bd03da13d__814c2844-3019-5bad-ab55-f6769c71d912",
+                "bcf37686-a318-504f-9282-477bd03da13d__c993b740-bdc8-527d-b298-957b78b43e74",
+                "bf6daec1-2487-5782-8b25-df9d12edec12__4cc295c5-179b-5a4f-8a88-dbabd7ff7eef",
+                "bf6daec1-2487-5782-8b25-df9d12edec12__ca48282d-1523-5ba0-a0fa-f11a69d4af66",
+                "bf6daec1-2487-5782-8b25-df9d12edec12__daf4f4bd-a0a6-5904-be8c-d6d1ea45a395",
+                "c28f1951-f952-59c0-8a61-e4c28f6e6bd7__4406b154-b686-528d-8bd8-78fad22be4ff",
+                "c28f1951-f952-59c0-8a61-e4c28f6e6bd7__8329834a-e4d7-51f7-89d2-58fcaa983152",
+                "c28f1951-f952-59c0-8a61-e4c28f6e6bd7__d0096e63-043e-5de5-9992-70119ab14b10",
+                "d13583eb-022e-5e93-a514-96b6d01c9392__176a05ab-fdb2-53da-924d-58a7f6453842",
+                "d13583eb-022e-5e93-a514-96b6d01c9392__676082c3-5589-5b2d-a1e8-b0f595cdfc9d",
+                "d13583eb-022e-5e93-a514-96b6d01c9392__92332264-f2b9-5cef-8391-3c58cc6792ca",
+                "d13583eb-022e-5e93-a514-96b6d01c9392__e4e4bd58-b228-5988-ab91-87d04ab77e89",
+                "dd453aec-17e3-59e0-929d-5310d8538066__397408fd-db63-5f4a-8618-59119f9e5c34",
+                "dd453aec-17e3-59e0-929d-5310d8538066__51a68d4f-cdf3-5c20-a544-79bf73f0aceb",
+                "dd453aec-17e3-59e0-929d-5310d8538066__522fcc52-472e-50b8-80dc-45d939d3fea2",
+                "dd453aec-17e3-59e0-929d-5310d8538066__5bcb1446-c6be-5df6-b0c4-a419822307b3",
+                "dd453aec-17e3-59e0-929d-5310d8538066__6a3ae6a4-0ecb-5ad3-8389-e62c0ca1d357",
+                "e6d7e1a7-3433-5e3d-9766-74b6771afffb__a64f4424-7818-51aa-b978-d2accdb151cb",
+                "e6d7e1a7-3433-5e3d-9766-74b6771afffb__a7d2b4e3-41d6-5430-90d6-9cbc3b38c0bc",
+                "e6d7e1a7-3433-5e3d-9766-74b6771afffb__abcb5278-ee20-5c1b-a07c-479f1ea286e5",
+                "e6d7e1a7-3433-5e3d-9766-74b6771afffb__ec5013e8-75ed-52fd-8240-2dad8e323c1a",
+                "f4fb3202-2868-5d4d-9444-45c5760e3857__0207241f-d534-594d-bf0d-645f15b12675",
+                "f4fb3202-2868-5d4d-9444-45c5760e3857__312c73bb-9601-5a63-a2b5-8d49104fc6e4",
+                "f4fb3202-2868-5d4d-9444-45c5760e3857__31673cb1-3552-5f6a-b136-30aa59da3e28",
+                "f4fb3202-2868-5d4d-9444-45c5760e3857__6cb100df-17ab-5401-8b56-1fef1953cd70",
+                "f4fb3202-2868-5d4d-9444-45c5760e3857__73a7c1c6-af40-5df8-87c6-ef4232513e17",
+                "f4fb3202-2868-5d4d-9444-45c5760e3857__f26508d4-21c7-553a-8809-8f58d0b9d7a5"
+              ],
+              "kappa": {
+                "kappa": 0.547005076142132,
+                "lo": 0.4113481568549291,
+                "hi": 0.6767438358280602,
+                "n": 97,
+                "agreement": 0.7628865979381443
+              },
+              "binary": {
+                "kappa": 0.6646692786356303,
+                "lo": 0.5063067050232353,
+                "hi": 0.801202285943198,
+                "n": 97,
+                "agreement": 0.845360824742268
+              },
+              "per_class": {
+                "Good Fit": {
+                  "n": 18,
+                  "agreement": 0.8888888888888888
+                },
+                "Potential Fit": {
+                  "n": 22,
+                  "agreement": 0.09090909090909091
+                },
+                "No Fit": {
+                  "n": 57,
+                  "agreement": 0.9824561403508771
+                }
+              },
+              "label_distribution": {
+                "Good Fit": 25,
+                "Potential Fit": 2,
+                "No Fit": 70
+              },
+              "note_fitted": "These cut points were fitted against the consensus reference on the pairs named in `fitted_on`. A kappa on the pairs a parameter was fitted on is not an out-of-sample result and may not be compared with the emitted label's kappa as though the two were measured the same way. `held_out` is the only figure here that may."
+            },
+            "held_out": {
+              "cut_points": {
+                "no_fit_below": 51.0,
+                "good_fit_at_or_above": 72.5
+              },
+              "fitted_on": [
+                "0b04e287-8e84-594b-b448-98ab6725580f__fc29d69e-5ddf-5ef6-8898-6ae11a623f66",
+                "13d7da99-d0dc-5a93-aa2a-874b84dc70cd__3d3fc8f4-759e-586b-a323-06cc348f878f",
+                "13d7da99-d0dc-5a93-aa2a-874b84dc70cd__a53dd65a-4248-5d75-b362-933babe6bb81",
+                "2701fb0a-3208-5642-b9ed-c7475da92b79__c81a5ff8-0439-554a-a1b7-3c5625af6d40",
+                "2701fb0a-3208-5642-b9ed-c7475da92b79__ccf47979-40ca-5e8a-835d-a274baf35ff3",
+                "2701fb0a-3208-5642-b9ed-c7475da92b79__e4fd0734-f42b-56d5-960b-fa0aded4976e",
+                "34c35393-ae1c-5bd9-be10-ef760e2335a6__3329cb9f-1213-51ce-84fc-38c22b186d96",
+                "34c35393-ae1c-5bd9-be10-ef760e2335a6__d644a00c-7476-511b-adf0-8f3eed453a18",
+                "466f6e3f-2a7d-5247-97cc-0089b94bca0f__21e99480-a930-522e-8c6c-74a1faad3d64",
+                "466f6e3f-2a7d-5247-97cc-0089b94bca0f__3c5752ef-9651-55a9-887b-099b5441ca2f",
+                "466f6e3f-2a7d-5247-97cc-0089b94bca0f__6631c8cf-4bc1-56a0-892c-2e51818e6aa7",
+                "466f6e3f-2a7d-5247-97cc-0089b94bca0f__faf9e716-0b3a-5d00-93ed-0c9a4ff2301d",
+                "4db862c9-85f1-529d-a2dd-a42e80a559c5__2299c455-4c6e-573c-a4c7-20eeca8dae88",
+                "4db862c9-85f1-529d-a2dd-a42e80a559c5__f4d1a459-4fc0-5f06-b70f-197da13ab948",
+                "4e36c31f-4eb4-5509-b7ad-493d63573d80__5b8119cf-4b2b-5ee0-9720-eb94ad516f48",
+                "4e36c31f-4eb4-5509-b7ad-493d63573d80__7d0b00fa-1219-5f49-bda2-27ba8b2636a5",
+                "4e36c31f-4eb4-5509-b7ad-493d63573d80__9620b250-7a7d-5a2e-846b-f4a6434676fa",
+                "4e36c31f-4eb4-5509-b7ad-493d63573d80__e99f0fbd-0ef5-5990-bec9-97a5afca5b51",
+                "624e4a73-e337-5dad-8e9a-84df8528f548__8c65c10e-752f-57f2-a6ad-9f1091c56aa6",
+                "624e4a73-e337-5dad-8e9a-84df8528f548__c9ad45b7-d5ab-51af-8266-4de5af6e3f14",
+                "624e4a73-e337-5dad-8e9a-84df8528f548__e9cb08d6-d597-56b5-aedc-7fabe2a616b4",
+                "624e4a73-e337-5dad-8e9a-84df8528f548__f45f4bcf-6855-56b3-876c-bca8f4d3b196",
+                "624e4a73-e337-5dad-8e9a-84df8528f548__fd5d7de5-015e-5db2-89e8-b5d9ee1714f0",
+                "663d2b7c-9af6-5c83-a0bc-e003ccbc1934__b455e92a-2134-5c39-9679-00ccb66b76e5",
+                "663d2b7c-9af6-5c83-a0bc-e003ccbc1934__e6a4369c-4e05-5b57-9af4-ababdc977595",
+                "663d2b7c-9af6-5c83-a0bc-e003ccbc1934__fd3cac68-42e7-5dd7-80cd-ec60d8bce4f6",
+                "79a3f5dc-e83d-53a6-9340-c980d58073b8__9787be75-53f2-5629-ad91-56fb15582ee0",
+                "79a3f5dc-e83d-53a6-9340-c980d58073b8__ad6fe2da-b054-5cf5-9d01-8257bc50fe08",
+                "79a3f5dc-e83d-53a6-9340-c980d58073b8__d959c78c-8c8b-5dec-9d35-eba361135cc2",
+                "9ba59992-a92b-5b44-9889-aae2d2efb1a0__4a0b9f20-1852-5af2-9412-4bdb98cd6b70",
+                "9ba59992-a92b-5b44-9889-aae2d2efb1a0__a0e6be39-baf1-5896-bf7f-5fc73b31d563",
+                "9ba59992-a92b-5b44-9889-aae2d2efb1a0__c4696565-38cd-519e-bc1c-8f2a2010e3e6",
+                "bcf37686-a318-504f-9282-477bd03da13d__1146a607-d470-586a-bc39-b73e93b5cdcd",
+                "bcf37686-a318-504f-9282-477bd03da13d__2b05f73d-3097-51b1-8d10-a41f7e77dadb",
+                "bcf37686-a318-504f-9282-477bd03da13d__c993b740-bdc8-527d-b298-957b78b43e74",
+                "bf6daec1-2487-5782-8b25-df9d12edec12__4cc295c5-179b-5a4f-8a88-dbabd7ff7eef",
+                "bf6daec1-2487-5782-8b25-df9d12edec12__daf4f4bd-a0a6-5904-be8c-d6d1ea45a395",
+                "d13583eb-022e-5e93-a514-96b6d01c9392__92332264-f2b9-5cef-8391-3c58cc6792ca",
+                "d13583eb-022e-5e93-a514-96b6d01c9392__e4e4bd58-b228-5988-ab91-87d04ab77e89",
+                "dd453aec-17e3-59e0-929d-5310d8538066__397408fd-db63-5f4a-8618-59119f9e5c34",
+                "dd453aec-17e3-59e0-929d-5310d8538066__51a68d4f-cdf3-5c20-a544-79bf73f0aceb",
+                "dd453aec-17e3-59e0-929d-5310d8538066__522fcc52-472e-50b8-80dc-45d939d3fea2",
+                "e6d7e1a7-3433-5e3d-9766-74b6771afffb__a64f4424-7818-51aa-b978-d2accdb151cb",
+                "e6d7e1a7-3433-5e3d-9766-74b6771afffb__a7d2b4e3-41d6-5430-90d6-9cbc3b38c0bc",
+                "e6d7e1a7-3433-5e3d-9766-74b6771afffb__ec5013e8-75ed-52fd-8240-2dad8e323c1a",
+                "f4fb3202-2868-5d4d-9444-45c5760e3857__0207241f-d534-594d-bf0d-645f15b12675",
+                "f4fb3202-2868-5d4d-9444-45c5760e3857__6cb100df-17ab-5401-8b56-1fef1953cd70",
+                "f4fb3202-2868-5d4d-9444-45c5760e3857__f26508d4-21c7-553a-8809-8f58d0b9d7a5"
+              ],
+              "quoted_on": [
+                "0b04e287-8e84-594b-b448-98ab6725580f__340fde1d-aa87-5f15-83f2-0d5c4689d876",
+                "0b04e287-8e84-594b-b448-98ab6725580f__d2d03fab-94f7-5e46-8181-04394ba65f80",
+                "13d7da99-d0dc-5a93-aa2a-874b84dc70cd__0926c9fb-8762-5f43-9745-a597738d1159",
+                "2701fb0a-3208-5642-b9ed-c7475da92b79__0a46c8a3-af89-5f59-ac54-302fe79c046c",
+                "2701fb0a-3208-5642-b9ed-c7475da92b79__7abafd55-47eb-5dd8-90ae-e9ba84c73e83",
+                "34c35393-ae1c-5bd9-be10-ef760e2335a6__6fdeaec8-1928-51f1-aefc-3283fae84c4b",
+                "466f6e3f-2a7d-5247-97cc-0089b94bca0f__20c5b812-c95c-5c02-8558-d14e5c64f417",
+                "466f6e3f-2a7d-5247-97cc-0089b94bca0f__6e7bde4d-79d9-5640-ae55-4e50053ee51d",
+                "4db862c9-85f1-529d-a2dd-a42e80a559c5__35b4f8ae-c223-5a50-8642-0aab0d3a745d",
+                "4db862c9-85f1-529d-a2dd-a42e80a559c5__a79dea42-aded-54df-9b5d-66d683d45be2",
+                "4e36c31f-4eb4-5509-b7ad-493d63573d80__371785c3-986a-5995-9d75-b27c52d3c2ad",
+                "4e36c31f-4eb4-5509-b7ad-493d63573d80__73805ac0-c0d2-5e46-9c76-8189096e6bac",
+                "4e36c31f-4eb4-5509-b7ad-493d63573d80__a7134aac-16f7-5b6a-9a42-4e4de3fc9f24",
+                "4e36c31f-4eb4-5509-b7ad-493d63573d80__fd8ee08b-8b9f-5828-8dae-454a18414a2f",
+                "624e4a73-e337-5dad-8e9a-84df8528f548__4d8619fe-d3b4-5549-988c-55c42e04c55d",
+                "624e4a73-e337-5dad-8e9a-84df8528f548__59dfd08f-fa42-5d34-88c2-109e0ad6e837",
+                "624e4a73-e337-5dad-8e9a-84df8528f548__f8041fd9-1899-50df-8076-4d80e0ec15d0",
+                "663d2b7c-9af6-5c83-a0bc-e003ccbc1934__1086b55d-a6f2-5d5f-bcdb-6fd5745ea1fd",
+                "663d2b7c-9af6-5c83-a0bc-e003ccbc1934__75bde58e-d6f5-54c8-83d6-dfa48f32f76a",
+                "777c8c4e-e2a6-5cfa-a87e-0ff547991a22__7aec7523-9ca8-5a16-949e-30a945bdae05",
+                "777c8c4e-e2a6-5cfa-a87e-0ff547991a22__8abdb85a-8920-51c5-b5a3-e838aace88bb",
+                "777c8c4e-e2a6-5cfa-a87e-0ff547991a22__b1a8efc1-a619-521e-8055-db9379a4fcb2",
+                "777c8c4e-e2a6-5cfa-a87e-0ff547991a22__dd115fa1-61b3-5f44-a6ec-997e3924b343",
+                "79a3f5dc-e83d-53a6-9340-c980d58073b8__26f50761-33a5-5e2a-9267-db95f7aef960",
+                "79a3f5dc-e83d-53a6-9340-c980d58073b8__aa4bbfb6-5fd0-5be2-b5a2-29e1764b75c5",
+                "79a3f5dc-e83d-53a6-9340-c980d58073b8__c4fa531e-87f6-5f71-b968-647ae794f6b5",
+                "79a3f5dc-e83d-53a6-9340-c980d58073b8__c93d9810-9d7d-5374-b553-97e3b66a867e",
+                "9ba59992-a92b-5b44-9889-aae2d2efb1a0__2e847480-62ce-55f0-b480-4bc09faf4e88",
+                "9ba59992-a92b-5b44-9889-aae2d2efb1a0__79215ce6-7217-517b-b94f-d5fd593f6545",
+                "9ba59992-a92b-5b44-9889-aae2d2efb1a0__937f63be-b781-572e-b24b-13a4264ab2f9",
+                "9ba59992-a92b-5b44-9889-aae2d2efb1a0__a5a24b2d-6952-59bd-b46e-aa7e72651e6d",
+                "af695b70-61d3-52fc-9b17-1f8f416b08d5__0dc1da24-b562-53f5-97d1-49901ed57013",
+                "af695b70-61d3-52fc-9b17-1f8f416b08d5__2cbf7ced-c5d5-5531-9243-9ed46380956c",
+                "af695b70-61d3-52fc-9b17-1f8f416b08d5__319a00a3-325a-5469-b604-47fbb3f1143f",
+                "af695b70-61d3-52fc-9b17-1f8f416b08d5__e783ba0d-1310-5128-8af4-20437b77af7b",
+                "bcf37686-a318-504f-9282-477bd03da13d__687cbecb-f9bd-52b0-bc50-1c74d3f70f97",
+                "bcf37686-a318-504f-9282-477bd03da13d__814c2844-3019-5bad-ab55-f6769c71d912",
+                "bf6daec1-2487-5782-8b25-df9d12edec12__ca48282d-1523-5ba0-a0fa-f11a69d4af66",
+                "c28f1951-f952-59c0-8a61-e4c28f6e6bd7__4406b154-b686-528d-8bd8-78fad22be4ff",
+                "c28f1951-f952-59c0-8a61-e4c28f6e6bd7__8329834a-e4d7-51f7-89d2-58fcaa983152",
+                "c28f1951-f952-59c0-8a61-e4c28f6e6bd7__d0096e63-043e-5de5-9992-70119ab14b10",
+                "d13583eb-022e-5e93-a514-96b6d01c9392__176a05ab-fdb2-53da-924d-58a7f6453842",
+                "d13583eb-022e-5e93-a514-96b6d01c9392__676082c3-5589-5b2d-a1e8-b0f595cdfc9d",
+                "dd453aec-17e3-59e0-929d-5310d8538066__5bcb1446-c6be-5df6-b0c4-a419822307b3",
+                "dd453aec-17e3-59e0-929d-5310d8538066__6a3ae6a4-0ecb-5ad3-8389-e62c0ca1d357",
+                "e6d7e1a7-3433-5e3d-9766-74b6771afffb__abcb5278-ee20-5c1b-a07c-479f1ea286e5",
+                "f4fb3202-2868-5d4d-9444-45c5760e3857__312c73bb-9601-5a63-a2b5-8d49104fc6e4",
+                "f4fb3202-2868-5d4d-9444-45c5760e3857__31673cb1-3552-5f6a-b136-30aa59da3e28",
+                "f4fb3202-2868-5d4d-9444-45c5760e3857__73a7c1c6-af40-5df8-87c6-ef4232513e17"
+              ],
+              "n_fit": 48,
+              "n": 49,
+              "kappa": {
+                "kappa": 0.4055459272097054,
+                "lo": 0.2136616567621839,
+                "hi": 0.6061271031744752,
+                "n": 49,
+                "agreement": 0.7142857142857143
+              },
+              "binary": {
+                "kappa": 0.6223506743737958,
+                "lo": 0.3917898652229879,
+                "hi": 0.8297271583675928,
+                "n": 49,
+                "agreement": 0.8367346938775511
+              },
+              "per_class": {
+                "Good Fit": {
+                  "n": 10,
+                  "agreement": 0.2
+                },
+                "Potential Fit": {
+                  "n": 8,
+                  "agreement": 0.375
+                },
+                "No Fit": {
+                  "n": 31,
+                  "agreement": 0.967741935483871
+                }
+              },
+              "note": "fitted on one seeded half of the consensus pairs and quoted on the other. This is the only out-of-sample figure in this block, and its n is half the consensus coverage, so its interval is wide by construction and is reported as it fell."
+            },
+            "note_fitted": "These cut points were fitted against the consensus reference on the pairs named in `fitted_on`. A kappa on the pairs a parameter was fitted on is not an out-of-sample result and may not be compared with the emitted label's kappa as though the two were measured the same way. `held_out` is the only figure here that may.",
+            "annotators": [
+              "van",
+              "yc"
+            ],
+            "n_multi_labelled": 200,
+            "n_agreed": 97,
+            "coverage": 0.485,
+            "note_selection": "The pairs two annotators agreed on are not a random subsample: they are the pairs both found unambiguous. A judge scores higher there for the reason a student scores higher on the easy half of an exam, so this is an UPPER estimate of its performance on the stratum, never an unbiased one. It is also why consensus cannot license substitution \u2014 the pairs it excludes are exactly the population a substituting judge would label alone, with no reference and no appeal (design spec \u00a73)."
+          }
+        }
+      },
+      "consensus": {
+        "annotators": [
+          "van",
+          "yc"
+        ],
+        "n_multi_labelled": 200,
+        "n_agreed": 97,
+        "coverage": 0.485,
+        "label_distribution": {
+          "Good Fit": 18,
+          "Potential Fit": 22,
+          "No Fit": 57
+        },
+        "note_selection": "The pairs two annotators agreed on are not a random subsample: they are the pairs both found unambiguous. A judge scores higher there for the reason a student scores higher on the easy half of an exam, so this is an UPPER estimate of its performance on the stratum, never an unbiased one. It is also why consensus cannot license substitution \u2014 the pairs it excludes are exactly the population a substituting judge would label alone, with no reference and no appeal (design spec \u00a73).",
+        "vs_llm": {
+          "n": 97,
+          "three_class": {
+            "kappa": 0.38499471644945404,
+            "lo": 0.2391423620079163,
+            "hi": 0.5303658149051849,
+            "n": 97,
+            "agreement": 0.6288659793814433
+          },
+          "binary": {
+            "kappa": 0.5488372093023255,
+            "lo": 0.3847584776938595,
+            "hi": 0.7103334888704045,
+            "n": 97,
+            "agreement": 0.7731958762886598
+          },
+          "per_class": {
+            "Good Fit": {
+              "n": 18,
+              "agreement": 0.3888888888888889
+            },
+            "Potential Fit": {
+              "n": 22,
+              "agreement": 0.5909090909090909
+            },
+            "No Fit": {
+              "n": 57,
+              "agreement": 0.7192982456140351
+            }
+          },
+          "confusion_rows_consensus": {
+            "Good Fit": {
+              "Good Fit": 7,
+              "Potential Fit": 9,
+              "No Fit": 2
+            },
+            "Potential Fit": {
+              "Good Fit": 5,
+              "Potential Fit": 13,
+              "No Fit": 4
+            },
+            "No Fit": {
+              "Good Fit": 0,
+              "Potential Fit": 16,
+              "No Fit": 41
+            }
+          },
+          "confusion_rows_llm": {
+            "Good Fit": {
+              "Good Fit": 7,
+              "Potential Fit": 5,
+              "No Fit": 0
+            },
+            "Potential Fit": {
+              "Good Fit": 9,
+              "Potential Fit": 13,
+              "No Fit": 16
+            },
+            "No Fit": {
+              "Good Fit": 2,
+              "Potential Fit": 4,
+              "No Fit": 41
+            }
+          }
+        }
+      },
+      "interchangeability": {
+        "n": 200,
+        "band": 0.05,
+        "rows": {
+          "van": {
+            "retained": "van",
+            "replaced": "yc",
+            "n": 200,
+            "human_pair": {
+              "three_class": {
+                "kappa": 0.2137404580152672,
+                "lo": 0.11873520291161638,
+                "hi": 0.31156156393315204,
+                "n": 200,
+                "agreement": 0.485
+              },
+              "binary": {
+                "kappa": 0.2917304747320061,
+                "lo": 0.171911961335044,
+                "hi": 0.4029604623056392,
+                "n": 200,
+                "agreement": 0.63
+              },
+              "per_class": {
+                "Good Fit": {
+                  "n": 60,
+                  "agreement": 0.3
+                },
+                "Potential Fit": {
+                  "n": 68,
+                  "agreement": 0.3235294117647059
+                },
+                "No Fit": {
+                  "n": 72,
+                  "agreement": 0.7916666666666666
+                }
+              }
+            },
+            "judge": {
+              "three_class": {
+                "kappa": 0.19207317073170727,
+                "lo": 0.09318363568123458,
+                "hi": 0.29170892685177485,
+                "n": 200,
+                "agreement": 0.47
+              },
+              "binary": {
+                "kappa": 0.3393009377664109,
+                "lo": 0.20307303403885532,
+                "hi": 0.4721297714735479,
+                "n": 200,
+                "agreement": 0.69
+              },
+              "per_class": {
+                "Good Fit": {
+                  "n": 60,
+                  "agreement": 0.18333333333333332
+                },
+                "Potential Fit": {
+                  "n": 68,
+                  "agreement": 0.5735294117647058
+                },
+                "No Fit": {
+                  "n": 72,
+                  "agreement": 0.6111111111111112
+                }
+              }
+            },
+            "verdict": {
+              "three_class": "tie",
+              "binary": "tie"
+            }
+          },
+          "yc": {
+            "retained": "yc",
+            "replaced": "van",
+            "n": 200,
+            "human_pair": {
+              "three_class": {
+                "kappa": 0.2137404580152672,
+                "lo": 0.11873520291161638,
+                "hi": 0.31156156393315204,
+                "n": 200,
+                "agreement": 0.485
+              },
+              "binary": {
+                "kappa": 0.2917304747320061,
+                "lo": 0.171911961335044,
+                "hi": 0.4029604623056392,
+                "n": 200,
+                "agreement": 0.63
+              },
+              "per_class": {
+                "Good Fit": {
+                  "n": 33,
+                  "agreement": 0.5454545454545454
+                },
+                "Potential Fit": {
+                  "n": 51,
+                  "agreement": 0.43137254901960786
+                },
+                "No Fit": {
+                  "n": 116,
+                  "agreement": 0.49137931034482757
+                }
+              }
+            },
+            "judge": {
+              "three_class": {
+                "kappa": 0.2501595405232929,
+                "lo": 0.1550652414515029,
+                "hi": 0.35470097859013633,
+                "n": 200,
+                "agreement": 0.53
+              },
+              "binary": {
+                "kappa": 0.36244204018547144,
+                "lo": 0.2480272374510708,
+                "hi": 0.4836321122369446,
+                "n": 200,
+                "agreement": 0.67
+              },
+              "per_class": {
+                "Good Fit": {
+                  "n": 33,
+                  "agreement": 0.30303030303030304
+                },
+                "Potential Fit": {
+                  "n": 51,
+                  "agreement": 0.6274509803921569
+                },
+                "No Fit": {
+                  "n": 116,
+                  "agreement": 0.5517241379310345
+                }
+              }
+            },
+            "verdict": {
+              "three_class": "tie",
+              "binary": "pass"
+            }
+          }
+        },
+        "per_class": {
+          "Good Fit": {
+            "bar": 0.4,
+            "human_pair": {
+              "van": 0.3,
+              "yc": 0.5454545454545454
+            },
+            "judge": {
+              "van": 0.18333333333333332,
+              "yc": 0.30303030303030304
+            },
+            "unidentified_by_instrument": true,
+            "judge_clears_bar": {
+              "van": false,
+              "yc": false
+            }
+          },
+          "Potential Fit": {
+            "bar": 0.4,
+            "human_pair": {
+              "van": 0.3235294117647059,
+              "yc": 0.43137254901960786
+            },
+            "judge": {
+              "van": 0.5735294117647058,
+              "yc": 0.6274509803921569
+            },
+            "unidentified_by_instrument": true,
+            "judge_clears_bar": {
+              "van": true,
+              "yc": true
+            }
+          },
+          "No Fit": {
+            "bar": 0.4,
+            "human_pair": {
+              "van": 0.7916666666666666,
+              "yc": 0.49137931034482757
+            },
+            "judge": {
+              "van": 0.6111111111111112,
+              "yc": 0.5517241379310345
+            },
+            "unidentified_by_instrument": false,
+            "judge_clears_bar": {
+              "van": true,
+              "yc": true
+            }
+          }
+        },
+        "note_not_separated": "Every interval in this block overlaps every other at this n. `pass` means the judge partners the retained annotator better than the replaced one did by more than the declared band, not that the two are distinguishable.",
+        "note_licences": "Passing licenses the judge as a *second* annotator in a double-labelling wave, where being as unreliable as a human is the specification. It does not license the judge as an answer key: no agreement figure between two fallible raters is a claim about correctness. D36 stays unmade."
+      },
+      "n_scored": 200,
+      "n_dispatched": 600,
+      "status": "scored",
       "self_consistency": {},
       "not_self_consistency": {
         "run6_vs_run8": {
@@ -1978,6 +5748,52 @@
             "scored": 0
           },
           "why": "these two runs differ on instrument or model, so their agreement is a comparison between judges and not this judge repeating itself (D38)"
+        },
+        "run6_vs_run10": {
+          "run_x": {
+            "models": [
+              "claude-haiku-4-5"
+            ],
+            "agents": [
+              "75e00ea3d0c34ab92acd7e6436de2921a3b80b2ff4e8106c88bc7580d048cd23"
+            ],
+            "rows": 200,
+            "scored": 0
+          },
+          "run_y": {
+            "models": [
+              "claude-haiku-4-5"
+            ],
+            "agents": [
+              "5d986c8232ea3c985ebf8e3044049d3dd7ba709ad7037043d726aa9590bc77a3"
+            ],
+            "rows": 200,
+            "scored": 200
+          },
+          "why": "these two runs differ on instrument or model, so their agreement is a comparison between judges and not this judge repeating itself (D38)"
+        },
+        "run8_vs_run10": {
+          "run_x": {
+            "models": [
+              "claude-sonnet-5"
+            ],
+            "agents": [
+              "75e00ea3d0c34ab92acd7e6436de2921a3b80b2ff4e8106c88bc7580d048cd23"
+            ],
+            "rows": 200,
+            "scored": 0
+          },
+          "run_y": {
+            "models": [
+              "claude-haiku-4-5"
+            ],
+            "agents": [
+              "5d986c8232ea3c985ebf8e3044049d3dd7ba709ad7037043d726aa9590bc77a3"
+            ],
+            "rows": 200,
+            "scored": 200
+          },
+          "why": "these two runs differ on instrument or model, so their agreement is a comparison between judges and not this judge repeating itself (D38)"
         }
       },
       "run_provenance": {
@@ -2000,6 +5816,16 @@
           ],
           "rows": 200,
           "scored": 0
+        },
+        "10": {
+          "models": [
+            "claude-haiku-4-5"
+          ],
+          "agents": [
+            "5d986c8232ea3c985ebf8e3044049d3dd7ba709ad7037043d726aa9590bc77a3"
+          ],
+          "rows": 200,
+          "scored": 200
         }
       }
     }

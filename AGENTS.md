@@ -418,8 +418,8 @@ to the committed `MODEL` rather than to the newest run, so dispatching a control
 silently change what `vs_llm` refers to. `verify --derived` gains `model provenance` (a
 row's model matches its dispatch record) and `one model per run`.
 
-**The judge is graded now, and it has not been run yet** *(8 Sep 2026,
-`plan/2026-09-08-judge-calibration/06-graded-registration.md`, move 3)*. The guide gives
+**The judge is graded now, and grading did not move the boundary** *(10 Sep 2026,
+`plan/2026-09-08-judge-calibration/07-graded-instrument-findings.md`, move 3)*. The guide gives
 `Good Fit` a **positive condition** — the CV evidences the role's core activity in a
 substantive capacity, and neither step 1 nor step 2 applies, *and then assign it* — the
 way D34 gave one to `No Fit`; the tie-break is scoped down again, to whether the core
@@ -433,12 +433,50 @@ M2 made the subprocess argv the authority, and a `model:` line was a second, une
 assertion of the same fact. All of it is **one instrument**, `5d986c82`, and no finding
 may attribute anything to one clause of it.
 
-**Runs 9 (`a2_generic`, 400) and 10 (`a2_targeted`, 200) under `claude-haiku-4-5` have
-not been dispatched.** Until they are, the committed instrument has no A2 rows:
-`llm-a2-report.json` reads `no overlap` at section level, and **runs 5-8's figures are
-under `by_instrument`**, keyed by the superseded `75e00ea3`. They were not withdrawn.
-Move 2's finding cites them as `by_model`, which is now `by_instrument[current]` and is
-empty until run 9 lands.
+**It has run, and the outcome is B — no material change** *(runs 9 and 10, 600 spawns,
+600 scores, zero unparsed)*. The reading was fixed in `06-graded-registration.md` before
+any prompt existed. Against **consensus**, `Good Fit` per-class agreement rises 0.136 →
+**0.273** on `generic` and 0.167 → **0.389** on `targeted` and **clears the registered
+0.40 bar on neither**; the `Good → Potential` collapse falls 0.773 → 0.591 and 0.778 →
+0.500 and reaches the registered "below half" on neither. The registered outcome-B test
+is whether G's interval overlaps the baseline's, and it does on both strata. **Q38
+therefore closes as "the boundary is not reachable by editing the instrument"** — model
+(move 2) and guide (move 3) have both now been tried against this corpus, and what is
+left untried is the *reference*, since the two humans do not clear the 0.40 bar against
+each other on `Good Fit` either. A third annotator, not a third guide.
+
+**Outcome C was checked first and did not fire**, which is the part worth keeping: unlike
+`sonnet` in move 2, this instrument did **not** buy `Good Fit` recall by getting harsher
+elsewhere. Consensus binary kappa held its floor on both strata (0.729 and 0.549 against
+0.540 and 0.422), no gate row that read `pass` or `tie` reads `fail`, and A — the gap
+between the judge's agreement with `yc` and with `van` — **fell** on `generic` (0.313 →
+0.268) and stayed far under bar on `targeted` (0.058 ≤ 0.20). An **unregistered** paired
+supplement (McNemar on the same consensus pairs, p = 0.250 / 0.125) agrees with the
+registered test and adds one thing: the gain is **strictly nested**, `baseline only = 0`
+on both strata. Outcome B here means "an effect this corpus cannot resolve at n=22/18",
+not "no effect".
+
+**The score is what survives, and it works.** It separates the boundary the label
+collapses: the emitted label agrees with consensus `Good Fit` 27% / 39% of the time,
+while the score ranks a consensus `Good Fit` above a consensus `Potential Fit` with
+**AUC 0.832 / 0.756**. Held-out cut points (fitted on a seeded half, quoted on the other)
+reach three-class kappa **0.601** [0.365, 0.800] on `generic` and **0.406** [0.214,
+0.606] on `targeted`, better than and level with the emitted label. **No cut point is
+committed.** `targeted`'s *full-data* fit is degenerate and is recorded as such — a
+`Potential Fit` band 4.5 points wide emitting 2 of that class in 97 — so any future
+adoption needs a per-class-balanced objective, never overall agreement against a
+reference whose majority class is `No Fit`.
+
+**Q45 is open and is the user's call.** Outcome B's two clauses conflict: it says the
+committed instrument stays `75e00ea3` *and* that the score survives as the reusable part,
+but the score exists only because `5d986c82` asks for it and move 3 bundled all four
+changes into one instrument on purpose. **The tree keeps `5d986c82`** — the reversible
+choice, and the one that preserves 600 scores — with the conflict flagged rather than
+decided. Consequence while it stands: the **A1 recheck** has no rows under the committed
+instrument, so `llm-recheck-report.json` reads `status: no overlap` at section level and
+D33/D34's figures live under `per_instrument`, unwithdrawn (`47fc2e48` 0.142/0.287;
+`75e00ea3` **0.085/0.352**). Re-judging the recheck under `5d986c82` is ~100 spawns and
+is not scheduled.
 
 **An instrument is an axis in `a2_report` too, and the score is present exactly where it
 was asked for.** `a2_frames` returns `per_instrument` (keyed by `agent_sha256`, each an
@@ -467,6 +505,18 @@ on one seeded half of the consensus pairs and quoted on the other, which is the 
 out-of-sample figure move 3 produces. The split is seeded and was fixed before any score
 existed, so a wide interval on half the pairs cannot later be replaced by the full-data
 fit that cannot miss.
+
+**A kappa over no pairs is not a figure** *(fix M3)*. `judge_frames` returns `llm` for
+the committed instrument alone, so the commit that changes the guide leaves the A1
+recheck draw judged by nobody current — and `report()` emitted `a1_vs_llm` and
+`human_vs_llm` as `kappa: NaN, n: 0`, turning D34's committed 0.085 and 0.352 into NaN
+and emptying `disagreements` from 72 rows to 0. Nothing was lost (both instruments were
+intact under `per_instrument`), but a reader could not tell *never measured* from
+*measured empty* — the same absent-vs-withdrawn ambiguity `a2_report` was given
+`by_instrument` for, in a function that had not been given it. `pairwise_over` now skips
+a pair with no common index, the per-class blocks emit `{}`, and the report carries
+`status` (`scored` / `no overlap`) and `note_no_overlap`. The leg with no `llm`
+dependency — kappa(A1, `yc`) at n=100 — is untouched and stays quotable.
 
 **A spawn that never answered is not a return** *(fix F1/F2, 6 Sep 2026,
 `plan/2026-09-06-a2-llm-prelabel/`)*. `judge()` resumes from `llm-recheck-raw.jsonl`, and
@@ -534,15 +584,16 @@ judge is not what the guide renders, or if its frontmatter is not `tools: []`.
 there would pass every existing check and be silently pooled into the human kappa. They go to
 `docs/data/manifests/llm-recheck.csv` (the recheck draw, 240 rows),
 `docs/data/manifests/llm-recheck-full-a1.csv` (option D, 639) and, for the in-domain
-corpus, `llm-a2-generic.csv` (800: haiku run 5 + sonnet run 7) and `llm-a2-targeted.csv`
-(400: haiku run 6 + sonnet run 8). Quoted
-as `llm:{model}:run{N}` — runs 1-3 and 7-8 are `claude-sonnet-5`, runs 4-6 are
+corpus, `llm-a2-generic.csv` (1,200: haiku runs 5 and 9 + sonnet run 7) and
+`llm-a2-targeted.csv` (600: haiku runs 6 and 10 + sonnet run 8). Quoted
+as `llm:{model}:run{N}` — runs 1-3 and 7-8 are `claude-sonnet-5`, runs 4-6 and 9-10 are
 `claude-haiku-4-5`, and the model is **read per row from the dispatch record**, never
 inferred from the run number, which is why that sentence is a description and not a rule.
 `collect()` preserves per-row model provenance from the dispatch record, takes
 corpus/batch/stratum and `response_scheme` from it too, and routes by `draw` (D35). Every
 row of every file also carries a `score` column: empty for runs 1-8, which were dispatched
-under `SCHEME_LABEL` and never asked for one.
+under `SCHEME_LABEL` and never asked for one, and populated for all 600 rows of runs 9
+and 10.
 
 **It is collected data, not derived** *(Q31)*. No seed reproduces a subagent run, so
 `check_llm_recheck` verifies **provenance** — `agent_sha256`, `prompt_sha256` against the
