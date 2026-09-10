@@ -467,16 +467,34 @@ committed.** `targeted`'s *full-data* fit is degenerate and is recorded as such 
 adoption needs a per-class-balanced objective, never overall agreement against a
 reference whose majority class is `No Fit`.
 
-**Q45 is open and is the user's call.** Outcome B's two clauses conflict: it says the
-committed instrument stays `75e00ea3` *and* that the score survives as the reusable part,
-but the score exists only because `5d986c82` asks for it and move 3 bundled all four
-changes into one instrument on purpose. **The tree keeps `5d986c82`** — the reversible
-choice, and the one that preserves 600 scores — with the conflict flagged rather than
-decided. Consequence while it stands: the **A1 recheck** has no rows under the committed
-instrument, so `llm-recheck-report.json` reads `status: no overlap` at section level and
-D33/D34's figures live under `per_instrument`, unwithdrawn (`47fc2e48` 0.142/0.287;
-`75e00ea3` **0.085/0.352**). Re-judging the recheck under `5d986c82` is ~100 spawns and
-is not scheduled.
+**The graded instrument stays committed** *(decision D39, 10 Sep 2026, closing Q45,
+`plan/2026-09-08-judge-calibration/08-q45-decision.md`)*. Outcome B's two clauses
+conflicted — the committed instrument stays `75e00ea3` *and* the score survives — and only
+`5d986c82` emits a score, because move 3 bundled all four changes into one instrument on
+purpose so no finding could attribute anything to one clause. **`5d986c82` is kept.**
+Outcome B says the edit did not fix the boundary; **it does not say the edit made anything
+worse**, and no registered statistic does either — binary held its floor on both strata, no
+gate row lost a `pass` or `tie`, the `yc`-minus-`van` gap fell on `generic`, and the paired
+supplement found the gain strictly nested. Reverting would pay 600 spawns to return to a
+judge that measures the same and emits less. **This promotes nothing**: outcome B stands,
+**Q38 stays closed**, no cut point is committed and **D36 stays unmade**. Consequence: the
+**A1 recheck** has no rows under the committed instrument, so `llm-recheck-report.json`
+reads `status: no overlap` at section level and D33/D34's figures live under
+`per_instrument`, unwithdrawn (`47fc2e48` 0.142/0.287; `75e00ea3` **0.085/0.352**).
+Re-judging it is ~100 spawns and is **not scheduled** — A1 is not the evaluation corpus
+going forward.
+
+**The judge-calibration plan is complete, and it ended on a negative result.** Move 1
+found a third reference (D37), move 2 refused the model (outcome D), move 3 refused the
+instrument (outcome B). With the user's decision of 10 Sep 2026 that there will be **no
+third annotator**, **Q38 closes permanently rather than pending budget**: model and guide
+were both tried and the reference was the remaining lever. What follows is a design
+question and not a calibration one — **what a reference label *is* on A2** (**Q46**),
+proposed in `plan/2026-09-10-a2-reference-design/` and **not yet approved**. Two numbers
+frame it: three-class consensus covers **15.0%** of `generic` (only 126 of 400 pairs were
+ever double-labelled) against 48.5% of `targeted`, and the two annotators differ
+*systematically* rather than randomly — `van` calls 51.6% of the shared `generic` pairs
+`Good Fit` where `yc` calls 25.2%. **Picking a single annotator is picking a threshold.**
 
 **An instrument is an axis in `a2_report` too, and the score is present exactly where it
 was asked for.** `a2_frames` returns `per_instrument` (keyed by `agent_sha256`, each an

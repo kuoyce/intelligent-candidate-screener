@@ -21,11 +21,18 @@ survives**: it ranks consensus `Good Fit` above consensus `Potential Fit` at AUC
 0.756, the boundary the emitted label collapses, and held-out cut points reach 0.601 and
 0.406. No cut point is committed.
 
-**Q45 is open and is the user's call** — outcome B's two clauses conflict (the committed
-instrument stays `75e00ea3` *and* the score survives, but only `5d986c82` emits a score).
-The tree keeps `5d986c82` as the reversible choice; while it stands, the **A1 recheck**
-has no rows under the committed instrument, so `llm-recheck-report.json` reads
-`status: no overlap` and D33/D34's figures sit under `per_instrument`, unwithdrawn.
+**Q45 closed 10 Sep 2026 as decision D39 — keep `5d986c82`**
+([`08-q45-decision.md`](08-q45-decision.md)). Outcome B's two clauses conflicted and the
+score is not separable from the guide edit that asks for it; the edit is measurably not
+worse, so reverting would pay 600 spawns for a judge that measures the same and emits
+less. This promotes nothing — outcome B stands and D36 stays unmade. While it stands the
+**A1 recheck** has no rows under the committed instrument, so `llm-recheck-report.json`
+reads `status: no overlap` and D33/D34's figures sit under `per_instrument`, unwithdrawn.
+
+**The plan is finished.** With no third annotator, **Q38 closes permanently**: model
+(move 2) and instrument (move 3) were both refused and the reference was the last lever.
+The successor question — what a reference label *is* on A2 — is
+`plan/2026-09-10-a2-reference-design/`, **awaiting approval**.
 
 **Date:** 8 Sep 2026
 **Depends on:** D29 (two strata, never pooled), D33 (the judge exists), D34 (the
