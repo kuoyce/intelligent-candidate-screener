@@ -70,6 +70,22 @@ NO_PICK = "none"
 DOUBLE_LABEL_FRACTION = 0.30
 _HASH_SCALE = 10_000
 
+#: Strata where **every** pair is labelled by both annotators, not the 30% the hash picks.
+#:
+#: `targeted` is the stratum the judge was pre-labelled on before any human saw it
+#: *(Phase 1)*, so it is the one place this project can measure a judge prospectively. The
+#: 30% design gave that stratum a human ceiling of kappa(yc, van) = 0.230 **[0.039,
+#: 0.444]** at n=55 — an interval that spans "two annotators barely agree" to "they agree
+#: moderately", and the substitution gate in `plan/2026-09-06-a2-llm-prelabel` divides by
+#: exactly that number. A gate whose denominator has a 0.40-wide CI decides nothing. Full
+#: coverage takes it to n=200.
+#:
+#: Widening a stratum is safe in the direction this repo cares about: `needs_two_labels`
+#: stays a pure function of the pair, so every label already collected under the 30% rule
+#: is still wanted and nothing is orphaned. Narrowing it later would not be — it would
+#: strand collected second labels — so treat this set as append-only, like a batch spec.
+FULL_DOUBLE_STRATA = frozenset({"targeted"})
+
 
 @dataclass(frozen=True)
 class Candidate:
@@ -133,15 +149,38 @@ class Group:
 # --- what needs labelling --------------------------------------------------
 
 def needs_two_labels(pair_id: str, fraction: float = DOUBLE_LABEL_FRACTION,
-                     seed: int = 0) -> bool:
+                     seed: int = 0, stratum: str | None = None) -> bool:
     """Is this one of the double-labelled pairs? A pure function of `pair_id`.
 
     Deliberately not a random sample drawn over the current pair list: that would be a
     function of how many pairs exist, so appending a batch would re-roll the designation
     for pairs already labelled once and silently strand half of the kappa sample.
+
+    `stratum` is what makes `FULL_DOUBLE_STRATA` reachable. It is optional because most
+    callers hold a pair id and nothing else, and omitting it can only *under*-report what
+    is wanted — never claim a second label is unwanted for a pair that has one. Callers
+    that decide what an annotator is owed pass it; `labels_wanted` is the one that does.
     """
+    if stratum is not None and str(stratum) in FULL_DOUBLE_STRATA:
+        return True
     digest = hashlib.sha256(f"{seed}|{pair_id}".encode("utf-8")).hexdigest()[:16]
     return (int(digest, 16) % _HASH_SCALE) < fraction * _HASH_SCALE
+
+
+def labels_wanted(pairs: pd.DataFrame, fraction: float = DOUBLE_LABEL_FRACTION,
+                  seed: int = 0) -> pd.Series:
+    """How many labels each pair wants — 1 or 2 — with the stratum rule applied.
+
+    One function so `outstanding` and `batch_overview` cannot disagree about what is
+    owed. They did not disagree before only because neither consulted the stratum; the
+    moment one of them does and the other does not, the UI serves work the progress
+    display says is finished.
+    """
+    strata = (pairs.stratum.astype(str) if "stratum" in pairs
+              else pd.Series([None] * len(pairs), index=pairs.index))
+    return pd.Series(
+        [2 if needs_two_labels(p, fraction, seed, s) else 1
+         for p, s in zip(pairs.pair_id, strata)], index=pairs.index, dtype=int)
 
 
 def load_pairs() -> pd.DataFrame:
@@ -206,8 +245,7 @@ def outstanding(pairs: pd.DataFrame, judgements: pd.DataFrame, annotator: str,
     mine = (set(judgements[judgements.annotator == annotator].pair_id)
             if len(judgements) else set())
 
-    wanted = pairs.pair_id.map(
-        lambda p: 2 if needs_two_labels(p, fraction, seed) else 1)
+    wanted = labels_wanted(pairs, fraction, seed)
     have = pairs.pair_id.map(counts).fillna(0).astype(int)
     return pairs[(have < wanted) & ~pairs.pair_id.isin(mine)]
 
@@ -345,7 +383,7 @@ def batch_overview(annotator: str = "", fraction: float = DOUBLE_LABEL_FRACTION,
     counts = (judgements.groupby("pair_id").size() if len(judgements)
               else pd.Series(dtype=int))
     pairs = pairs.assign(
-        wanted=pairs.pair_id.map(lambda p: 2 if needs_two_labels(p, fraction, seed) else 1),
+        wanted=labels_wanted(pairs, fraction, seed),
         have=pairs.pair_id.map(counts).fillna(0).astype(int))
     owed = outstanding(pairs, judgements, annotator, fraction, seed) if annotator \
         else pairs.head(0)
@@ -372,6 +410,7 @@ def batch_overview(annotator: str = "", fraction: float = DOUBLE_LABEL_FRACTION,
 
     return {"annotator": annotator,
             "double_label_fraction": fraction,
+            "full_double_strata": sorted(FULL_DOUBLE_STRATA),
             "batches": sorted(batches, key=lambda b: b["batch"]),
             "totals": {"pairs": int(len(pairs)),
                        "labels_wanted": int(pairs.wanted.sum()),

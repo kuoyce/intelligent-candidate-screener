@@ -364,13 +364,32 @@ def check_judging_queue() -> list[tuple[bool, str]]:
     else:
         results.append((True, f"blinding: {dispatch} not built (git-ignored) — skipped"))
 
-    # D28: the queue is rebuilt from what is *not* judged, so a rebuild must never
-    # re-present a labelled pair. This is the resume mechanism's only invariant.
-    done = queue.judged_pair_ids()
-    if done:
-        redispatched = {f"{q}__{d}" for q, d in zip(key.query_id, key.doc_id)} & done
-        results.append((not redispatched,
-                        f"resume: {len(redispatched)} already-judged pairs re-dispatched"))
+    # D28: the queue is rebuilt from what is *not finished*, so a rebuild must never
+    # re-present a pair that already carries every label the campaign wants. This is the
+    # resume mechanism's only invariant. "Finished" is not "has a label": a pair in a
+    # fully double-labelled stratum wants two, and 200 `targeted` pairs are in exactly
+    # that state — labelled by `van`, still owed by `yc`. Checking the weaker condition
+    # would fail on every one of them and would be demanding that `build_queue` drop
+    # outstanding work.
+    if queue.JUDGEMENTS.exists():
+        from candidate_screener.annotation import session
+
+        counts = pd.read_csv(queue.JUDGEMENTS).groupby("pair_id").size()
+        # The committed key carries no `stratum` — it is a blinded artifact and the
+        # column would be one more thing to keep in sync. Taken from the pairs manifest
+        # instead, which is where a pair's stratum is stamped (D29); an A1 recheck row is
+        # absent from it and falls through to the 30% rule, which is its rule.
+        strata = pd.read_csv(queue.PAIRS_MANIFEST).assign(
+            pair_id=lambda d: d.jd_id.astype(str) + "__" + d.cv_id.astype(str)
+        ).set_index("pair_id").stratum
+        pairs = key.assign(pair_id=key.query_id.astype(str) + "__"
+                           + key.doc_id.astype(str))
+        pairs["stratum"] = pairs.pair_id.map(strata)
+        have = pairs.pair_id.map(counts).fillna(0).astype(int)
+        finished = pairs.pair_id[have >= session.labels_wanted(pairs)]
+        results.append((not len(finished),
+                        f"resume: {len(finished)} pair(s) that already carry every label "
+                        "the campaign wants are still in the dispatched key"))
 
     if queue.JUDGEMENTS.exists():
         judged = pd.read_csv(queue.JUDGEMENTS)
@@ -510,21 +529,50 @@ def check_llm_recheck() -> list[tuple[bool, str]]:
             results.append((True, f"provenance: dispatch file not built (git-ignored) — "
                                   f"prompt_sha256 unverifiable for {path.name}"))
 
-        scored = frame[frame.parsed_ok.astype(str).str.lower().isin(("true", "1"))]
-        bad = sorted(set(scored.label.dropna()) - set(session.LABELS))
+        parsed = frame[frame.parsed_ok.astype(str).str.lower().isin(("true", "1"))]
+        bad = sorted(set(parsed.label.dropna()) - set(session.LABELS))
         results.append((not bad, f"scheme: {bad or 'no'} labels outside A1's 3 classes in "
                                  f"{path.name}"))
+
+        # A score is present exactly when the dispatch asked for one (move 3 of
+        # `plan/2026-09-08-judge-calibration`). Both directions matter: a scored run with
+        # a null score is a row a later mean would skip without saying so, and a
+        # pre-move-3 run carrying one would mean a column was populated by something
+        # other than the judge that answered.
+        if dispatched and "score" in frame:
+            wants = lambda r: str(dispatched.get((r.pair_id, r.run), {})       # noqa: E731
+                                  .get("response_scheme", llm.SCHEME_LABEL))
+            has = lambda r: pd.notna(r.score)                                  # noqa: E731
+            off = [(r.pair_id, r.run) for r in parsed.itertuples()
+                   if (r.pair_id, r.run) in dispatched
+                   and has(r) != (wants(r) == llm.SCHEME_SCORED)]
+            results.append((not off,
+                            f"score scheme: {len(off)} parsed row(s) of {path.name} "
+                            "carry a score their dispatch did not ask for, or withhold "
+                            "one it did — a null score in a graded run is a row every "
+                            "later mean skips in silence"))
+            graded = parsed[parsed.score.notna()]
+            out_of_range = graded[~pd.to_numeric(graded.score, errors="coerce")
+                                  .between(llm.SCORE_MIN, llm.SCORE_MAX)]
+            results.append((out_of_range.empty,
+                            f"score range: {len(out_of_range)} row(s) of {path.name} "
+                            f"outside {llm.SCORE_MIN}-{llm.SCORE_MAX}"))
 
     # A run number holds one draw *(D35)*. The two files are the only place that invariant
     # is visible after the fact, because a mixed run reads as one instrument, one run and a
     # plausible row count — which is exactly how option D absorbed D33's run 2.
-    if len(frames) == 2:
-        shared = set(frames[llm.RECHECK_DRAW].run) & set(frames[llm.FULL_A1_DRAW].run)
-        unexpected = sorted(shared - llm.LEGACY_MIXED_RUNS)
-        results.append((not unexpected,
-                        f"one draw per run: run(s) {unexpected or 'none'} appear in both "
-                        "llm-recheck.csv and llm-recheck-full-a1.csv, beyond the declared "
-                        f"pre-D35 mixture {sorted(llm.LEGACY_MIXED_RUNS)}"))
+    # Every pair of draws, not just the first two: the in-domain draws made this four
+    # files, and a check written for exactly two would have stopped covering the ones
+    # added last while still reporting PASS.
+    for i, x in enumerate(sorted(frames)):
+        for y in sorted(frames)[i + 1:]:
+            shared = set(frames[x].run) & set(frames[y].run)
+            unexpected = sorted(shared - llm.LEGACY_MIXED_RUNS)
+            results.append((not unexpected,
+                            f"one draw per run: run(s) {unexpected or 'none'} appear in "
+                            f"both {llm.DRAW_FILES[x].name} and {llm.DRAW_FILES[y].name}, "
+                            "beyond the declared pre-D35 mixture "
+                            f"{sorted(llm.LEGACY_MIXED_RUNS)}"))
 
     ids = lambda f: set(f.query_id.astype(str) + "__" + f.doc_id.astype(str))  # noqa: E731
     recheck_ids, human_ids = set(), set()
@@ -556,6 +604,70 @@ def check_llm_recheck() -> list[tuple[bool, str]]:
         else:
             results.append((True, "scope: fit/test.parquet not built — option-D pair set "
                                   "unverifiable on this machine"))
+
+    # The in-domain draws. A row's stratum is what routes it to a file, so the check that
+    # matters is that the pair really is in that stratum of the manifest — not merely that
+    # it is an A2 pair. `stratum` is stamped at dispatch and never looked up later (D29),
+    # which is what this catches drifting.
+    a2_draws = [d for d in llm.A2_DRAW_STRATUM if d in frames]
+    if a2_draws:
+        try:
+            rows = queue.indomain_rows()
+            rows["pair_id"] = (rows.query_id.astype(str) + "__"
+                               + rows.doc_id.astype(str))
+        except (FileNotFoundError, OSError):
+            rows = None
+        for draw in a2_draws:
+            stratum = llm.A2_DRAW_STRATUM[draw]
+            frame = frames[draw]
+            name = llm.DRAW_FILES[draw].name
+            if rows is None:
+                results.append((True, f"scope: indomain-pairs.csv not built — {name} "
+                                      "pair set unverifiable on this machine"))
+                continue
+            allowed = set(rows[rows.stratum.astype(str) == stratum].pair_id)
+            stray = sorted(set(frame.pair_id) - allowed)
+            results.append((not stray, f"scope: {len(stray)} pair(s) in {name} are not "
+                                       f"among the {len(allowed)} in-domain pairs of "
+                                       f"stratum {stratum!r}"))
+            wrong = frame[frame.stratum.astype(str) != stratum]
+            results.append((wrong.empty,
+                            f"stratum purity: {len(wrong)} row(s) in {name} carry a "
+                            f"stratum other than {stratum!r} — the two strata are never "
+                            "pooled (D29), so a file holds exactly one"))
+            off_corpus = frame[frame.corpus.astype(str) != "a2"]
+            results.append((off_corpus.empty,
+                            f"corpus: {len(off_corpus)} row(s) in {name} are not a2"))
+
+            # Model is an axis a figure may not be pooled across *(D38)*, and a row's
+            # model is copied out of the dispatch record — so a row naming a model its
+            # dispatch did not is a figure attributed to a judge that never ran. Runs 1-6
+            # predate M2 and their model was never passed to the subprocess at all
+            # (**Q43**); this checks the two agree, which is all that is checkable after
+            # the fact.
+            if dispatched:
+                off_model = [(r.pair_id, r.run, r.model)
+                             for r in frame.itertuples()
+                             if (r.pair_id, r.run) in dispatched
+                             and str(dispatched[(r.pair_id, r.run)].get("model", ""))
+                             != str(r.model)]
+                results.append((not off_model,
+                                f"model provenance: {len(off_model)} row(s) of {name} "
+                                "name a model its dispatch record does not (D38)"))
+                per_run = frame.groupby("run").model.nunique()
+                mixed = sorted(per_run[per_run > 1].index.tolist())
+                results.append((not mixed,
+                                f"one model per run: run(s) {mixed or 'none'} in {name} "
+                                "carry more than one model — a run is one sitting of one "
+                                "judge, and the model is part of which judge it is"))
+
+            # The instrument every A2 figure is quoted against. A row carrying a
+            # superseded agent is not an error — it is a previous instrument, reported
+            # under per_instrument — but a row carrying an agent that never existed is.
+            agents = sorted(frame.agent_sha256.astype(str).unique())
+            results.append((all(len(a) == 64 for a in agents),
+                            f"instrument: {name} names {len(agents)} agent_sha256 "
+                            f"value(s), all full-length"))
     return results
 
 

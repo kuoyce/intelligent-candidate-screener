@@ -149,17 +149,33 @@ def indomain_rows() -> pd.DataFrame:
 
 
 def build_queue(seed: int, strata: dict[str, int] | None = None) -> pd.DataFrame:
-    """Concatenate, drop what is judged, redact, shuffle. The shuffle is the blinding."""
+    """Concatenate, drop what is finished, redact, shuffle. The shuffle is the blinding.
+
+    **Finished, not judged.** A pair leaves the queue when it carries every label the
+    campaign wants from it, which is one label for most pairs and two in a stratum listed
+    in `session.FULL_DOUBLE_STRATA`. Dropping on the first label was the same statement
+    while 30% was the only doubling rule and nothing had reached its second label yet; it
+    stopped being the same statement the moment a whole stratum was doubled, and it would
+    have silently removed 200 `targeted` pairs from the key that one annotator has
+    labelled and the other still owes.
+    """
+    from candidate_screener.annotation import session  # local: session imports this module
+
     rows = pd.concat([indomain_rows(), a1_recheck(strata or RECHECK_STRATA, seed)],
                      ignore_index=True)
     rows["pair_id"] = rows.query_id.astype(str) + "__" + rows.doc_id.astype(str)
 
+    have = pd.Series(0, index=rows.index)
+    if JUDGEMENTS.exists():
+        counts = pd.read_csv(JUDGEMENTS).groupby("pair_id").size()
+        have = rows.pair_id.map(counts).fillna(0).astype(int)
     done = judged_pair_ids()
-    rows = rows[~rows.pair_id.isin(done)].reset_index(drop=True)
+    rows = rows[have < session.labels_wanted(rows, seed=seed)].reset_index(drop=True)
     if rows.empty:
         raise AssertionError(
-            f"every pair in the campaign is already judged ({len(done)} labels). Add a "
-            "batch with `annotation.sample --add-batch` before rebuilding the queue.")
+            f"every pair in the campaign carries every label it wants ({len(done)} pairs "
+            "judged). Add a batch with `annotation.sample --add-batch` before rebuilding "
+            "the queue.")
 
     missing = rows[rows.query_text.isna() | rows.candidate_text.isna()]
     if len(missing):
@@ -184,11 +200,31 @@ def build_queue(seed: int, strata: dict[str, int] | None = None) -> pd.DataFrame
 
 
 def progress() -> dict:
-    """What is done, what is left, and which JDs are split across sittings."""
+    """What is done, what is left, and which JDs are split across sittings.
+
+    `done` here means *has at least one label*, which is the campaign's coverage. It is
+    not the same question as "is this pair finished": a pair in a fully double-labelled
+    stratum wants two, so `labels_have` / `labels_wanted` are reported beside it. Quoting
+    only the first would say `targeted` is 200/200 while an annotator still owes 145.
+    """
+    # Imported here, not at module scope: `session` imports this module for
+    # `JUDGEMENTS` / `JUDGEMENT_COLUMNS`, so a top-level import would be a cycle. The
+    # double-labelling rule lives in `session` because that is where what an annotator is
+    # owed is decided; this function is only reporting it.
+    from candidate_screener.annotation import session
+
     done = judged_pair_ids()
     pairs = pd.read_csv(PAIRS_MANIFEST)
     pairs["pair_id"] = pairs.jd_id.astype(str) + "__" + pairs.cv_id.astype(str)
     pairs["done"] = pairs.pair_id.isin(done)
+    pairs["wanted"] = session.labels_wanted(pairs)
+    counts = (pd.read_csv(JUDGEMENTS).groupby("pair_id").size()
+              if JUDGEMENTS.exists() else pd.Series(dtype=int))
+    pairs["have"] = pairs.pair_id.map(counts).fillna(0).astype(int)
+
+    def cover(g: pd.DataFrame) -> dict:
+        return {"done": int(g.done.sum()), "total": int(len(g)),
+                "labels_have": int(g.have.sum()), "labels_wanted": int(g.wanted.sum())}
 
     by_jd = pairs.groupby("jd_id").done.agg(["sum", "size"])
     partial = by_jd[(by_jd["sum"] > 0) & (by_jd["sum"] < by_jd["size"])]
@@ -196,10 +232,12 @@ def progress() -> dict:
         "judged": len(done), "in_domain_total": int(len(pairs)),
         "in_domain_done": int(pairs.done.sum()),
         "remaining": int((~pairs.done).sum()),
-        "by_batch": {str(b): {"done": int(g.done.sum()), "total": int(len(g))}
-                     for b, g in pairs.groupby("batch")},
-        "by_stratum": {str(k): {"done": int(g.done.sum()), "total": int(len(g))}
-                       for k, g in pairs.groupby("stratum")},
+        "labels_have": int(pairs.have.sum()),
+        "labels_wanted": int(pairs.wanted.sum()),
+        "labels_remaining": int((pairs.wanted - pairs.have).clip(lower=0).sum()),
+        "full_double_strata": sorted(session.FULL_DOUBLE_STRATA),
+        "by_batch": {str(b): cover(g) for b, g in pairs.groupby("batch")},
+        "by_stratum": {str(k): cover(g) for k, g in pairs.groupby("stratum")},
         # A JD split across two sittings needs its top-1 shortlist pick recorded in the
         # second, because the question is asked once per JD after all its candidates.
         "partial_jds": partial.index.tolist(),
@@ -220,7 +258,10 @@ def build(seed: int, strata: dict[str, int] | None = None) -> dict:
         DISPATCH_OUT / "judging-queue.csv", index=False, lineterminator="\n")
     queue.to_parquet(DISPATCH_OUT / "judging-queue-full.parquet", index=False)
 
+    from candidate_screener.annotation import session  # local: session imports this module
+
     already = judged_pair_ids()
+    a2 = queue[queue.corpus == "a2"]
     report = {
         "seed": seed,
         "total": int(len(queue)),
@@ -231,11 +272,16 @@ def build(seed: int, strata: dict[str, int] | None = None) -> dict:
         "a1_recheck_strata": {k: int(v) for k, v in
                               queue[queue.selection_reason == "a1_recheck"]
                               .a1_label.value_counts().items()},
-        "double_label_target": int(round(0.30 * len(queue[queue.corpus == "a2"]))),
+        # Counted from the rule rather than from 0.30, because the rule is no longer only
+        # the hash: `session.FULL_DOUBLE_STRATA` doubles a whole stratum, and a hardcoded
+        # fraction here would under-report the session by the size of it.
+        "double_label_target": int(session.labels_wanted(a2).eq(2).sum()),
+        "full_double_strata": sorted(session.FULL_DOUBLE_STRATA),
         "annotators": 2,
         "note_protocol": (
             "Two annotators, both covering every title, working from this one queue split "
-            "by hand (D29). 30% of the in-domain pairs are labelled by both, for kappa; the "
+            "by hand (D29). 30% of the in-domain pairs are labelled by both, for kappa, "
+            "except in a stratum listed in full_double_strata, where every pair is; the "
             "rest are single-labelled. Because both cover all titles, the double-labelled "
             "subset can be drawn at random — under an expertise split it could not, since "
             "a random draw would rarely land on a pair two people had both seen."),
@@ -260,7 +306,8 @@ def print_report(r: dict) -> None:
         print(f"  {reason:<20} {n}")
     print(f"  A1 recheck strata   {r['a1_recheck_strata']}  <-- tests A13")
     print(f"  strata              {r['by_stratum']}")
-    print(f"  double-label target {r['double_label_target']} in-domain pairs (30%), "
+    print(f"  double-label target {r['double_label_target']} in-domain pairs "
+          f"(30%, and all of {r['full_double_strata']}), "
           f"{r['annotators']} annotators, one queue split by hand")
     print(f"  key      -> {QUEUE_MANIFEST.name} (committed, no text)")
     print(f"  dispatch -> {DISPATCH_OUT / 'judging-queue.csv'} (git-ignored, redacted)")

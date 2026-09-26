@@ -438,3 +438,65 @@ def test_each_annotator_still_reaches_every_job_description(judgements_file):
     shared = set(pairs[pairs.pair_id.map(session.needs_two_labels)].jd_id)
     assert shared, "fixture must contain double-labelled pairs"
     assert seen == shared, "bob must reach every JD carrying a shared pair, and no other"
+
+
+# --- fully double-labelled strata ------------------------------------------
+
+def test_a_full_double_stratum_is_owed_to_the_second_annotator_entire():
+    """Mutation: ignore `stratum` in `needs_two_labels` — the code before 7 Sep 2026.
+
+    Under the 30% rule the second annotator is owed only the hashed subset, which on
+    `targeted` was 55 of 200 and gave a human ceiling of 0.230 [0.039, 0.444]. The
+    substitution gate divides by that number, so an interval that wide decides nothing.
+    Without the stratum clause this test's `owed` is a third of the pairs and the
+    campaign reports itself finished.
+    """
+    pairs = make_pairs(n_jds=4, stratum="targeted")
+    assert "targeted" in session.FULL_DOUBLE_STRATA
+    judged = pd.DataFrame({"pair_id": list(pairs.pair_id), "annotator": "alice"})
+
+    owed = session.outstanding(pairs, judged, "bob")
+    assert set(owed.pair_id) == set(pairs.pair_id)
+    assert (session.labels_wanted(pairs) == 2).all()
+
+
+def test_widening_a_stratum_orphans_no_label_already_collected():
+    """The append-only property `FULL_DOUBLE_STRATA` is documented as having.
+
+    `needs_two_labels` stays a pure function of the pair, so every pair the 30% hash had
+    already designated is still designated — a second label collected under the old rule
+    is still a label the campaign wants. Mutation: designate the stratum by *replacing*
+    the hash (e.g. `return stratum in FULL_DOUBLE_STRATA`) rather than short-circuiting
+    it — that inverts the rule for every other stratum and strands their second labels.
+    """
+    pairs = make_pairs(n_jds=4, stratum="targeted")
+    hashed = {p for p in pairs.pair_id if session.needs_two_labels(p)}
+    assert hashed, "fixture must contain pairs the 30% rule had already designated"
+    assert all(session.needs_two_labels(p, stratum="targeted") for p in hashed)
+
+    generic = make_pairs(n_jds=4, stratum="generic")
+    assert {p for p in generic.pair_id if session.needs_two_labels(p, stratum="generic")} \
+        == {p for p in generic.pair_id if session.needs_two_labels(p)}
+
+
+def test_the_other_stratum_keeps_the_thirty_percent_rule():
+    """Mutation: put `generic` in `FULL_DOUBLE_STRATA` too, or drop the set and double
+    everything. Either doubles a 400-pair stratum that is already labelled and turns a
+    finished session into 274 outstanding pairs, silently.
+    """
+    pairs = make_pairs(n_jds=8, stratum="generic")
+    wanted = session.labels_wanted(pairs)
+    assert set(wanted) == {1, 2}, "the 30% rule must still be a strict subset"
+    assert 0 < (wanted == 2).sum() < len(pairs)
+
+
+def test_a_pair_is_still_never_served_twice_to_the_same_person_in_a_full_stratum():
+    """Mutation: drop the `~pairs.pair_id.isin(mine)` clause once `wanted` is 2.
+
+    Doubling a stratum makes every pair want a second label; the guard that it must come
+    from a *different* person is the only thing that stops one annotator labelling the
+    whole ceiling sample twice and a kappa being computed against themselves.
+    """
+    pairs = make_pairs(n_jds=2, stratum="targeted")
+    mine = pd.DataFrame({"pair_id": list(pairs.pair_id), "annotator": "alice"})
+    assert session.outstanding(pairs, mine, "alice").empty
