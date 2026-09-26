@@ -108,7 +108,8 @@ def load_probe_pairs(run: int, good_fit_only: bool = True,
 
 def calibrate_one(pair_prompt: str, system_prompt: str,
                   model: str = DEFAULT_MODEL) -> str:
-    """One pair, one subprocess call, one raw return string."""
+    """One pair, one subprocess call, one raw return string. Closed by D42."""
+    llm.assert_dispatch_open("prompt calibration")
     proc = subprocess.run(
         [shutil.which("claude") or "claude", "-p",
          "--system-prompt", system_prompt,
@@ -211,6 +212,7 @@ def main() -> int:
     ap.add_argument("--concurrency", type=int, default=CONCURRENCY)
     ap.add_argument("--seed", type=int, default=0)
     args = ap.parse_args()
+    llm.assert_dispatch_open("prompt calibration")
 
     pair_records, a1_labels, human_labels = load_probe_pairs(
         args.run, good_fit_only=not args.all_pairs, seed=args.seed)

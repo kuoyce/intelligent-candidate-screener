@@ -114,6 +114,8 @@ Good Fit resumes per test JD: min 1, Q1 3, **median 18**, Q3 24, max 48.
   computed against pools whose A1 leg carries labels that do not reproduce. The figures have
   not been restated — that is a separate change, superseding in place — but every use of
   them now travels with the finding, not only with the ceiling.
+
+  *Superseded 26 Sep 2026 (D40).* The attainable ceilings (0.7806 / 0.7188 / 0.983) are **retired, not restated**. They are computed from A1 labels that do not reproduce (A13), and A1 is now a secondary benchmark. A1 figures are quoted with *n*, CI and the A13 line, with no "% of attainable". The primary benchmark is the A2 final set (D41). See `plan/2026-09-26-top-down-reset/`.
 - Do **not** report on the shipped split. Use the doubly-disjoint re-split — **built, at a
   30% hold-out, seed 0**: [`docs/data/manifests/fit-split.csv`](../manifests/fit-split.csv),
   rebuilt with `python -m candidate_screener.data.build --task fit-split`.

@@ -384,8 +384,33 @@ def assert_run_holds_one_draw(run: int, draw: str) -> None:
             f"{draw!r}. A run number holds one draw (D35) — choose an unused run number.")
 
 
+
+# --- D42: dispatch is closed --------------------------------------------------
+
+#: Annotation collection and judge calibration are closed *(D42, 26 Sep 2026)*: no new
+#: labels and no Claude subprocess may be started from this repository. Every path that
+#: writes a new dispatch or spawns `claude` checks this first. Reopening it is a decision,
+#: recorded in `docs/decisions.md`, not a flag flip. The frozen module's own regression
+#: tests reopen it in-process with the subprocess mocked, so nothing can spawn there.
+DISPATCH_CLOSED = True
+
+
+class DispatchClosed(RuntimeError):
+    """Raised by any entry point that would dispatch prompts or spawn the judge."""
+
+
+def assert_dispatch_open(what: str) -> None:
+    if DISPATCH_CLOSED:
+        raise DispatchClosed(
+            f"{what} is closed by D42 (plan/2026-09-26-top-down-reset): annotation "
+            "collection and judge calibration are finished, and no Claude subprocess may "
+            "be started from this repository. The labels on file are read-only inputs to "
+            "the final set (evaluation/final_set.py).")
+
+
 def dispatch(run: int, seed: int = 0, subsample: int | None = None,
              model: str = MODEL) -> dict:
+    assert_dispatch_open("dispatch")
     from candidate_screener.annotation import ui
 
     agent_hash = assert_agent_definition_current()
@@ -458,6 +483,7 @@ def dispatch_all_a1(run: int, seed: int = 0, model: str = MODEL) -> dict:
     file *(D35)*. `assert_run_holds_one_draw` is what stops this dispatch from landing on a
     run number the recheck is already using, which is how the two came to be mixed.
     """
+    assert_dispatch_open("dispatch_all_a1")
     agent_hash = assert_agent_definition_current()
     assert_run_holds_one_draw(run, FULL_A1_DRAW)
     test = pd.read_parquet(PROCESSED / "fit" / "test.parquet")
@@ -520,6 +546,7 @@ def dispatch_a2(stratum: str, run: int, seed: int = 0, model: str = MODEL) -> di
     `generic` pairs are unreachable from here by construction; `assert_not_anchoring` is
     the second line, not the first.
     """
+    assert_dispatch_open("dispatch_a2")
     draw = next((d for d, s in A2_DRAW_STRATUM.items() if s == stratum), None)
     if draw is None:
         raise ValueError(
@@ -855,6 +882,7 @@ def judge_one(record: dict, cwd: Path) -> dict:
     successfully-exited process wrote is data, and an empty stdout from a clean exit is
     still data: the judge ran and said nothing, which `parse_return` should see.
     """
+    assert_dispatch_open("spawning the judge")
     try:
         proc = subprocess.run(
             judge_argv(record),
@@ -914,6 +942,7 @@ def judge(run: int, concurrency: int = CONCURRENCY, limit: int | None = None,
 
     `limit` caps how many pairs this invocation judges, for operator-side pacing.
     """
+    assert_dispatch_open("judge")
     import contextlib
 
     dispatched = [r for r in read_jsonl(PROMPTS) if r["run"] == run]

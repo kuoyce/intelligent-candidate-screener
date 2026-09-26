@@ -4,10 +4,12 @@ NUS ISS PLP Practice Module, Group 2. A resume–job-description screening syste
 resumes in their original formats, extract structured evidence, and rank candidates against a
 job description with the evidence shown back to the recruiter.
 
-**Current phase: baseline repeatability (Phase 4) — in progress.** All eleven adopted sources
-are downloaded, verified and documented; the leak-free evaluation split and the retrieval pools
-are built; the Stage 1 classical baseline is extracted into the package, frozen as a committed
-record and covered by a regression suite.
+**Current phase: the top-down reset** (`plan/2026-09-26-top-down-reset/`). This means:
+- one final Fit / No Fit annotation set for the in-domain A2 corpus;
+- the matching ladder (rules → TF-IDF/BM25 → SBERT → cross-encoder) scored against it;
+- then extraction, the evidence layer and the recruiter UI.
+
+Decisions are logged in [`docs/decisions.md`](docs/decisions.md).
 
 ## Layout
 
@@ -109,6 +111,8 @@ corpora and the golden check skips, visibly, when `data/` is absent.
    split — identical at every pool depth — so every precision figure is reported with its
    ceiling beside it *(D26)*. TF-IDF's Recall@10 is **0.298** [0.216, 0.391] against the
    proposal's 0.80 target; that gap is the finding, not a defect to tune away before reporting.
+
+   *Superseded 26 Sep 2026 (D40).* The attainable ceilings (0.7806 / 0.7188 / 0.983) are **retired, not restated**. They are computed from A1 labels that do not reproduce (A13), and A1 is now a secondary benchmark. A1 figures are quoted with *n*, CI and the A13 line, with no "% of attainable". The primary benchmark is the A2 final set (D41). See `plan/2026-09-26-top-down-reset/`.
 
 ## The annotation session
 

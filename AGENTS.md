@@ -1,660 +1,111 @@
 # AGENTS.md
 
 Conventions an agent (or a new team member) needs before touching anything in this
-repository: what the project is, where code and data live, and how work is planned,
-implemented and recorded.
+repository. **Rules only.** Why each rule exists, and every superseded one, is in
+[`docs/decisions.md`](docs/decisions.md) and the plan records it links to (D45).
 
 ## Project Overview
 
-<!-- TODO: fill in. -->
+NUS ISS PLP Group 2: an intelligent candidate-screening system. It ranks resumes against a
+job description and shows the evidence. The research question (proposal v3,
+`docs/proposal/`): **does more sophisticated matching earn its complexity?** The ladder is
+rules → TF-IDF/BM25 → Sentence-BERT → cross-encoder. The current plan is
+`plan/2026-09-26-top-down-reset/`.
 
 ## Data Structure
 
-<!-- TODO: fill in. -->
+| Corpus | Role |
+|---|---|
+| **A2**, Djinni (IT JDs and CVs) | **Primary benchmark.** 600 labelled pairs (60 JDs × 10 CVs) in two strata, `generic` (40 JDs) and `targeted` (20). One final label per pair in `docs/data/manifests/a2-final-labels.csv` (D41). The document-level `train` region may supervise models, the `eval` region never (D19) |
+| **A1**, `cnamuangtoun` fit pairs | Training resource and **secondary** benchmark. Its labels do not reproduce (A13), so every A1 figure carries that line (D40) |
+| DataTurks, SkillSpan, ESCO | Extraction and skill vocabulary |
 
 ## Tech Stack
 
-**Python** is the core language for data processing, analysis and machine learning.
-
-Package management is **`uv` only** — never `pip install` into the venv, never a bare
-`python`.
+**Python 3.12**, with **`uv` only** for packages. Never `pip install` into the venv, and
+never a bare `python`. The project is an installed package (`src/` layout), so `import
+candidate_screener` works everywhere, notebook kernels included.
 
 ```bash
-uv sync                                          # install
-uv run python -m candidate_screener.data.verify --all
-uv run python -m candidate_screener.baselines.run --seed 0    # fit + freeze the baseline
-uv run python -m candidate_screener.baselines.run --check     # assert it still reproduces
-uv run python -m candidate_screener.evaluation.retrieval --seed 0   # the same baseline, ranked
-uv run python -m candidate_screener.data.build --all --seed 0       # splits, pools, annotation queue
-uv run python -m candidate_screener.annotation.ui --annotator <name>   # the labelling UI
-uv run python -m candidate_screener.annotation.llm_recheck --agent      # render the LLM judge
-uv run python -m candidate_screener.annotation.llm_recheck --dispatch --run 1
-uv run python -m candidate_screener.annotation.llm_recheck --judge --run 1   # isolated subprocesses
-uv run python -m candidate_screener.annotation.llm_recheck --collect --report
-uv run pytest                                                 # unit + regression suite
-uv run jupyter nbconvert --to notebook --execute --inplace notebooks/0X-*.ipynb
+uv sync                          # classical stack + dev tools
+uv sync --all-groups             # + `ml` (torch CPU, sentence-transformers) + `app` (streamlit)
+uv run python -m candidate_screener.data.verify --all          # raw sources
+uv run python -m candidate_screener.data.build --all --seed 0  # derived artefacts
+uv run python -m candidate_screener.data.verify --derived      # their acceptance checks
+uv run python -m candidate_screener.baselines.run --check      # the frozen Phase 4 baseline
+uv run pytest                                                   # the suite (no data needed)
+uv run jupyter nbconvert --to notebook --execute --inplace notebooks/NN-*.ipynb
 ```
 
-The project is an installed package (`src/` layout), so `import candidate_screener` works
-everywhere, including in notebook kernels.
-
-It supports:
-
-- Data ingestion and preprocessing of resumes and job descriptions (csv, pdf, html, …)
-- …
-
-Where appropriate, commonly used Python libraries (e.g. pandas, NumPy, scikit-learn) are
-leveraged to streamline development and ensure maintainability.
+Torch comes from the PyTorch **CPU** index (`[tool.uv.sources]` in `pyproject.toml`). The
+base `uv run pytest` must pass without the `ml` and `app` groups: model-dependent tests
+`importorskip`.
 
 ## Where code goes
 
 | Kind | Location |
 |---|---|
-| Reusable project code | `src/candidate_screener/…` — invoked as `python -m candidate_screener.<module>` |
-| Tests | `tests/` at the repository root, run as `uv run pytest` |
-| Committed model records | `output/…` — figures and config for things we *fit*, never bytes |
-| Exploration and visualisation | `notebooks/NN-topic.ipynb`, numbered in reading order |
+| Reusable project code | `src/candidate_screener/…`, invoked as `python -m candidate_screener.<module>` |
+| Data layer (sources, splits, pools, weak pairs) | `data/` |
+| The final annotation set and the evaluation protocol | `evaluation/final_set.py`, `evaluation/indomain.py` |
+| Matching systems (ladder rungs) | `matching/`: every rung implements `matching.base.System` |
+| Extraction (vocabulary, rules, NER) | `extraction/` |
+| Evidence layer and end-to-end pipeline | `evidence/`, `pipeline.py` |
+| Recruiter UI | `app/`: rules in `intents.py` (tested), Streamlit as thin transport |
+| Frozen annotation instrument | `annotation/`: read-only (D42) |
+| Tests | `tests/`, run as `uv run pytest` |
+| Committed records | `output/…`: config, digests and figures for things we fit, never bytes (D23 baseline) |
+| Exploration and reporting | `notebooks/NN-topic.ipynb`, numbered in reading order |
 | Plans and their implementation records | `plan/{date}-{plan_name}/` |
-| Data documentation | `docs/data/` — the catalog, and one card per adopted source |
-| The annotation instrument | `src/candidate_screener/annotation/` + `docs/annotation-guide.md` |
-| The labelling UI | `annotation/session.py` (rules, tested) + `annotation/ui.py` + `ui.html` (transport) |
-| The LLM judge | `annotation/llm_recheck.py` + `.claude/agents/a1-judge.md` (generated, committed) |
+| Decision log | `docs/decisions.md` |
 
-Do **not** put runnable scripts under `plan/`. A plan is a record of a decision; code that
-outlives the decision belongs in the package. (This was deviation V1 of the acquisition
-phase.)
+No runnable scripts under `plan/`: code that outlives a decision belongs in the package.
 
-## Evaluation and annotation
+## Evaluation rules
 
-Two rules that were each bought with a phase of work.
+1. **Systems are scored against one reference: the final set** (D41). It is Fit / No Fit,
+   built from the humans with the LLM as a secondary annotator:
 
-**Every Precision@k figure travels with its ceiling** *(decision D26, closing Q18)*. The pools
-carry a judged-supply ceiling — many queries have fewer than *k* judged-relevant resumes, so a
-perfect ranker scores below 1.0 by construction. `metrics.attainable_ceiling` computes it; the
-ceiling is a property of the **split**, identical at N20/N100/Nfull, so it cannot be mitigated
-by choosing another variant. Precision@5 tops out at **0.7806** strict / **0.7188** graded. A
-system at 0.45 is at 58% of attainable, not 45%. **Recall@10 is the headline retrieval metric**
-— its ceiling is 0.983 and it is what the proposal's success measures name.
+   | Case | Final label |
+   |---|---|
+   | Both humans agree | theirs |
+   | Both humans, split | the LLM breaks the tie |
+   | One human | that human |
+   | No human | the LLM |
 
-Q18 is closed as a **standing limitation**, not by a judging wave. 83.2% of the baseline's
-top-5 slots are unjudged distractors, so the bias is large; what makes it tolerable is that the
-unjudged share *falls* with system quality (random 94.0%, BM25 86.6%, TF-IDF 83.2%), so the
-pools rank systems in the right order.
+   It is frozen. A changed rule is a new `rule_version` and a new file. Do not score systems
+   against one annotator.
+2. **Fit / No Fit only** (D47). `Fit` = `Good Fit` ∪ `Potential Fit`. No figure is
+   computed on three classes. Raw labels stay in the manifests for audit.
+3. **Report `generic`, `targeted` and `total` together** (D29 amended). Never a total
+   without both strata beside it.
+4. **Every figure carries its *n* and a CI**, bootstrapped over **queries (JDs)**, never
+   over pairs. Rung comparisons use **paired** deltas.
+5. **Nothing is fitted or tuned on the final set** (D46): weights, thresholds and
+   hyperparameters included. Tune on A1's doubly-disjoint CV folds or on the weak-pair
+   validation split. Code that fits a model never reads `a2-final-labels.csv` or
+   `judgements.csv`.
+6. **Metadata is its own rung.** A text model is compared against `keyword match` +
+   text, so it is never credited with what a category field does for free. Report the
+   within-family metric beside the headline.
+7. **Inter-annotator agreement is reported, with no target** (D44). It is context for
+   every system figure, not a goal.
+8. **Decide before you look.** A rule or bar that decides between rungs is committed
+   (`plan/…/06-registration.md`) before the held-out rungs are scored. Anything seen
+   earlier is labelled `exploratory`.
 
-**Manual annotation is capped at one session** *(decision D25)* — ~250 judgements, ~2.5
-team-days, out of a ~30 team-day project. Adding an annotation wave is a budget decision, not a
-methodological one, and it needs the same arithmetic doing again. The deferred wave's design is
-in `plan/2026-08-29-unified-judging-wave/`.
+## Annotation and the LLM
 
-Nothing reaches an annotator without passing `annotation.redact`, and nothing an annotator sees
-carries `selection_reason` — a reader who knows which pairs already have a label anchors on it.
-
-**The in-domain set is a frozen, append-only batch campaign** *(decision D28)*, configured by
-`docs/data/manifests/indomain-batches.json`. Grow it by appending a batch spec
-(`sample --add-batch`), never by re-running an existing batch with a larger `n_jds` — batch *N*
-draws from what 1..*N*-1 left, and that is the only thing keeping already-collected labels
-valid. `queue --build` is the resume command: it emits only pairs absent from `judgements.csv`.
-
-**Every figure is quoted per stratum, and there are exactly two** *(decision D29)*: `generic`
-(the unstratified draw, D14) and `targeted` (every keyword-scoped batch, pooled). A stratum is
-coarser than a batch on purpose — batches within one differ only in which titles they cover, so
-pooling them names a real population. Averaging the **two strata** does not, and is forbidden.
-`stratum` is stamped on the pair and on the judgement, never looked up from the spec, so editing
-a batch's title list cannot re-stratify collected labels.
-
-The session is two annotators, both covering every title, 30% double-labelled. Do not assign
-titles by expertise: it confounds annotator with title, and the confound reaches the pooled
-figure as well as the per-title ones.
-
-**The A1 recheck gets a third judge, and it is a third opinion** *(decision D33)*.
-kappa(A1, yc) = 0.010 with a **bidirectional** disagreement, so it is not a strictness shift
-and it does not preserve ranking. Either A1's labels are wrong — **A13 fails** and D26's
-ceilings are soft — or `yc` is miscalibrated. One annotator cannot separate the two, and the
-two have opposite consequences for every figure quoted against 0.7806. `annotation.llm_recheck`
-runs one tool-free `haiku` judge per pair, 10 concurrent (run 1 used `sonnet`).
-
-**It has run, and A13 fails** *(30 Aug 2026, `plan/2026-08-30-llm-recheck/01-findings.md`)*.
-kappa(A1, llm) = **0.125** [0.013, 0.241] n=100 and kappa(A1, yc) = **0.034** [-0.162,
-0.225] n=50, against kappa(yc, llm) = **0.275** [0.127, 0.457] n=50; under binary collapse
-0.113 and 0.031 against **0.425**. The judge's own test-retest reliability is 0.857-1.000
-over three runs, so its low agreement with A1 is not a noisy judge — the bound on the kappa
-it could have reached was ~0.86, not ~0.3. **All of A1-vs-llm's small positive kappa comes
-from one cell**: per class it agrees 0.90 on A1's `No Fit` (n=40), 0.27 on `Potential Fit`
-(n=30) and **0.067 on `Good Fit` (n=30)** — 26 of those 30 read as `No Fit`. **D26's
-0.7806 / 0.7188 ceilings are therefore soft**, and any figure quoted as a fraction of
-attainable inherits the doubt. Restating them is a separate change that supersedes in
-place; it has not been made.
-
-**The guide now defines `No Fit` positively, and it moved the judge** *(decision D34, 5 Sep
-2026, `plan/2026-09-05-prompt-calibration/02-calibration-run.md`)*. The old instrument's
-disagreement with `yc` was not strictness: it matched **57 of `yc`'s 58 `No Fit`s**, and of
-its own 82 only **8 cited a different profession** — the rest cited a missing named tool
-(20), a missing industry (9) or a years gap (14), all of which the guide's own examples
-called `Potential Fit`. The cause was the tie-break: "choose the lower one" reads to a model
-as *any doubt → down*, transitively, and nothing required `No Fit` to have a reason. The
-guide is now an **ordered decision** — profession, then career stage, then core activity —
-with `No Fit` reachable only from the first two steps, the tie-break scoped to the
-`Good`/`Potential` boundary and barred from reaching `No Fit`, a missing tool or industry or
-a year or two short of a minimum named as a screening question, and **all nine worked
-examples removed**. kappa(yc, llm) 0.287 → **0.352** and the binary collapse 0.421 →
-**0.614** [0.447, 0.760], n=100. kappa(A1, llm) fell to 0.085: **A13 still fails**. Two
-things this does not settle — run 1 was `sonnet` and run 4 `haiku` with no old-guide/haiku
-control (**Q32**), and the edit is retroactive against the 500 human labels collected under
-guide `842d7b0e`, which `judgements.csv` does not record (**Q33**).
-
-**An instrument is `agent_sha256`, and figures are never pooled across two.** A guide edit
-is a new judge. `judge_frames` returns `llm` for the **committed** agent alone, every
-instrument on file under `per_instrument`, and `self_consistency_kappa` only for runs that
-share one — a per-pair majority across all runs would blend two judges and attribute the
-blend to whichever is committed, with no exception and a plausible kappa. `report()` also
-quotes binary-collapse kappa beside every three-class figure, because D34 is a run where the
-two moved apart.
-
-**A draw is a population, one run holds one of them, and one file holds one of them**
-*(decision D35, 6 Sep 2026, `plan/2026-09-06-recheck-file-split/`)*. `agent_sha256` is not
-the only axis a figure must not be pooled across. This judge is pointed at two populations —
-the 100-pair stratified recheck it is validated on, and option D's sweep of all 659 pairs of
-`fit/test.parquet` — and until this change both landed in `llm-recheck.csv`. Option D was
-dispatched as **run 2**, which D33 had already used for a 20-pair self-consistency sitting;
-dedup keys on `(pair_id, run)`, so the 20 were skipped as "already dispatched" and absorbed.
-Nothing raised, no row count looked wrong, and `run1_vs_run2` in the committed report
-silently widened from n=20 to **n=100** — a self-consistency figure over 80 pairs that no
-two recheck runs had ever both judged. `draw` is now stamped at dispatch and routes the
-collected row (recheck → `llm-recheck.csv`, option D → `llm-recheck-full-a1.csv`);
-`judge_frames` reads the **recheck file alone**; `assert_run_holds_one_draw` refuses a run
-number the other draw already holds, in both directions, and refuses a pre-D35 run outright
-rather than guessing (`--backfill-draw` stamps those, deriving run 2's split from
-`subsample_ids` over the **50-pair** draw that was live on 30 Aug, checked against run 3's
-pair set). Run 2 is the only mixed run there will ever be; `LEGACY_MIXED_RUNS` declares it,
-and the guard has closed it to any further dispatch.
-
-**Option D is collected and not analysed** *(Q34)*. `llm-recheck-full-a1.csv` is 639 rows —
-the 20 pairs D33 subsampled onto run 2 stay in the recheck file, because that is the
-dispatch that sent them, and joining the two files to reach 659 is the pooling D35 forbids.
-Every row carries `agent_sha256 = 47fc2e48`, the **pre-D34 instrument**, whose tie-break
-D34 showed was driving `No Fit`; kappa(yc, llm) moved 0.287 → 0.352 when the guide was
-fixed. So a figure computed over these labels would describe a judge this repository no
-longer commits. Q34 stays deferred and unworked unless option D is revisited or a decision
-comes to rest on its output — and the first thing it reopens is whether the labels may be
-used at all or must be re-judged under the committed instrument (`--dispatch --all-a1
---run n` for the next unused `n`, ~659 spawns). **No run number is reserved for this.** A
-deferred task does not hold a number against work that is actually happening; whichever
-run is free when Q34 is revisited is the one it takes.
-
-**The judge carries to A2, and fails at one boundary** *(6 Sep 2026,
-`plan/2026-09-06-a2-llm-prelabel/04-phase0-findings.md`)*. The committed instrument
-(`75e00ea3`, haiku) was run over all 400 pairs of the in-domain `generic` stratum — pairs
-`yc` had already labelled and the judge had never seen. kappa(yc, llm) = **0.380** [0.310,
-0.447] n=400, binary **0.637** [0.553, 0.708], against the A1 recheck's 0.352 / 0.614 at
-n=100. **Q36 closes: no material difference between the corpora**, despite A2 documents
-being a third the length, now measured at four times the n.
-
-The disagreement is **one boundary, one direction**: per class, agreement is 0.745 on
-`No Fit` and 0.797 on `Potential Fit` but **0.119 on `Good Fit`** — 85 of `yc`'s 101
-`Good Fit`s came back `Potential Fit`, and only 4 came back `No Fit`. D34's fix held (the
-transitive collapse into `No Fit` is gone), but the tie-break at the boundary it was scoped
-to still resolves downward almost unconditionally. This is why the binary collapse is so
-much healthier: `Good → Potential` does not cross the fit/no-fit line. **Three-class
-substitution is refused** — the gate's per-class clause is absolute at 0.40 — while binary
-substitution stays open. It is **not** established that the judge is wrong: one annotator
-cannot say whether `yc` is generous with `Good Fit` or the instrument is harsh, which is
-D33's problem one boundary along, and the second annotator's `Good Fit` rate is what
-settles it (**Q38**: whether that boundary needs a D34-style pass; a guide edit is a new
-judge and no figure would pool with run 5).
-
-The A2 draws are `a2_generic` (400, run 5) and `a2_targeted` (200, run 6), in
-`llm-a2-generic.csv` and `llm-a2-targeted.csv`, quoted per stratum in
-`output/annotation/llm-a2-report.json`. `judge_frames` and `llm-recheck-report.json` do not
-read them and did not move.
-
-**`targeted` is pre-labelled and its human session has not started** *(7 Sep 2026,
-`plan/2026-09-06-a2-llm-prelabel/05-phase1-dispatch.md`)*. That ordering is the design: the
-judge saw no label, the annotator will see no machine label, so the figure will be
-prospective and held out where `generic`'s is retrospective. Nothing blocks the session —
-`build_queue` serves all 200, guarded by
-`test_a_pair_the_judge_has_labelled_is_still_owed_by_the_human` — and `a2_report` says
-`no overlap` rather than inventing a figure until labels land.
-
-Two things are already readable from the **marginal distribution**, which needs no
-reference labels. The judge's three proportions move by at most 1.5 points between the
-strata, so the instrument is stable across populations selected by different rules — and
-`targeted` is therefore **predicted to land near `generic`'s 0.380**, recorded here before
-the human labels exist. And where `No Fit` nearly matches (0.370 against `yc`'s 0.402), the
-judge issues `Good Fit` at **4.0% against `yc`'s 25.2%**: it does not merely disagree case
-by case, it almost never reaches the class. A near-total absence is the signature of a
-mis-set threshold rather than of scattered judgement differences, which sharpens **Q38** to
-the boundary's *position* — though `yc` over-issuing `Good Fit` fits the same numbers, and
-one annotator still cannot separate them.
-
-**There is a human ceiling now, and it is below the judge** *(8 Sep 2026,
-`plan/2026-09-06-a2-llm-prelabel/06-phase2-findings.md`)*. A second annotator, `van`,
-labelled 126 `generic` and all 200 `targeted` pairs; `yc`'s `targeted` leg then closed at
-200. **Q35 closes.** kappa(yc, van) = **0.250** [0.140, 0.365] n=126 on `generic` and
-**0.214** [0.112, 0.309] n=200 on `targeted`. **Quote the `targeted` figure**: `yc`'s
-`generic` labels are 30 Aug, pre-D34, and `van`'s are 7 Sep, so the `generic` ceiling is
-measured *across two guides*; `targeted` is one guide, both annotators, full n. That the
-two agree so closely is itself the answer to **Q33** — the guide edit is not what makes
-two humans disagree.
-
-**Three-class substitution stays refused**, both strata: the gate's per-class clause is
-absolute at 0.40 and `Good Fit` agreement is 0.119 / 0.062 / 0.121 / 0.067. The *relative*
-clause has stopped measuring in the other direction — on `targeted` the judge (0.249 vs
-`yc`, 0.204 vs `van`) and the human ceiling (0.214) are **one overlapping cluster**, so
-0.75 × ceiling separates nothing. Read that as "the gate is not measuring", not "the gate
-passed" (**Q39**).
-
-**An annotator is an axis a figure may not be pooled across**, like `agent_sha256` and
-`draw`. The same judge scores **0.380 against `yc` and 0.142 against `van` on the same 126
-pairs**; there is no kappa(human, llm) on this corpus. `a2_frames` returns `humans`, a dict
-keyed by annotator, and has no `human` key; `a2_report` emits `vs_llm` keyed by name beside
-a `human_ceiling` block. Before this it built one series with `drop_duplicates("pair_id")`
-— fine while every A2 label was `yc`'s, and silently wrong afterwards, since that keeps
-whichever row is first in `judgements.csv`. It resolved to all-`yc` on `generic` and
-**all-`van` on `targeted`**, so one field name would have carried two different people's
-numbers. No exception, no row count that looked wrong, a plausible figure.
-
-**On `generic`** the judge reads as **`yc`'s scale shifted down one notch**: it reserves
-`Good Fit` for ~4% of the corpus, 75% of which is `yc`'s `Good Fit` (2.97× the base rate),
-while **96% of `yc`'s `Good Fit` survives as llm `Good`/`Potential`** and P(llm ≤ yc) =
-0.887. That is why binary (0.637) is so much healthier than three-class — `Good →
-Potential` does not cross the fit/no-fit line.
-
-**That reading does not survive `targeted`.** `Good Fit` behaves the same (93.9% of `yc`'s
-survives), but `yc` gets much harsher at the other boundary — `No Fit` 0.402 → 0.580 —
-while the judge barely moves, 0.370 → 0.395. P(llm ≤ yc) falls to **0.740**, and the
-largest cell is **50 of `yc`'s 116 `No Fit`s coming back `Potential Fit`**. The two now
-disagree at *both* boundaries in opposite directions, three-class falls to 0.249 and the
-binary collapse falls with it (0.637 → 0.371) — because `No Fit ↔ Potential Fit` **does**
-cross the fit/no-fit line. **Binary substitution is therefore not defensible on both
-strata** (Q40), and D29 forbids picking the stratum that suits.
-
-**Phase 1's advance prediction is falsified.** It predicted `targeted` would land near
-`generic`'s 0.380 from the judge's marginal stability across strata; it came in at 0.249,
-outside the interval [0.150, 0.339]. Marginal stability on one side of a comparison does
-not predict agreement — the humans were what moved.
-
-Both humans still bracket the judge from far above on `Good Fit` (yc 25.2%, van 51.6%, llm
-4.0% on `generic`), which keeps a mis-set threshold the economical reading of **Q38** — but
-the two humans do not clear the gate's own 0.40 bar against *each other* on that class
-(0.338 `generic`, 0.300 `targeted`), so a D34-style guide edit aimed at the judge alone
-would be fixing one end of a two-ended problem.
-
-**`targeted` is fully double-labelled and complete** *(`session.FULL_DOUBLE_STRATA`)*. The
-30% rule gave that stratum a ceiling of n=55, CI [0.039, 0.444] — an interval the gate
-divides by, so it decides nothing. Every `targeted` pair wants two labels and has them:
-the in-domain campaign is 600 pairs and **1,034 labels**, both strata double-labelled,
-`yc` and `van` covering the same 200 `targeted` pairs exactly. The interim figures were
-worth not quoting — kappa(yc, llm) read 0.377 at n=55 and settled at **0.249** at n=200.
-One thing the widening could *not* recover: Q14's shortlist question is never asked on a
-partial group, and the second annotator on a JD is almost always served one, so there is
-**no inter-annotator agreement on the shortlist pick on either stratum** (`generic`/van 0
-of 39 JDs, `targeted`/yc 1 of 20). Declaring a stratum fully double-labelled *before* its
-first sitting is the only thing that would have avoided it (**Q41**). Widening a stratum is safe
-because `needs_two_labels` stays a pure function of the pair, so nothing already collected
-is orphaned; *narrowing* one would strand second labels, so treat the set as append-only,
-like a batch spec. `session.labels_wanted` is the single place the rule lives, and
-`build_queue` now drops a pair when it is **finished** (holds every label wanted) rather
-than when it is *judged* (holds one) — the older reading would have removed 200 `targeted`
-pairs from the key that one annotator has labelled and the other still owes.
-
-**The reference a judge is scored against is an axis, and consensus is a third one**
-*(decision D37, 8 Sep 2026, `plan/2026-09-08-judge-calibration/03-consensus-findings.md`)*.
-`agent_sha256`, `draw`, `stratum` and `annotator` were four; this is the fifth. Three
-references now exist on A2 — `yc` (n=400/200), `van` (126/200) and **`consensus`**, the
-label every annotator present gave, over the pairs where two or more looked: 60 of 126
-on `generic` (**47.6%**) and 97 of 200 on `targeted` (**48.5%**). Against consensus the
-committed instrument scores **0.389** [0.235, 0.545] and **0.401** [0.259, 0.539]
-three-class, **0.729** / 0.584 binary, and **the residual collapses to one cell** —
-consensus `Good Fit` returning llm `Potential Fit`, 17 of 22 and 14 of 18 — while
-consensus `No Fit` holds at 0.955 / 0.772. Phase 2's "two boundaries in opposite
-directions" was substantially an artefact of measuring against `yc` alone, whose `No Fit`
-rate rose to 0.580 on `targeted` while `van`'s stayed at 0.360. **Zero spawns, zero human
-hours**: all of it was already on file.
-
-**A consensus figure is never compared to a single-annotator figure as though one improved
-on the other**, and never travels without its coverage. They are computed over different
-sets of pairs — 200 against 97 — so 0.401 beside kappa(yc, llm) = 0.249 is a different
-question asked of a different half of the corpus, not the judge getting better.
-`assert_consensus_carries_coverage` refuses to emit the block without
-`n_multi_labelled`, `n_agreed`, `coverage` and the selection note, the way D26's ceiling
-travels with every Precision@k. **The subset is not a random subsample** — it selects the
-pairs both humans found unambiguous, so every consensus figure is an **upper** estimate.
-**It therefore licenses measurement and not substitution**: substitution needs a reference
-on 100% of pairs, and the excluded 52% is exactly the population a substituting judge
-would label alone, with no reference and no appeal, and is the harder half by
-construction. **D36 stays unmade.**
-
-**The gate asks interchangeability, not ground truth** *(closing Q39)*. Both old clauses
-assumed a truth this corpus does not have: the relative clause divided by a 0.214 ceiling
-while the judge sat at 0.204-0.249 — one overlapping cluster, so "passed" and "not
-measuring" produced the same output — and the absolute per-class clause refused the judge
-on `Good Fit` at 0.119 while the two humans fail the same bar against each other. So each
-row now **retains** one annotator and asks whether the judge, in the other's seat, is as
-good a partner as the person it replaced, **on the pairs all three series share**. That
-restriction is not cosmetic: kappa(yc, llm) is 0.380 at n=400 and **0.455** on the 126
-pairs `van` also labelled. On `generic` the judge is a good replacement for `van`
-(0.455 against a 0.250 ceiling) and a poor one for `yc` (0.142); on `targeted` it is
-indistinguishable from either (0.249 / 0.204 against 0.214). **Binary passes or ties all
-four.** Nothing is *separated* — every interval overlaps every other at this n — so the
-verdict column is a declared indifference band (`INTERCHANGEABILITY_BAND = 0.05`), fixed
-before the run, and `pass` never means "better than a human". **What it licenses is the
-judge as a second annotator** in a future double-labelling wave, where being about as
-unreliable as a human is the specification; never as an answer key, which no agreement
-figure between two fallible raters can support.
-
-**The per-class bar is now applied to the human pair too, and a class both miss is
-`unidentified_by_instrument`** rather than failed by the judge. It stays absolute at 0.40.
-Per-class agreement is conditioned on a reference, so a human pair gives two numbers per
-class and the class fails if **either** does — otherwise `Good Fit` would count as
-identified on the strength of the direction pointing from the rarer user of the class to
-the more frequent one (`van` recovers 33.8% of `yc`'s, `yc` recovers 75.9% of `van`'s).
-On that reading **two of three classes are unidentified**: `Good Fit` (0.338/0.759 and
-0.300/0.545) and `Potential Fit` (0.432/0.364 and 0.324/0.431). Only `No Fit` is held.
-The design spec named `Good Fit` alone; `Potential Fit` is deviation D1 of this plan, and
-it widens what a guide edit would have to address.
-
-**Model is an axis, and `a2_frames` did not know it** *(decision D38, fix M1)*. `llm` was
-a per-pair majority across every run sharing the committed `agent_sha256` — and a guide
-is not the whole judge. The same guide under a second model has the **same** hash, so two
-runs of it are a two-element majority: `majority` returns `None` on a tie and `.dropna()`
-deletes it, so every pair the two models disagreed on would vanish and the survivors
-would be exactly the pairs two models agreed on — a non-random, easier sample, a smaller
-n nobody ordered, and a kappa that rises for the wrong reason. Measured against a staged
-10-pair draw where the models disagree on half, the old selection returns **5 of 10**, all
-five agreeing. It had never fired: runs 5 and 6 are both `haiku`. `llm` now keys on
-`(agent_sha256, model)`, other models return under `per_model`, each stratum names its
-`llm_model`, and **`self_consistency` refuses a run pair differing on either axis** —
-runs 5 and 7 are a model comparison, and reporting them under the field D33 used to bound
-how high kappa(A1, llm) could have reached would be a between-judge figure wearing a
-test-retest name. They are listed under `not_self_consistency` instead.
-
-**The recorded model is now the model that ran** *(fix M2)*. `MODEL` was a module constant
-written into the dispatch record while the subprocess launched as
-`claude -p --agent a1-judge` with **no `--model` flag**: the column asserted what the
-constant said, not what answered. `judge_argv` passes it; `assert_run_holds_one_model`
-refuses a run whose prompts name two models and a `--judge` asked for a model the dispatch
-did not name; `--model` is on both `--dispatch` and `--judge`. **Runs 1-6 are not
-re-stamped** — their provenance rests on the constant having been right at the time, and
-re-stamping would swap one assertion for a later one. Whether that is trustworthy enough
-to keep quoting is **Q43**, raised by M2 and not resolved by it.
-
-**The model control has run, and the effect is stratum-dependent** *(8 Sep 2026,
-`plan/2026-09-08-judge-calibration/05-model-control-findings.md`, closing **Q32**)*. The
-committed instrument `75e00ea3` was run over the same 600 A2 pairs under
-`claude-sonnet-5` — runs 7 (`a2_generic`, 400) and 8 (`a2_targeted`, 200), 600 spawns,
-**zero failures and zero retries**. One variable: **every `prompt_sha256` equals run 5's
-or run 6's for the same pair**, so this is two models and not two dispatches, and runs
-7/8 are the first whose model was *passed to the subprocess* rather than asserted beside
-it (M2).
-
-The reading was registered in `04-run7-registration.md` before any prompt existed, and it
-is **outcome D**. Consensus `Good Fit` per-class agreement moves a long way on both
-strata — 0.136 → **0.364** on `generic`, 0.167 → **0.389** on `targeted` — and **clears
-the registered 0.40 bar on neither**; the `Good → Potential` collapse falls below half on
-`generic` (0.773 → 0.273) but not on `targeted` (0.778 → 0.611). Exactly one stratum, so
-**the committed model stays `claude-haiku-4-5`**, move 3 proceeds, and **runs 1-3
-(`sonnet`) and runs 4+ (`haiku`) on the A1 recheck remain incomparable** — the control
-D33 and D34 never had is still missing for that corpus, because the effect this move
-measured varies between populations. D29 forbids reading `generic`'s half as the result.
-
-**`sonnet` is a different judge, not a more accurate one.** On `targeted` it reaches
-kappa **0.453** against `yc` while falling to **0.141** against `van` — more than twice
-the human ceiling of 0.214 against one annotator and below it against the other. A judge
-that agrees with one person more than the two people agree with each other has found
-`yc`, not the truth, and the plan named this failure mode in advance as the thing not to
-chase. The interchangeability gate agrees: `sonnet` **fails** the `retain van` row on
-both strata. It also bought its `Good Fit` recall by getting harsher elsewhere — `No Fit`
-37.0% → 53.0% on `generic`, consensus binary kappa **0.729 → 0.475** — because
-`Potential ↔ No Fit` crosses the fit/no-fit line where `Good ↔ Potential` does not. That
-was not a registered statistic and is recorded as an unregistered finding (**Q40** is
-weakened, not settled: `sonnet` inverts which stratum has the defensible binary figure
-without making both defensible). Whether a judge that tracks one annotator this closely
-is useful at all is **Q44**, unanswerable without a third annotator.
-
-`a2_report` now emits **`by_model`** — a complete figure set per model, `vs_llm`,
-`consensus`, `interchangeability` and `label_distribution` — and the section-level blocks
-are the **committed** model's repeated inline, named by `llm_model`. `a2_frames` defaults
-to the committed `MODEL` rather than to the newest run, so dispatching a control cannot
-silently change what `vs_llm` refers to. `verify --derived` gains `model provenance` (a
-row's model matches its dispatch record) and `one model per run`.
-
-**The judge is graded now, and grading did not move the boundary** *(10 Sep 2026,
-`plan/2026-09-08-judge-calibration/07-graded-instrument-findings.md`, move 3)*. The guide gives
-`Good Fit` a **positive condition** — the CV evidences the role's core activity in a
-substantive capacity, and neither step 1 nor step 2 applies, *and then assign it* — the
-way D34 gave one to `No Fit`; the tie-break is scoped down again, to whether the core
-activity is evidenced at all, and explicitly does not reach the case where it is
-evidenced and something else is missing. Beside the class the judge now returns a
-**`score`, 0-100**, described on a scale the guide says in terms is **not** a set of
-label boundaries: a score and a label that disagree are information. That is what buys
-the future — after it, moving a boundary is a re-scoring of labels on file rather than a
-new `agent_sha256` and 600 spawns. The agent's `model: haiku` frontmatter is also gone:
-M2 made the subprocess argv the authority, and a `model:` line was a second, unenforced
-assertion of the same fact. All of it is **one instrument**, `5d986c82`, and no finding
-may attribute anything to one clause of it.
-
-**It has run, and the outcome is B — no material change** *(runs 9 and 10, 600 spawns,
-600 scores, zero unparsed)*. The reading was fixed in `06-graded-registration.md` before
-any prompt existed. Against **consensus**, `Good Fit` per-class agreement rises 0.136 →
-**0.273** on `generic` and 0.167 → **0.389** on `targeted` and **clears the registered
-0.40 bar on neither**; the `Good → Potential` collapse falls 0.773 → 0.591 and 0.778 →
-0.500 and reaches the registered "below half" on neither. The registered outcome-B test
-is whether G's interval overlaps the baseline's, and it does on both strata. **Q38
-therefore closes as "the boundary is not reachable by editing the instrument"** — model
-(move 2) and guide (move 3) have both now been tried against this corpus, and what is
-left untried is the *reference*, since the two humans do not clear the 0.40 bar against
-each other on `Good Fit` either. A third annotator, not a third guide.
-
-**Outcome C was checked first and did not fire**, which is the part worth keeping: unlike
-`sonnet` in move 2, this instrument did **not** buy `Good Fit` recall by getting harsher
-elsewhere. Consensus binary kappa held its floor on both strata (0.729 and 0.549 against
-0.540 and 0.422), no gate row that read `pass` or `tie` reads `fail`, and A — the gap
-between the judge's agreement with `yc` and with `van` — **fell** on `generic` (0.313 →
-0.268) and stayed far under bar on `targeted` (0.058 ≤ 0.20). An **unregistered** paired
-supplement (McNemar on the same consensus pairs, p = 0.250 / 0.125) agrees with the
-registered test and adds one thing: the gain is **strictly nested**, `baseline only = 0`
-on both strata. Outcome B here means "an effect this corpus cannot resolve at n=22/18",
-not "no effect".
-
-**The score is what survives, and it works.** It separates the boundary the label
-collapses: the emitted label agrees with consensus `Good Fit` 27% / 39% of the time,
-while the score ranks a consensus `Good Fit` above a consensus `Potential Fit` with
-**AUC 0.832 / 0.756**. Held-out cut points (fitted on a seeded half, quoted on the other)
-reach three-class kappa **0.601** [0.365, 0.800] on `generic` and **0.406** [0.214,
-0.606] on `targeted`, better than and level with the emitted label. **No cut point is
-committed.** `targeted`'s *full-data* fit is degenerate and is recorded as such — a
-`Potential Fit` band 4.5 points wide emitting 2 of that class in 97 — so any future
-adoption needs a per-class-balanced objective, never overall agreement against a
-reference whose majority class is `No Fit`.
-
-**The graded instrument stays committed** *(decision D39, 10 Sep 2026, closing Q45,
-`plan/2026-09-08-judge-calibration/08-q45-decision.md`)*. Outcome B's two clauses
-conflicted — the committed instrument stays `75e00ea3` *and* the score survives — and only
-`5d986c82` emits a score, because move 3 bundled all four changes into one instrument on
-purpose so no finding could attribute anything to one clause. **`5d986c82` is kept.**
-Outcome B says the edit did not fix the boundary; **it does not say the edit made anything
-worse**, and no registered statistic does either — binary held its floor on both strata, no
-gate row lost a `pass` or `tie`, the `yc`-minus-`van` gap fell on `generic`, and the paired
-supplement found the gain strictly nested. Reverting would pay 600 spawns to return to a
-judge that measures the same and emits less. **This promotes nothing**: outcome B stands,
-**Q38 stays closed**, no cut point is committed and **D36 stays unmade**. Consequence: the
-**A1 recheck** has no rows under the committed instrument, so `llm-recheck-report.json`
-reads `status: no overlap` at section level and D33/D34's figures live under
-`per_instrument`, unwithdrawn (`47fc2e48` 0.142/0.287; `75e00ea3` **0.085/0.352**).
-Re-judging it is ~100 spawns and is **not scheduled** — A1 is not the evaluation corpus
-going forward.
-
-**The judge-calibration plan is complete, and it ended on a negative result.** Move 1
-found a third reference (D37), move 2 refused the model (outcome D), move 3 refused the
-instrument (outcome B). With the user's decision of 10 Sep 2026 that there will be **no
-third annotator**, **Q38 closes permanently rather than pending budget**: model and guide
-were both tried and the reference was the remaining lever. What follows is a design
-question and not a calibration one — **what a reference label *is* on A2** (**Q46**),
-proposed in `plan/2026-09-10-a2-reference-design/` and **not yet approved**. Two numbers
-frame it: three-class consensus covers **15.0%** of `generic` (only 126 of 400 pairs were
-ever double-labelled) against 48.5% of `targeted`, and the two annotators differ
-*systematically* rather than randomly — `van` calls 51.6% of the shared `generic` pairs
-`Good Fit` where `yc` calls 25.2%. **Picking a single annotator is picking a threshold.**
-
-**An instrument is an axis in `a2_report` too, and the score is present exactly where it
-was asked for.** `a2_frames` returns `per_instrument` (keyed by `agent_sha256`, each an
-`{model: series}` dict) and `scores` in the same shape; a builder that returned only the
-committed hash would have dropped runs 5-8 out of the report on the commit that changed
-the guide, and a reader cannot tell *absent* from *withdrawn*. On the collection side,
-`response_scheme` is stamped at dispatch — `label` for runs 1-8, `label+score` after —
-and `collect` requires a score of a row **whose dispatch asked for one and of no other**.
-Reading the requirement off the module constant instead would mark all 1,679 pre-move-3
-rows `parsed_ok=False` on the next `--collect`, and the frame builders drop unparsed
-rows, so every committed D33/D34/A2 figure would recompute over nothing. A graded run's
-return with no score is `parsed_ok=False`, **never a row with a null score** a later mean
-would skip in silence. `verify --derived` gains `score scheme` (both directions) and
-`score range`.
-
-**A fitted cut point names the pairs it was fitted on** *(work-plan task 3.4)*.
-`fit_cut_points` searches both thresholds exhaustively against the **consensus**
-reference; `assert_score_figure_names_its_fit` refuses to emit one without `fitted_on`,
-the way `assert_consensus_carries_coverage` refuses a consensus figure without its
-coverage. A kappa on the pairs a parameter was fitted on is not an out-of-sample result
-and may not be set beside the emitted label's as though the two were measured the same
-way. `score_analysis` therefore reports three things and labels each: the score's
-distribution and rank separation per consensus class (no threshold, so nothing is
-fitted), the full-data fit (fitted, and says so), and **`held_out`** — cut points fitted
-on one seeded half of the consensus pairs and quoted on the other, which is the only
-out-of-sample figure move 3 produces. The split is seeded and was fixed before any score
-existed, so a wide interval on half the pairs cannot later be replaced by the full-data
-fit that cannot miss.
-
-**A kappa over no pairs is not a figure** *(fix M3)*. `judge_frames` returns `llm` for
-the committed instrument alone, so the commit that changes the guide leaves the A1
-recheck draw judged by nobody current — and `report()` emitted `a1_vs_llm` and
-`human_vs_llm` as `kappa: NaN, n: 0`, turning D34's committed 0.085 and 0.352 into NaN
-and emptying `disagreements` from 72 rows to 0. Nothing was lost (both instruments were
-intact under `per_instrument`), but a reader could not tell *never measured* from
-*measured empty* — the same absent-vs-withdrawn ambiguity `a2_report` was given
-`by_instrument` for, in a function that had not been given it. `pairwise_over` now skips
-a pair with no common index, the per-class blocks emit `{}`, and the report carries
-`status` (`scored` / `no overlap`) and `note_no_overlap`. The leg with no `llm`
-dependency — kappa(A1, `yc`) at n=100 — is untouched and stays quotable.
-
-**A spawn that never answered is not a return** *(fix F1/F2, 6 Sep 2026,
-`plan/2026-09-06-a2-llm-prelabel/`)*. `judge()` resumes from `llm-recheck-raw.jsonl`, and
-`judge_one` used to write a non-zero exit there as a `<judge exited 1: …>` string. So a
-run that hit an empty credit balance recorded every remaining pair as **finished**: the
-re-run reported `remaining: 0`, `collect()` filed the failures `parsed_ok=False`, the
-frame builder dropped them, and the kappa was computed over the survivors — which are in
-`as_completed` order, i.e. whichever pairs answered fastest, not a random sample. No
-exception, no row count that looked wrong, a plausible number. Nothing had hit it (all 879
-raw returns on file are clean), so option D got lucky at 639 spawns. Now: a non-zero exit,
-a timeout or a failed spawn raises `JudgeUnavailable`, is quarantined to
-`llm-judge-failed.jsonl` — which the resume set does **not** read, so the pair stays owed —
-and `judge()` raises `JudgeFailures` rather than returning a summary that reads as success.
-Recovery is to fix the cause and re-run the same `--judge` command. `run_coverage` /
-`--coverage` report dispatched against answered, and `assert_run_complete` is what a report
-calls to refuse a figure over a short run. **A clean exit is still data**, junk on stdout
-included: a judge that answered badly is a finding, and only spawns that never ran are
-quarantined.
-
-**It was needed within the hour.** Run 5 hit the account's usage limit 193 pairs in and
-**202 of 395 spawns failed**, all `exit 1` with *both streams empty* — which is what a
-quota looks like from `claude -p`, so `QUOTA_MARKERS` matched nothing and the label was
-`exit1`. Do not rely on those markers firing; unexplained `exit1` in bulk is the signal.
-Pre-F1 that run would have reported itself complete and scored **0.301 / 0.554** over 198
-latency-ordered survivors instead of the true **0.380 / 0.637** over 400. The retry after
-the limit reset judged exactly the 202, zero failures.
-
-**Both legs are 100 pairs** *(deviation V6, updated 30 Aug 2026)*.
-`queue.RECHECK_STRATA` and `LLM_RECHECK_STRATA` are both (30/30/40). The human leg was 50
-(15/15/20) while the first sitting was live; raised to 100 after all 50 were labelled, so
-the existing labels are a prefix of the new draw and nothing is orphaned. The nesting
-assertion (`assert_recheck_nests`, `verify --derived`) is trivially satisfied. The two
-consumers must still be handed the *same* draw: units from `load_units(seed, strata)` and
-text from `corpus_text(tuple(sorted(strata.items())))`, or half the pairs arrive with no
-document.
-
-The raise is also **retroactive on anything seeded off the draw**. D33's `--subsample 20`
-was drawn while the machine leg was still 50, so `subsample_ids` over today's 100
-reproduces 7 of those 20, not 20 — which is why `backfill_draw` carries
-`LEGACY_SUBSAMPLE_STRATA` and checks its derivation against run 3's pair set instead of
-assuming the current strata. Measured on 6 Sep 2026, in the course of D35.
-
-**Tool-free is necessary and was not sufficient** *(deviation V4)*. The judge runs as a
-`claude -p --agent a1-judge` **subprocess whose cwd is a sandbox holding a copy of the
-committed judge and nothing else** — never the `Agent` tool and never inside the repository.
-Measured, not assumed: asked whether `AGENTS.md`, `CLAUDE.md` or `a1_label` was in its
-context, a judge launched at the repository root answers **YES**. `CLAUDE.md` here is
-`@AGENTS.md`, which names D33, quotes the kappa it is chasing and says where `a1_label`
-lives. Project memory is a second leak channel and `tools: []` does not close it;
-`llm_recheck.assert_isolated` does, by refusing any cwd or ancestor carrying `CLAUDE.md`,
-`AGENTS.md`, or a `.claude/` with anything but the judge. **Adding a `CLAUDE.md` above the
-sandbox, or judging from the repo, breaks the instrument silently** — which is why the
-repository root is a test case.
-
-**Tool-free is the control, not a preference.** The answer key is on disk:
-`data/processed/indomain/judging-queue-full.parquet` carries `a1_label` for all 50 recheck
-pairs. A judge holding `Read` or `Bash` reaches it in one command, and "we told it not to
-look" is not the standard this repo holds human blinding to — `serve_group` redacts its own
-output and `assert_clean`s it, with the rules in `session.py` rather than in the caller.
-`.claude/agents/a1-judge.md` is **generated** from `docs/annotation-guide.md` (verbatim, minus
-the four sections describing the human workflow) and `verify --derived` fails if the committed
-judge is not what the guide renders, or if its frontmatter is not `tools: []`.
-
-**Its labels never enter `judgements.csv`.** `annotator` is a free string, so an `llm` row
-there would pass every existing check and be silently pooled into the human kappa. They go to
-`docs/data/manifests/llm-recheck.csv` (the recheck draw, 240 rows),
-`docs/data/manifests/llm-recheck-full-a1.csv` (option D, 639) and, for the in-domain
-corpus, `llm-a2-generic.csv` (1,200: haiku runs 5 and 9 + sonnet run 7) and
-`llm-a2-targeted.csv` (600: haiku runs 6 and 10 + sonnet run 8). Quoted
-as `llm:{model}:run{N}` — runs 1-3 and 7-8 are `claude-sonnet-5`, runs 4-6 and 9-10 are
-`claude-haiku-4-5`, and the model is **read per row from the dispatch record**, never
-inferred from the run number, which is why that sentence is a description and not a rule.
-`collect()` preserves per-row model provenance from the dispatch record, takes
-corpus/batch/stratum and `response_scheme` from it too, and routes by `draw` (D35). Every
-row of every file also carries a `score` column: empty for runs 1-8, which were dispatched
-under `SCHEME_LABEL` and never asked for one, and populated for all 600 rows of runs 9
-and 10.
-
-**It is collected data, not derived** *(Q31)*. No seed reproduces a subagent run, so
-`check_llm_recheck` verifies **provenance** — `agent_sha256`, `prompt_sha256` against the
-dispatched prompt, and that every judged pair is one of the 50 — and never determinism, which
-would be red on every run.
-
-**Labelling happens in a local UI, both corpora** *(decisions D30, D32)*. `annotation.ui`
-serves one query with its candidates and appends straight to `judgements.csv`, which is already
-the resume mechanism. In-domain groups are 10 candidates; A1 recheck groups are 1-4, and the
-two interleave. D30 first kept the recheck on the flat file so group size could not betray it;
-D32 reversed that, because the corpora were **already** distinguishable by length (A1 median
-5,134 chars against Djinni's 1,525) and the guide names both. What blinding still protects is
-which pairs carry a label and what it says: no `a1_label` and no `selection_reason` reach the
-page, and a short group gets no banner. The residual — a reader may infer that short groups are
-the rechecks — is a stated limitation on the A13 figure.
-
-Rules about what an annotator may see live in `session.py`, never in the request handler:
-`serve_group` redacts its own output and `assert_clean`s it, and a group carries no
-`lexical_band`, `selection_reason` or existing label. The shortlist question is gated by
-`Group.asks_shortlist` — never asked on a partial re-serve of a double-labelled JD, nor on any
-A1 group.
-
-**Every JD gets 10 candidates and 8 of them share its `Primary Keyword`** *(decision D31)*.
-The first cut drew 5 per JD from one undifferentiated 200-CV pool, and it measured nothing: a
-random pool over 41 role families lands on-category **5.0%** of the time, and the pilot labelled
-**28 of its first 30 pairs `No Fit`**. A set of obvious negatives costs the same human hours as
-one that discriminates and separates no two systems. The realised rate is now 80.0%. The 2
-off-category candidates are taken from the *top* of their pool, not at random — a near miss from
-the wrong family is the mistake a real system makes; a random CV is a `No Fit` everything already
-ranks last. A thin family (Rust has 40 CVs) cannot fill the quota, so the shortfall is taken
-off-category, flagged `keyword_match=False`, and counted as `jds_short_of_quota`.
-
-**A rebuild that would orphan a collected judgement is refused** — `sample.assert_labels_survive`.
-Appending a batch cannot orphan anything by construction; *editing* one can, and D31 did exactly
-that to batch 1. It was safe only because nothing but the pilot had been labelled, which is the
-kind of precondition that stops being true later.
-
-A batch's job titles come from `sample.available_titles()` — **41 reachable, of 45 in the raw
-corpus**. The generic batch's 22 titles are what an unstratified draw of 40 JDs happened to
-land on (D14), never a designed scope, so `indomain-report.json`'s `titles` array is an
-observation. A title a report needs covered arrives as a targeted batch. `validate_keywords`
-refuses an unknown one: unmatched keywords scope a batch to zero JDs and append a spec that
-produces no pairs at all, with no exception and no warning.
+- **Collection is closed** (D42). No new labels, no new batches, and no Claude subprocess
+  is ever started from this repository: `llm_recheck --dispatch/--judge` and
+  `prompt_calibration` raise `DispatchClosed`. Reopening needs a decision in the log.
+- **The LLM is a secondary annotator, not a system** (D43). Exactly one series enters the
+  final set: instrument `5d986c82`, `claude-haiku-4-5`, runs 9/10. No system is trained on
+  LLM labels. If the LLM is ever scored as a system, it is scored on the `llm_free`
+  subset.
+- **LLM labels never enter `judgements.csv`.** They live in `llm-*.csv`, keyed by
+  (`agent_sha256`, model, run, draw). Never pool across those axes.
+- Every document displayed to a person passes `annotation.redact`.
 
 ## Data rules
 
@@ -678,7 +129,7 @@ produces no pairs at all, with no exception and no warning.
 - Numbered, one topic each, executed before committing so the outputs are visible on GitHub.
 - Redact PII **inside the notebook** rather than relying on stripping outputs later.
 - Cite measured figures from `docs/data/profile-metrics.json` (corpus) and
-  `output/baselines/baseline-metrics.json` (models) instead of restating prose — numbers then
+  `output/…` records (models) instead of restating prose — numbers then
   update when the profile or the baseline is re-run, and the notebook cannot drift from them.
 - A notebook **reports** a model, it does not define one. `tests/test_notebook_is_thin.py`
   fails if a code cell constructs a vectoriser, a BM25 model or a classifier — that code
@@ -693,15 +144,12 @@ produces no pairs at all, with no exception and no warning.
 1. **It must run on a fresh clone with no `data/`.** Every test but the end-to-end golden check
    uses inline synthetic corpora; the golden check is `skipif`-ed with an explicit reason. A
    suite that needs a 676 MB download will not be run.
-2. **A regression test must be shown to fail against the code it guards.** Three bugs shipped in
-   the classical baseline — two separately-fitted vectorisers, a `.split()` BM25 tokeniser, and a
-   BM25 corpus lookup — and each was invisible: no exception, no row-count change, a plausible
-   number. Each is now one named invariant test, not a golden number, so it survives a
-   legitimate change to the figures.
+2. **A regression test must be shown to fail against the code it guards.** The bugs this
+   repository has shipped were silent (no exception, a plausible number), so each is a named
+   invariant test, not a golden number.
 
-**There is no CI** *(Q22, deferred deliberately)*. "Automatically caught" therefore means
-"caught by `uv run pytest` and `run --check`, run by the reviewer at workflow step 4 below" —
-not "caught by a machine". Adding CI is one workflow file if it is ever wanted.
+**There is no CI** *(Q22)*. "Caught" means caught by `uv run pytest` and the `--check`
+commands, run by the reviewer at workflow step 4.
 
 ## Agent Workflow Guidelines
 

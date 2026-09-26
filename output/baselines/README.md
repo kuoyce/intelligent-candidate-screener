@@ -79,6 +79,8 @@ recorded here is the same object `run --check` guards; there is no second fit pa
 | BM25 | 0.196 [0.125, 0.279] | 0.103 [0.065, 0.148] | 13% | 0.182 |
 | Random floor | 0.128 [0.061, 0.212] | 0.071 [0.039, 0.110] | 9% | 0.084 |
 
+*Superseded 26 Sep 2026 (D40).* The attainable ceilings (0.7806 / 0.7188 / 0.983) are **retired, not restated**. They are computed from A1 labels that do not reproduce (A13), and A1 is now a secondary benchmark. A1 figures are quoted with *n*, CI and the A13 line, with no "% of attainable". The "% of attainable" column above is kept as the historical record. The primary benchmark is the A2 final set (D41). See `plan/2026-09-26-top-down-reset/`.
+
 *n* = 31 strict / 64 graded, N100, bootstrap CI resampling queries. **The proposal's Stage 1
 target is Recall@10 > 0.80.** TF-IDF reaches 0.298 — above the random floor with a
 non-overlapping interval, and nowhere near the target. That is the finding, not a defect to

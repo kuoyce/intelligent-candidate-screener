@@ -15,6 +15,17 @@ import pytest
 from candidate_screener.annotation import llm_recheck as llm
 from candidate_screener.annotation import session
 
+
+@pytest.fixture(autouse=True)
+def _reopen_frozen_dispatch_in_process(monkeypatch):
+    """D42 closes dispatch for good; these are the frozen module's own regressions.
+
+    Every test here that reaches a spawn path replaces `judge_one` or `subprocess.run`
+    first, so reopening the gate in-process lets them run without anything leaving the
+    box. `tests/test_dispatch_closed.py` pins the closed default.
+    """
+    monkeypatch.setattr(llm, "DISPATCH_CLOSED", False)
+
 GUIDE = """# Guide
 
 ## What you are being asked

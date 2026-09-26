@@ -1,0 +1,68 @@
+# Decision log
+
+One line per decision, newest last, each linked to the plan record that argues it. This is
+where history lives. `AGENTS.md` carries only the rules that are still live (D45).
+
+**Status:** `live`, `superseded`, `amended`, `closed` (it did its job), or `unmade`
+(proposed and never taken).
+
+**Number collisions.** D19–D23 were minted twice, by `derived-artefacts` /
+`unified-judging-wave` and by `baseline-repeatability`, on the same day. Both meanings
+are listed, qualified by plan. Cite them as e.g. "D23 (baseline)".
+
+| # | Decision | Status | Record |
+|---|---|---|---|
+| D1 | Retrieval is evaluated on synthetic candidate pools built from the fit dataset | live | [data-strategy](../plan/2026-08-19-data-strategy/README.md) |
+| D2 | Success targets rebased on the measured Stage-1 baseline as relative deltas | superseded by D44 | [data-strategy](../plan/2026-08-19-data-strategy/README.md) |
+| D3 | In-domain data from public JD dumps and resume corpora (no scraping) | amended (Djinni, see D4/D11) | [data-strategy](../plan/2026-08-19-data-strategy/README.md) |
+| D4 | In-domain fit labels are team-adjudicated, with inter-annotator agreement reported | live (agreement reported with no target, D44) | [data-strategy](../plan/2026-08-19-data-strategy/README.md) |
+| D5 | DataTurks kept as the resume-native NER gold seed and supplemented | live | [data-strategy](../plan/2026-08-19-data-strategy/README.md) |
+| D6 | A real PDF/HTML resume corpus is sourced for parsing robustness | live | [data-strategy](../plan/2026-08-19-data-strategy/README.md) |
+| D7 | A1's undeclared licence accepted; recorded in the report | live | [data-strategy](../plan/2026-08-19-data-strategy/README.md) |
+| D8 | Re-split A1 at candidate level (doubly disjoint); not comparable to published numbers | live | [data-strategy](../plan/2026-08-19-data-strategy/README.md) |
+| D9 | Pool size and retrieval metrics decided from the data | live | [data-strategy](../plan/2026-08-19-data-strategy/README.md) |
+| D10 | Kaggle access available; PDFs feed the ingestion demo only | live | [data-strategy](../plan/2026-08-19-data-strategy/README.md) |
+| D11 | Djinni's Ukrainian/EE IT market accepted as in-domain, stated as a limitation | live | [data-strategy](../plan/2026-08-19-data-strategy/README.md) |
+| D12 | 200 in-domain pairs hand-labelled by the team | superseded by D25/D28 | [data-strategy](../plan/2026-08-19-data-strategy/README.md) |
+| D13 | ESCO v1.2.1 acquired | closed | [data-strategy](../plan/2026-08-19-data-strategy/README.md) |
+| D14 | The first in-domain draw is not stratified by role family | live (it is the `generic` stratum) | [derived-artefacts](../plan/2026-08-23-derived-artefacts/README.md) |
+| D15 | Derived ESCO extracts may be committed; raw data may not; notebook output capped | live | [derived-artefacts](../plan/2026-08-23-derived-artefacts/README.md) |
+| D16 | A1's shipped train and test are pooled, then re-split | live | [derived-artefacts](../plan/2026-08-23-derived-artefacts/README.md) |
+| D17 | The in-domain set uses A1's three-class scheme | amended by D47 (collected in three classes, evaluated as Fit / No Fit) | [derived-artefacts](../plan/2026-08-23-derived-artefacts/README.md) |
+| D18 | A2 may feed unlabelled pretraining only; eval documents excluded | amended by D19 | [derived-artefacts](../plan/2026-08-23-derived-artefacts/README.md) |
+| D19 (derived-artefacts) | A2 is partitioned at document level into `train` / `eval` regions before any sampling; `train` may supervise, `eval` never | live | [derived-artefacts](../plan/2026-08-23-derived-artefacts/README.md) |
+| D19 (baseline) | The baseline's logic lives in `src/candidate_screener/baselines/` | live | [baseline-repeatability](../plan/2026-08-29-baseline-repeatability/README.md) |
+| D20 (judging wave) | Our judgements are a separate committed layer, never merged into `pools.csv` | live | [unified-judging-wave](../plan/2026-08-29-unified-judging-wave/README.md) |
+| D20 (baseline) | The baseline's committed record is `output/baselines/baseline-metrics.json` | live | [baseline-repeatability](../plan/2026-08-29-baseline-repeatability/README.md) |
+| D21 (judging wave) | A judging wave would cover the 64 graded-scoreable queries | superseded in scope by D25 | [unified-judging-wave](../plan/2026-08-29-unified-judging-wave/README.md) |
+| D21 (baseline) | Reproducibility is asserted by `run --check` against the committed JSON | live | [baseline-repeatability](../plan/2026-08-29-baseline-repeatability/README.md) |
+| D22 (judging wave) | One judging wave, run once after the last stage exists | superseded in scope by D25 | [unified-judging-wave](../plan/2026-08-29-unified-judging-wave/README.md) |
+| D22 (baseline) | A pytest suite, with each shipped bug as a named regression test | live | [baseline-repeatability](../plan/2026-08-29-baseline-repeatability/README.md) |
+| D23 (judging wave) | The wave would cover all 100 test queries | superseded in scope by D25 | [unified-judging-wave](../plan/2026-08-29-unified-judging-wave/README.md) |
+| D23 (baseline) | Fitted models (pickles, weights) are a cache, never an artefact | live | [baseline-repeatability](../plan/2026-08-29-baseline-repeatability/README.md) |
+| D24 | BM25 is scored from `idf`/`avgdl` against a document's own tokens | live | [baseline-repeatability](../plan/2026-08-29-baseline-repeatability/README.md) |
+| D25 | Manual annotation capped at one session (~250 judgements) | closed (exceeded: 1,034 labels; collection closed by D42) | [unified-judging-wave](../plan/2026-08-29-unified-judging-wave/README.md) |
+| D26 | A1 pool precision is reported beside its attainable ceiling (0.7806 / 0.7188); Recall@10 headline | superseded by D40 (ceilings retired; built on labels that do not reproduce) | [unified-judging-wave](../plan/2026-08-29-unified-judging-wave/README.md) |
+| D27 | The retrieval scoring pass over the A1 pools runs | closed | [unified-judging-wave](../plan/2026-08-29-unified-judging-wave/README.md) |
+| D28 | The in-domain set is a frozen, append-only batch campaign | live (frozen; no batches will be added, D42) | [unified-judging-wave](../plan/2026-08-29-unified-judging-wave/README.md) |
+| D29 | Reporting by stratum (`generic`, `targeted`), never averaged | amended by D41/Q56: a total is reported beside both strata | [unified-judging-wave](../plan/2026-08-29-unified-judging-wave/README.md) |
+| D30 | Labelling happens in a local UI | closed | [annotation-ui](../plan/2026-08-29-annotation-ui/README.md) |
+| D31 | 10 candidates per JD, 8 sharing its `Primary Keyword` | live (describes the set) | [annotation-ui](../plan/2026-08-29-annotation-ui/README.md) |
+| D32 | The A1 recheck is labelled in the same UI | closed | [annotation-ui](../plan/2026-08-29-annotation-ui/README.md) |
+| D33 | A tool-free LLM judge rechecks A1; A13 fails (A1's labels do not reproduce) | live (the finding); judge frozen by D42 | [llm-recheck](../plan/2026-08-30-llm-recheck/01-findings.md) |
+| D34 | The annotation guide defines `No Fit` positively (an ordered decision) | live (guide) | [prompt-calibration](../plan/2026-09-05-prompt-calibration/02-calibration-run.md) |
+| D35 | One draw per run, one file per draw | live (frozen files) | [recheck-file-split](../plan/2026-09-06-recheck-file-split/README.md) |
+| D36 | LLM labels substitute for human labels | unmade; stays unmade (D41: the LLM only breaks human ties or labels where no human looked) | [a2-llm-prelabel](../plan/2026-09-06-a2-llm-prelabel/06-phase2-findings.md) |
+| D37 | Consensus is a reference; the judge-acceptance gate asks interchangeability | superseded for A2 evaluation by D41 | [judge-calibration](../plan/2026-09-08-judge-calibration/03-consensus-findings.md) |
+| D38 | Model is an axis: judge series keyed by (instrument, model) | live (frozen code) | [judge-calibration](../plan/2026-09-08-judge-calibration/README.md) |
+| D39 | Keep the graded instrument `5d986c82` committed | live (it is the LLM annotator in D43) | [judge-calibration](../plan/2026-09-08-judge-calibration/08-q45-decision.md) |
+| D40 | A2 is the primary benchmark; A1 is a training resource and secondary benchmark; D26's ceilings retired | live | [top-down-reset](../plan/2026-09-26-top-down-reset/02-design-spec.md) |
+| D41 | One final Fit / No Fit set: humans agree → theirs; split → LLM; one human → human; no human → LLM. Reported for generic, targeted and total | live | [top-down-reset](../plan/2026-09-26-top-down-reset/02-design-spec.md) |
+| D42 | Annotation collection and judge calibration closed; dispatch refuses in code | live | [top-down-reset](../plan/2026-09-26-top-down-reset/02-design-spec.md) |
+| D43 | The LLM is a secondary annotator (one series), not a system; no system trains on LLM labels | live | [top-down-reset](../plan/2026-09-26-top-down-reset/02-design-spec.md) |
+| D44 | Success measures: three-class dropped; inter-annotator agreement reported with no target; remaining bars registered before held-out results | live | [top-down-reset](../plan/2026-09-26-top-down-reset/04-success-measures.md) |
+| D45 | `AGENTS.md` holds live rules only; history lives here | live | [top-down-reset](../plan/2026-09-26-top-down-reset/02-design-spec.md) |
+| D46 | Nothing is fitted or tuned on the final set | live | [top-down-reset](../plan/2026-09-26-top-down-reset/02-design-spec.md) |
+| D47 | Fit / No Fit is the only label scheme, everywhere | live | [top-down-reset](../plan/2026-09-26-top-down-reset/02-design-spec.md) |
+| D48 | The selected screening pipeline | pending (P4.6) | [top-down-reset](../plan/2026-09-26-top-down-reset/03-work-plan.md) |
+| D49 | The selected extractor | pending (P5.5) | [top-down-reset](../plan/2026-09-26-top-down-reset/03-work-plan.md) |

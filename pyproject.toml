@@ -23,11 +23,19 @@ build-backend = "hatchling.build"
 packages = ["src/candidate_screener"]
 
 [dependency-groups]
+app = [
+    "streamlit>=1.40",
+]
 dev = [
     "ipykernel>=6.30.0",
     "jupyterlab>=4.6.3",
     "nbconvert>=7.16.0",
     "pytest>=8.4.0",
+]
+ml = [
+    "sentence-transformers>=5",
+    "torch>=2.8",
+    "transformers>=4.50",
 ]
 
 [tool.pytest.ini_options]
@@ -36,3 +44,16 @@ testpaths = ["tests"]
 # hard requirement, not a nicety: `data/` is git-ignored, and a suite that cannot run
 # on a fresh clone will not be run.
 addopts = "-q -ra"
+
+# Optional groups (plan/2026-09-26-top-down-reset, P0.6). The base suite must pass
+# without them: `uv sync` gives the classical stack, `uv sync --all-groups` adds these.
+[tool.uv]
+default-groups = ["dev"]
+
+[tool.uv.sources]
+torch = [{ index = "pytorch-cpu" }]
+
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
