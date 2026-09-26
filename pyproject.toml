@@ -33,6 +33,7 @@ dev = [
     "pytest>=8.4.0",
 ]
 ml = [
+    "accelerate>=1.1",
     "sentence-transformers>=5",
     "torch>=2.8",
     "transformers>=4.50",

@@ -16,24 +16,45 @@ Decisions are logged in [`docs/decisions.md`](docs/decisions.md).
 ```
 src/candidate_screener/     project code
   config.py                 canonical data paths
-  data/                     source registry, fetch, verify, profile, splits, pools
-  baselines/                the Stage 1 classical baseline (TF-IDF, BM25) and its entrypoint
-  evaluation/               retrieval and classification metrics, with their reporting guards
-tests/                      pytest — runs without data/ except the golden check
-notebooks/                  01-06 the acquisition EDA, 07 the baseline (executed, outputs committed)
-output/baselines/           committed model record — figures and config, never bytes
+  data/                     source registry, fetch, verify, profile, splits, pools, weak pairs
+  baselines/                the frozen Phase 4 classical baseline (TF-IDF, BM25) and its record
+  evaluation/               final_set (the reference), indomain (the protocol), retrieval_pilot,
+                            a1_secondary, latency, metrics with their reporting guards
+  matching/                 the ladder: rules, lexical, SBERT, cross-encoders, hybrids
+  extraction/               skill vocabulary, rules matcher, MiniLM NER, normalisation
+  evidence/, pipeline.py    requirements, verbatim evidence, end-to-end `screen()`
+  app/                      recruiter UI: intents (rules) + Streamlit transport
+  annotation/               the frozen annotation instrument (D42)
+tests/                      pytest — runs without data/ (data-dependent checks skip visibly)
+notebooks/                  01-07 acquisition EDA and baseline; 08-11 the reset's findings
+output/                     committed records — figures and config, never model bytes
 docs/
   data/                     data catalog, per-source dataset cards, manifests
+  decisions.md              the decision log (D1–D49)
   proposal/                 the module proposal this project implements
 plan/                       dated plans and their implementation records
-data/                       git-ignored working set — see data/README.md to reconstruct it
+data/                       git-ignored working set (except data/vocab/, D15) — see data/README.md
 ```
 
 ## Setup
 
 ```bash
-uv sync                     # Python 3.12, creates .venv and installs the project
+uv sync                     # Python 3.12, the classical stack + dev tools
+uv sync --all-groups        # + ml (torch CPU, sentence-transformers) + app (streamlit)
 ```
+
+## Screen candidates (the reset's pipeline)
+
+```bash
+uv run python -m candidate_screener.evaluation.final_set --build     # the reference (D41)
+uv run python -m candidate_screener.evaluation.indomain --seed 0     # the ladder vs the final set
+uv run python -m candidate_screener.evaluation.retrieval_pilot       # 500-candidate pools
+uv run python -m candidate_screener.evaluation.a1_secondary          # A1, secondary (A13 caveat)
+uv run python -m candidate_screener.extraction.evaluate              # rules vs NER
+uv run streamlit run src/candidate_screener/app/streamlit_app.py     # the recruiter UI
+```
+
+Each record command takes `--check` to rebuild in memory and diff against the committed file.
 
 ## Acquire the data (~676 MB)
 

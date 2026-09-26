@@ -182,6 +182,19 @@ def summarise(pairs: pd.DataFrame) -> dict:
     return out
 
 
+def fold_masks(train_pairs: pd.DataFrame, k: int, seed: int, fold: int
+               ) -> tuple[np.ndarray, np.ndarray]:
+    """`(fit, held)` row masks for one doubly-disjoint fold. Pairs crossing the two sides
+    are in neither — the same rule the test split follows."""
+    resume_seed, jd_seed = np.random.SeedSequence(seed).spawn(2)
+    r_ids, j_ids = np.array(sorted(train_pairs.resume_id.unique())), np.array(sorted(train_pairs.jd_id.unique()))
+    r_bucket = pd.Series(np.random.default_rng(resume_seed).permutation(len(r_ids)) % k, index=r_ids)
+    j_bucket = pd.Series(np.random.default_rng(jd_seed).permutation(len(j_ids)) % k, index=j_ids)
+    rb = train_pairs.resume_id.map(r_bucket).to_numpy()
+    jb = train_pairs.jd_id.map(j_bucket).to_numpy()
+    return (rb != fold) & (jb != fold), (rb == fold) & (jb == fold)
+
+
 def cv_folds(train_pairs: pd.DataFrame, k: int, seed: int) -> list[dict]:
     """k doubly-disjoint folds *within* the train side.
 
@@ -189,17 +202,9 @@ def cv_folds(train_pairs: pd.DataFrame, k: int, seed: int) -> list[dict]:
     it is worth, tune by cross-validation here instead. Same disjointness rule, so a
     fold is as leak-free as the test set — it just spends nothing permanently.
     """
-    resume_seed, jd_seed = np.random.SeedSequence(seed).spawn(2)
-    r_ids, j_ids = np.array(sorted(train_pairs.resume_id.unique())), np.array(sorted(train_pairs.jd_id.unique()))
-    r_bucket = pd.Series(np.random.default_rng(resume_seed).permutation(len(r_ids)) % k, index=r_ids)
-    j_bucket = pd.Series(np.random.default_rng(jd_seed).permutation(len(j_ids)) % k, index=j_ids)
-    rb = train_pairs.resume_id.map(r_bucket).to_numpy()
-    jb = train_pairs.jd_id.map(j_bucket).to_numpy()
-
     folds = []
     for i in range(k):
-        held = (rb == i) & (jb == i)
-        fit = (rb != i) & (jb != i)
+        fit, held = fold_masks(train_pairs, k, seed, i)
         ev = train_pairs[held]
         folds.append({
             "fold": i,

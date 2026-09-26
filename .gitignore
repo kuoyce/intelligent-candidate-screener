@@ -1,5 +1,7 @@
 data/*
 !data/README.md
+# D15: derived ESCO/skill vocabulary extracts are committed
+!data/vocab/
 .venv/
 __pycache__/
 *.part

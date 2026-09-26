@@ -1,6 +1,6 @@
 # AGENTS.md
 
-Conventions an agent (or a new team member) needs before touching anything in this
+Conventions an agent (or new team member) needs before touching anything in this
 repository. **Rules only.** Why each rule exists, and every superseded one, is in
 [`docs/decisions.md`](docs/decisions.md) and the plan records it links to (D45).
 
@@ -33,6 +33,8 @@ uv run python -m candidate_screener.data.verify --all          # raw sources
 uv run python -m candidate_screener.data.build --all --seed 0  # derived artefacts
 uv run python -m candidate_screener.data.verify --derived      # their acceptance checks
 uv run python -m candidate_screener.baselines.run --check      # the frozen Phase 4 baseline
+uv run python -m candidate_screener.evaluation.final_set --check   # the reference (D41)
+uv run python -m candidate_screener.evaluation.indomain --check    # the ladder vs the reference
 uv run pytest                                                   # the suite (no data needed)
 uv run jupyter nbconvert --to notebook --execute --inplace notebooks/NN-*.ipynb
 ```
@@ -59,7 +61,7 @@ base `uv run pytest` must pass without the `ml` and `app` groups: model-dependen
 | Plans and their implementation records | `plan/{date}-{plan_name}/` |
 | Decision log | `docs/decisions.md` |
 
-No runnable scripts under `plan/`: code that outlives a decision belongs in the package.
+No runnable scripts under `plan/`; code that outlives a decision goes in the package.
 
 ## Evaluation rules
 
@@ -85,11 +87,9 @@ No runnable scripts under `plan/`: code that outlives a decision belongs in the 
    hyperparameters included. Tune on A1's doubly-disjoint CV folds or on the weak-pair
    validation split. Code that fits a model never reads `a2-final-labels.csv` or
    `judgements.csv`.
-6. **Metadata is its own rung.** A text model is compared against `keyword match` +
-   text, so it is never credited with what a category field does for free. Report the
-   within-family metric beside the headline.
-7. **Inter-annotator agreement is reported, with no target** (D44). It is context for
-   every system figure, not a goal.
+6. **Metadata is its own rung**, so text models are never credited with what a category
+   field does for free. Report within-family AUC beside the headline.
+7. **Inter-annotator agreement is reported, with no target** (D44): context, not a goal.
 8. **Decide before you look.** A rule or bar that decides between rungs is committed
    (`plan/…/06-registration.md`) before the held-out rungs are scored. Anything seen
    earlier is labelled `exploratory`.

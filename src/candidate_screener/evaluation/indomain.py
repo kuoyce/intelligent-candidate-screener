@@ -201,7 +201,7 @@ def evaluate(rungs: list, classifiers: dict, comparisons: list[tuple[str, str]],
     pairs = corpus.a2_pairs().assign(keyword_match=lambda d: corpus.keyword_match(d))
     pairs = pairs.set_index("pair_id").loc[lab.index].reset_index()
 
-    systems, costs, scores, unscoreable = {}, {}, {}, []
+    systems, costs, scores, unscoreable, cls_block = {}, {}, {}, [], {}
     for spec in rungs:
         system = spec.factory()
         system.fit(None)
@@ -219,19 +219,26 @@ def evaluate(rungs: list, classifiers: dict, comparisons: list[tuple[str, str]],
             "scores_sha256": hashlib.sha256(np.round(s.to_numpy(), 9).tobytes()).hexdigest(),
             "figures": figures,
         }
-    cls_block = {}
+        if hasattr(system, "classify"):
+            cname = f"{system.name} (threshold {system.threshold:.4f}, from its own validation split)"
+            cls_block[cname] = {"status": spec.status, "figures": [
+                f.as_dict() for f in cls_figures(cname, system.classify(pairs), lab,
+                                                 rule_version, seed)]}
+        if hasattr(system, "weights"):
+            systems[system.name]["learned_weights"] = {k: float(v) for k, v in system.weights.items()}
+    cls_block = cls_block
     for name, (make_preds, status) in classifiers.items():
         preds = make_preds(pairs)
         cls_block[name] = {"status": status,
                            "figures": [f.as_dict() for f in cls_figures(name, preds, lab,
                                                                         rule_version, seed)]}
     deltas = []
-    for b, a in comparisons:
+    for cid, b, a in comparisons:
         if b in scores and a in scores:
             for subset in SUBSETS:
                 for scope in final_set.SCOPES:
                     for metric in RANK_METRICS:
-                        deltas.append({"b": b, "a": a, **paired_delta(
+                        deltas.append({"id": cid, "b": b, "a": a, **paired_delta(
                             scores[b], scores[a], lab, pairs, metric, scope, subset, seed)})
     for block in [*systems.values(), *cls_block.values()]:
         assert_total_has_strata(block["figures"])
