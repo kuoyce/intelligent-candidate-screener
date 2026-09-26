@@ -672,6 +672,12 @@ def check_llm_recheck() -> list[tuple[bool, str]]:
 
 
 #: Task -> its acceptance checks. 3.1 and 3.5 register here as they land.
+def check_a2_final() -> list[tuple[bool, str]]:
+    """The final annotation set (D41): the rule's invariants, provenance, determinism."""
+    from candidate_screener.evaluation import final_set
+    return final_set.check()
+
+
 CHECKS = {
     "fit-split": check_fit_split,
     "pools": check_pools,
@@ -680,6 +686,7 @@ CHECKS = {
     "indomain": check_indomain,
     "judging-queue": check_judging_queue,
     "llm-recheck": check_llm_recheck,
+    "a2-final": check_a2_final,
 }
 
 

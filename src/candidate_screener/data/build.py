@@ -14,6 +14,7 @@ import argparse
 from candidate_screener.annotation import queue as judging_queue
 from candidate_screener.annotation import sample as indomain
 from candidate_screener.data import a2_finetune, fit_split, pools
+from candidate_screener.evaluation import final_set
 
 #: The hold-out fraction signed off on 23 Aug 2026 — see `fit-split-survey.json`.
 #: 30% yields 31 test JDs carrying a Good Fit against 24 at 25%; the val fold was
@@ -51,6 +52,10 @@ def build_judging_queue(seed: int) -> None:
     judging_queue.print_report(judging_queue.build(seed))
 
 
+def build_a2_final(seed: int) -> None:
+    final_set.main(["--build", "--seed", str(seed)])
+
+
 #: Task -> builder, **in dependency order**, which is the order `--all` runs them in.
 #: `indomain` reads `a2-partition.csv` and `judging-queue` reads `indomain-pairs.csv`,
 #: so this dict's insertion order is load-bearing and not cosmetic. 3.1 and 3.5 register
@@ -62,6 +67,7 @@ TASKS = {
     "a2-shortlist": build_a2_shortlist,
     "indomain": build_indomain,
     "judging-queue": build_judging_queue,
+    "a2-final": build_a2_final,
 }
 
 
