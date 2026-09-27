@@ -3,6 +3,7 @@
 D45 moved decision history out of `AGENTS.md`. A citation that resolves nowhere is a
 reader sent to look for a rule that is not written down.
 """
+import json
 import re
 from pathlib import Path
 
@@ -18,7 +19,10 @@ def cited_numbers() -> dict[int, str]:
         files = [base] if base.is_file() else [
             p for p in base.rglob("*") if p.suffix in {".md", ".py", ".json", ".ipynb"}]
         for path in files:
-            for match in CITATION.finditer(path.read_text(encoding="utf-8", errors="ignore")):
+            text = path.read_text(encoding="utf-8", errors="ignore")
+            if path.suffix == ".ipynb":   # cell sources only: outputs hold base64 images
+                text = "\n".join("".join(c["source"]) for c in json.loads(text)["cells"])
+            for match in CITATION.finditer(text):
                 found.setdefault(int(match.group(1)), str(path.relative_to(ROOT)))
     return found
 

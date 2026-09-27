@@ -11,6 +11,27 @@ job description with the evidence shown back to the recruiter.
 
 Decisions are logged in [`docs/decisions.md`](docs/decisions.md).
 
+## Results (27 Sep 2026)
+
+Against one final Fit / No Fit panel label per in-domain pair (D41), with per-JD AUC and
+95% CIs over 59 JDs. Full detail: [`plan/2026-09-26-top-down-reset/09-findings.md`](plan/2026-09-26-top-down-reset/09-findings.md).
+
+| System | Per-JD AUC | Verdict under the registered rule |
+|---|---|---|
+| random | 0.556 | — |
+| metadata rules (role keyword + experience) | 0.778 | — |
+| TF-IDF | 0.797 | — |
+| **metadata + TF-IDF** | **0.849** [0.802, 0.891] | **selected (D48)**: nothing richer beats it |
+| SBERT, fine-tuned on weak in-domain pairs | 0.854 [0.817, 0.890] | **selected for text-only input**: +0.057 over TF-IDF, justified |
+| cross-encoder (A1-trained / weak-trained) | 0.488 / 0.661 | harmful |
+| learned combination of all text models | 0.828 | not resolved |
+
+- At 500 candidates per role, metadata + TF-IDF keeps 92.9% of the fits in a
+  50-candidate shortlist, in 0.84 s.
+- Re-ranking that shortlist with a cross-encoder cuts Recall@10 by a quarter to a third.
+- Extraction splits by role (D49): a MiniLM tagger for job postings (SkillSpan strict
+  F1 0.523 vs 0.237) and a rules matcher for resumes.
+
 ## Layout
 
 ```
