@@ -59,17 +59,38 @@ them rather than restating them, except where a number explains a decision.
   changed before any weights existed. It trained in 2,850 s, with peak RSS 6.7 GB.
 - **Pilot pools:** 60 JDs × 500 = 30,000 pairs, 12,592 unique CVs, 367 relevant fits.
 
-## P4 — Cross-encoders, hybrid
+## P4 — Cross-encoders, hybrid, selection
 
-- **4a hyperparameters are fixed in advance, not chosen on `fit_split.cv_folds`**
-  (a deviation from 03 row 4.1). With the final set out of bounds and one epoch
-  affordable on CPU, a search would have tuned noise. Fold 0 of the doubly-disjoint CV
-  (135 pairs) is held back and used only for the class threshold. A `fold_masks` helper
-  was added to `fit_split`, and `cv_folds` now uses it (its counts are unchanged).
+- **Cross-encoder hyperparameters are chosen on each model's own validation split**, as
+  03 row 4.1 specified, from a two-point grid: (lr 2e-5, 1 epoch) and (lr 5e-5, 3 epochs).
+  - The first point left 4a's loss at ln 2 (validation AUC 0.497, spread 0.02). It
+    learned nothing.
+  - The second is selected for both: 4a validation AUC 0.688 on A1 fold 0; 4b 0.745 on
+    weak validation.
+  - A `fold_masks` helper was added to `fit_split`, and `cv_folds` now uses it (its counts
+    are unchanged). Fold 0 (135 pairs) is held back for 4a's selection and threshold.
 - **The learned hybrid (rung 5) trains on A1 fold 0, over text scores only.** The weak
   labels are a function of keyword and experience, so a combiner fitted there would
   relearn the metadata rule. It emits no class calls: no split is left for a threshold.
   This is a deviation from registration §5's S1 list.
+- **Selection is exhaustive** (`matching/selection.py`, written into the record under
+  `selection`).
+  - A first mechanical pass read "no justified rung beats it" as "no *listed* comparison
+    beats it", and selected keyword match and BM25 by default. A missing comparison is not
+    an acquittal.
+  - Every more expensive rung in the context is now checked with the §2 verdict. See
+    [07](07-selection.md).
+- **Results.** D48 selects metadata + TF-IDF (with metadata) and SBERT, weak fine-tuned
+  (text only). See [07](07-selection.md) and [09](09-findings.md).
+
+## P5 — Extraction
+
+Built by a sub-agent. See [08](08-extraction.md) (D49 adopted).
+- 387 tests passed at hand-back.
+- A fresh-clone simulation gave 72 passed and 5 skipped with reasons.
+- A retrain is bit-identical, so the `--check` tolerance is 0.
+- The DataTurks offset defect is HTML escaping. The B1 card, the D1 card (13,939 concepts
+  in 13,960 rows) and the catalog are corrected in place.
 
 ## P6 / P7 — Evidence, pipeline, UI
 
@@ -82,7 +103,12 @@ them rather than restating them, except where a number explains a decision.
 - The UI is Streamlit (Q51), with the rules in `app/intents.py`. Six intents, each with a
   scenario test, plus an `AppTest` smoke test.
 
-## Open at the time of writing
+## P6–P8 — Evidence, UI, report assets
 
-Results are filled in from the records once they are run: `07-selection.md`,
-`08-extraction.md`, `09-findings.md`.
+- **Group gaps** (`output/matching/group-gaps.json`): per-JD AUC by JD experience band
+  and by stratum for the selected pipeline. No gap is resolved. Role families are too
+  sparse (60 JDs over 30+ families).
+- **Notebooks** 08–11 are thin readers of the committed records. Charts use validated
+  palette slots 1–3, with direct labels.
+- **Latency** (`output/matching/latency.json`): 0.84 s per 500-candidate role, 1.7 ms per
+  candidate, on this machine.

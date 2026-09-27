@@ -1,0 +1,212 @@
+{
+  "seed": 0,
+  "note_a13": "A1's labels do not reproduce (A13): blind readers agree with them at chance. These figures measure agreement with A1's labelling process, not screening quality.",
+  "test_pairs": 659,
+  "test_jds": 100,
+  "fit_rate": 0.477997,
+  "majority_floor_accuracy": 0.522003,
+  "systems": {
+    "random": {
+      "rung": "0",
+      "per_jd_auc": {
+        "value": 0.479091,
+        "ci": [
+          0.413414,
+          0.54442
+        ],
+        "n_jd": 63
+      },
+      "recall@10_graded_N100": {
+        "value": 0.08064,
+        "ci": [
+          0.046573,
+          0.121963
+        ],
+        "n_queries": 64
+      },
+      "precision@5_graded_N100": {
+        "value": 0.034375,
+        "ci": [
+          0.015625,
+          0.05625
+        ],
+        "n_queries": 64
+      }
+    },
+    "TF-IDF": {
+      "rung": "2",
+      "per_jd_auc": {
+        "value": 0.648827,
+        "ci": [
+          0.571627,
+          0.723951
+        ],
+        "n_jd": 63
+      },
+      "recall@10_graded_N100": {
+        "value": 0.354194,
+        "ci": [
+          0.277215,
+          0.435417
+        ],
+        "n_queries": 64
+      },
+      "precision@5_graded_N100": {
+        "value": 0.159375,
+        "ci": [
+          0.11875,
+          0.2
+        ],
+        "n_queries": 64
+      }
+    },
+    "BM25": {
+      "rung": "2",
+      "per_jd_auc": {
+        "value": 0.58803,
+        "ci": [
+          0.513881,
+          0.663399
+        ],
+        "n_jd": 63
+      },
+      "recall@10_graded_N100": {
+        "value": 0.253722,
+        "ci": [
+          0.191307,
+          0.320331
+        ],
+        "n_queries": 64
+      },
+      "precision@5_graded_N100": {
+        "value": 0.13125,
+        "ci": [
+          0.09375,
+          0.16875
+        ],
+        "n_queries": 64
+      }
+    },
+    "SBERT (zero-shot)": {
+      "rung": "3a",
+      "per_jd_auc": {
+        "value": 0.678311,
+        "ci": [
+          0.612376,
+          0.741939
+        ],
+        "n_jd": 63
+      },
+      "recall@10_graded_N100": {
+        "value": 0.292208,
+        "ci": [
+          0.223241,
+          0.366251
+        ],
+        "n_queries": 64
+      },
+      "precision@5_graded_N100": {
+        "value": 0.128125,
+        "ci": [
+          0.09375,
+          0.1625
+        ],
+        "n_queries": 64
+      }
+    },
+    "SBERT (weak fine-tuned)": {
+      "rung": "3b",
+      "per_jd_auc": {
+        "value": 0.635573,
+        "ci": [
+          0.56611,
+          0.703811
+        ],
+        "n_jd": 63
+      },
+      "recall@10_graded_N100": {
+        "value": 0.281654,
+        "ci": [
+          0.212403,
+          0.358849
+        ],
+        "n_queries": 64
+      },
+      "precision@5_graded_N100": {
+        "value": 0.140625,
+        "ci": [
+          0.10625,
+          0.178125
+        ],
+        "n_queries": 64
+      }
+    },
+    "cross-encoder (A1)": {
+      "rung": "4a",
+      "per_jd_auc": {
+        "value": 0.627843,
+        "ci": [
+          0.559619,
+          0.69399
+        ],
+        "n_jd": 63
+      },
+      "recall@10_graded_N100": {
+        "value": 0.117735,
+        "ci": [
+          0.071292,
+          0.172286
+        ],
+        "n_queries": 64
+      },
+      "precision@5_graded_N100": {
+        "value": 0.040625,
+        "ci": [
+          0.01875,
+          0.065625
+        ],
+        "n_queries": 64
+      },
+      "classifier": {
+        "threshold": 0.6361,
+        "accuracy": 0.591806,
+        "macro_f1": 0.573647,
+        "kappa": 0.170146
+      },
+      "note": "trained on A1 train: in-distribution here"
+    },
+    "cross-encoder (weak)": {
+      "rung": "4b",
+      "per_jd_auc": {
+        "value": 0.447007,
+        "ci": [
+          0.374349,
+          0.519911
+        ],
+        "n_jd": 63
+      },
+      "recall@10_graded_N100": {
+        "value": 0.078621,
+        "ci": [
+          0.038529,
+          0.130299
+        ],
+        "n_queries": 64
+      },
+      "precision@5_graded_N100": {
+        "value": 0.034375,
+        "ci": [
+          0.015625,
+          0.05625
+        ],
+        "n_queries": 64
+      },
+      "classifier": {
+        "threshold": 0.53,
+        "accuracy": 0.512898,
+        "macro_f1": 0.479041,
+        "kappa": 0.005407
+      }
+    }
+  }
+}

@@ -73,3 +73,22 @@ def test_skill_overlap_is_coverage_of_the_jds_skills():
             return {w for w in text.split() if w in {"python", "spark", "java", "spring"}}
     s = rules.SkillOverlap(matcher=Stub()).score(_pairs())
     assert s.tolist() == [1.0, 0.0, 0.5, 1.0]
+
+
+def test_selection_checks_every_more_expensive_rung():
+    """A cheaper rung is selected only when no more expensive rung is justified over it;
+    a missing registered comparison is not an acquittal."""
+    from candidate_screener.matching import selection
+    names = {"random": 0, "metadata rules": 0, "TF-IDF": 0, "SBERT (zero-shot)": 0}
+    auc = {"random": 0.5, "metadata rules": 0.7, "TF-IDF": 0.8, "SBERT (zero-shot)": 0.81}
+
+    def delta(b, a, scope, subset):
+        up = auc[b] - auc[a]
+        ci = [up - 0.02, up + 0.02]
+        return {"delta": up, "ci": ci, "half_width": 0.02, "n_jd": 50}
+
+    out = selection.select(names, auc, delta, "metadata")
+    assert out["selected"] == "TF-IDF"                 # SBERT's +0.01 is not resolved
+    assert out["trail"][1]["beaten_by"] == ["TF-IDF", "SBERT (zero-shot)"]
+    text = selection.select(names, auc, delta, "text_only")
+    assert "metadata rules" not in [s["rung"] for s in text["trail"]]

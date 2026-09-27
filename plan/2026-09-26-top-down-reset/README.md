@@ -1,6 +1,6 @@
 # Top-down reset: one final Fit / No Fit set, then the screening system
 
-**Status:** **approved 26 Sep 2026 (v4); in execution.** Revised 26 Sep 2026 after three rounds of
+**Status:** **approved 26 Sep 2026 (v4); executed 27 Sep 2026.** Findings: [09-findings.md](09-findings.md). Selection (D48): [07-selection.md](07-selection.md). Revised 26 Sep 2026 after three rounds of
 review. The final-set rule and the binary scheme are approved. A few success-measure items
 remain open (04 §3).
 
@@ -108,4 +108,9 @@ JDs):
 | [02-design-spec.md](02-design-spec.md) | Decisions, the final annotation set, the ladder, the evaluation protocol and decision rule, extraction, evidence, UI, code layout |
 | [03-work-plan.md](03-work-plan.md) | Phases P0–P8, acceptance criteria, effort, risks |
 | [04-success-measures.md](04-success-measures.md) | Q53: what is decided, the proposal's targets restated as Fit / No Fit, what is still open |
+| [06-registration.md](06-registration.md) | The rule, comparisons and provisional bars, committed before any held-out rung |
+| [07-selection.md](07-selection.md) | The ladder, the verdicts, and D48 |
+| [08-extraction.md](08-extraction.md) | Extraction component and D49 |
+| [09-findings.md](09-findings.md) | The answer to the research question, success measures, limitations |
+| [10-implementation.md](10-implementation.md) | What was built and every deviation |
 | [05-annotator-vs-system.md](05-annotator-vs-system.md) | Evidence shown during review: every system and annotator against each annotator and the final set. Three-class tables kept as the record of what was shown |

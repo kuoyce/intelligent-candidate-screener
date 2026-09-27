@@ -33,5 +33,6 @@ def dot_ci(ax, labels, values, lows, highs, color=SERIES[0], ref=None, ref_label
     if ref is not None:
         ax.axvline(ref, color=TEXT_2, linewidth=1, linestyle=(0, (3, 3)))
         if ref_label:
-            ax.annotate(ref_label, (ref, len(labels) - 0.4), xytext=(4, 0),
+            ax.set_ylim(-0.6, len(labels) - 0.1)
+            ax.annotate(ref_label, (ref, len(labels) - 0.45), xytext=(4, 0),
                         textcoords="offset points", color=TEXT_2, fontsize=8)

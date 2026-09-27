@@ -64,5 +64,5 @@ are listed, qualified by plan. Cite them as e.g. "D23 (baseline)".
 | D45 | `AGENTS.md` holds live rules only; history lives here | live | [top-down-reset](../plan/2026-09-26-top-down-reset/02-design-spec.md) |
 | D46 | Nothing is fitted or tuned on the final set | live | [top-down-reset](../plan/2026-09-26-top-down-reset/02-design-spec.md) |
 | D47 | Fit / No Fit is the only label scheme, everywhere | live | [top-down-reset](../plan/2026-09-26-top-down-reset/02-design-spec.md) |
-| D48 | The selected screening pipeline | pending (P4.6) | [top-down-reset](../plan/2026-09-26-top-down-reset/03-work-plan.md) |
+| D48 | Selected pipeline by the registered rule: metadata + TF-IDF where a `Primary Keyword` exists on both sides; the weakly fine-tuned SBERT for text-only input. No cross-encoder or learned hybrid earned its place | live | [top-down-reset](../plan/2026-09-26-top-down-reset/07-selection.md) |
 | D49 | Extraction split by role: the learned tagger adds free-text JD requirements; the rules matcher does CV skills and every exact/alias match; rung 1b stays on rules | live | [top-down-reset](../plan/2026-09-26-top-down-reset/08-extraction.md) |

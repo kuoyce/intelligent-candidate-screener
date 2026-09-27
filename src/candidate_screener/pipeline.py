@@ -22,9 +22,9 @@ import pandas as pd
 from candidate_screener.evidence import evidence as ev
 from candidate_screener.evidence import requirements as req
 
-#: The selected pipeline (D48). Set by P4.6 from `07-selection.md`.
+#: The selected pipeline (D48, `07-selection.md`): the registered rule's choice per context.
 SELECTED = "metadata + TF-IDF"
-SELECTED_TEXT_ONLY = "TF-IDF"
+SELECTED_TEXT_ONLY = "SBERT (weak fine-tuned)"
 
 
 @dataclass
@@ -44,8 +44,16 @@ class Result:
 
 
 def default_ranker(has_metadata: bool):
+    """D48: metadata + TF-IDF where both sides carry a keyword; else the weakly
+    fine-tuned SBERT, falling back to TF-IDF when the `ml` group is not installed."""
     from candidate_screener.matching import lexical
-    return lexical.MetadataPlus(lexical.Tfidf(), "1a+2") if has_metadata else lexical.Tfidf()
+    if has_metadata:
+        return lexical.MetadataPlus(lexical.Tfidf(), "1a+2")
+    try:
+        from candidate_screener.matching.sbert import SbertWeak
+        return SbertWeak()
+    except ImportError:
+        return lexical.Tfidf()
 
 
 def _frame(jd_text: str, cvs: pd.DataFrame, jd_meta: dict | None) -> pd.DataFrame:

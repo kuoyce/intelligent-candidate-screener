@@ -244,6 +244,20 @@ def evaluate(rungs: list, classifiers: dict, comparisons: list[tuple[str, str]],
                             scores[b], scores[a], lab, pairs, metric, scope, subset, seed)})
     for block in [*systems.values(), *cls_block.values()]:
         assert_total_has_strata(block["figures"])
+    from candidate_screener.matching import selection
+    auc_total = {n: next(f["value"] for f in b["figures"] if f["metric"] == "auc"
+                         and f["scope"] == "total" and f["subset"] == "all")
+                 for n, b in systems.items()}
+    memo: dict = {}
+
+    def delta(b, a, scope, subset):
+        key = (b, a, scope, subset)
+        if key not in memo:
+            memo[key] = paired_delta(scores[b], scores[a], lab, pairs, "auc", scope, subset, seed)
+        return memo[key]
+
+    chosen = {ctx: selection.select(scores, auc_total, delta, ctx)
+              for ctx in ("metadata", "text_only")}
     record = {
         "seed": seed,
         "reference": {"file": final_set.FINAL_CSV.name, "rule_version": rule_version,
@@ -255,6 +269,7 @@ def evaluate(rungs: list, classifiers: dict, comparisons: list[tuple[str, str]],
         "classifier_floor_always_fit_accuracy": floor(lab),
         "systems": systems, "classifiers": cls_block, "deltas": deltas,
         "unscoreable": unscoreable,
+        "selection": chosen,
     }
     return record, costs
 

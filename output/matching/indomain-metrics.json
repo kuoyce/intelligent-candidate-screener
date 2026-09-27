@@ -481,6 +481,318 @@
         }
       ]
     },
+    "skill overlap": {
+      "rung": "1b",
+      "stage": "Stage 1 \u2014 rules (as specified)",
+      "status": "held-out",
+      "trained_on": "nothing",
+      "params": 0,
+      "can_explain": true,
+      "deterministic": true,
+      "scores_sha256": "ad087b2438dc7f9e1558cdc7e8497bc39e7024e55da530edcbe76bc118d79761",
+      "figures": [
+        {
+          "system": "skill overlap",
+          "metric": "auc",
+          "scope": "generic",
+          "subset": "all",
+          "value": 0.719027,
+          "ci_low": 0.653512,
+          "ci_high": 0.782881,
+          "n_jd": 39,
+          "n_pairs": 390,
+          "rule_version": 1
+        },
+        {
+          "system": "skill overlap",
+          "metric": "auc",
+          "scope": "targeted",
+          "subset": "all",
+          "value": 0.676179,
+          "ci_low": 0.594988,
+          "ci_high": 0.760751,
+          "n_jd": 20,
+          "n_pairs": 200,
+          "rule_version": 1
+        },
+        {
+          "system": "skill overlap",
+          "metric": "auc",
+          "scope": "total",
+          "subset": "all",
+          "value": 0.704502,
+          "ci_low": 0.652277,
+          "ci_high": 0.757258,
+          "n_jd": 59,
+          "n_pairs": 590,
+          "rule_version": 1
+        },
+        {
+          "system": "skill overlap",
+          "metric": "within_family_auc",
+          "scope": "generic",
+          "subset": "all",
+          "value": 0.64128,
+          "ci_low": 0.564444,
+          "ci_high": 0.720875,
+          "n_jd": 30,
+          "n_pairs": 240,
+          "rule_version": 1
+        },
+        {
+          "system": "skill overlap",
+          "metric": "within_family_auc",
+          "scope": "targeted",
+          "subset": "all",
+          "value": 0.657953,
+          "ci_low": 0.576388,
+          "ci_high": 0.745471,
+          "n_jd": 18,
+          "n_pairs": 144,
+          "rule_version": 1
+        },
+        {
+          "system": "skill overlap",
+          "metric": "within_family_auc",
+          "scope": "total",
+          "subset": "all",
+          "value": 0.647532,
+          "ci_low": 0.589681,
+          "ci_high": 0.706011,
+          "n_jd": 48,
+          "n_pairs": 384,
+          "rule_version": 1
+        },
+        {
+          "system": "skill overlap",
+          "metric": "auc",
+          "scope": "generic",
+          "subset": "llm_free",
+          "value": 0.735474,
+          "ci_low": 0.657177,
+          "ci_high": 0.809427,
+          "n_jd": 38,
+          "n_pairs": 350,
+          "rule_version": 1
+        },
+        {
+          "system": "skill overlap",
+          "metric": "auc",
+          "scope": "targeted",
+          "subset": "llm_free",
+          "value": 0.765686,
+          "ci_low": 0.663725,
+          "ci_high": 0.869608,
+          "n_jd": 17,
+          "n_pairs": 110,
+          "rule_version": 1
+        },
+        {
+          "system": "skill overlap",
+          "metric": "auc",
+          "scope": "total",
+          "subset": "llm_free",
+          "value": 0.744812,
+          "ci_low": 0.680974,
+          "ci_high": 0.806582,
+          "n_jd": 55,
+          "n_pairs": 460,
+          "rule_version": 1
+        },
+        {
+          "system": "skill overlap",
+          "metric": "within_family_auc",
+          "scope": "generic",
+          "subset": "llm_free",
+          "value": 0.691373,
+          "ci_low": 0.594651,
+          "ci_high": 0.784335,
+          "n_jd": 23,
+          "n_pairs": 174,
+          "rule_version": 1
+        },
+        {
+          "system": "skill overlap",
+          "metric": "within_family_auc",
+          "scope": "targeted",
+          "subset": "llm_free",
+          "value": 0.756207,
+          "ci_low": 0.615051,
+          "ci_high": 0.889286,
+          "n_jd": 14,
+          "n_pairs": 69,
+          "rule_version": 1
+        },
+        {
+          "system": "skill overlap",
+          "metric": "within_family_auc",
+          "scope": "total",
+          "subset": "llm_free",
+          "value": 0.715905,
+          "ci_low": 0.637708,
+          "ci_high": 0.795122,
+          "n_jd": 37,
+          "n_pairs": 243,
+          "rule_version": 1
+        }
+      ]
+    },
+    "metadata + skill overlap": {
+      "rung": "1a+1b",
+      "stage": "hybrid",
+      "status": "held-out",
+      "trained_on": "nothing",
+      "params": 0,
+      "can_explain": true,
+      "deterministic": true,
+      "scores_sha256": "326366ef986f862a5768805f14517b47b455d3341fbd97b868aaf99f08875886",
+      "figures": [
+        {
+          "system": "metadata + skill overlap",
+          "metric": "auc",
+          "scope": "generic",
+          "subset": "all",
+          "value": 0.817744,
+          "ci_low": 0.756054,
+          "ci_high": 0.872143,
+          "n_jd": 39,
+          "n_pairs": 390,
+          "rule_version": 1
+        },
+        {
+          "system": "metadata + skill overlap",
+          "metric": "auc",
+          "scope": "targeted",
+          "subset": "all",
+          "value": 0.83011,
+          "ci_low": 0.764436,
+          "ci_high": 0.890337,
+          "n_jd": 20,
+          "n_pairs": 200,
+          "rule_version": 1
+        },
+        {
+          "system": "metadata + skill overlap",
+          "metric": "auc",
+          "scope": "total",
+          "subset": "all",
+          "value": 0.821936,
+          "ci_low": 0.775606,
+          "ci_high": 0.863899,
+          "n_jd": 59,
+          "n_pairs": 590,
+          "rule_version": 1
+        },
+        {
+          "system": "metadata + skill overlap",
+          "metric": "within_family_auc",
+          "scope": "generic",
+          "subset": "all",
+          "value": 0.591756,
+          "ci_low": 0.50592,
+          "ci_high": 0.677582,
+          "n_jd": 30,
+          "n_pairs": 240,
+          "rule_version": 1
+        },
+        {
+          "system": "metadata + skill overlap",
+          "metric": "within_family_auc",
+          "scope": "targeted",
+          "subset": "all",
+          "value": 0.730159,
+          "ci_low": 0.648542,
+          "ci_high": 0.813211,
+          "n_jd": 18,
+          "n_pairs": 144,
+          "rule_version": 1
+        },
+        {
+          "system": "metadata + skill overlap",
+          "metric": "within_family_auc",
+          "scope": "total",
+          "subset": "all",
+          "value": 0.643657,
+          "ci_low": 0.578401,
+          "ci_high": 0.707883,
+          "n_jd": 48,
+          "n_pairs": 384,
+          "rule_version": 1
+        },
+        {
+          "system": "metadata + skill overlap",
+          "metric": "auc",
+          "scope": "generic",
+          "subset": "llm_free",
+          "value": 0.851901,
+          "ci_low": 0.780249,
+          "ci_high": 0.912647,
+          "n_jd": 38,
+          "n_pairs": 350,
+          "rule_version": 1
+        },
+        {
+          "system": "metadata + skill overlap",
+          "metric": "auc",
+          "scope": "targeted",
+          "subset": "llm_free",
+          "value": 0.830287,
+          "ci_low": 0.735784,
+          "ci_high": 0.912885,
+          "n_jd": 17,
+          "n_pairs": 110,
+          "rule_version": 1
+        },
+        {
+          "system": "metadata + skill overlap",
+          "metric": "auc",
+          "scope": "total",
+          "subset": "llm_free",
+          "value": 0.84522,
+          "ci_low": 0.788921,
+          "ci_high": 0.895736,
+          "n_jd": 55,
+          "n_pairs": 460,
+          "rule_version": 1
+        },
+        {
+          "system": "metadata + skill overlap",
+          "metric": "within_family_auc",
+          "scope": "generic",
+          "subset": "llm_free",
+          "value": 0.622688,
+          "ci_low": 0.511661,
+          "ci_high": 0.725111,
+          "n_jd": 23,
+          "n_pairs": 174,
+          "rule_version": 1
+        },
+        {
+          "system": "metadata + skill overlap",
+          "metric": "within_family_auc",
+          "scope": "targeted",
+          "subset": "llm_free",
+          "value": 0.685927,
+          "ci_low": 0.522446,
+          "ci_high": 0.840476,
+          "n_jd": 14,
+          "n_pairs": 69,
+          "rule_version": 1
+        },
+        {
+          "system": "metadata + skill overlap",
+          "metric": "within_family_auc",
+          "scope": "total",
+          "subset": "llm_free",
+          "value": 0.646616,
+          "ci_low": 0.555419,
+          "ci_high": 0.735425,
+          "n_jd": 37,
+          "n_pairs": 243,
+          "rule_version": 1
+        }
+      ]
+    },
     "TF-IDF": {
       "rung": "2",
       "stage": "Stage 2 \u2014 lexical",
@@ -1104,9 +1416,2035 @@
           "rule_version": 1
         }
       ]
+    },
+    "SBERT (zero-shot)": {
+      "rung": "3a",
+      "stage": "Stage 3 \u2014 semantic",
+      "status": "exploratory",
+      "trained_on": "nothing (pretrained MiniLM, cached)",
+      "params": 22713216,
+      "can_explain": false,
+      "deterministic": true,
+      "scores_sha256": "334db991bf233b708ce41d0d421a96d1648a7e86f168ba39d247e83bb014c322",
+      "figures": [
+        {
+          "system": "SBERT (zero-shot)",
+          "metric": "auc",
+          "scope": "generic",
+          "subset": "all",
+          "value": 0.788898,
+          "ci_low": 0.726673,
+          "ci_high": 0.847697,
+          "n_jd": 39,
+          "n_pairs": 390,
+          "rule_version": 1
+        },
+        {
+          "system": "SBERT (zero-shot)",
+          "metric": "auc",
+          "scope": "targeted",
+          "subset": "all",
+          "value": 0.745929,
+          "ci_low": 0.661357,
+          "ci_high": 0.826558,
+          "n_jd": 20,
+          "n_pairs": 200,
+          "rule_version": 1
+        },
+        {
+          "system": "SBERT (zero-shot)",
+          "metric": "auc",
+          "scope": "total",
+          "subset": "all",
+          "value": 0.774332,
+          "ci_low": 0.725121,
+          "ci_high": 0.821989,
+          "n_jd": 59,
+          "n_pairs": 590,
+          "rule_version": 1
+        },
+        {
+          "system": "SBERT (zero-shot)",
+          "metric": "within_family_auc",
+          "scope": "generic",
+          "subset": "all",
+          "value": 0.78754,
+          "ci_low": 0.688095,
+          "ci_high": 0.875716,
+          "n_jd": 30,
+          "n_pairs": 240,
+          "rule_version": 1
+        },
+        {
+          "system": "SBERT (zero-shot)",
+          "metric": "within_family_auc",
+          "scope": "targeted",
+          "subset": "all",
+          "value": 0.700397,
+          "ci_low": 0.597519,
+          "ci_high": 0.80513,
+          "n_jd": 18,
+          "n_pairs": 144,
+          "rule_version": 1
+        },
+        {
+          "system": "SBERT (zero-shot)",
+          "metric": "within_family_auc",
+          "scope": "total",
+          "subset": "all",
+          "value": 0.754861,
+          "ci_low": 0.68245,
+          "ci_high": 0.82525,
+          "n_jd": 48,
+          "n_pairs": 384,
+          "rule_version": 1
+        },
+        {
+          "system": "SBERT (zero-shot)",
+          "metric": "auc",
+          "scope": "generic",
+          "subset": "llm_free",
+          "value": 0.814693,
+          "ci_low": 0.750287,
+          "ci_high": 0.874636,
+          "n_jd": 38,
+          "n_pairs": 350,
+          "rule_version": 1
+        },
+        {
+          "system": "SBERT (zero-shot)",
+          "metric": "auc",
+          "scope": "targeted",
+          "subset": "llm_free",
+          "value": 0.828618,
+          "ci_low": 0.7345,
+          "ci_high": 0.911628,
+          "n_jd": 17,
+          "n_pairs": 110,
+          "rule_version": 1
+        },
+        {
+          "system": "SBERT (zero-shot)",
+          "metric": "auc",
+          "scope": "total",
+          "subset": "llm_free",
+          "value": 0.818997,
+          "ci_low": 0.765574,
+          "ci_high": 0.868785,
+          "n_jd": 55,
+          "n_pairs": 460,
+          "rule_version": 1
+        },
+        {
+          "system": "SBERT (zero-shot)",
+          "metric": "within_family_auc",
+          "scope": "generic",
+          "subset": "llm_free",
+          "value": 0.810214,
+          "ci_low": 0.687883,
+          "ci_high": 0.91553,
+          "n_jd": 23,
+          "n_pairs": 174,
+          "rule_version": 1
+        },
+        {
+          "system": "SBERT (zero-shot)",
+          "metric": "within_family_auc",
+          "scope": "targeted",
+          "subset": "llm_free",
+          "value": 0.752721,
+          "ci_low": 0.590476,
+          "ci_high": 0.897619,
+          "n_jd": 14,
+          "n_pairs": 69,
+          "rule_version": 1
+        },
+        {
+          "system": "SBERT (zero-shot)",
+          "metric": "within_family_auc",
+          "scope": "total",
+          "subset": "llm_free",
+          "value": 0.78846,
+          "ci_low": 0.691804,
+          "ci_high": 0.876898,
+          "n_jd": 37,
+          "n_pairs": 243,
+          "rule_version": 1
+        }
+      ]
+    },
+    "metadata + SBERT (zero-shot)": {
+      "rung": "1a+3a",
+      "stage": "hybrid",
+      "status": "exploratory",
+      "trained_on": "nothing (pretrained MiniLM, cached)",
+      "params": 22713216,
+      "can_explain": true,
+      "deterministic": true,
+      "scores_sha256": "6702abae7a4da811ee8fc72a7487921239b3ecf63d7ae9e8d2ae8f37a80ea78f",
+      "figures": [
+        {
+          "system": "metadata + SBERT (zero-shot)",
+          "metric": "auc",
+          "scope": "generic",
+          "subset": "all",
+          "value": 0.848574,
+          "ci_low": 0.78261,
+          "ci_high": 0.906162,
+          "n_jd": 39,
+          "n_pairs": 390,
+          "rule_version": 1
+        },
+        {
+          "system": "metadata + SBERT (zero-shot)",
+          "metric": "auc",
+          "scope": "targeted",
+          "subset": "all",
+          "value": 0.845911,
+          "ci_low": 0.781743,
+          "ci_high": 0.905542,
+          "n_jd": 20,
+          "n_pairs": 200,
+          "rule_version": 1
+        },
+        {
+          "system": "metadata + SBERT (zero-shot)",
+          "metric": "auc",
+          "scope": "total",
+          "subset": "all",
+          "value": 0.847672,
+          "ci_low": 0.799944,
+          "ci_high": 0.891115,
+          "n_jd": 59,
+          "n_pairs": 590,
+          "rule_version": 1
+        },
+        {
+          "system": "metadata + SBERT (zero-shot)",
+          "metric": "within_family_auc",
+          "scope": "generic",
+          "subset": "all",
+          "value": 0.695317,
+          "ci_low": 0.582933,
+          "ci_high": 0.801986,
+          "n_jd": 30,
+          "n_pairs": 240,
+          "rule_version": 1
+        },
+        {
+          "system": "metadata + SBERT (zero-shot)",
+          "metric": "within_family_auc",
+          "scope": "targeted",
+          "subset": "all",
+          "value": 0.764782,
+          "ci_low": 0.67943,
+          "ci_high": 0.848613,
+          "n_jd": 18,
+          "n_pairs": 144,
+          "rule_version": 1
+        },
+        {
+          "system": "metadata + SBERT (zero-shot)",
+          "metric": "within_family_auc",
+          "scope": "total",
+          "subset": "all",
+          "value": 0.721367,
+          "ci_low": 0.643836,
+          "ci_high": 0.795424,
+          "n_jd": 48,
+          "n_pairs": 384,
+          "rule_version": 1
+        },
+        {
+          "system": "metadata + SBERT (zero-shot)",
+          "metric": "auc",
+          "scope": "generic",
+          "subset": "llm_free",
+          "value": 0.875428,
+          "ci_low": 0.805042,
+          "ci_high": 0.937658,
+          "n_jd": 38,
+          "n_pairs": 350,
+          "rule_version": 1
+        },
+        {
+          "system": "metadata + SBERT (zero-shot)",
+          "metric": "auc",
+          "scope": "targeted",
+          "subset": "llm_free",
+          "value": 0.861204,
+          "ci_low": 0.771008,
+          "ci_high": 0.935294,
+          "n_jd": 17,
+          "n_pairs": 110,
+          "rule_version": 1
+        },
+        {
+          "system": "metadata + SBERT (zero-shot)",
+          "metric": "auc",
+          "scope": "total",
+          "subset": "llm_free",
+          "value": 0.871032,
+          "ci_low": 0.814865,
+          "ci_high": 0.920779,
+          "n_jd": 55,
+          "n_pairs": 460,
+          "rule_version": 1
+        },
+        {
+          "system": "metadata + SBERT (zero-shot)",
+          "metric": "within_family_auc",
+          "scope": "generic",
+          "subset": "llm_free",
+          "value": 0.712595,
+          "ci_low": 0.57198,
+          "ci_high": 0.84127,
+          "n_jd": 23,
+          "n_pairs": 174,
+          "rule_version": 1
+        },
+        {
+          "system": "metadata + SBERT (zero-shot)",
+          "metric": "within_family_auc",
+          "scope": "targeted",
+          "subset": "llm_free",
+          "value": 0.745068,
+          "ci_low": 0.589286,
+          "ci_high": 0.881803,
+          "n_jd": 14,
+          "n_pairs": 69,
+          "rule_version": 1
+        },
+        {
+          "system": "metadata + SBERT (zero-shot)",
+          "metric": "within_family_auc",
+          "scope": "total",
+          "subset": "llm_free",
+          "value": 0.724882,
+          "ci_low": 0.618962,
+          "ci_high": 0.823475,
+          "n_jd": 37,
+          "n_pairs": 243,
+          "rule_version": 1
+        }
+      ]
+    },
+    "SBERT (weak fine-tuned)": {
+      "rung": "3b",
+      "stage": "Stage 3 \u2014 semantic",
+      "status": "held-out",
+      "trained_on": "weak pairs, A2 train region (metadata labels)",
+      "params": 22713216,
+      "can_explain": false,
+      "deterministic": true,
+      "scores_sha256": "28f02e6e5789a32f8beb8c2005c934dea8de09be2b2e5cefd0f77f4109988515",
+      "figures": [
+        {
+          "system": "SBERT (weak fine-tuned)",
+          "metric": "auc",
+          "scope": "generic",
+          "subset": "all",
+          "value": 0.872077,
+          "ci_low": 0.832547,
+          "ci_high": 0.911176,
+          "n_jd": 39,
+          "n_pairs": 390,
+          "rule_version": 1
+        },
+        {
+          "system": "SBERT (weak fine-tuned)",
+          "metric": "auc",
+          "scope": "targeted",
+          "subset": "all",
+          "value": 0.819917,
+          "ci_low": 0.745673,
+          "ci_high": 0.888464,
+          "n_jd": 20,
+          "n_pairs": 200,
+          "rule_version": 1
+        },
+        {
+          "system": "SBERT (weak fine-tuned)",
+          "metric": "auc",
+          "scope": "total",
+          "subset": "all",
+          "value": 0.854395,
+          "ci_low": 0.816828,
+          "ci_high": 0.889854,
+          "n_jd": 59,
+          "n_pairs": 590,
+          "rule_version": 1
+        },
+        {
+          "system": "SBERT (weak fine-tuned)",
+          "metric": "within_family_auc",
+          "scope": "generic",
+          "subset": "all",
+          "value": 0.79627,
+          "ci_low": 0.700873,
+          "ci_high": 0.881746,
+          "n_jd": 30,
+          "n_pairs": 240,
+          "rule_version": 1
+        },
+        {
+          "system": "SBERT (weak fine-tuned)",
+          "metric": "within_family_auc",
+          "scope": "targeted",
+          "subset": "all",
+          "value": 0.686376,
+          "ci_low": 0.562558,
+          "ci_high": 0.80711,
+          "n_jd": 18,
+          "n_pairs": 144,
+          "rule_version": 1
+        },
+        {
+          "system": "SBERT (weak fine-tuned)",
+          "metric": "within_family_auc",
+          "scope": "total",
+          "subset": "all",
+          "value": 0.75506,
+          "ci_low": 0.679054,
+          "ci_high": 0.827409,
+          "n_jd": 48,
+          "n_pairs": 384,
+          "rule_version": 1
+        },
+        {
+          "system": "SBERT (weak fine-tuned)",
+          "metric": "auc",
+          "scope": "generic",
+          "subset": "llm_free",
+          "value": 0.898402,
+          "ci_low": 0.856592,
+          "ci_high": 0.937783,
+          "n_jd": 38,
+          "n_pairs": 350,
+          "rule_version": 1
+        },
+        {
+          "system": "SBERT (weak fine-tuned)",
+          "metric": "auc",
+          "scope": "targeted",
+          "subset": "llm_free",
+          "value": 0.80845,
+          "ci_low": 0.667973,
+          "ci_high": 0.92563,
+          "n_jd": 17,
+          "n_pairs": 110,
+          "rule_version": 1
+        },
+        {
+          "system": "SBERT (weak fine-tuned)",
+          "metric": "auc",
+          "scope": "total",
+          "subset": "llm_free",
+          "value": 0.870599,
+          "ci_low": 0.817153,
+          "ci_high": 0.918612,
+          "n_jd": 55,
+          "n_pairs": 460,
+          "rule_version": 1
+        },
+        {
+          "system": "SBERT (weak fine-tuned)",
+          "metric": "within_family_auc",
+          "scope": "generic",
+          "subset": "llm_free",
+          "value": 0.799655,
+          "ci_low": 0.685851,
+          "ci_high": 0.901726,
+          "n_jd": 23,
+          "n_pairs": 174,
+          "rule_version": 1
+        },
+        {
+          "system": "SBERT (weak fine-tuned)",
+          "metric": "within_family_auc",
+          "scope": "targeted",
+          "subset": "llm_free",
+          "value": 0.630612,
+          "ci_low": 0.421429,
+          "ci_high": 0.826531,
+          "n_jd": 14,
+          "n_pairs": 69,
+          "rule_version": 1
+        },
+        {
+          "system": "SBERT (weak fine-tuned)",
+          "metric": "within_family_auc",
+          "scope": "total",
+          "subset": "llm_free",
+          "value": 0.735693,
+          "ci_low": 0.625072,
+          "ci_high": 0.836831,
+          "n_jd": 37,
+          "n_pairs": 243,
+          "rule_version": 1
+        }
+      ]
+    },
+    "metadata + SBERT (weak fine-tuned)": {
+      "rung": "1a+3b",
+      "stage": "hybrid",
+      "status": "held-out",
+      "trained_on": "weak pairs, A2 train region (metadata labels)",
+      "params": 22713216,
+      "can_explain": true,
+      "deterministic": true,
+      "scores_sha256": "8b8e5766a4a1b357b9c58ef1d61c290218a172c54d9a26a0c35c34c9020f405e",
+      "figures": [
+        {
+          "system": "metadata + SBERT (weak fine-tuned)",
+          "metric": "auc",
+          "scope": "generic",
+          "subset": "all",
+          "value": 0.84509,
+          "ci_low": 0.78079,
+          "ci_high": 0.900897,
+          "n_jd": 39,
+          "n_pairs": 390,
+          "rule_version": 1
+        },
+        {
+          "system": "metadata + SBERT (weak fine-tuned)",
+          "metric": "auc",
+          "scope": "targeted",
+          "subset": "all",
+          "value": 0.838518,
+          "ci_low": 0.773116,
+          "ci_high": 0.900304,
+          "n_jd": 20,
+          "n_pairs": 200,
+          "rule_version": 1
+        },
+        {
+          "system": "metadata + SBERT (weak fine-tuned)",
+          "metric": "auc",
+          "scope": "total",
+          "subset": "all",
+          "value": 0.842862,
+          "ci_low": 0.796122,
+          "ci_high": 0.885571,
+          "n_jd": 59,
+          "n_pairs": 590,
+          "rule_version": 1
+        },
+        {
+          "system": "metadata + SBERT (weak fine-tuned)",
+          "metric": "within_family_auc",
+          "scope": "generic",
+          "subset": "all",
+          "value": 0.685317,
+          "ci_low": 0.577456,
+          "ci_high": 0.787147,
+          "n_jd": 30,
+          "n_pairs": 240,
+          "rule_version": 1
+        },
+        {
+          "system": "metadata + SBERT (weak fine-tuned)",
+          "metric": "within_family_auc",
+          "scope": "targeted",
+          "subset": "all",
+          "value": 0.737798,
+          "ci_low": 0.633297,
+          "ci_high": 0.835022,
+          "n_jd": 18,
+          "n_pairs": 144,
+          "rule_version": 1
+        },
+        {
+          "system": "metadata + SBERT (weak fine-tuned)",
+          "metric": "within_family_auc",
+          "scope": "total",
+          "subset": "all",
+          "value": 0.704998,
+          "ci_low": 0.627774,
+          "ci_high": 0.778464,
+          "n_jd": 48,
+          "n_pairs": 384,
+          "rule_version": 1
+        },
+        {
+          "system": "metadata + SBERT (weak fine-tuned)",
+          "metric": "auc",
+          "scope": "generic",
+          "subset": "llm_free",
+          "value": 0.868223,
+          "ci_low": 0.798295,
+          "ci_high": 0.930831,
+          "n_jd": 38,
+          "n_pairs": 350,
+          "rule_version": 1
+        },
+        {
+          "system": "metadata + SBERT (weak fine-tuned)",
+          "metric": "auc",
+          "scope": "targeted",
+          "subset": "llm_free",
+          "value": 0.805789,
+          "ci_low": 0.67362,
+          "ci_high": 0.911252,
+          "n_jd": 17,
+          "n_pairs": 110,
+          "rule_version": 1
+        },
+        {
+          "system": "metadata + SBERT (weak fine-tuned)",
+          "metric": "auc",
+          "scope": "total",
+          "subset": "llm_free",
+          "value": 0.848925,
+          "ci_low": 0.785628,
+          "ci_high": 0.905299,
+          "n_jd": 55,
+          "n_pairs": 460,
+          "rule_version": 1
+        },
+        {
+          "system": "metadata + SBERT (weak fine-tuned)",
+          "metric": "within_family_auc",
+          "scope": "generic",
+          "subset": "llm_free",
+          "value": 0.687129,
+          "ci_low": 0.551341,
+          "ci_high": 0.815321,
+          "n_jd": 23,
+          "n_pairs": 174,
+          "rule_version": 1
+        },
+        {
+          "system": "metadata + SBERT (weak fine-tuned)",
+          "metric": "within_family_auc",
+          "scope": "targeted",
+          "subset": "llm_free",
+          "value": 0.622959,
+          "ci_low": 0.418878,
+          "ci_high": 0.811735,
+          "n_jd": 14,
+          "n_pairs": 69,
+          "rule_version": 1
+        },
+        {
+          "system": "metadata + SBERT (weak fine-tuned)",
+          "metric": "within_family_auc",
+          "scope": "total",
+          "subset": "llm_free",
+          "value": 0.662849,
+          "ci_low": 0.545903,
+          "ci_high": 0.77218,
+          "n_jd": 37,
+          "n_pairs": 243,
+          "rule_version": 1
+        }
+      ]
+    },
+    "cross-encoder (A1)": {
+      "rung": "4a",
+      "stage": "Stage 4 \u2014 cross-encoder",
+      "status": "held-out",
+      "trained_on": "A1 train folds 1-4 (Fit / No Fit); threshold on fold 0",
+      "params": 22713601,
+      "can_explain": false,
+      "deterministic": true,
+      "scores_sha256": "350908848aefa9f1878f36a5875647ac65eb13356f9d28e37bf2365964ea96ee",
+      "figures": [
+        {
+          "system": "cross-encoder (A1)",
+          "metric": "auc",
+          "scope": "generic",
+          "subset": "all",
+          "value": 0.531827,
+          "ci_low": 0.469831,
+          "ci_high": 0.594679,
+          "n_jd": 39,
+          "n_pairs": 390,
+          "rule_version": 1
+        },
+        {
+          "system": "cross-encoder (A1)",
+          "metric": "auc",
+          "scope": "targeted",
+          "subset": "all",
+          "value": 0.403381,
+          "ci_low": 0.32823,
+          "ci_high": 0.478161,
+          "n_jd": 20,
+          "n_pairs": 200,
+          "rule_version": 1
+        },
+        {
+          "system": "cross-encoder (A1)",
+          "metric": "auc",
+          "scope": "total",
+          "subset": "all",
+          "value": 0.488286,
+          "ci_low": 0.436866,
+          "ci_high": 0.53873,
+          "n_jd": 59,
+          "n_pairs": 590,
+          "rule_version": 1
+        },
+        {
+          "system": "cross-encoder (A1)",
+          "metric": "within_family_auc",
+          "scope": "generic",
+          "subset": "all",
+          "value": 0.574286,
+          "ci_low": 0.465556,
+          "ci_high": 0.682222,
+          "n_jd": 30,
+          "n_pairs": 240,
+          "rule_version": 1
+        },
+        {
+          "system": "cross-encoder (A1)",
+          "metric": "within_family_auc",
+          "scope": "targeted",
+          "subset": "all",
+          "value": 0.460516,
+          "ci_low": 0.325726,
+          "ci_high": 0.604532,
+          "n_jd": 18,
+          "n_pairs": 144,
+          "rule_version": 1
+        },
+        {
+          "system": "cross-encoder (A1)",
+          "metric": "within_family_auc",
+          "scope": "total",
+          "subset": "all",
+          "value": 0.531622,
+          "ci_low": 0.446254,
+          "ci_high": 0.621656,
+          "n_jd": 48,
+          "n_pairs": 384,
+          "rule_version": 1
+        },
+        {
+          "system": "cross-encoder (A1)",
+          "metric": "auc",
+          "scope": "generic",
+          "subset": "llm_free",
+          "value": 0.516677,
+          "ci_low": 0.448223,
+          "ci_high": 0.586636,
+          "n_jd": 38,
+          "n_pairs": 350,
+          "rule_version": 1
+        },
+        {
+          "system": "cross-encoder (A1)",
+          "metric": "auc",
+          "scope": "targeted",
+          "subset": "llm_free",
+          "value": 0.456886,
+          "ci_low": 0.333706,
+          "ci_high": 0.585154,
+          "n_jd": 17,
+          "n_pairs": 110,
+          "rule_version": 1
+        },
+        {
+          "system": "cross-encoder (A1)",
+          "metric": "auc",
+          "scope": "total",
+          "subset": "llm_free",
+          "value": 0.498196,
+          "ci_low": 0.434935,
+          "ci_high": 0.561176,
+          "n_jd": 55,
+          "n_pairs": 460,
+          "rule_version": 1
+        },
+        {
+          "system": "cross-encoder (A1)",
+          "metric": "within_family_auc",
+          "scope": "generic",
+          "subset": "llm_free",
+          "value": 0.539993,
+          "ci_low": 0.423145,
+          "ci_high": 0.660907,
+          "n_jd": 23,
+          "n_pairs": 174,
+          "rule_version": 1
+        },
+        {
+          "system": "cross-encoder (A1)",
+          "metric": "within_family_auc",
+          "scope": "targeted",
+          "subset": "llm_free",
+          "value": 0.527551,
+          "ci_low": 0.345918,
+          "ci_high": 0.714286,
+          "n_jd": 14,
+          "n_pairs": 69,
+          "rule_version": 1
+        },
+        {
+          "system": "cross-encoder (A1)",
+          "metric": "within_family_auc",
+          "scope": "total",
+          "subset": "llm_free",
+          "value": 0.535285,
+          "ci_low": 0.433226,
+          "ci_high": 0.636187,
+          "n_jd": 37,
+          "n_pairs": 243,
+          "rule_version": 1
+        }
+      ],
+      "hyperparameter_selection": [
+        {
+          "lr": 2e-05,
+          "epochs": 1,
+          "validation_auc": 0.4971,
+          "validation_spread": 0.0219
+        },
+        {
+          "lr": 5e-05,
+          "epochs": 3,
+          "validation_auc": 0.6877,
+          "validation_spread": 0.7802
+        }
+      ]
+    },
+    "metadata + cross-encoder (A1)": {
+      "rung": "1a+4a",
+      "stage": "hybrid",
+      "status": "held-out",
+      "trained_on": "A1 train folds 1-4 (Fit / No Fit); threshold on fold 0",
+      "params": 22713601,
+      "can_explain": true,
+      "deterministic": true,
+      "scores_sha256": "aba263f9a221bd0cc7b4b475323fd01f7df7efd5b513d8f41c59465caca78a69",
+      "figures": [
+        {
+          "system": "metadata + cross-encoder (A1)",
+          "metric": "auc",
+          "scope": "generic",
+          "subset": "all",
+          "value": 0.799725,
+          "ci_low": 0.733816,
+          "ci_high": 0.858084,
+          "n_jd": 39,
+          "n_pairs": 390,
+          "rule_version": 1
+        },
+        {
+          "system": "metadata + cross-encoder (A1)",
+          "metric": "auc",
+          "scope": "targeted",
+          "subset": "all",
+          "value": 0.789101,
+          "ci_low": 0.706463,
+          "ci_high": 0.866253,
+          "n_jd": 20,
+          "n_pairs": 200,
+          "rule_version": 1
+        },
+        {
+          "system": "metadata + cross-encoder (A1)",
+          "metric": "auc",
+          "scope": "total",
+          "subset": "all",
+          "value": 0.796124,
+          "ci_low": 0.744793,
+          "ci_high": 0.842491,
+          "n_jd": 59,
+          "n_pairs": 590,
+          "rule_version": 1
+        },
+        {
+          "system": "metadata + cross-encoder (A1)",
+          "metric": "within_family_auc",
+          "scope": "generic",
+          "subset": "all",
+          "value": 0.546111,
+          "ci_low": 0.444042,
+          "ci_high": 0.646431,
+          "n_jd": 30,
+          "n_pairs": 240,
+          "rule_version": 1
+        },
+        {
+          "system": "metadata + cross-encoder (A1)",
+          "metric": "within_family_auc",
+          "scope": "targeted",
+          "subset": "all",
+          "value": 0.660317,
+          "ci_low": 0.548674,
+          "ci_high": 0.769578,
+          "n_jd": 18,
+          "n_pairs": 144,
+          "rule_version": 1
+        },
+        {
+          "system": "metadata + cross-encoder (A1)",
+          "metric": "within_family_auc",
+          "scope": "total",
+          "subset": "all",
+          "value": 0.588938,
+          "ci_low": 0.511228,
+          "ci_high": 0.666085,
+          "n_jd": 48,
+          "n_pairs": 384,
+          "rule_version": 1
+        },
+        {
+          "system": "metadata + cross-encoder (A1)",
+          "metric": "auc",
+          "scope": "generic",
+          "subset": "llm_free",
+          "value": 0.814964,
+          "ci_low": 0.742339,
+          "ci_high": 0.879564,
+          "n_jd": 38,
+          "n_pairs": 350,
+          "rule_version": 1
+        },
+        {
+          "system": "metadata + cross-encoder (A1)",
+          "metric": "auc",
+          "scope": "targeted",
+          "subset": "llm_free",
+          "value": 0.836975,
+          "ci_low": 0.754342,
+          "ci_high": 0.911204,
+          "n_jd": 17,
+          "n_pairs": 110,
+          "rule_version": 1
+        },
+        {
+          "system": "metadata + cross-encoder (A1)",
+          "metric": "auc",
+          "scope": "total",
+          "subset": "llm_free",
+          "value": 0.821768,
+          "ci_low": 0.76484,
+          "ci_high": 0.873507,
+          "n_jd": 55,
+          "n_pairs": 460,
+          "rule_version": 1
+        },
+        {
+          "system": "metadata + cross-encoder (A1)",
+          "metric": "within_family_auc",
+          "scope": "generic",
+          "subset": "llm_free",
+          "value": 0.502105,
+          "ci_low": 0.376983,
+          "ci_high": 0.627021,
+          "n_jd": 23,
+          "n_pairs": 174,
+          "rule_version": 1
+        },
+        {
+          "system": "metadata + cross-encoder (A1)",
+          "metric": "within_family_auc",
+          "scope": "targeted",
+          "subset": "llm_free",
+          "value": 0.682398,
+          "ci_low": 0.494898,
+          "ci_high": 0.852041,
+          "n_jd": 14,
+          "n_pairs": 69,
+          "rule_version": 1
+        },
+        {
+          "system": "metadata + cross-encoder (A1)",
+          "metric": "within_family_auc",
+          "scope": "total",
+          "subset": "llm_free",
+          "value": 0.570324,
+          "ci_low": 0.461621,
+          "ci_high": 0.678078,
+          "n_jd": 37,
+          "n_pairs": 243,
+          "rule_version": 1
+        }
+      ]
+    },
+    "cross-encoder (weak)": {
+      "rung": "4b",
+      "stage": "Stage 4 \u2014 cross-encoder",
+      "status": "held-out",
+      "trained_on": "weak pairs, A2 train region; threshold on weak validation",
+      "params": 22713601,
+      "can_explain": false,
+      "deterministic": true,
+      "scores_sha256": "5d562cefc68d3cff4c921dbb432faa9e775221a60b9d5d088a41e92103f1d2f3",
+      "figures": [
+        {
+          "system": "cross-encoder (weak)",
+          "metric": "auc",
+          "scope": "generic",
+          "subset": "all",
+          "value": 0.667432,
+          "ci_low": 0.608082,
+          "ci_high": 0.725965,
+          "n_jd": 39,
+          "n_pairs": 390,
+          "rule_version": 1
+        },
+        {
+          "system": "cross-encoder (weak)",
+          "metric": "auc",
+          "scope": "targeted",
+          "subset": "all",
+          "value": 0.648732,
+          "ci_low": 0.581552,
+          "ci_high": 0.71296,
+          "n_jd": 20,
+          "n_pairs": 200,
+          "rule_version": 1
+        },
+        {
+          "system": "cross-encoder (weak)",
+          "metric": "auc",
+          "scope": "total",
+          "subset": "all",
+          "value": 0.661093,
+          "ci_low": 0.616326,
+          "ci_high": 0.705379,
+          "n_jd": 59,
+          "n_pairs": 590,
+          "rule_version": 1
+        },
+        {
+          "system": "cross-encoder (weak)",
+          "metric": "within_family_auc",
+          "scope": "generic",
+          "subset": "all",
+          "value": 0.635774,
+          "ci_low": 0.524107,
+          "ci_high": 0.745398,
+          "n_jd": 30,
+          "n_pairs": 240,
+          "rule_version": 1
+        },
+        {
+          "system": "cross-encoder (weak)",
+          "metric": "within_family_auc",
+          "scope": "targeted",
+          "subset": "all",
+          "value": 0.654398,
+          "ci_low": 0.547187,
+          "ci_high": 0.760319,
+          "n_jd": 18,
+          "n_pairs": 144,
+          "rule_version": 1
+        },
+        {
+          "system": "cross-encoder (weak)",
+          "metric": "within_family_auc",
+          "scope": "total",
+          "subset": "all",
+          "value": 0.642758,
+          "ci_low": 0.560787,
+          "ci_high": 0.723092,
+          "n_jd": 48,
+          "n_pairs": 384,
+          "rule_version": 1
+        },
+        {
+          "system": "cross-encoder (weak)",
+          "metric": "auc",
+          "scope": "generic",
+          "subset": "llm_free",
+          "value": 0.663675,
+          "ci_low": 0.59472,
+          "ci_high": 0.730951,
+          "n_jd": 38,
+          "n_pairs": 350,
+          "rule_version": 1
+        },
+        {
+          "system": "cross-encoder (weak)",
+          "metric": "auc",
+          "scope": "targeted",
+          "subset": "llm_free",
+          "value": 0.579272,
+          "ci_low": 0.469234,
+          "ci_high": 0.688658,
+          "n_jd": 17,
+          "n_pairs": 110,
+          "rule_version": 1
+        },
+        {
+          "system": "cross-encoder (weak)",
+          "metric": "auc",
+          "scope": "total",
+          "subset": "llm_free",
+          "value": 0.637587,
+          "ci_low": 0.576093,
+          "ci_high": 0.696676,
+          "n_jd": 55,
+          "n_pairs": 460,
+          "rule_version": 1
+        },
+        {
+          "system": "cross-encoder (weak)",
+          "metric": "within_family_auc",
+          "scope": "generic",
+          "subset": "llm_free",
+          "value": 0.598896,
+          "ci_low": 0.46087,
+          "ci_high": 0.7323,
+          "n_jd": 23,
+          "n_pairs": 174,
+          "rule_version": 1
+        },
+        {
+          "system": "cross-encoder (weak)",
+          "metric": "within_family_auc",
+          "scope": "targeted",
+          "subset": "llm_free",
+          "value": 0.590986,
+          "ci_low": 0.454082,
+          "ci_high": 0.732993,
+          "n_jd": 14,
+          "n_pairs": 69,
+          "rule_version": 1
+        },
+        {
+          "system": "cross-encoder (weak)",
+          "metric": "within_family_auc",
+          "scope": "total",
+          "subset": "llm_free",
+          "value": 0.595903,
+          "ci_low": 0.495495,
+          "ci_high": 0.696762,
+          "n_jd": 37,
+          "n_pairs": 243,
+          "rule_version": 1
+        }
+      ],
+      "hyperparameter_selection": [
+        {
+          "lr": 2e-05,
+          "epochs": 1,
+          "validation_auc": 0.6432,
+          "validation_spread": 0.2234
+        },
+        {
+          "lr": 5e-05,
+          "epochs": 3,
+          "validation_auc": 0.7452,
+          "validation_spread": 0.8468
+        }
+      ]
+    },
+    "metadata + cross-encoder (weak)": {
+      "rung": "1a+4b",
+      "stage": "hybrid",
+      "status": "held-out",
+      "trained_on": "weak pairs, A2 train region; threshold on weak validation",
+      "params": 22713601,
+      "can_explain": true,
+      "deterministic": true,
+      "scores_sha256": "5e2bf1c2e19cef62f83b140e8167f53279d8d12fe9ed79a8e2fce2d44c86fa1f",
+      "figures": [
+        {
+          "system": "metadata + cross-encoder (weak)",
+          "metric": "auc",
+          "scope": "generic",
+          "subset": "all",
+          "value": 0.817592,
+          "ci_low": 0.750804,
+          "ci_high": 0.876022,
+          "n_jd": 39,
+          "n_pairs": 390,
+          "rule_version": 1
+        },
+        {
+          "system": "metadata + cross-encoder (weak)",
+          "metric": "auc",
+          "scope": "targeted",
+          "subset": "all",
+          "value": 0.828899,
+          "ci_low": 0.769905,
+          "ci_high": 0.886626,
+          "n_jd": 20,
+          "n_pairs": 200,
+          "rule_version": 1
+        },
+        {
+          "system": "metadata + cross-encoder (weak)",
+          "metric": "auc",
+          "scope": "total",
+          "subset": "all",
+          "value": 0.821425,
+          "ci_low": 0.773056,
+          "ci_high": 0.864786,
+          "n_jd": 59,
+          "n_pairs": 590,
+          "rule_version": 1
+        },
+        {
+          "system": "metadata + cross-encoder (weak)",
+          "metric": "within_family_auc",
+          "scope": "generic",
+          "subset": "all",
+          "value": 0.585298,
+          "ci_low": 0.468788,
+          "ci_high": 0.69911,
+          "n_jd": 30,
+          "n_pairs": 240,
+          "rule_version": 1
+        },
+        {
+          "system": "metadata + cross-encoder (weak)",
+          "metric": "within_family_auc",
+          "scope": "targeted",
+          "subset": "all",
+          "value": 0.734458,
+          "ci_low": 0.647751,
+          "ci_high": 0.823414,
+          "n_jd": 18,
+          "n_pairs": 144,
+          "rule_version": 1
+        },
+        {
+          "system": "metadata + cross-encoder (weak)",
+          "metric": "within_family_auc",
+          "scope": "total",
+          "subset": "all",
+          "value": 0.641233,
+          "ci_low": 0.557018,
+          "ci_high": 0.724591,
+          "n_jd": 48,
+          "n_pairs": 384,
+          "rule_version": 1
+        },
+        {
+          "system": "metadata + cross-encoder (weak)",
+          "metric": "auc",
+          "scope": "generic",
+          "subset": "llm_free",
+          "value": 0.832383,
+          "ci_low": 0.758589,
+          "ci_high": 0.89785,
+          "n_jd": 38,
+          "n_pairs": 350,
+          "rule_version": 1
+        },
+        {
+          "system": "metadata + cross-encoder (weak)",
+          "metric": "auc",
+          "scope": "targeted",
+          "subset": "llm_free",
+          "value": 0.809921,
+          "ci_low": 0.724601,
+          "ci_high": 0.883637,
+          "n_jd": 17,
+          "n_pairs": 110,
+          "rule_version": 1
+        },
+        {
+          "system": "metadata + cross-encoder (weak)",
+          "metric": "auc",
+          "scope": "total",
+          "subset": "llm_free",
+          "value": 0.82544,
+          "ci_low": 0.767041,
+          "ci_high": 0.877115,
+          "n_jd": 55,
+          "n_pairs": 460,
+          "rule_version": 1
+        },
+        {
+          "system": "metadata + cross-encoder (weak)",
+          "metric": "within_family_auc",
+          "scope": "generic",
+          "subset": "llm_free",
+          "value": 0.545169,
+          "ci_low": 0.405518,
+          "ci_high": 0.686233,
+          "n_jd": 23,
+          "n_pairs": 174,
+          "rule_version": 1
+        },
+        {
+          "system": "metadata + cross-encoder (weak)",
+          "metric": "within_family_auc",
+          "scope": "targeted",
+          "subset": "llm_free",
+          "value": 0.621088,
+          "ci_low": 0.46199,
+          "ci_high": 0.771941,
+          "n_jd": 14,
+          "n_pairs": 69,
+          "rule_version": 1
+        },
+        {
+          "system": "metadata + cross-encoder (weak)",
+          "metric": "within_family_auc",
+          "scope": "total",
+          "subset": "llm_free",
+          "value": 0.573895,
+          "ci_low": 0.467564,
+          "ci_high": 0.68165,
+          "n_jd": 37,
+          "n_pairs": 243,
+          "rule_version": 1
+        }
+      ]
+    },
+    "metadata + learned text combination": {
+      "rung": "5",
+      "stage": "hybrid (learned)",
+      "status": "held-out",
+      "trained_on": "A1 train fold 0 (held out from 4a): logistic weights over text-rung scores",
+      "params": 7,
+      "can_explain": false,
+      "deterministic": true,
+      "scores_sha256": "2f7c4f890acd53fe359096c89c83f5120fd20925a847aff881681321e1715c6b",
+      "figures": [
+        {
+          "system": "metadata + learned text combination",
+          "metric": "auc",
+          "scope": "generic",
+          "subset": "all",
+          "value": 0.828953,
+          "ci_low": 0.756019,
+          "ci_high": 0.89212,
+          "n_jd": 39,
+          "n_pairs": 390,
+          "rule_version": 1
+        },
+        {
+          "system": "metadata + learned text combination",
+          "metric": "auc",
+          "scope": "targeted",
+          "subset": "all",
+          "value": 0.82506,
+          "ci_low": 0.755714,
+          "ci_high": 0.891679,
+          "n_jd": 20,
+          "n_pairs": 200,
+          "rule_version": 1
+        },
+        {
+          "system": "metadata + learned text combination",
+          "metric": "auc",
+          "scope": "total",
+          "subset": "all",
+          "value": 0.827633,
+          "ci_low": 0.774752,
+          "ci_high": 0.874803,
+          "n_jd": 59,
+          "n_pairs": 590,
+          "rule_version": 1
+        },
+        {
+          "system": "metadata + learned text combination",
+          "metric": "within_family_auc",
+          "scope": "generic",
+          "subset": "all",
+          "value": 0.650774,
+          "ci_low": 0.524683,
+          "ci_high": 0.768336,
+          "n_jd": 30,
+          "n_pairs": 240,
+          "rule_version": 1
+        },
+        {
+          "system": "metadata + learned text combination",
+          "metric": "within_family_auc",
+          "scope": "targeted",
+          "subset": "all",
+          "value": 0.711078,
+          "ci_low": 0.597023,
+          "ci_high": 0.818189,
+          "n_jd": 18,
+          "n_pairs": 144,
+          "rule_version": 1
+        },
+        {
+          "system": "metadata + learned text combination",
+          "metric": "within_family_auc",
+          "scope": "total",
+          "subset": "all",
+          "value": 0.673388,
+          "ci_low": 0.584262,
+          "ci_high": 0.760135,
+          "n_jd": 48,
+          "n_pairs": 384,
+          "rule_version": 1
+        },
+        {
+          "system": "metadata + learned text combination",
+          "metric": "auc",
+          "scope": "generic",
+          "subset": "llm_free",
+          "value": 0.855895,
+          "ci_low": 0.781178,
+          "ci_high": 0.922625,
+          "n_jd": 38,
+          "n_pairs": 350,
+          "rule_version": 1
+        },
+        {
+          "system": "metadata + learned text combination",
+          "metric": "auc",
+          "scope": "targeted",
+          "subset": "llm_free",
+          "value": 0.832633,
+          "ci_low": 0.735277,
+          "ci_high": 0.917654,
+          "n_jd": 17,
+          "n_pairs": 110,
+          "rule_version": 1
+        },
+        {
+          "system": "metadata + learned text combination",
+          "metric": "auc",
+          "scope": "total",
+          "subset": "llm_free",
+          "value": 0.848705,
+          "ci_low": 0.787409,
+          "ci_high": 0.902956,
+          "n_jd": 55,
+          "n_pairs": 460,
+          "rule_version": 1
+        },
+        {
+          "system": "metadata + learned text combination",
+          "metric": "within_family_auc",
+          "scope": "generic",
+          "subset": "llm_free",
+          "value": 0.643996,
+          "ci_low": 0.489648,
+          "ci_high": 0.795859,
+          "n_jd": 23,
+          "n_pairs": 174,
+          "rule_version": 1
+        },
+        {
+          "system": "metadata + learned text combination",
+          "metric": "within_family_auc",
+          "scope": "targeted",
+          "subset": "llm_free",
+          "value": 0.668878,
+          "ci_low": 0.482143,
+          "ci_high": 0.836735,
+          "n_jd": 14,
+          "n_pairs": 69,
+          "rule_version": 1
+        },
+        {
+          "system": "metadata + learned text combination",
+          "metric": "within_family_auc",
+          "scope": "total",
+          "subset": "llm_free",
+          "value": 0.653411,
+          "ci_low": 0.53056,
+          "ci_high": 0.769503,
+          "n_jd": 37,
+          "n_pairs": 243,
+          "rule_version": 1
+        }
+      ],
+      "learned_weights": {
+        "TF-IDF": 0.2034,
+        "BM25": -0.7907,
+        "SBERT (zero-shot)": 0.0536,
+        "SBERT (weak fine-tuned)": 0.8928,
+        "cross-encoder (A1)": 0.5537,
+        "cross-encoder (weak)": -0.2733
+      }
     }
   },
   "classifiers": {
+    "cross-encoder (A1) (threshold 0.6361, from its own validation split)": {
+      "status": "held-out",
+      "figures": [
+        {
+          "system": "cross-encoder (A1) (threshold 0.6361, from its own validation split)",
+          "metric": "accuracy",
+          "scope": "generic",
+          "subset": "all",
+          "value": 0.61,
+          "ci_low": 0.5675,
+          "ci_high": 0.655,
+          "n_jd": 40,
+          "n_pairs": 400,
+          "rule_version": 1
+        },
+        {
+          "system": "cross-encoder (A1) (threshold 0.6361, from its own validation split)",
+          "metric": "macro_f1",
+          "scope": "generic",
+          "subset": "all",
+          "value": 0.59375,
+          "ci_low": 0.543609,
+          "ci_high": 0.640529,
+          "n_jd": 40,
+          "n_pairs": 400,
+          "rule_version": 1
+        },
+        {
+          "system": "cross-encoder (A1) (threshold 0.6361, from its own validation split)",
+          "metric": "f1_fit",
+          "scope": "generic",
+          "subset": "all",
+          "value": 0.675,
+          "ci_low": 0.612529,
+          "ci_high": 0.727969,
+          "n_jd": 40,
+          "n_pairs": 400,
+          "rule_version": 1
+        },
+        {
+          "system": "cross-encoder (A1) (threshold 0.6361, from its own validation split)",
+          "metric": "kappa",
+          "scope": "generic",
+          "subset": "all",
+          "value": 0.18961,
+          "ci_low": 0.094999,
+          "ci_high": 0.282195,
+          "n_jd": 40,
+          "n_pairs": 400,
+          "rule_version": 1
+        },
+        {
+          "system": "cross-encoder (A1) (threshold 0.6361, from its own validation split)",
+          "metric": "accuracy",
+          "scope": "targeted",
+          "subset": "all",
+          "value": 0.39,
+          "ci_low": 0.325,
+          "ci_high": 0.46,
+          "n_jd": 20,
+          "n_pairs": 200,
+          "rule_version": 1
+        },
+        {
+          "system": "cross-encoder (A1) (threshold 0.6361, from its own validation split)",
+          "metric": "macro_f1",
+          "scope": "targeted",
+          "subset": "all",
+          "value": 0.381088,
+          "ci_low": 0.303579,
+          "ci_high": 0.453386,
+          "n_jd": 20,
+          "n_pairs": 200,
+          "rule_version": 1
+        },
+        {
+          "system": "cross-encoder (A1) (threshold 0.6361, from its own validation split)",
+          "metric": "f1_fit",
+          "scope": "targeted",
+          "subset": "all",
+          "value": 0.306818,
+          "ci_low": 0.146667,
+          "ci_high": 0.454106,
+          "n_jd": 20,
+          "n_pairs": 200,
+          "rule_version": 1
+        },
+        {
+          "system": "cross-encoder (A1) (threshold 0.6361, from its own validation split)",
+          "metric": "kappa",
+          "scope": "targeted",
+          "subset": "all",
+          "value": -0.140507,
+          "ci_low": -0.2776,
+          "ci_high": -0.014957,
+          "n_jd": 20,
+          "n_pairs": 200,
+          "rule_version": 1
+        },
+        {
+          "system": "cross-encoder (A1) (threshold 0.6361, from its own validation split)",
+          "metric": "accuracy",
+          "scope": "total",
+          "subset": "all",
+          "value": 0.536667,
+          "ci_low": 0.491667,
+          "ci_high": 0.583333,
+          "n_jd": 60,
+          "n_pairs": 600,
+          "rule_version": 1
+        },
+        {
+          "system": "cross-encoder (A1) (threshold 0.6361, from its own validation split)",
+          "metric": "macro_f1",
+          "scope": "total",
+          "subset": "all",
+          "value": 0.532595,
+          "ci_low": 0.487814,
+          "ci_high": 0.575139,
+          "n_jd": 60,
+          "n_pairs": 600,
+          "rule_version": 1
+        },
+        {
+          "system": "cross-encoder (A1) (threshold 0.6361, from its own validation split)",
+          "metric": "f1_fit",
+          "scope": "total",
+          "subset": "all",
+          "value": 0.57622,
+          "ci_low": 0.501587,
+          "ci_high": 0.643161,
+          "n_jd": 60,
+          "n_pairs": 600,
+          "rule_version": 1
+        },
+        {
+          "system": "cross-encoder (A1) (threshold 0.6361, from its own validation split)",
+          "metric": "kappa",
+          "scope": "total",
+          "subset": "all",
+          "value": 0.08086,
+          "ci_low": 0.002203,
+          "ci_high": 0.159533,
+          "n_jd": 60,
+          "n_pairs": 600,
+          "rule_version": 1
+        },
+        {
+          "system": "cross-encoder (A1) (threshold 0.6361, from its own validation split)",
+          "metric": "accuracy",
+          "scope": "generic",
+          "subset": "llm_free",
+          "value": 0.610354,
+          "ci_low": 0.5625,
+          "ci_high": 0.660057,
+          "n_jd": 40,
+          "n_pairs": 367,
+          "rule_version": 1
+        },
+        {
+          "system": "cross-encoder (A1) (threshold 0.6361, from its own validation split)",
+          "metric": "macro_f1",
+          "scope": "generic",
+          "subset": "llm_free",
+          "value": 0.590916,
+          "ci_low": 0.538271,
+          "ci_high": 0.641374,
+          "n_jd": 40,
+          "n_pairs": 367,
+          "rule_version": 1
+        },
+        {
+          "system": "cross-encoder (A1) (threshold 0.6361, from its own validation split)",
+          "metric": "f1_fit",
+          "scope": "generic",
+          "subset": "llm_free",
+          "value": 0.680089,
+          "ci_low": 0.613466,
+          "ci_high": 0.736196,
+          "n_jd": 40,
+          "n_pairs": 367,
+          "rule_version": 1
+        },
+        {
+          "system": "cross-encoder (A1) (threshold 0.6361, from its own validation split)",
+          "metric": "kappa",
+          "scope": "generic",
+          "subset": "llm_free",
+          "value": 0.186455,
+          "ci_low": 0.088906,
+          "ci_high": 0.284102,
+          "n_jd": 40,
+          "n_pairs": 367,
+          "rule_version": 1
+        },
+        {
+          "system": "cross-encoder (A1) (threshold 0.6361, from its own validation split)",
+          "metric": "accuracy",
+          "scope": "targeted",
+          "subset": "llm_free",
+          "value": 0.388889,
+          "ci_low": 0.311475,
+          "ci_high": 0.48062,
+          "n_jd": 20,
+          "n_pairs": 126,
+          "rule_version": 1
+        },
+        {
+          "system": "cross-encoder (A1) (threshold 0.6361, from its own validation split)",
+          "metric": "macro_f1",
+          "scope": "targeted",
+          "subset": "llm_free",
+          "value": 0.371429,
+          "ci_low": 0.286315,
+          "ci_high": 0.464547,
+          "n_jd": 20,
+          "n_pairs": 126,
+          "rule_version": 1
+        },
+        {
+          "system": "cross-encoder (A1) (threshold 0.6361, from its own validation split)",
+          "metric": "f1_fit",
+          "scope": "targeted",
+          "subset": "llm_free",
+          "value": 0.266667,
+          "ci_low": 0.1,
+          "ci_high": 0.428571,
+          "n_jd": 20,
+          "n_pairs": 126,
+          "rule_version": 1
+        },
+        {
+          "system": "cross-encoder (A1) (threshold 0.6361, from its own validation split)",
+          "metric": "kappa",
+          "scope": "targeted",
+          "subset": "llm_free",
+          "value": -0.174292,
+          "ci_low": -0.339044,
+          "ci_high": -0.006837,
+          "n_jd": 20,
+          "n_pairs": 126,
+          "rule_version": 1
+        },
+        {
+          "system": "cross-encoder (A1) (threshold 0.6361, from its own validation split)",
+          "metric": "accuracy",
+          "scope": "total",
+          "subset": "llm_free",
+          "value": 0.553753,
+          "ci_low": 0.504132,
+          "ci_high": 0.602459,
+          "n_jd": 60,
+          "n_pairs": 493,
+          "rule_version": 1
+        },
+        {
+          "system": "cross-encoder (A1) (threshold 0.6361, from its own validation split)",
+          "metric": "macro_f1",
+          "scope": "total",
+          "subset": "llm_free",
+          "value": 0.547268,
+          "ci_low": 0.498845,
+          "ci_high": 0.593131,
+          "n_jd": 60,
+          "n_pairs": 493,
+          "rule_version": 1
+        },
+        {
+          "system": "cross-encoder (A1) (threshold 0.6361, from its own validation split)",
+          "metric": "f1_fit",
+          "scope": "total",
+          "subset": "llm_free",
+          "value": 0.601449,
+          "ci_low": 0.525489,
+          "ci_high": 0.666667,
+          "n_jd": 60,
+          "n_pairs": 493,
+          "rule_version": 1
+        },
+        {
+          "system": "cross-encoder (A1) (threshold 0.6361, from its own validation split)",
+          "metric": "kappa",
+          "scope": "total",
+          "subset": "llm_free",
+          "value": 0.107942,
+          "ci_low": 0.023814,
+          "ci_high": 0.191832,
+          "n_jd": 60,
+          "n_pairs": 493,
+          "rule_version": 1
+        }
+      ]
+    },
+    "cross-encoder (weak) (threshold 0.5300, from its own validation split)": {
+      "status": "held-out",
+      "figures": [
+        {
+          "system": "cross-encoder (weak) (threshold 0.5300, from its own validation split)",
+          "metric": "accuracy",
+          "scope": "generic",
+          "subset": "all",
+          "value": 0.5825,
+          "ci_low": 0.5275,
+          "ci_high": 0.6375,
+          "n_jd": 40,
+          "n_pairs": 400,
+          "rule_version": 1
+        },
+        {
+          "system": "cross-encoder (weak) (threshold 0.5300, from its own validation split)",
+          "metric": "macro_f1",
+          "scope": "generic",
+          "subset": "all",
+          "value": 0.582289,
+          "ci_low": 0.523559,
+          "ci_high": 0.637316,
+          "n_jd": 40,
+          "n_pairs": 400,
+          "rule_version": 1
+        },
+        {
+          "system": "cross-encoder (weak) (threshold 0.5300, from its own validation split)",
+          "metric": "f1_fit",
+          "scope": "generic",
+          "subset": "all",
+          "value": 0.591687,
+          "ci_low": 0.524675,
+          "ci_high": 0.652681,
+          "n_jd": 40,
+          "n_pairs": 400,
+          "rule_version": 1
+        },
+        {
+          "system": "cross-encoder (weak) (threshold 0.5300, from its own validation split)",
+          "metric": "kappa",
+          "scope": "generic",
+          "subset": "all",
+          "value": 0.205707,
+          "ci_low": 0.121265,
+          "ci_high": 0.295911,
+          "n_jd": 40,
+          "n_pairs": 400,
+          "rule_version": 1
+        },
+        {
+          "system": "cross-encoder (weak) (threshold 0.5300, from its own validation split)",
+          "metric": "accuracy",
+          "scope": "targeted",
+          "subset": "all",
+          "value": 0.56,
+          "ci_low": 0.485,
+          "ci_high": 0.635,
+          "n_jd": 20,
+          "n_pairs": 200,
+          "rule_version": 1
+        },
+        {
+          "system": "cross-encoder (weak) (threshold 0.5300, from its own validation split)",
+          "metric": "macro_f1",
+          "scope": "targeted",
+          "subset": "all",
+          "value": 0.558897,
+          "ci_low": 0.476651,
+          "ci_high": 0.63,
+          "n_jd": 20,
+          "n_pairs": 200,
+          "rule_version": 1
+        },
+        {
+          "system": "cross-encoder (weak) (threshold 0.5300, from its own validation split)",
+          "metric": "f1_fit",
+          "scope": "targeted",
+          "subset": "all",
+          "value": 0.536842,
+          "ci_low": 0.402516,
+          "ci_high": 0.647619,
+          "n_jd": 20,
+          "n_pairs": 200,
+          "rule_version": 1
+        },
+        {
+          "system": "cross-encoder (weak) (threshold 0.5300, from its own validation split)",
+          "metric": "kappa",
+          "scope": "targeted",
+          "subset": "all",
+          "value": 0.158619,
+          "ci_low": 0.029563,
+          "ci_high": 0.284294,
+          "n_jd": 20,
+          "n_pairs": 200,
+          "rule_version": 1
+        },
+        {
+          "system": "cross-encoder (weak) (threshold 0.5300, from its own validation split)",
+          "metric": "accuracy",
+          "scope": "total",
+          "subset": "all",
+          "value": 0.575,
+          "ci_low": 0.53,
+          "ci_high": 0.621667,
+          "n_jd": 60,
+          "n_pairs": 600,
+          "rule_version": 1
+        },
+        {
+          "system": "cross-encoder (weak) (threshold 0.5300, from its own validation split)",
+          "metric": "macro_f1",
+          "scope": "total",
+          "subset": "all",
+          "value": 0.574999,
+          "ci_low": 0.52897,
+          "ci_high": 0.619963,
+          "n_jd": 60,
+          "n_pairs": 600,
+          "rule_version": 1
+        },
+        {
+          "system": "cross-encoder (weak) (threshold 0.5300, from its own validation split)",
+          "metric": "f1_fit",
+          "scope": "total",
+          "subset": "all",
+          "value": 0.57429,
+          "ci_low": 0.514075,
+          "ci_high": 0.630772,
+          "n_jd": 60,
+          "n_pairs": 600,
+          "rule_version": 1
+        },
+        {
+          "system": "cross-encoder (weak) (threshold 0.5300, from its own validation split)",
+          "metric": "kappa",
+          "scope": "total",
+          "subset": "all",
+          "value": 0.190956,
+          "ci_low": 0.12037,
+          "ci_high": 0.264732,
+          "n_jd": 60,
+          "n_pairs": 600,
+          "rule_version": 1
+        },
+        {
+          "system": "cross-encoder (weak) (threshold 0.5300, from its own validation split)",
+          "metric": "accuracy",
+          "scope": "generic",
+          "subset": "llm_free",
+          "value": 0.591281,
+          "ci_low": 0.53022,
+          "ci_high": 0.654596,
+          "n_jd": 40,
+          "n_pairs": 367,
+          "rule_version": 1
+        },
+        {
+          "system": "cross-encoder (weak) (threshold 0.5300, from its own validation split)",
+          "metric": "macro_f1",
+          "scope": "generic",
+          "subset": "llm_free",
+          "value": 0.590597,
+          "ci_low": 0.527002,
+          "ci_high": 0.653175,
+          "n_jd": 40,
+          "n_pairs": 367,
+          "rule_version": 1
+        },
+        {
+          "system": "cross-encoder (weak) (threshold 0.5300, from its own validation split)",
+          "metric": "f1_fit",
+          "scope": "generic",
+          "subset": "llm_free",
+          "value": 0.60733,
+          "ci_low": 0.536143,
+          "ci_high": 0.67374,
+          "n_jd": 40,
+          "n_pairs": 367,
+          "rule_version": 1
+        },
+        {
+          "system": "cross-encoder (weak) (threshold 0.5300, from its own validation split)",
+          "metric": "kappa",
+          "scope": "generic",
+          "subset": "llm_free",
+          "value": 0.229682,
+          "ci_low": 0.136318,
+          "ci_high": 0.331947,
+          "n_jd": 40,
+          "n_pairs": 367,
+          "rule_version": 1
+        },
+        {
+          "system": "cross-encoder (weak) (threshold 0.5300, from its own validation split)",
+          "metric": "accuracy",
+          "scope": "targeted",
+          "subset": "llm_free",
+          "value": 0.563492,
+          "ci_low": 0.477268,
+          "ci_high": 0.655738,
+          "n_jd": 20,
+          "n_pairs": 126,
+          "rule_version": 1
+        },
+        {
+          "system": "cross-encoder (weak) (threshold 0.5300, from its own validation split)",
+          "metric": "macro_f1",
+          "scope": "targeted",
+          "subset": "llm_free",
+          "value": 0.561254,
+          "ci_low": 0.470548,
+          "ci_high": 0.650031,
+          "n_jd": 20,
+          "n_pairs": 126,
+          "rule_version": 1
+        },
+        {
+          "system": "cross-encoder (weak) (threshold 0.5300, from its own validation split)",
+          "metric": "f1_fit",
+          "scope": "targeted",
+          "subset": "llm_free",
+          "value": 0.529915,
+          "ci_low": 0.388335,
+          "ci_high": 0.656256,
+          "n_jd": 20,
+          "n_pairs": 126,
+          "rule_version": 1
+        },
+        {
+          "system": "cross-encoder (weak) (threshold 0.5300, from its own validation split)",
+          "metric": "kappa",
+          "scope": "targeted",
+          "subset": "llm_free",
+          "value": 0.146341,
+          "ci_low": -0.003499,
+          "ci_high": 0.306452,
+          "n_jd": 20,
+          "n_pairs": 126,
+          "rule_version": 1
+        },
+        {
+          "system": "cross-encoder (weak) (threshold 0.5300, from its own validation split)",
+          "metric": "accuracy",
+          "scope": "total",
+          "subset": "llm_free",
+          "value": 0.584178,
+          "ci_low": 0.532946,
+          "ci_high": 0.637296,
+          "n_jd": 60,
+          "n_pairs": 493,
+          "rule_version": 1
+        },
+        {
+          "system": "cross-encoder (weak) (threshold 0.5300, from its own validation split)",
+          "metric": "macro_f1",
+          "scope": "total",
+          "subset": "llm_free",
+          "value": 0.584117,
+          "ci_low": 0.532041,
+          "ci_high": 0.636453,
+          "n_jd": 60,
+          "n_pairs": 493,
+          "rule_version": 1
+        },
+        {
+          "system": "cross-encoder (weak) (threshold 0.5300, from its own validation split)",
+          "metric": "f1_fit",
+          "scope": "total",
+          "subset": "llm_free",
+          "value": 0.589178,
+          "ci_low": 0.526534,
+          "ci_high": 0.649351,
+          "n_jd": 60,
+          "n_pairs": 493,
+          "rule_version": 1
+        },
+        {
+          "system": "cross-encoder (weak) (threshold 0.5300, from its own validation split)",
+          "metric": "kappa",
+          "scope": "total",
+          "subset": "llm_free",
+          "value": 0.209757,
+          "ci_low": 0.127852,
+          "ci_high": 0.296509,
+          "n_jd": 60,
+          "n_pairs": 493,
+          "rule_version": 1
+        }
+      ]
+    },
     "metadata rule (Fit iff keyword match)": {
       "status": "exploratory",
       "figures": [
@@ -1403,6 +3741,1987 @@
   },
   "deltas": [
     {
+      "id": "C1",
+      "b": "skill overlap",
+      "a": "random",
+      "metric": "auc",
+      "scope": "generic",
+      "subset": "all",
+      "delta": 0.161517,
+      "ci": [
+        0.068223,
+        0.253336
+      ],
+      "half_width": 0.092556,
+      "n_jd": 39
+    },
+    {
+      "id": "C1",
+      "b": "skill overlap",
+      "a": "random",
+      "metric": "within_family_auc",
+      "scope": "generic",
+      "subset": "all",
+      "delta": 0.047669,
+      "ci": [
+        -0.081589,
+        0.180397
+      ],
+      "half_width": 0.130993,
+      "n_jd": 30
+    },
+    {
+      "id": "C1",
+      "b": "skill overlap",
+      "a": "random",
+      "metric": "auc",
+      "scope": "targeted",
+      "subset": "all",
+      "delta": 0.123768,
+      "ci": [
+        0.031634,
+        0.22002
+      ],
+      "half_width": 0.094193,
+      "n_jd": 20
+    },
+    {
+      "id": "C1",
+      "b": "skill overlap",
+      "a": "random",
+      "metric": "within_family_auc",
+      "scope": "targeted",
+      "subset": "all",
+      "delta": 0.101901,
+      "ci": [
+        -0.021648,
+        0.225269
+      ],
+      "half_width": 0.123459,
+      "n_jd": 18
+    },
+    {
+      "id": "C1",
+      "b": "skill overlap",
+      "a": "random",
+      "metric": "auc",
+      "scope": "total",
+      "subset": "all",
+      "delta": 0.14872,
+      "ci": [
+        0.078707,
+        0.21826
+      ],
+      "half_width": 0.069776,
+      "n_jd": 59
+    },
+    {
+      "id": "C1",
+      "b": "skill overlap",
+      "a": "random",
+      "metric": "within_family_auc",
+      "scope": "total",
+      "subset": "all",
+      "delta": 0.068006,
+      "ci": [
+        -0.02586,
+        0.161195
+      ],
+      "half_width": 0.093527,
+      "n_jd": 48
+    },
+    {
+      "id": "C1",
+      "b": "skill overlap",
+      "a": "random",
+      "metric": "auc",
+      "scope": "generic",
+      "subset": "llm_free",
+      "delta": 0.166755,
+      "ci": [
+        0.05051,
+        0.280686
+      ],
+      "half_width": 0.115088,
+      "n_jd": 38
+    },
+    {
+      "id": "C1",
+      "b": "skill overlap",
+      "a": "random",
+      "metric": "within_family_auc",
+      "scope": "generic",
+      "subset": "llm_free",
+      "delta": 0.056867,
+      "ci": [
+        -0.105637,
+        0.214909
+      ],
+      "half_width": 0.160273,
+      "n_jd": 23
+    },
+    {
+      "id": "C1",
+      "b": "skill overlap",
+      "a": "random",
+      "metric": "auc",
+      "scope": "targeted",
+      "subset": "llm_free",
+      "delta": 0.137278,
+      "ci": [
+        0.009827,
+        0.265646
+      ],
+      "half_width": 0.12791,
+      "n_jd": 17
+    },
+    {
+      "id": "C1",
+      "b": "skill overlap",
+      "a": "random",
+      "metric": "within_family_auc",
+      "scope": "targeted",
+      "subset": "llm_free",
+      "delta": 0.133163,
+      "ci": [
+        -0.050427,
+        0.313435
+      ],
+      "half_width": 0.181931,
+      "n_jd": 14
+    },
+    {
+      "id": "C1",
+      "b": "skill overlap",
+      "a": "random",
+      "metric": "auc",
+      "scope": "total",
+      "subset": "llm_free",
+      "delta": 0.157644,
+      "ci": [
+        0.068298,
+        0.246436
+      ],
+      "half_width": 0.089069,
+      "n_jd": 55
+    },
+    {
+      "id": "C1",
+      "b": "skill overlap",
+      "a": "random",
+      "metric": "within_family_auc",
+      "scope": "total",
+      "subset": "llm_free",
+      "delta": 0.085736,
+      "ci": [
+        -0.036643,
+        0.207884
+      ],
+      "half_width": 0.122264,
+      "n_jd": 37
+    },
+    {
+      "id": "C2",
+      "b": "metadata + skill overlap",
+      "a": "metadata rules",
+      "metric": "auc",
+      "scope": "generic",
+      "subset": "all",
+      "delta": 0.042065,
+      "ci": [
+        0.019047,
+        0.067715
+      ],
+      "half_width": 0.024334,
+      "n_jd": 39
+    },
+    {
+      "id": "C2",
+      "b": "metadata + skill overlap",
+      "a": "metadata rules",
+      "metric": "within_family_auc",
+      "scope": "generic",
+      "subset": "all",
+      "delta": 0.108423,
+      "ci": [
+        0.047369,
+        0.174336
+      ],
+      "half_width": 0.063484,
+      "n_jd": 30
+    },
+    {
+      "id": "C2",
+      "b": "metadata + skill overlap",
+      "a": "metadata rules",
+      "metric": "auc",
+      "scope": "targeted",
+      "subset": "all",
+      "delta": 0.046405,
+      "ci": [
+        0.012527,
+        0.084887
+      ],
+      "half_width": 0.03618,
+      "n_jd": 20
+    },
+    {
+      "id": "C2",
+      "b": "metadata + skill overlap",
+      "a": "metadata rules",
+      "metric": "within_family_auc",
+      "scope": "targeted",
+      "subset": "all",
+      "delta": 0.096892,
+      "ci": [
+        0.033366,
+        0.16842
+      ],
+      "half_width": 0.067527,
+      "n_jd": 18
+    },
+    {
+      "id": "C2",
+      "b": "metadata + skill overlap",
+      "a": "metadata rules",
+      "metric": "auc",
+      "scope": "total",
+      "subset": "all",
+      "delta": 0.043536,
+      "ci": [
+        0.024287,
+        0.064991
+      ],
+      "half_width": 0.020352,
+      "n_jd": 59
+    },
+    {
+      "id": "C2",
+      "b": "metadata + skill overlap",
+      "a": "metadata rules",
+      "metric": "within_family_auc",
+      "scope": "total",
+      "subset": "all",
+      "delta": 0.104098,
+      "ci": [
+        0.058061,
+        0.152116
+      ],
+      "half_width": 0.047028,
+      "n_jd": 48
+    },
+    {
+      "id": "C2",
+      "b": "metadata + skill overlap",
+      "a": "metadata rules",
+      "metric": "auc",
+      "scope": "generic",
+      "subset": "llm_free",
+      "delta": 0.046554,
+      "ci": [
+        0.021433,
+        0.07464
+      ],
+      "half_width": 0.026603,
+      "n_jd": 38
+    },
+    {
+      "id": "C2",
+      "b": "metadata + skill overlap",
+      "a": "metadata rules",
+      "metric": "within_family_auc",
+      "scope": "generic",
+      "subset": "llm_free",
+      "delta": 0.149707,
+      "ci": [
+        0.071426,
+        0.229661
+      ],
+      "half_width": 0.079117,
+      "n_jd": 23
+    },
+    {
+      "id": "C2",
+      "b": "metadata + skill overlap",
+      "a": "metadata rules",
+      "metric": "auc",
+      "scope": "targeted",
+      "subset": "llm_free",
+      "delta": 0.046008,
+      "ci": [
+        0.009244,
+        0.085084
+      ],
+      "half_width": 0.03792,
+      "n_jd": 17
+    },
+    {
+      "id": "C2",
+      "b": "metadata + skill overlap",
+      "a": "metadata rules",
+      "metric": "within_family_auc",
+      "scope": "targeted",
+      "subset": "llm_free",
+      "delta": 0.13108,
+      "ci": [
+        0.03227,
+        0.241331
+      ],
+      "half_width": 0.10453,
+      "n_jd": 14
+    },
+    {
+      "id": "C2",
+      "b": "metadata + skill overlap",
+      "a": "metadata rules",
+      "metric": "auc",
+      "scope": "total",
+      "subset": "llm_free",
+      "delta": 0.046385,
+      "ci": [
+        0.02513,
+        0.069279
+      ],
+      "half_width": 0.022074,
+      "n_jd": 55
+    },
+    {
+      "id": "C2",
+      "b": "metadata + skill overlap",
+      "a": "metadata rules",
+      "metric": "within_family_auc",
+      "scope": "total",
+      "subset": "llm_free",
+      "delta": 0.142659,
+      "ci": [
+        0.080849,
+        0.208135
+      ],
+      "half_width": 0.063643,
+      "n_jd": 37
+    },
+    {
+      "id": "C3",
+      "b": "SBERT (zero-shot)",
+      "a": "TF-IDF",
+      "metric": "auc",
+      "scope": "generic",
+      "subset": "all",
+      "delta": -0.003447,
+      "ci": [
+        -0.084593,
+        0.078806
+      ],
+      "half_width": 0.0817,
+      "n_jd": 39
+    },
+    {
+      "id": "C3",
+      "b": "SBERT (zero-shot)",
+      "a": "TF-IDF",
+      "metric": "within_family_auc",
+      "scope": "generic",
+      "subset": "all",
+      "delta": 0.033413,
+      "ci": [
+        -0.066587,
+        0.13056
+      ],
+      "half_width": 0.098573,
+      "n_jd": 30
+    },
+    {
+      "id": "C3",
+      "b": "SBERT (zero-shot)",
+      "a": "TF-IDF",
+      "metric": "auc",
+      "scope": "targeted",
+      "subset": "all",
+      "delta": -0.061589,
+      "ci": [
+        -0.128816,
+        0.010055
+      ],
+      "half_width": 0.069436,
+      "n_jd": 20
+    },
+    {
+      "id": "C3",
+      "b": "SBERT (zero-shot)",
+      "a": "TF-IDF",
+      "metric": "within_family_auc",
+      "scope": "targeted",
+      "subset": "all",
+      "delta": 0.025364,
+      "ci": [
+        -0.074507,
+        0.134921
+      ],
+      "half_width": 0.104714,
+      "n_jd": 18
+    },
+    {
+      "id": "C3",
+      "b": "SBERT (zero-shot)",
+      "a": "TF-IDF",
+      "metric": "auc",
+      "scope": "total",
+      "subset": "all",
+      "delta": -0.023156,
+      "ci": [
+        -0.080677,
+        0.036544
+      ],
+      "half_width": 0.05861,
+      "n_jd": 59
+    },
+    {
+      "id": "C3",
+      "b": "SBERT (zero-shot)",
+      "a": "TF-IDF",
+      "metric": "within_family_auc",
+      "scope": "total",
+      "subset": "all",
+      "delta": 0.030394,
+      "ci": [
+        -0.043514,
+        0.101193
+      ],
+      "half_width": 0.072354,
+      "n_jd": 48
+    },
+    {
+      "id": "C3",
+      "b": "SBERT (zero-shot)",
+      "a": "TF-IDF",
+      "metric": "auc",
+      "scope": "generic",
+      "subset": "llm_free",
+      "delta": -0.009874,
+      "ci": [
+        -0.093155,
+        0.075784
+      ],
+      "half_width": 0.084469,
+      "n_jd": 38
+    },
+    {
+      "id": "C3",
+      "b": "SBERT (zero-shot)",
+      "a": "TF-IDF",
+      "metric": "within_family_auc",
+      "scope": "generic",
+      "subset": "llm_free",
+      "delta": 0.00383,
+      "ci": [
+        -0.122774,
+        0.123921
+      ],
+      "half_width": 0.123348,
+      "n_jd": 23
+    },
+    {
+      "id": "C3",
+      "b": "SBERT (zero-shot)",
+      "a": "TF-IDF",
+      "metric": "auc",
+      "scope": "targeted",
+      "subset": "llm_free",
+      "delta": -0.042484,
+      "ci": [
+        -0.150333,
+        0.063959
+      ],
+      "half_width": 0.107146,
+      "n_jd": 17
+    },
+    {
+      "id": "C3",
+      "b": "SBERT (zero-shot)",
+      "a": "TF-IDF",
+      "metric": "within_family_auc",
+      "scope": "targeted",
+      "subset": "llm_free",
+      "delta": 0.044218,
+      "ci": [
+        -0.132653,
+        0.243197
+      ],
+      "half_width": 0.187925,
+      "n_jd": 14
+    },
+    {
+      "id": "C3",
+      "b": "SBERT (zero-shot)",
+      "a": "TF-IDF",
+      "metric": "auc",
+      "scope": "total",
+      "subset": "llm_free",
+      "delta": -0.019953,
+      "ci": [
+        -0.086892,
+        0.046307
+      ],
+      "half_width": 0.066599,
+      "n_jd": 55
+    },
+    {
+      "id": "C3",
+      "b": "SBERT (zero-shot)",
+      "a": "TF-IDF",
+      "metric": "within_family_auc",
+      "scope": "total",
+      "subset": "llm_free",
+      "delta": 0.019112,
+      "ci": [
+        -0.084622,
+        0.124199
+      ],
+      "half_width": 0.10441,
+      "n_jd": 37
+    },
+    {
+      "id": "C4",
+      "b": "metadata + SBERT (zero-shot)",
+      "a": "metadata + TF-IDF",
+      "metric": "auc",
+      "scope": "generic",
+      "subset": "all",
+      "delta": 0.000442,
+      "ci": [
+        -0.025514,
+        0.026837
+      ],
+      "half_width": 0.026176,
+      "n_jd": 39
+    },
+    {
+      "id": "C4",
+      "b": "metadata + SBERT (zero-shot)",
+      "a": "metadata + TF-IDF",
+      "metric": "within_family_auc",
+      "scope": "generic",
+      "subset": "all",
+      "delta": 0.002063,
+      "ci": [
+        -0.084212,
+        0.085718
+      ],
+      "half_width": 0.084965,
+      "n_jd": 30
+    },
+    {
+      "id": "C4",
+      "b": "metadata + SBERT (zero-shot)",
+      "a": "metadata + TF-IDF",
+      "metric": "auc",
+      "scope": "targeted",
+      "subset": "all",
+      "delta": -0.00347,
+      "ci": [
+        -0.051193,
+        0.039108
+      ],
+      "half_width": 0.04515,
+      "n_jd": 20
+    },
+    {
+      "id": "C4",
+      "b": "metadata + SBERT (zero-shot)",
+      "a": "metadata + TF-IDF",
+      "metric": "within_family_auc",
+      "scope": "targeted",
+      "subset": "all",
+      "delta": 0.032937,
+      "ci": [
+        -0.058433,
+        0.131119
+      ],
+      "half_width": 0.094776,
+      "n_jd": 18
+    },
+    {
+      "id": "C4",
+      "b": "metadata + SBERT (zero-shot)",
+      "a": "metadata + TF-IDF",
+      "metric": "auc",
+      "scope": "total",
+      "subset": "all",
+      "delta": -0.000884,
+      "ci": [
+        -0.024196,
+        0.021693
+      ],
+      "half_width": 0.022944,
+      "n_jd": 59
+    },
+    {
+      "id": "C4",
+      "b": "metadata + SBERT (zero-shot)",
+      "a": "metadata + TF-IDF",
+      "metric": "within_family_auc",
+      "scope": "total",
+      "subset": "all",
+      "delta": 0.013641,
+      "ci": [
+        -0.050236,
+        0.074703
+      ],
+      "half_width": 0.062469,
+      "n_jd": 48
+    },
+    {
+      "id": "C4",
+      "b": "metadata + SBERT (zero-shot)",
+      "a": "metadata + TF-IDF",
+      "metric": "auc",
+      "scope": "generic",
+      "subset": "llm_free",
+      "delta": -0.005185,
+      "ci": [
+        -0.03042,
+        0.02005
+      ],
+      "half_width": 0.025235,
+      "n_jd": 38
+    },
+    {
+      "id": "C4",
+      "b": "metadata + SBERT (zero-shot)",
+      "a": "metadata + TF-IDF",
+      "metric": "within_family_auc",
+      "scope": "generic",
+      "subset": "llm_free",
+      "delta": -0.013768,
+      "ci": [
+        -0.123815,
+        0.087474
+      ],
+      "half_width": 0.105644,
+      "n_jd": 23
+    },
+    {
+      "id": "C4",
+      "b": "metadata + SBERT (zero-shot)",
+      "a": "metadata + TF-IDF",
+      "metric": "auc",
+      "scope": "targeted",
+      "subset": "llm_free",
+      "delta": 0.038982,
+      "ci": [
+        -0.008403,
+        0.106909
+      ],
+      "half_width": 0.057656,
+      "n_jd": 17
+    },
+    {
+      "id": "C4",
+      "b": "metadata + SBERT (zero-shot)",
+      "a": "metadata + TF-IDF",
+      "metric": "within_family_auc",
+      "scope": "targeted",
+      "subset": "llm_free",
+      "delta": 0.105442,
+      "ci": [
+        -0.018707,
+        0.270408
+      ],
+      "half_width": 0.144558,
+      "n_jd": 14
+    },
+    {
+      "id": "C4",
+      "b": "metadata + SBERT (zero-shot)",
+      "a": "metadata + TF-IDF",
+      "metric": "auc",
+      "scope": "total",
+      "subset": "llm_free",
+      "delta": 0.008467,
+      "ci": [
+        -0.016101,
+        0.036112
+      ],
+      "half_width": 0.026106,
+      "n_jd": 55
+    },
+    {
+      "id": "C4",
+      "b": "metadata + SBERT (zero-shot)",
+      "a": "metadata + TF-IDF",
+      "metric": "within_family_auc",
+      "scope": "total",
+      "subset": "llm_free",
+      "delta": 0.031338,
+      "ci": [
+        -0.053929,
+        0.121107
+      ],
+      "half_width": 0.087518,
+      "n_jd": 37
+    },
+    {
+      "id": "C5",
+      "b": "SBERT (weak fine-tuned)",
+      "a": "TF-IDF",
+      "metric": "auc",
+      "scope": "generic",
+      "subset": "all",
+      "delta": 0.079731,
+      "ci": [
+        0.017638,
+        0.146727
+      ],
+      "half_width": 0.064544,
+      "n_jd": 39
+    },
+    {
+      "id": "C5",
+      "b": "SBERT (weak fine-tuned)",
+      "a": "TF-IDF",
+      "metric": "within_family_auc",
+      "scope": "generic",
+      "subset": "all",
+      "delta": 0.042143,
+      "ci": [
+        -0.065397,
+        0.149768
+      ],
+      "half_width": 0.107582,
+      "n_jd": 30
+    },
+    {
+      "id": "C5",
+      "b": "SBERT (weak fine-tuned)",
+      "a": "TF-IDF",
+      "metric": "auc",
+      "scope": "targeted",
+      "subset": "all",
+      "delta": 0.012399,
+      "ci": [
+        -0.052385,
+        0.073685
+      ],
+      "half_width": 0.063035,
+      "n_jd": 20
+    },
+    {
+      "id": "C5",
+      "b": "SBERT (weak fine-tuned)",
+      "a": "TF-IDF",
+      "metric": "within_family_auc",
+      "scope": "targeted",
+      "subset": "all",
+      "delta": 0.011343,
+      "ci": [
+        -0.082016,
+        0.111443
+      ],
+      "half_width": 0.096729,
+      "n_jd": 18
+    },
+    {
+      "id": "C5",
+      "b": "SBERT (weak fine-tuned)",
+      "a": "TF-IDF",
+      "metric": "auc",
+      "scope": "total",
+      "subset": "all",
+      "delta": 0.056907,
+      "ci": [
+        0.009416,
+        0.105887
+      ],
+      "half_width": 0.048236,
+      "n_jd": 59
+    },
+    {
+      "id": "C5",
+      "b": "SBERT (weak fine-tuned)",
+      "a": "TF-IDF",
+      "metric": "within_family_auc",
+      "scope": "total",
+      "subset": "all",
+      "delta": 0.030593,
+      "ci": [
+        -0.04519,
+        0.105469
+      ],
+      "half_width": 0.07533,
+      "n_jd": 48
+    },
+    {
+      "id": "C5",
+      "b": "SBERT (weak fine-tuned)",
+      "a": "TF-IDF",
+      "metric": "auc",
+      "scope": "generic",
+      "subset": "llm_free",
+      "delta": 0.073836,
+      "ci": [
+        0.010176,
+        0.141322
+      ],
+      "half_width": 0.065573,
+      "n_jd": 38
+    },
+    {
+      "id": "C5",
+      "b": "SBERT (weak fine-tuned)",
+      "a": "TF-IDF",
+      "metric": "within_family_auc",
+      "scope": "generic",
+      "subset": "llm_free",
+      "delta": -0.006729,
+      "ci": [
+        -0.12764,
+        0.106731
+      ],
+      "half_width": 0.117186,
+      "n_jd": 23
+    },
+    {
+      "id": "C5",
+      "b": "SBERT (weak fine-tuned)",
+      "a": "TF-IDF",
+      "metric": "auc",
+      "scope": "targeted",
+      "subset": "llm_free",
+      "delta": -0.062652,
+      "ci": [
+        -0.168627,
+        0.02078
+      ],
+      "half_width": 0.094704,
+      "n_jd": 17
+    },
+    {
+      "id": "C5",
+      "b": "SBERT (weak fine-tuned)",
+      "a": "TF-IDF",
+      "metric": "within_family_auc",
+      "scope": "targeted",
+      "subset": "llm_free",
+      "delta": -0.077891,
+      "ci": [
+        -0.215986,
+        0.05
+      ],
+      "half_width": 0.132993,
+      "n_jd": 14
+    },
+    {
+      "id": "C5",
+      "b": "SBERT (weak fine-tuned)",
+      "a": "TF-IDF",
+      "metric": "auc",
+      "scope": "total",
+      "subset": "llm_free",
+      "delta": 0.031649,
+      "ci": [
+        -0.0257,
+        0.088987
+      ],
+      "half_width": 0.057344,
+      "n_jd": 55
+    },
+    {
+      "id": "C5",
+      "b": "SBERT (weak fine-tuned)",
+      "a": "TF-IDF",
+      "metric": "within_family_auc",
+      "scope": "total",
+      "subset": "llm_free",
+      "delta": -0.033655,
+      "ci": [
+        -0.125484,
+        0.053668
+      ],
+      "half_width": 0.089576,
+      "n_jd": 37
+    },
+    {
+      "id": "C6",
+      "b": "metadata + SBERT (weak fine-tuned)",
+      "a": "metadata + TF-IDF",
+      "metric": "auc",
+      "scope": "generic",
+      "subset": "all",
+      "delta": -0.003043,
+      "ci": [
+        -0.031117,
+        0.025482
+      ],
+      "half_width": 0.028299,
+      "n_jd": 39
+    },
+    {
+      "id": "C6",
+      "b": "metadata + SBERT (weak fine-tuned)",
+      "a": "metadata + TF-IDF",
+      "metric": "within_family_auc",
+      "scope": "generic",
+      "subset": "all",
+      "delta": -0.007937,
+      "ci": [
+        -0.094929,
+        0.075
+      ],
+      "half_width": 0.084964,
+      "n_jd": 30
+    },
+    {
+      "id": "C6",
+      "b": "metadata + SBERT (weak fine-tuned)",
+      "a": "metadata + TF-IDF",
+      "metric": "auc",
+      "scope": "targeted",
+      "subset": "all",
+      "delta": -0.010863,
+      "ci": [
+        -0.056103,
+        0.029002
+      ],
+      "half_width": 0.042552,
+      "n_jd": 20
+    },
+    {
+      "id": "C6",
+      "b": "metadata + SBERT (weak fine-tuned)",
+      "a": "metadata + TF-IDF",
+      "metric": "within_family_auc",
+      "scope": "targeted",
+      "subset": "all",
+      "delta": 0.005952,
+      "ci": [
+        -0.078871,
+        0.098315
+      ],
+      "half_width": 0.088593,
+      "n_jd": 18
+    },
+    {
+      "id": "C6",
+      "b": "metadata + SBERT (weak fine-tuned)",
+      "a": "metadata + TF-IDF",
+      "metric": "auc",
+      "scope": "total",
+      "subset": "all",
+      "delta": -0.005694,
+      "ci": [
+        -0.02974,
+        0.01714
+      ],
+      "half_width": 0.02344,
+      "n_jd": 59
+    },
+    {
+      "id": "C6",
+      "b": "metadata + SBERT (weak fine-tuned)",
+      "a": "metadata + TF-IDF",
+      "metric": "within_family_auc",
+      "scope": "total",
+      "subset": "all",
+      "delta": -0.002728,
+      "ci": [
+        -0.066345,
+        0.058149
+      ],
+      "half_width": 0.062247,
+      "n_jd": 48
+    },
+    {
+      "id": "C6",
+      "b": "metadata + SBERT (weak fine-tuned)",
+      "a": "metadata + TF-IDF",
+      "metric": "auc",
+      "scope": "generic",
+      "subset": "llm_free",
+      "delta": -0.01239,
+      "ci": [
+        -0.037646,
+        0.01155
+      ],
+      "half_width": 0.024598,
+      "n_jd": 38
+    },
+    {
+      "id": "C6",
+      "b": "metadata + SBERT (weak fine-tuned)",
+      "a": "metadata + TF-IDF",
+      "metric": "within_family_auc",
+      "scope": "generic",
+      "subset": "llm_free",
+      "delta": -0.039234,
+      "ci": [
+        -0.143789,
+        0.054451
+      ],
+      "half_width": 0.09912,
+      "n_jd": 23
+    },
+    {
+      "id": "C6",
+      "b": "metadata + SBERT (weak fine-tuned)",
+      "a": "metadata + TF-IDF",
+      "metric": "auc",
+      "scope": "targeted",
+      "subset": "llm_free",
+      "delta": -0.016433,
+      "ci": [
+        -0.063725,
+        0.018302
+      ],
+      "half_width": 0.041014,
+      "n_jd": 17
+    },
+    {
+      "id": "C6",
+      "b": "metadata + SBERT (weak fine-tuned)",
+      "a": "metadata + TF-IDF",
+      "metric": "within_family_auc",
+      "scope": "targeted",
+      "subset": "llm_free",
+      "delta": -0.016667,
+      "ci": [
+        -0.116675,
+        0.071429
+      ],
+      "half_width": 0.094052,
+      "n_jd": 14
+    },
+    {
+      "id": "C6",
+      "b": "metadata + SBERT (weak fine-tuned)",
+      "a": "metadata + TF-IDF",
+      "metric": "auc",
+      "scope": "total",
+      "subset": "llm_free",
+      "delta": -0.01364,
+      "ci": [
+        -0.036086,
+        0.006887
+      ],
+      "half_width": 0.021487,
+      "n_jd": 55
+    },
+    {
+      "id": "C6",
+      "b": "metadata + SBERT (weak fine-tuned)",
+      "a": "metadata + TF-IDF",
+      "metric": "within_family_auc",
+      "scope": "total",
+      "subset": "llm_free",
+      "delta": -0.030695,
+      "ci": [
+        -0.105341,
+        0.03694
+      ],
+      "half_width": 0.071141,
+      "n_jd": 37
+    },
+    {
+      "id": "C7",
+      "b": "cross-encoder (A1)",
+      "a": "TF-IDF",
+      "metric": "auc",
+      "scope": "generic",
+      "subset": "all",
+      "delta": -0.260518,
+      "ci": [
+        -0.33678,
+        -0.178975
+      ],
+      "half_width": 0.078903,
+      "n_jd": 39
+    },
+    {
+      "id": "C7",
+      "b": "cross-encoder (A1)",
+      "a": "TF-IDF",
+      "metric": "within_family_auc",
+      "scope": "generic",
+      "subset": "all",
+      "delta": -0.179841,
+      "ci": [
+        -0.314286,
+        -0.047222
+      ],
+      "half_width": 0.133532,
+      "n_jd": 30
+    },
+    {
+      "id": "C7",
+      "b": "cross-encoder (A1)",
+      "a": "TF-IDF",
+      "metric": "auc",
+      "scope": "targeted",
+      "subset": "all",
+      "delta": -0.404137,
+      "ci": [
+        -0.497871,
+        -0.32016
+      ],
+      "half_width": 0.088855,
+      "n_jd": 20
+    },
+    {
+      "id": "C7",
+      "b": "cross-encoder (A1)",
+      "a": "TF-IDF",
+      "metric": "within_family_auc",
+      "scope": "targeted",
+      "subset": "all",
+      "delta": -0.214517,
+      "ci": [
+        -0.374413,
+        -0.057894
+      ],
+      "half_width": 0.158259,
+      "n_jd": 18
+    },
+    {
+      "id": "C7",
+      "b": "cross-encoder (A1)",
+      "a": "TF-IDF",
+      "metric": "auc",
+      "scope": "total",
+      "subset": "all",
+      "delta": -0.309202,
+      "ci": [
+        -0.370203,
+        -0.244934
+      ],
+      "half_width": 0.062635,
+      "n_jd": 59
+    },
+    {
+      "id": "C7",
+      "b": "cross-encoder (A1)",
+      "a": "TF-IDF",
+      "metric": "within_family_auc",
+      "scope": "total",
+      "subset": "all",
+      "delta": -0.192845,
+      "ci": [
+        -0.296433,
+        -0.087694
+      ],
+      "half_width": 0.10437,
+      "n_jd": 48
+    },
+    {
+      "id": "C7",
+      "b": "cross-encoder (A1)",
+      "a": "TF-IDF",
+      "metric": "auc",
+      "scope": "generic",
+      "subset": "llm_free",
+      "delta": -0.30789,
+      "ci": [
+        -0.388117,
+        -0.225598
+      ],
+      "half_width": 0.08126,
+      "n_jd": 38
+    },
+    {
+      "id": "C7",
+      "b": "cross-encoder (A1)",
+      "a": "TF-IDF",
+      "metric": "within_family_auc",
+      "scope": "generic",
+      "subset": "llm_free",
+      "delta": -0.266391,
+      "ci": [
+        -0.410455,
+        -0.122809
+      ],
+      "half_width": 0.143823,
+      "n_jd": 23
+    },
+    {
+      "id": "C7",
+      "b": "cross-encoder (A1)",
+      "a": "TF-IDF",
+      "metric": "auc",
+      "scope": "targeted",
+      "subset": "llm_free",
+      "delta": -0.414216,
+      "ci": [
+        -0.578201,
+        -0.230739
+      ],
+      "half_width": 0.173731,
+      "n_jd": 17
+    },
+    {
+      "id": "C7",
+      "b": "cross-encoder (A1)",
+      "a": "TF-IDF",
+      "metric": "within_family_auc",
+      "scope": "targeted",
+      "subset": "llm_free",
+      "delta": -0.180952,
+      "ci": [
+        -0.43369,
+        0.092857
+      ],
+      "half_width": 0.263274,
+      "n_jd": 14
+    },
+    {
+      "id": "C7",
+      "b": "cross-encoder (A1)",
+      "a": "TF-IDF",
+      "metric": "auc",
+      "scope": "total",
+      "subset": "llm_free",
+      "delta": -0.340754,
+      "ci": [
+        -0.417237,
+        -0.260154
+      ],
+      "half_width": 0.078541,
+      "n_jd": 55
+    },
+    {
+      "id": "C7",
+      "b": "cross-encoder (A1)",
+      "a": "TF-IDF",
+      "metric": "within_family_auc",
+      "scope": "total",
+      "subset": "llm_free",
+      "delta": -0.234063,
+      "ci": [
+        -0.364495,
+        -0.098026
+      ],
+      "half_width": 0.133234,
+      "n_jd": 37
+    },
+    {
+      "id": "C8",
+      "b": "metadata + cross-encoder (A1)",
+      "a": "metadata + TF-IDF",
+      "metric": "auc",
+      "scope": "generic",
+      "subset": "all",
+      "delta": -0.048408,
+      "ci": [
+        -0.085343,
+        -0.011727
+      ],
+      "half_width": 0.036808,
+      "n_jd": 39
+    },
+    {
+      "id": "C8",
+      "b": "metadata + cross-encoder (A1)",
+      "a": "metadata + TF-IDF",
+      "metric": "within_family_auc",
+      "scope": "generic",
+      "subset": "all",
+      "delta": -0.147143,
+      "ci": [
+        -0.256986,
+        -0.04127
+      ],
+      "half_width": 0.107858,
+      "n_jd": 30
+    },
+    {
+      "id": "C8",
+      "b": "metadata + cross-encoder (A1)",
+      "a": "metadata + TF-IDF",
+      "metric": "auc",
+      "scope": "targeted",
+      "subset": "all",
+      "delta": -0.06028,
+      "ci": [
+        -0.117507,
+        -0.003689
+      ],
+      "half_width": 0.056909,
+      "n_jd": 20
+    },
+    {
+      "id": "C8",
+      "b": "metadata + cross-encoder (A1)",
+      "a": "metadata + TF-IDF",
+      "metric": "within_family_auc",
+      "scope": "targeted",
+      "subset": "all",
+      "delta": -0.071528,
+      "ci": [
+        -0.173644,
+        0.041178
+      ],
+      "half_width": 0.107411,
+      "n_jd": 18
+    },
+    {
+      "id": "C8",
+      "b": "metadata + cross-encoder (A1)",
+      "a": "metadata + TF-IDF",
+      "metric": "auc",
+      "scope": "total",
+      "subset": "all",
+      "delta": -0.052432,
+      "ci": [
+        -0.08333,
+        -0.021856
+      ],
+      "half_width": 0.030737,
+      "n_jd": 59
+    },
+    {
+      "id": "C8",
+      "b": "metadata + cross-encoder (A1)",
+      "a": "metadata + TF-IDF",
+      "metric": "within_family_auc",
+      "scope": "total",
+      "subset": "all",
+      "delta": -0.118787,
+      "ci": [
+        -0.199827,
+        -0.039929
+      ],
+      "half_width": 0.079949,
+      "n_jd": 48
+    },
+    {
+      "id": "C8",
+      "b": "metadata + cross-encoder (A1)",
+      "a": "metadata + TF-IDF",
+      "metric": "auc",
+      "scope": "generic",
+      "subset": "llm_free",
+      "delta": -0.065648,
+      "ci": [
+        -0.103426,
+        -0.030571
+      ],
+      "half_width": 0.036428,
+      "n_jd": 38
+    },
+    {
+      "id": "C8",
+      "b": "metadata + cross-encoder (A1)",
+      "a": "metadata + TF-IDF",
+      "metric": "within_family_auc",
+      "scope": "generic",
+      "subset": "llm_free",
+      "delta": -0.224258,
+      "ci": [
+        -0.348793,
+        -0.108695
+      ],
+      "half_width": 0.120049,
+      "n_jd": 23
+    },
+    {
+      "id": "C8",
+      "b": "metadata + cross-encoder (A1)",
+      "a": "metadata + TF-IDF",
+      "metric": "auc",
+      "scope": "targeted",
+      "subset": "llm_free",
+      "delta": 0.014753,
+      "ci": [
+        -0.067235,
+        0.107611
+      ],
+      "half_width": 0.087423,
+      "n_jd": 17
+    },
+    {
+      "id": "C8",
+      "b": "metadata + cross-encoder (A1)",
+      "a": "metadata + TF-IDF",
+      "metric": "within_family_auc",
+      "scope": "targeted",
+      "subset": "llm_free",
+      "delta": 0.042772,
+      "ci": [
+        -0.145419,
+        0.246969
+      ],
+      "half_width": 0.196194,
+      "n_jd": 14
+    },
+    {
+      "id": "C8",
+      "b": "metadata + cross-encoder (A1)",
+      "a": "metadata + TF-IDF",
+      "metric": "auc",
+      "scope": "total",
+      "subset": "llm_free",
+      "delta": -0.040797,
+      "ci": [
+        -0.077612,
+        -0.002575
+      ],
+      "half_width": 0.037518,
+      "n_jd": 55
+    },
+    {
+      "id": "C8",
+      "b": "metadata + cross-encoder (A1)",
+      "a": "metadata + TF-IDF",
+      "metric": "within_family_auc",
+      "scope": "total",
+      "subset": "llm_free",
+      "delta": -0.12322,
+      "ci": [
+        -0.233131,
+        -0.009985
+      ],
+      "half_width": 0.111573,
+      "n_jd": 37
+    },
+    {
+      "id": "C9",
+      "b": "cross-encoder (weak)",
+      "a": "TF-IDF",
+      "metric": "auc",
+      "scope": "generic",
+      "subset": "all",
+      "delta": -0.124914,
+      "ci": [
+        -0.213996,
+        -0.031977
+      ],
+      "half_width": 0.091009,
+      "n_jd": 39
+    },
+    {
+      "id": "C9",
+      "b": "cross-encoder (weak)",
+      "a": "TF-IDF",
+      "metric": "within_family_auc",
+      "scope": "generic",
+      "subset": "all",
+      "delta": -0.118353,
+      "ci": [
+        -0.259723,
+        0.024667
+      ],
+      "half_width": 0.142195,
+      "n_jd": 30
+    },
+    {
+      "id": "C9",
+      "b": "cross-encoder (weak)",
+      "a": "TF-IDF",
+      "metric": "auc",
+      "scope": "targeted",
+      "subset": "all",
+      "delta": -0.158786,
+      "ci": [
+        -0.242989,
+        -0.074841
+      ],
+      "half_width": 0.084074,
+      "n_jd": 20
+    },
+    {
+      "id": "C9",
+      "b": "cross-encoder (weak)",
+      "a": "TF-IDF",
+      "metric": "within_family_auc",
+      "scope": "targeted",
+      "subset": "all",
+      "delta": -0.020635,
+      "ci": [
+        -0.196071,
+        0.162335
+      ],
+      "half_width": 0.179203,
+      "n_jd": 18
+    },
+    {
+      "id": "C9",
+      "b": "cross-encoder (weak)",
+      "a": "TF-IDF",
+      "metric": "auc",
+      "scope": "total",
+      "subset": "all",
+      "delta": -0.136396,
+      "ci": [
+        -0.201323,
+        -0.0707
+      ],
+      "half_width": 0.065311,
+      "n_jd": 59
+    },
+    {
+      "id": "C9",
+      "b": "cross-encoder (weak)",
+      "a": "TF-IDF",
+      "metric": "within_family_auc",
+      "scope": "total",
+      "subset": "all",
+      "delta": -0.081709,
+      "ci": [
+        -0.195301,
+        0.030091
+      ],
+      "half_width": 0.112696,
+      "n_jd": 48
+    },
+    {
+      "id": "C9",
+      "b": "cross-encoder (weak)",
+      "a": "TF-IDF",
+      "metric": "auc",
+      "scope": "generic",
+      "subset": "llm_free",
+      "delta": -0.160892,
+      "ci": [
+        -0.249335,
+        -0.071442
+      ],
+      "half_width": 0.088947,
+      "n_jd": 38
+    },
+    {
+      "id": "C9",
+      "b": "cross-encoder (weak)",
+      "a": "TF-IDF",
+      "metric": "within_family_auc",
+      "scope": "generic",
+      "subset": "llm_free",
+      "delta": -0.207488,
+      "ci": [
+        -0.359042,
+        -0.063659
+      ],
+      "half_width": 0.147692,
+      "n_jd": 23
+    },
+    {
+      "id": "C9",
+      "b": "cross-encoder (weak)",
+      "a": "TF-IDF",
+      "metric": "auc",
+      "scope": "targeted",
+      "subset": "llm_free",
+      "delta": -0.29183,
+      "ci": [
+        -0.418541,
+        -0.176517
+      ],
+      "half_width": 0.121012,
+      "n_jd": 17
+    },
+    {
+      "id": "C9",
+      "b": "cross-encoder (weak)",
+      "a": "TF-IDF",
+      "metric": "within_family_auc",
+      "scope": "targeted",
+      "subset": "llm_free",
+      "delta": -0.117517,
+      "ci": [
+        -0.341156,
+        0.127385
+      ],
+      "half_width": 0.234271,
+      "n_jd": 14
+    },
+    {
+      "id": "C9",
+      "b": "cross-encoder (weak)",
+      "a": "TF-IDF",
+      "metric": "auc",
+      "scope": "total",
+      "subset": "llm_free",
+      "delta": -0.201364,
+      "ci": [
+        -0.275629,
+        -0.128678
+      ],
+      "half_width": 0.073475,
+      "n_jd": 55
+    },
+    {
+      "id": "C9",
+      "b": "cross-encoder (weak)",
+      "a": "TF-IDF",
+      "metric": "within_family_auc",
+      "scope": "total",
+      "subset": "llm_free",
+      "delta": -0.173445,
+      "ci": [
+        -0.29807,
+        -0.045492
+      ],
+      "half_width": 0.126289,
+      "n_jd": 37
+    },
+    {
+      "id": "C10",
+      "b": "metadata + cross-encoder (weak)",
+      "a": "metadata + TF-IDF",
+      "metric": "auc",
+      "scope": "generic",
+      "subset": "all",
+      "delta": -0.030541,
+      "ci": [
+        -0.073432,
+        0.016264
+      ],
+      "half_width": 0.044848,
+      "n_jd": 39
+    },
+    {
+      "id": "C10",
+      "b": "metadata + cross-encoder (weak)",
+      "a": "metadata + TF-IDF",
+      "metric": "within_family_auc",
+      "scope": "generic",
+      "subset": "all",
+      "delta": -0.107956,
+      "ci": [
+        -0.220676,
+        0.005243
+      ],
+      "half_width": 0.112959,
+      "n_jd": 30
+    },
+    {
+      "id": "C10",
+      "b": "metadata + cross-encoder (weak)",
+      "a": "metadata + TF-IDF",
+      "metric": "auc",
+      "scope": "targeted",
+      "subset": "all",
+      "delta": -0.020482,
+      "ci": [
+        -0.067489,
+        0.026489
+      ],
+      "half_width": 0.046989,
+      "n_jd": 20
+    },
+    {
+      "id": "C10",
+      "b": "metadata + cross-encoder (weak)",
+      "a": "metadata + TF-IDF",
+      "metric": "within_family_auc",
+      "scope": "targeted",
+      "subset": "all",
+      "delta": 0.002612,
+      "ci": [
+        -0.107144,
+        0.120933
+      ],
+      "half_width": 0.114039,
+      "n_jd": 18
+    },
+    {
+      "id": "C10",
+      "b": "metadata + cross-encoder (weak)",
+      "a": "metadata + TF-IDF",
+      "metric": "auc",
+      "scope": "total",
+      "subset": "all",
+      "delta": -0.027131,
+      "ci": [
+        -0.059596,
+        0.00713
+      ],
+      "half_width": 0.033363,
+      "n_jd": 59
+    },
+    {
+      "id": "C10",
+      "b": "metadata + cross-encoder (weak)",
+      "a": "metadata + TF-IDF",
+      "metric": "within_family_auc",
+      "scope": "total",
+      "subset": "all",
+      "delta": -0.066493,
+      "ci": [
+        -0.152394,
+        0.01781
+      ],
+      "half_width": 0.085102,
+      "n_jd": 48
+    },
+    {
+      "id": "C10",
+      "b": "metadata + cross-encoder (weak)",
+      "a": "metadata + TF-IDF",
+      "metric": "auc",
+      "scope": "generic",
+      "subset": "llm_free",
+      "delta": -0.04823,
+      "ci": [
+        -0.081199,
+        -0.017778
+      ],
+      "half_width": 0.03171,
+      "n_jd": 38
+    },
+    {
+      "id": "C10",
+      "b": "metadata + cross-encoder (weak)",
+      "a": "metadata + TF-IDF",
+      "metric": "within_family_auc",
+      "scope": "generic",
+      "subset": "llm_free",
+      "delta": -0.181194,
+      "ci": [
+        -0.300621,
+        -0.075776
+      ],
+      "half_width": 0.112422,
+      "n_jd": 23
+    },
+    {
+      "id": "C10",
+      "b": "metadata + cross-encoder (weak)",
+      "a": "metadata + TF-IDF",
+      "metric": "auc",
+      "scope": "targeted",
+      "subset": "llm_free",
+      "delta": -0.012302,
+      "ci": [
+        -0.091834,
+        0.077801
+      ],
+      "half_width": 0.084817,
+      "n_jd": 17
+    },
+    {
+      "id": "C10",
+      "b": "metadata + cross-encoder (weak)",
+      "a": "metadata + TF-IDF",
+      "metric": "within_family_auc",
+      "scope": "targeted",
+      "subset": "llm_free",
+      "delta": -0.018537,
+      "ci": [
+        -0.223895,
+        0.201276
+      ],
+      "half_width": 0.212585,
+      "n_jd": 14
+    },
+    {
+      "id": "C10",
+      "b": "metadata + cross-encoder (weak)",
+      "a": "metadata + TF-IDF",
+      "metric": "auc",
+      "scope": "total",
+      "subset": "llm_free",
+      "delta": -0.037125,
+      "ci": [
+        -0.071522,
+        -0.001732
+      ],
+      "half_width": 0.034895,
+      "n_jd": 55
+    },
+    {
+      "id": "C10",
+      "b": "metadata + cross-encoder (weak)",
+      "a": "metadata + TF-IDF",
+      "metric": "within_family_auc",
+      "scope": "total",
+      "subset": "llm_free",
+      "delta": -0.119648,
+      "ci": [
+        -0.229526,
+        -0.010096
+      ],
+      "half_width": 0.109715,
+      "n_jd": 37
+    },
+    {
+      "id": "C11",
+      "b": "metadata + learned text combination",
+      "a": "metadata + TF-IDF",
+      "metric": "auc",
+      "scope": "generic",
+      "subset": "all",
+      "delta": -0.01918,
+      "ci": [
+        -0.04851,
+        0.007403
+      ],
+      "half_width": 0.027956,
+      "n_jd": 39
+    },
+    {
+      "id": "C11",
+      "b": "metadata + learned text combination",
+      "a": "metadata + TF-IDF",
+      "metric": "within_family_auc",
+      "scope": "generic",
+      "subset": "all",
+      "delta": -0.04248,
+      "ci": [
+        -0.138712,
+        0.039167
+      ],
+      "half_width": 0.08894,
+      "n_jd": 30
+    },
+    {
+      "id": "C11",
+      "b": "metadata + learned text combination",
+      "a": "metadata + TF-IDF",
+      "metric": "auc",
+      "scope": "targeted",
+      "subset": "all",
+      "delta": -0.024321,
+      "ci": [
+        -0.069095,
+        0.016835
+      ],
+      "half_width": 0.042965,
+      "n_jd": 20
+    },
+    {
+      "id": "C11",
+      "b": "metadata + learned text combination",
+      "a": "metadata + TF-IDF",
+      "metric": "within_family_auc",
+      "scope": "targeted",
+      "subset": "all",
+      "delta": -0.020767,
+      "ci": [
+        -0.104433,
+        0.068619
+      ],
+      "half_width": 0.086526,
+      "n_jd": 18
+    },
+    {
+      "id": "C11",
+      "b": "metadata + learned text combination",
+      "a": "metadata + TF-IDF",
+      "metric": "auc",
+      "scope": "total",
+      "subset": "all",
+      "delta": -0.020923,
+      "ci": [
+        -0.045209,
+        0.002197
+      ],
+      "half_width": 0.023703,
+      "n_jd": 59
+    },
+    {
+      "id": "C11",
+      "b": "metadata + learned text combination",
+      "a": "metadata + TF-IDF",
+      "metric": "within_family_auc",
+      "scope": "total",
+      "subset": "all",
+      "delta": -0.034338,
+      "ci": [
+        -0.101291,
+        0.026154
+      ],
+      "half_width": 0.063723,
+      "n_jd": 48
+    },
+    {
+      "id": "C11",
+      "b": "metadata + learned text combination",
+      "a": "metadata + TF-IDF",
+      "metric": "auc",
+      "scope": "generic",
+      "subset": "llm_free",
+      "delta": -0.024718,
+      "ci": [
+        -0.054449,
+        0.000889
+      ],
+      "half_width": 0.027669,
+      "n_jd": 38
+    },
+    {
+      "id": "C11",
+      "b": "metadata + learned text combination",
+      "a": "metadata + TF-IDF",
+      "metric": "within_family_auc",
+      "scope": "generic",
+      "subset": "llm_free",
+      "delta": -0.082367,
+      "ci": [
+        -0.200279,
+        0.011387
+      ],
+      "half_width": 0.105833,
+      "n_jd": 23
+    },
+    {
+      "id": "C11",
+      "b": "metadata + learned text combination",
+      "a": "metadata + TF-IDF",
+      "metric": "auc",
+      "scope": "targeted",
+      "subset": "llm_free",
+      "delta": 0.010411,
+      "ci": [
+        -0.019608,
+        0.036836
+      ],
+      "half_width": 0.028222,
+      "n_jd": 17
+    },
+    {
+      "id": "C11",
+      "b": "metadata + learned text combination",
+      "a": "metadata + TF-IDF",
+      "metric": "within_family_auc",
+      "scope": "targeted",
+      "subset": "llm_free",
+      "delta": 0.029252,
+      "ci": [
+        -0.046939,
+        0.10068
+      ],
+      "half_width": 0.07381,
+      "n_jd": 14
+    },
+    {
+      "id": "C11",
+      "b": "metadata + learned text combination",
+      "a": "metadata + TF-IDF",
+      "metric": "auc",
+      "scope": "total",
+      "subset": "llm_free",
+      "delta": -0.01386,
+      "ci": [
+        -0.036156,
+        0.006249
+      ],
+      "half_width": 0.021202,
+      "n_jd": 55
+    },
+    {
+      "id": "C11",
+      "b": "metadata + learned text combination",
+      "a": "metadata + TF-IDF",
+      "metric": "within_family_auc",
+      "scope": "total",
+      "subset": "llm_free",
+      "delta": -0.040133,
+      "ci": [
+        -0.119393,
+        0.026387
+      ],
+      "half_width": 0.07289,
+      "n_jd": 37
+    },
+    {
+      "id": "E1",
       "b": "metadata rules",
       "a": "random",
       "metric": "auc",
@@ -1417,6 +5736,7 @@
       "n_jd": 39
     },
     {
+      "id": "E1",
       "b": "metadata rules",
       "a": "random",
       "metric": "within_family_auc",
@@ -1431,6 +5751,7 @@
       "n_jd": 30
     },
     {
+      "id": "E1",
       "b": "metadata rules",
       "a": "random",
       "metric": "auc",
@@ -1445,6 +5766,7 @@
       "n_jd": 20
     },
     {
+      "id": "E1",
       "b": "metadata rules",
       "a": "random",
       "metric": "within_family_auc",
@@ -1459,6 +5781,7 @@
       "n_jd": 18
     },
     {
+      "id": "E1",
       "b": "metadata rules",
       "a": "random",
       "metric": "auc",
@@ -1473,6 +5796,7 @@
       "n_jd": 59
     },
     {
+      "id": "E1",
       "b": "metadata rules",
       "a": "random",
       "metric": "within_family_auc",
@@ -1487,6 +5811,7 @@
       "n_jd": 48
     },
     {
+      "id": "E1",
       "b": "metadata rules",
       "a": "random",
       "metric": "auc",
@@ -1501,6 +5826,7 @@
       "n_jd": 38
     },
     {
+      "id": "E1",
       "b": "metadata rules",
       "a": "random",
       "metric": "within_family_auc",
@@ -1515,6 +5841,7 @@
       "n_jd": 23
     },
     {
+      "id": "E1",
       "b": "metadata rules",
       "a": "random",
       "metric": "auc",
@@ -1529,6 +5856,7 @@
       "n_jd": 17
     },
     {
+      "id": "E1",
       "b": "metadata rules",
       "a": "random",
       "metric": "within_family_auc",
@@ -1543,6 +5871,7 @@
       "n_jd": 14
     },
     {
+      "id": "E1",
       "b": "metadata rules",
       "a": "random",
       "metric": "auc",
@@ -1557,6 +5886,7 @@
       "n_jd": 55
     },
     {
+      "id": "E1",
       "b": "metadata rules",
       "a": "random",
       "metric": "within_family_auc",
@@ -1571,6 +5901,7 @@
       "n_jd": 37
     },
     {
+      "id": "E2",
       "b": "TF-IDF",
       "a": "metadata rules",
       "metric": "auc",
@@ -1585,6 +5916,7 @@
       "n_jd": 39
     },
     {
+      "id": "E2",
       "b": "TF-IDF",
       "a": "metadata rules",
       "metric": "within_family_auc",
@@ -1599,6 +5931,7 @@
       "n_jd": 30
     },
     {
+      "id": "E2",
       "b": "TF-IDF",
       "a": "metadata rules",
       "metric": "auc",
@@ -1613,6 +5946,7 @@
       "n_jd": 20
     },
     {
+      "id": "E2",
       "b": "TF-IDF",
       "a": "metadata rules",
       "metric": "within_family_auc",
@@ -1627,6 +5961,7 @@
       "n_jd": 18
     },
     {
+      "id": "E2",
       "b": "TF-IDF",
       "a": "metadata rules",
       "metric": "auc",
@@ -1641,6 +5976,7 @@
       "n_jd": 59
     },
     {
+      "id": "E2",
       "b": "TF-IDF",
       "a": "metadata rules",
       "metric": "within_family_auc",
@@ -1655,6 +5991,7 @@
       "n_jd": 48
     },
     {
+      "id": "E2",
       "b": "TF-IDF",
       "a": "metadata rules",
       "metric": "auc",
@@ -1669,6 +6006,7 @@
       "n_jd": 38
     },
     {
+      "id": "E2",
       "b": "TF-IDF",
       "a": "metadata rules",
       "metric": "within_family_auc",
@@ -1683,6 +6021,7 @@
       "n_jd": 23
     },
     {
+      "id": "E2",
       "b": "TF-IDF",
       "a": "metadata rules",
       "metric": "auc",
@@ -1697,6 +6036,7 @@
       "n_jd": 17
     },
     {
+      "id": "E2",
       "b": "TF-IDF",
       "a": "metadata rules",
       "metric": "within_family_auc",
@@ -1711,6 +6051,7 @@
       "n_jd": 14
     },
     {
+      "id": "E2",
       "b": "TF-IDF",
       "a": "metadata rules",
       "metric": "auc",
@@ -1725,6 +6066,7 @@
       "n_jd": 55
     },
     {
+      "id": "E2",
       "b": "TF-IDF",
       "a": "metadata rules",
       "metric": "within_family_auc",
@@ -1739,6 +6081,7 @@
       "n_jd": 37
     },
     {
+      "id": "E3",
       "b": "BM25",
       "a": "TF-IDF",
       "metric": "auc",
@@ -1753,6 +6096,7 @@
       "n_jd": 39
     },
     {
+      "id": "E3",
       "b": "BM25",
       "a": "TF-IDF",
       "metric": "within_family_auc",
@@ -1767,6 +6111,7 @@
       "n_jd": 30
     },
     {
+      "id": "E3",
       "b": "BM25",
       "a": "TF-IDF",
       "metric": "auc",
@@ -1781,6 +6126,7 @@
       "n_jd": 20
     },
     {
+      "id": "E3",
       "b": "BM25",
       "a": "TF-IDF",
       "metric": "within_family_auc",
@@ -1795,6 +6141,7 @@
       "n_jd": 18
     },
     {
+      "id": "E3",
       "b": "BM25",
       "a": "TF-IDF",
       "metric": "auc",
@@ -1809,6 +6156,7 @@
       "n_jd": 59
     },
     {
+      "id": "E3",
       "b": "BM25",
       "a": "TF-IDF",
       "metric": "within_family_auc",
@@ -1823,6 +6171,7 @@
       "n_jd": 48
     },
     {
+      "id": "E3",
       "b": "BM25",
       "a": "TF-IDF",
       "metric": "auc",
@@ -1837,6 +6186,7 @@
       "n_jd": 38
     },
     {
+      "id": "E3",
       "b": "BM25",
       "a": "TF-IDF",
       "metric": "within_family_auc",
@@ -1851,6 +6201,7 @@
       "n_jd": 23
     },
     {
+      "id": "E3",
       "b": "BM25",
       "a": "TF-IDF",
       "metric": "auc",
@@ -1865,6 +6216,7 @@
       "n_jd": 17
     },
     {
+      "id": "E3",
       "b": "BM25",
       "a": "TF-IDF",
       "metric": "within_family_auc",
@@ -1879,6 +6231,7 @@
       "n_jd": 14
     },
     {
+      "id": "E3",
       "b": "BM25",
       "a": "TF-IDF",
       "metric": "auc",
@@ -1893,6 +6246,7 @@
       "n_jd": 55
     },
     {
+      "id": "E3",
       "b": "BM25",
       "a": "TF-IDF",
       "metric": "within_family_auc",
@@ -1907,6 +6261,7 @@
       "n_jd": 37
     },
     {
+      "id": "E4",
       "b": "metadata + TF-IDF",
       "a": "metadata rules",
       "metric": "auc",
@@ -1921,6 +6276,7 @@
       "n_jd": 39
     },
     {
+      "id": "E4",
       "b": "metadata + TF-IDF",
       "a": "metadata rules",
       "metric": "within_family_auc",
@@ -1935,6 +6291,7 @@
       "n_jd": 30
     },
     {
+      "id": "E4",
       "b": "metadata + TF-IDF",
       "a": "metadata rules",
       "metric": "auc",
@@ -1949,6 +6306,7 @@
       "n_jd": 20
     },
     {
+      "id": "E4",
       "b": "metadata + TF-IDF",
       "a": "metadata rules",
       "metric": "within_family_auc",
@@ -1963,6 +6321,7 @@
       "n_jd": 18
     },
     {
+      "id": "E4",
       "b": "metadata + TF-IDF",
       "a": "metadata rules",
       "metric": "auc",
@@ -1977,6 +6336,7 @@
       "n_jd": 59
     },
     {
+      "id": "E4",
       "b": "metadata + TF-IDF",
       "a": "metadata rules",
       "metric": "within_family_auc",
@@ -1991,6 +6351,7 @@
       "n_jd": 48
     },
     {
+      "id": "E4",
       "b": "metadata + TF-IDF",
       "a": "metadata rules",
       "metric": "auc",
@@ -2005,6 +6366,7 @@
       "n_jd": 38
     },
     {
+      "id": "E4",
       "b": "metadata + TF-IDF",
       "a": "metadata rules",
       "metric": "within_family_auc",
@@ -2019,6 +6381,7 @@
       "n_jd": 23
     },
     {
+      "id": "E4",
       "b": "metadata + TF-IDF",
       "a": "metadata rules",
       "metric": "auc",
@@ -2033,6 +6396,7 @@
       "n_jd": 17
     },
     {
+      "id": "E4",
       "b": "metadata + TF-IDF",
       "a": "metadata rules",
       "metric": "within_family_auc",
@@ -2047,6 +6411,7 @@
       "n_jd": 14
     },
     {
+      "id": "E4",
       "b": "metadata + TF-IDF",
       "a": "metadata rules",
       "metric": "auc",
@@ -2061,6 +6426,7 @@
       "n_jd": 55
     },
     {
+      "id": "E4",
       "b": "metadata + TF-IDF",
       "a": "metadata rules",
       "metric": "within_family_auc",
@@ -2075,6 +6441,7 @@
       "n_jd": 37
     },
     {
+      "id": "E5",
       "b": "metadata + BM25",
       "a": "metadata + TF-IDF",
       "metric": "auc",
@@ -2089,6 +6456,7 @@
       "n_jd": 39
     },
     {
+      "id": "E5",
       "b": "metadata + BM25",
       "a": "metadata + TF-IDF",
       "metric": "within_family_auc",
@@ -2103,6 +6471,7 @@
       "n_jd": 30
     },
     {
+      "id": "E5",
       "b": "metadata + BM25",
       "a": "metadata + TF-IDF",
       "metric": "auc",
@@ -2117,6 +6486,7 @@
       "n_jd": 20
     },
     {
+      "id": "E5",
       "b": "metadata + BM25",
       "a": "metadata + TF-IDF",
       "metric": "within_family_auc",
@@ -2131,6 +6501,7 @@
       "n_jd": 18
     },
     {
+      "id": "E5",
       "b": "metadata + BM25",
       "a": "metadata + TF-IDF",
       "metric": "auc",
@@ -2145,6 +6516,7 @@
       "n_jd": 59
     },
     {
+      "id": "E5",
       "b": "metadata + BM25",
       "a": "metadata + TF-IDF",
       "metric": "within_family_auc",
@@ -2159,6 +6531,7 @@
       "n_jd": 48
     },
     {
+      "id": "E5",
       "b": "metadata + BM25",
       "a": "metadata + TF-IDF",
       "metric": "auc",
@@ -2173,6 +6546,7 @@
       "n_jd": 38
     },
     {
+      "id": "E5",
       "b": "metadata + BM25",
       "a": "metadata + TF-IDF",
       "metric": "within_family_auc",
@@ -2187,6 +6561,7 @@
       "n_jd": 23
     },
     {
+      "id": "E5",
       "b": "metadata + BM25",
       "a": "metadata + TF-IDF",
       "metric": "auc",
@@ -2201,6 +6576,7 @@
       "n_jd": 17
     },
     {
+      "id": "E5",
       "b": "metadata + BM25",
       "a": "metadata + TF-IDF",
       "metric": "within_family_auc",
@@ -2215,6 +6591,7 @@
       "n_jd": 14
     },
     {
+      "id": "E5",
       "b": "metadata + BM25",
       "a": "metadata + TF-IDF",
       "metric": "auc",
@@ -2229,6 +6606,7 @@
       "n_jd": 55
     },
     {
+      "id": "E5",
       "b": "metadata + BM25",
       "a": "metadata + TF-IDF",
       "metric": "within_family_auc",
@@ -2241,7 +6619,1542 @@
       ],
       "half_width": 0.069371,
       "n_jd": 37
+    },
+    {
+      "id": "E6",
+      "b": "SBERT (weak fine-tuned)",
+      "a": "SBERT (zero-shot)",
+      "metric": "auc",
+      "scope": "generic",
+      "subset": "all",
+      "delta": 0.083179,
+      "ci": [
+        0.041361,
+        0.128155
+      ],
+      "half_width": 0.043397,
+      "n_jd": 39
+    },
+    {
+      "id": "E6",
+      "b": "SBERT (weak fine-tuned)",
+      "a": "SBERT (zero-shot)",
+      "metric": "within_family_auc",
+      "scope": "generic",
+      "subset": "all",
+      "delta": 0.00873,
+      "ci": [
+        -0.025954,
+        0.044841
+      ],
+      "half_width": 0.035398,
+      "n_jd": 30
+    },
+    {
+      "id": "E6",
+      "b": "SBERT (weak fine-tuned)",
+      "a": "SBERT (zero-shot)",
+      "metric": "auc",
+      "scope": "targeted",
+      "subset": "all",
+      "delta": 0.073988,
+      "ci": [
+        0.025807,
+        0.129643
+      ],
+      "half_width": 0.051918,
+      "n_jd": 20
+    },
+    {
+      "id": "E6",
+      "b": "SBERT (weak fine-tuned)",
+      "a": "SBERT (zero-shot)",
+      "metric": "within_family_auc",
+      "scope": "targeted",
+      "subset": "all",
+      "delta": -0.014021,
+      "ci": [
+        -0.058069,
+        0.024702
+      ],
+      "half_width": 0.041386,
+      "n_jd": 18
+    },
+    {
+      "id": "E6",
+      "b": "SBERT (weak fine-tuned)",
+      "a": "SBERT (zero-shot)",
+      "metric": "auc",
+      "scope": "total",
+      "subset": "all",
+      "delta": 0.080063,
+      "ci": [
+        0.047633,
+        0.115636
+      ],
+      "half_width": 0.034002,
+      "n_jd": 59
+    },
+    {
+      "id": "E6",
+      "b": "SBERT (weak fine-tuned)",
+      "a": "SBERT (zero-shot)",
+      "metric": "within_family_auc",
+      "scope": "total",
+      "subset": "all",
+      "delta": 0.000198,
+      "ci": [
+        -0.026513,
+        0.027927
+      ],
+      "half_width": 0.02722,
+      "n_jd": 48
+    },
+    {
+      "id": "E6",
+      "b": "SBERT (weak fine-tuned)",
+      "a": "SBERT (zero-shot)",
+      "metric": "auc",
+      "scope": "generic",
+      "subset": "llm_free",
+      "delta": 0.083709,
+      "ci": [
+        0.036444,
+        0.13549
+      ],
+      "half_width": 0.049523,
+      "n_jd": 38
+    },
+    {
+      "id": "E6",
+      "b": "SBERT (weak fine-tuned)",
+      "a": "SBERT (zero-shot)",
+      "metric": "within_family_auc",
+      "scope": "generic",
+      "subset": "llm_free",
+      "delta": -0.010559,
+      "ci": [
+        -0.043271,
+        0.021325
+      ],
+      "half_width": 0.032298,
+      "n_jd": 23
+    },
+    {
+      "id": "E6",
+      "b": "SBERT (weak fine-tuned)",
+      "a": "SBERT (zero-shot)",
+      "metric": "auc",
+      "scope": "targeted",
+      "subset": "llm_free",
+      "delta": -0.020168,
+      "ci": [
+        -0.138519,
+        0.082306
+      ],
+      "half_width": 0.110413,
+      "n_jd": 17
+    },
+    {
+      "id": "E6",
+      "b": "SBERT (weak fine-tuned)",
+      "a": "SBERT (zero-shot)",
+      "metric": "within_family_auc",
+      "scope": "targeted",
+      "subset": "llm_free",
+      "delta": -0.122109,
+      "ci": [
+        -0.285383,
+        -0.003061
+      ],
+      "half_width": 0.141161,
+      "n_jd": 14
+    },
+    {
+      "id": "E6",
+      "b": "SBERT (weak fine-tuned)",
+      "a": "SBERT (zero-shot)",
+      "metric": "auc",
+      "scope": "total",
+      "subset": "llm_free",
+      "delta": 0.051602,
+      "ci": [
+        0.00154,
+        0.101032
+      ],
+      "half_width": 0.049746,
+      "n_jd": 55
+    },
+    {
+      "id": "E6",
+      "b": "SBERT (weak fine-tuned)",
+      "a": "SBERT (zero-shot)",
+      "metric": "within_family_auc",
+      "scope": "total",
+      "subset": "llm_free",
+      "delta": -0.052767,
+      "ci": [
+        -0.122526,
+        -0.000508
+      ],
+      "half_width": 0.061009,
+      "n_jd": 37
+    },
+    {
+      "id": "E7",
+      "b": "cross-encoder (weak)",
+      "a": "cross-encoder (A1)",
+      "metric": "auc",
+      "scope": "generic",
+      "subset": "all",
+      "delta": 0.135604,
+      "ci": [
+        0.048123,
+        0.220967
+      ],
+      "half_width": 0.086422,
+      "n_jd": 39
+    },
+    {
+      "id": "E7",
+      "b": "cross-encoder (weak)",
+      "a": "cross-encoder (A1)",
+      "metric": "within_family_auc",
+      "scope": "generic",
+      "subset": "all",
+      "delta": 0.061488,
+      "ci": [
+        -0.093971,
+        0.218638
+      ],
+      "half_width": 0.156305,
+      "n_jd": 30
+    },
+    {
+      "id": "E7",
+      "b": "cross-encoder (weak)",
+      "a": "cross-encoder (A1)",
+      "metric": "auc",
+      "scope": "targeted",
+      "subset": "all",
+      "delta": 0.245351,
+      "ci": [
+        0.156761,
+        0.335905
+      ],
+      "half_width": 0.089572,
+      "n_jd": 20
+    },
+    {
+      "id": "E7",
+      "b": "cross-encoder (weak)",
+      "a": "cross-encoder (A1)",
+      "metric": "within_family_auc",
+      "scope": "targeted",
+      "subset": "all",
+      "delta": 0.193882,
+      "ci": [
+        0.046825,
+        0.34352
+      ],
+      "half_width": 0.148347,
+      "n_jd": 18
+    },
+    {
+      "id": "E7",
+      "b": "cross-encoder (weak)",
+      "a": "cross-encoder (A1)",
+      "metric": "auc",
+      "scope": "total",
+      "subset": "all",
+      "delta": 0.172807,
+      "ci": [
+        0.106975,
+        0.237903
+      ],
+      "half_width": 0.065464,
+      "n_jd": 59
+    },
+    {
+      "id": "E7",
+      "b": "cross-encoder (weak)",
+      "a": "cross-encoder (A1)",
+      "metric": "within_family_auc",
+      "scope": "total",
+      "subset": "all",
+      "delta": 0.111136,
+      "ci": [
+        -0.007106,
+        0.227212
+      ],
+      "half_width": 0.117159,
+      "n_jd": 48
+    },
+    {
+      "id": "E7",
+      "b": "cross-encoder (weak)",
+      "a": "cross-encoder (A1)",
+      "metric": "auc",
+      "scope": "generic",
+      "subset": "llm_free",
+      "delta": 0.146998,
+      "ci": [
+        0.039063,
+        0.249438
+      ],
+      "half_width": 0.105187,
+      "n_jd": 38
+    },
+    {
+      "id": "E7",
+      "b": "cross-encoder (weak)",
+      "a": "cross-encoder (A1)",
+      "metric": "within_family_auc",
+      "scope": "generic",
+      "subset": "llm_free",
+      "delta": 0.058903,
+      "ci": [
+        -0.13168,
+        0.244309
+      ],
+      "half_width": 0.187994,
+      "n_jd": 23
+    },
+    {
+      "id": "E7",
+      "b": "cross-encoder (weak)",
+      "a": "cross-encoder (A1)",
+      "metric": "auc",
+      "scope": "targeted",
+      "subset": "llm_free",
+      "delta": 0.122386,
+      "ci": [
+        -0.028501,
+        0.269565
+      ],
+      "half_width": 0.149033,
+      "n_jd": 17
+    },
+    {
+      "id": "E7",
+      "b": "cross-encoder (weak)",
+      "a": "cross-encoder (A1)",
+      "metric": "within_family_auc",
+      "scope": "targeted",
+      "subset": "llm_free",
+      "delta": 0.063435,
+      "ci": [
+        -0.125,
+        0.232143
+      ],
+      "half_width": 0.178571,
+      "n_jd": 14
+    },
+    {
+      "id": "E7",
+      "b": "cross-encoder (weak)",
+      "a": "cross-encoder (A1)",
+      "metric": "auc",
+      "scope": "total",
+      "subset": "llm_free",
+      "delta": 0.13939,
+      "ci": [
+        0.05172,
+        0.223709
+      ],
+      "half_width": 0.085994,
+      "n_jd": 55
+    },
+    {
+      "id": "E7",
+      "b": "cross-encoder (weak)",
+      "a": "cross-encoder (A1)",
+      "metric": "within_family_auc",
+      "scope": "total",
+      "subset": "llm_free",
+      "delta": 0.060618,
+      "ci": [
+        -0.076456,
+        0.192283
+      ],
+      "half_width": 0.134369,
+      "n_jd": 37
     }
   ],
-  "unscoreable": []
+  "unscoreable": [],
+  "selection": {
+    "metadata": {
+      "context": "metadata",
+      "selected": "metadata + TF-IDF",
+      "trail": [
+        {
+          "rung": "random",
+          "cost": 1,
+          "auc_total": 0.555782,
+          "beaten_by": [
+            "keyword match",
+            "metadata rules",
+            "metadata + skill overlap",
+            "skill overlap",
+            "TF-IDF",
+            "metadata + TF-IDF",
+            "BM25",
+            "metadata + BM25",
+            "SBERT (zero-shot)",
+            "metadata + SBERT (zero-shot)",
+            "SBERT (weak fine-tuned)",
+            "metadata + SBERT (weak fine-tuned)",
+            "cross-encoder (weak)",
+            "metadata + cross-encoder (A1)",
+            "metadata + cross-encoder (weak)",
+            "metadata + learned text combination"
+          ],
+          "checks": [
+            {
+              "b": "keyword match",
+              "delta_total": 0.210165,
+              "ci_total": [
+                0.152808,
+                0.265704
+              ],
+              "verdict": "justified"
+            },
+            {
+              "b": "metadata rules",
+              "delta_total": 0.222618,
+              "ci_total": [
+                0.156892,
+                0.285146
+              ],
+              "verdict": "justified"
+            },
+            {
+              "b": "metadata + skill overlap",
+              "delta_total": 0.266154,
+              "ci_total": [
+                0.199483,
+                0.328765
+              ],
+              "verdict": "justified"
+            },
+            {
+              "b": "skill overlap",
+              "delta_total": 0.14872,
+              "ci_total": [
+                0.078707,
+                0.21826
+              ],
+              "verdict": "justified"
+            },
+            {
+              "b": "TF-IDF",
+              "delta_total": 0.241707,
+              "ci_total": [
+                0.176626,
+                0.306266
+              ],
+              "verdict": "justified"
+            },
+            {
+              "b": "metadata + TF-IDF",
+              "delta_total": 0.292774,
+              "ci_total": [
+                0.227128,
+                0.355927
+              ],
+              "verdict": "justified"
+            },
+            {
+              "b": "BM25",
+              "delta_total": 0.080415,
+              "ci_total": [
+                0.005787,
+                0.151311
+              ],
+              "verdict": "justified"
+            },
+            {
+              "b": "metadata + BM25",
+              "delta_total": 0.262963,
+              "ci_total": [
+                0.197199,
+                0.326013
+              ],
+              "verdict": "justified"
+            },
+            {
+              "b": "SBERT (zero-shot)",
+              "delta_total": 0.218551,
+              "ci_total": [
+                0.149071,
+                0.287552
+              ],
+              "verdict": "justified"
+            },
+            {
+              "b": "metadata + SBERT (zero-shot)",
+              "delta_total": 0.29189,
+              "ci_total": [
+                0.223598,
+                0.357886
+              ],
+              "verdict": "justified"
+            },
+            {
+              "b": "SBERT (weak fine-tuned)",
+              "delta_total": 0.298614,
+              "ci_total": [
+                0.240508,
+                0.35732
+              ],
+              "verdict": "justified"
+            },
+            {
+              "b": "metadata + SBERT (weak fine-tuned)",
+              "delta_total": 0.28708,
+              "ci_total": [
+                0.218461,
+                0.352816
+              ],
+              "verdict": "justified"
+            },
+            {
+              "b": "cross-encoder (A1)",
+              "delta_total": -0.067495,
+              "ci_total": [
+                -0.138629,
+                0.003005
+              ],
+              "verdict": "not resolved"
+            },
+            {
+              "b": "cross-encoder (weak)",
+              "delta_total": 0.105311,
+              "ci_total": [
+                0.032788,
+                0.17818
+              ],
+              "verdict": "justified"
+            },
+            {
+              "b": "metadata + cross-encoder (A1)",
+              "delta_total": 0.240342,
+              "ci_total": [
+                0.168724,
+                0.309846
+              ],
+              "verdict": "justified"
+            },
+            {
+              "b": "metadata + cross-encoder (weak)",
+              "delta_total": 0.265643,
+              "ci_total": [
+                0.193905,
+                0.334584
+              ],
+              "verdict": "justified"
+            },
+            {
+              "b": "metadata + learned text combination",
+              "delta_total": 0.271852,
+              "ci_total": [
+                0.200987,
+                0.340551
+              ],
+              "verdict": "justified"
+            }
+          ]
+        },
+        {
+          "rung": "metadata rules",
+          "cost": 2,
+          "auc_total": 0.7784,
+          "beaten_by": [
+            "metadata + skill overlap",
+            "metadata + TF-IDF",
+            "metadata + BM25",
+            "metadata + SBERT (zero-shot)",
+            "SBERT (weak fine-tuned)",
+            "metadata + SBERT (weak fine-tuned)",
+            "metadata + cross-encoder (weak)",
+            "metadata + learned text combination"
+          ],
+          "checks": [
+            {
+              "b": "metadata + skill overlap",
+              "delta_total": 0.043536,
+              "ci_total": [
+                0.024287,
+                0.064991
+              ],
+              "verdict": "justified"
+            },
+            {
+              "b": "skill overlap",
+              "delta_total": -0.073898,
+              "ci_total": [
+                -0.13521,
+                -0.007277
+              ],
+              "verdict": "harmful"
+            },
+            {
+              "b": "TF-IDF",
+              "delta_total": 0.019089,
+              "ci_total": [
+                -0.042442,
+                0.083898
+              ],
+              "verdict": "not resolved"
+            },
+            {
+              "b": "metadata + TF-IDF",
+              "delta_total": 0.070156,
+              "ci_total": [
+                0.043225,
+                0.098683
+              ],
+              "verdict": "justified"
+            },
+            {
+              "b": "BM25",
+              "delta_total": -0.142203,
+              "ci_total": [
+                -0.209305,
+                -0.07457
+              ],
+              "verdict": "harmful"
+            },
+            {
+              "b": "metadata + BM25",
+              "delta_total": 0.040345,
+              "ci_total": [
+                0.013841,
+                0.066596
+              ],
+              "verdict": "justified"
+            },
+            {
+              "b": "SBERT (zero-shot)",
+              "delta_total": -0.004068,
+              "ci_total": [
+                -0.063676,
+                0.057941
+              ],
+              "verdict": "not resolved"
+            },
+            {
+              "b": "metadata + SBERT (zero-shot)",
+              "delta_total": 0.069272,
+              "ci_total": [
+                0.045909,
+                0.093623
+              ],
+              "verdict": "justified"
+            },
+            {
+              "b": "SBERT (weak fine-tuned)",
+              "delta_total": 0.075995,
+              "ci_total": [
+                0.030282,
+                0.127759
+              ],
+              "verdict": "justified"
+            },
+            {
+              "b": "metadata + SBERT (weak fine-tuned)",
+              "delta_total": 0.064462,
+              "ci_total": [
+                0.041097,
+                0.087729
+              ],
+              "verdict": "justified"
+            },
+            {
+              "b": "cross-encoder (A1)",
+              "delta_total": -0.290114,
+              "ci_total": [
+                -0.360265,
+                -0.220638
+              ],
+              "verdict": "harmful"
+            },
+            {
+              "b": "cross-encoder (weak)",
+              "delta_total": -0.117307,
+              "ci_total": [
+                -0.177685,
+                -0.052837
+              ],
+              "verdict": "harmful"
+            },
+            {
+              "b": "metadata + cross-encoder (A1)",
+              "delta_total": 0.017724,
+              "ci_total": [
+                -0.00734,
+                0.04222
+              ],
+              "verdict": "not resolved"
+            },
+            {
+              "b": "metadata + cross-encoder (weak)",
+              "delta_total": 0.043025,
+              "ci_total": [
+                0.019863,
+                0.068053
+              ],
+              "verdict": "justified"
+            },
+            {
+              "b": "metadata + learned text combination",
+              "delta_total": 0.049233,
+              "ci_total": [
+                0.02121,
+                0.076518
+              ],
+              "verdict": "justified"
+            }
+          ]
+        },
+        {
+          "rung": "keyword match",
+          "cost": 2,
+          "auc_total": 0.765947,
+          "beaten_by": [
+            "metadata + skill overlap",
+            "metadata + TF-IDF",
+            "metadata + BM25",
+            "metadata + SBERT (zero-shot)",
+            "SBERT (weak fine-tuned)",
+            "metadata + SBERT (weak fine-tuned)",
+            "metadata + cross-encoder (weak)",
+            "metadata + learned text combination"
+          ],
+          "checks": [
+            {
+              "b": "metadata + skill overlap",
+              "delta_total": 0.055989,
+              "ci_total": [
+                0.027884,
+                0.084093
+              ],
+              "verdict": "justified"
+            },
+            {
+              "b": "skill overlap",
+              "delta_total": -0.061445,
+              "ci_total": [
+                -0.120474,
+                0.003298
+              ],
+              "verdict": "not resolved"
+            },
+            {
+              "b": "TF-IDF",
+              "delta_total": 0.031542,
+              "ci_total": [
+                -0.028402,
+                0.092559
+              ],
+              "verdict": "not resolved"
+            },
+            {
+              "b": "metadata + TF-IDF",
+              "delta_total": 0.082609,
+              "ci_total": [
+                0.04861,
+                0.116098
+              ],
+              "verdict": "justified"
+            },
+            {
+              "b": "BM25",
+              "delta_total": -0.12975,
+              "ci_total": [
+                -0.196212,
+                -0.062806
+              ],
+              "verdict": "harmful"
+            },
+            {
+              "b": "metadata + BM25",
+              "delta_total": 0.052798,
+              "ci_total": [
+                0.018156,
+                0.086431
+              ],
+              "verdict": "justified"
+            },
+            {
+              "b": "SBERT (zero-shot)",
+              "delta_total": 0.008385,
+              "ci_total": [
+                -0.049798,
+                0.069795
+              ],
+              "verdict": "not resolved"
+            },
+            {
+              "b": "metadata + SBERT (zero-shot)",
+              "delta_total": 0.081725,
+              "ci_total": [
+                0.051214,
+                0.112723
+              ],
+              "verdict": "justified"
+            },
+            {
+              "b": "SBERT (weak fine-tuned)",
+              "delta_total": 0.088448,
+              "ci_total": [
+                0.045725,
+                0.136428
+              ],
+              "verdict": "justified"
+            },
+            {
+              "b": "metadata + SBERT (weak fine-tuned)",
+              "delta_total": 0.076915,
+              "ci_total": [
+                0.046325,
+                0.106996
+              ],
+              "verdict": "justified"
+            },
+            {
+              "b": "cross-encoder (A1)",
+              "delta_total": -0.277661,
+              "ci_total": [
+                -0.339657,
+                -0.2153
+              ],
+              "verdict": "harmful"
+            },
+            {
+              "b": "cross-encoder (weak)",
+              "delta_total": -0.104854,
+              "ci_total": [
+                -0.164707,
+                -0.040187
+              ],
+              "verdict": "harmful"
+            },
+            {
+              "b": "metadata + cross-encoder (A1)",
+              "delta_total": 0.030177,
+              "ci_total": [
+                -0.000247,
+                0.060265
+              ],
+              "verdict": "not resolved"
+            },
+            {
+              "b": "metadata + cross-encoder (weak)",
+              "delta_total": 0.055478,
+              "ci_total": [
+                0.023648,
+                0.087476
+              ],
+              "verdict": "justified"
+            },
+            {
+              "b": "metadata + learned text combination",
+              "delta_total": 0.061686,
+              "ci_total": [
+                0.027223,
+                0.095087
+              ],
+              "verdict": "justified"
+            }
+          ]
+        },
+        {
+          "rung": "metadata + skill overlap",
+          "cost": 3,
+          "auc_total": 0.821936,
+          "beaten_by": [
+            "metadata + SBERT (zero-shot)"
+          ],
+          "checks": [
+            {
+              "b": "TF-IDF",
+              "delta_total": -0.024447,
+              "ci_total": [
+                -0.083922,
+                0.03889
+              ],
+              "verdict": "not resolved"
+            },
+            {
+              "b": "metadata + TF-IDF",
+              "delta_total": 0.02662,
+              "ci_total": [
+                -0.00051,
+                0.054342
+              ],
+              "verdict": "not resolved"
+            },
+            {
+              "b": "BM25",
+              "delta_total": -0.185739,
+              "ci_total": [
+                -0.250549,
+                -0.119778
+              ],
+              "verdict": "harmful"
+            },
+            {
+              "b": "metadata + BM25",
+              "delta_total": -0.003191,
+              "ci_total": [
+                -0.031173,
+                0.025459
+              ],
+              "verdict": "not resolved"
+            },
+            {
+              "b": "SBERT (zero-shot)",
+              "delta_total": -0.047604,
+              "ci_total": [
+                -0.106997,
+                0.015347
+              ],
+              "verdict": "not resolved"
+            },
+            {
+              "b": "metadata + SBERT (zero-shot)",
+              "delta_total": 0.025736,
+              "ci_total": [
+                0.002308,
+                0.049632
+              ],
+              "verdict": "justified"
+            },
+            {
+              "b": "SBERT (weak fine-tuned)",
+              "delta_total": 0.03246,
+              "ci_total": [
+                -0.015682,
+                0.086186
+              ],
+              "verdict": "not resolved"
+            },
+            {
+              "b": "metadata + SBERT (weak fine-tuned)",
+              "delta_total": 0.020926,
+              "ci_total": [
+                -0.003872,
+                0.046004
+              ],
+              "verdict": "not resolved"
+            },
+            {
+              "b": "cross-encoder (A1)",
+              "delta_total": -0.333649,
+              "ci_total": [
+                -0.401322,
+                -0.264818
+              ],
+              "verdict": "harmful"
+            },
+            {
+              "b": "cross-encoder (weak)",
+              "delta_total": -0.160843,
+              "ci_total": [
+                -0.223076,
+                -0.094956
+              ],
+              "verdict": "harmful"
+            },
+            {
+              "b": "metadata + cross-encoder (A1)",
+              "delta_total": -0.025812,
+              "ci_total": [
+                -0.0542,
+                0.00252
+              ],
+              "verdict": "not resolved"
+            },
+            {
+              "b": "metadata + cross-encoder (weak)",
+              "delta_total": -0.000511,
+              "ci_total": [
+                -0.033511,
+                0.031619
+              ],
+              "verdict": "not resolved"
+            },
+            {
+              "b": "metadata + learned text combination",
+              "delta_total": 0.005697,
+              "ci_total": [
+                -0.023666,
+                0.033815
+              ],
+              "verdict": "not resolved"
+            }
+          ]
+        },
+        {
+          "rung": "skill overlap",
+          "cost": 3,
+          "auc_total": 0.704502,
+          "beaten_by": [
+            "TF-IDF",
+            "metadata + TF-IDF",
+            "metadata + BM25",
+            "SBERT (zero-shot)",
+            "metadata + SBERT (zero-shot)",
+            "SBERT (weak fine-tuned)",
+            "metadata + SBERT (weak fine-tuned)",
+            "metadata + cross-encoder (A1)",
+            "metadata + cross-encoder (weak)",
+            "metadata + learned text combination"
+          ],
+          "checks": [
+            {
+              "b": "TF-IDF",
+              "delta_total": 0.092987,
+              "ci_total": [
+                0.028713,
+                0.156454
+              ],
+              "verdict": "justified"
+            },
+            {
+              "b": "metadata + TF-IDF",
+              "delta_total": 0.144054,
+              "ci_total": [
+                0.079098,
+                0.204471
+              ],
+              "verdict": "justified"
+            },
+            {
+              "b": "BM25",
+              "delta_total": -0.068305,
+              "ci_total": [
+                -0.140562,
+                0.004419
+              ],
+              "verdict": "not resolved"
+            },
+            {
+              "b": "metadata + BM25",
+              "delta_total": 0.114243,
+              "ci_total": [
+                0.048356,
+                0.175768
+              ],
+              "verdict": "justified"
+            },
+            {
+              "b": "SBERT (zero-shot)",
+              "delta_total": 0.06983,
+              "ci_total": [
+                0.006455,
+                0.132618
+              ],
+              "verdict": "justified"
+            },
+            {
+              "b": "metadata + SBERT (zero-shot)",
+              "delta_total": 0.14317,
+              "ci_total": [
+                0.078024,
+                0.203019
+              ],
+              "verdict": "justified"
+            },
+            {
+              "b": "SBERT (weak fine-tuned)",
+              "delta_total": 0.149893,
+              "ci_total": [
+                0.093034,
+                0.207436
+              ],
+              "verdict": "justified"
+            },
+            {
+              "b": "metadata + SBERT (weak fine-tuned)",
+              "delta_total": 0.13836,
+              "ci_total": [
+                0.073196,
+                0.198534
+              ],
+              "verdict": "justified"
+            },
+            {
+              "b": "cross-encoder (A1)",
+              "delta_total": -0.216216,
+              "ci_total": [
+                -0.295389,
+                -0.136353
+              ],
+              "verdict": "harmful"
+            },
+            {
+              "b": "cross-encoder (weak)",
+              "delta_total": -0.043409,
+              "ci_total": [
+                -0.110734,
+                0.024372
+              ],
+              "verdict": "not resolved"
+            },
+            {
+              "b": "metadata + cross-encoder (A1)",
+              "delta_total": 0.091622,
+              "ci_total": [
+                0.020055,
+                0.157465
+              ],
+              "verdict": "justified"
+            },
+            {
+              "b": "metadata + cross-encoder (weak)",
+              "delta_total": 0.116923,
+              "ci_total": [
+                0.043272,
+                0.184612
+              ],
+              "verdict": "justified"
+            },
+            {
+              "b": "metadata + learned text combination",
+              "delta_total": 0.123131,
+              "ci_total": [
+                0.05293,
+                0.186827
+              ],
+              "verdict": "justified"
+            }
+          ]
+        },
+        {
+          "rung": "metadata + TF-IDF",
+          "cost": 4,
+          "auc_total": 0.848556,
+          "beaten_by": [],
+          "checks": [
+            {
+              "b": "BM25",
+              "delta_total": -0.212359,
+              "ci_total": [
+                -0.272992,
+                -0.149738
+              ],
+              "verdict": "harmful"
+            },
+            {
+              "b": "metadata + BM25",
+              "delta_total": -0.029811,
+              "ci_total": [
+                -0.05616,
+                -0.004218
+              ],
+              "verdict": "harmful"
+            },
+            {
+              "b": "SBERT (zero-shot)",
+              "delta_total": -0.074224,
+              "ci_total": [
+                -0.132643,
+                -0.013355
+              ],
+              "verdict": "harmful"
+            },
+            {
+              "b": "metadata + SBERT (zero-shot)",
+              "delta_total": -0.000884,
+              "ci_total": [
+                -0.024196,
+                0.021693
+              ],
+              "verdict": "not resolved"
+            },
+            {
+              "b": "SBERT (weak fine-tuned)",
+              "delta_total": 0.005839,
+              "ci_total": [
+                -0.040692,
+                0.057753
+              ],
+              "verdict": "not resolved"
+            },
+            {
+              "b": "metadata + SBERT (weak fine-tuned)",
+              "delta_total": -0.005694,
+              "ci_total": [
+                -0.02974,
+                0.01714
+              ],
+              "verdict": "not resolved"
+            },
+            {
+              "b": "cross-encoder (A1)",
+              "delta_total": -0.36027,
+              "ci_total": [
+                -0.425938,
+                -0.292729
+              ],
+              "verdict": "harmful"
+            },
+            {
+              "b": "cross-encoder (weak)",
+              "delta_total": -0.187463,
+              "ci_total": [
+                -0.249475,
+                -0.120904
+              ],
+              "verdict": "harmful"
+            },
+            {
+              "b": "metadata + cross-encoder (A1)",
+              "delta_total": -0.052432,
+              "ci_total": [
+                -0.08333,
+                -0.021856
+              ],
+              "verdict": "harmful"
+            },
+            {
+              "b": "metadata + cross-encoder (weak)",
+              "delta_total": -0.027131,
+              "ci_total": [
+                -0.059596,
+                0.00713
+              ],
+              "verdict": "not resolved"
+            },
+            {
+              "b": "metadata + learned text combination",
+              "delta_total": -0.020923,
+              "ci_total": [
+                -0.045209,
+                0.002197
+              ],
+              "verdict": "not resolved"
+            }
+          ]
+        }
+      ]
+    },
+    "text_only": {
+      "context": "text_only",
+      "selected": "SBERT (weak fine-tuned)",
+      "trail": [
+        {
+          "rung": "random",
+          "cost": 1,
+          "auc_total": 0.555782,
+          "beaten_by": [
+            "skill overlap",
+            "TF-IDF",
+            "BM25",
+            "SBERT (zero-shot)",
+            "SBERT (weak fine-tuned)",
+            "cross-encoder (weak)"
+          ],
+          "checks": [
+            {
+              "b": "skill overlap",
+              "delta_total": 0.14872,
+              "ci_total": [
+                0.078707,
+                0.21826
+              ],
+              "verdict": "justified"
+            },
+            {
+              "b": "TF-IDF",
+              "delta_total": 0.241707,
+              "ci_total": [
+                0.176626,
+                0.306266
+              ],
+              "verdict": "justified"
+            },
+            {
+              "b": "BM25",
+              "delta_total": 0.080415,
+              "ci_total": [
+                0.005787,
+                0.151311
+              ],
+              "verdict": "justified"
+            },
+            {
+              "b": "SBERT (zero-shot)",
+              "delta_total": 0.218551,
+              "ci_total": [
+                0.149071,
+                0.287552
+              ],
+              "verdict": "justified"
+            },
+            {
+              "b": "SBERT (weak fine-tuned)",
+              "delta_total": 0.298614,
+              "ci_total": [
+                0.240508,
+                0.35732
+              ],
+              "verdict": "justified"
+            },
+            {
+              "b": "cross-encoder (A1)",
+              "delta_total": -0.067495,
+              "ci_total": [
+                -0.138629,
+                0.003005
+              ],
+              "verdict": "not resolved"
+            },
+            {
+              "b": "cross-encoder (weak)",
+              "delta_total": 0.105311,
+              "ci_total": [
+                0.032788,
+                0.17818
+              ],
+              "verdict": "justified"
+            }
+          ]
+        },
+        {
+          "rung": "skill overlap",
+          "cost": 3,
+          "auc_total": 0.704502,
+          "beaten_by": [
+            "TF-IDF",
+            "SBERT (zero-shot)",
+            "SBERT (weak fine-tuned)"
+          ],
+          "checks": [
+            {
+              "b": "TF-IDF",
+              "delta_total": 0.092987,
+              "ci_total": [
+                0.028713,
+                0.156454
+              ],
+              "verdict": "justified"
+            },
+            {
+              "b": "BM25",
+              "delta_total": -0.068305,
+              "ci_total": [
+                -0.140562,
+                0.004419
+              ],
+              "verdict": "not resolved"
+            },
+            {
+              "b": "SBERT (zero-shot)",
+              "delta_total": 0.06983,
+              "ci_total": [
+                0.006455,
+                0.132618
+              ],
+              "verdict": "justified"
+            },
+            {
+              "b": "SBERT (weak fine-tuned)",
+              "delta_total": 0.149893,
+              "ci_total": [
+                0.093034,
+                0.207436
+              ],
+              "verdict": "justified"
+            },
+            {
+              "b": "cross-encoder (A1)",
+              "delta_total": -0.216216,
+              "ci_total": [
+                -0.295389,
+                -0.136353
+              ],
+              "verdict": "harmful"
+            },
+            {
+              "b": "cross-encoder (weak)",
+              "delta_total": -0.043409,
+              "ci_total": [
+                -0.110734,
+                0.024372
+              ],
+              "verdict": "not resolved"
+            }
+          ]
+        },
+        {
+          "rung": "TF-IDF",
+          "cost": 4,
+          "auc_total": 0.797489,
+          "beaten_by": [
+            "SBERT (weak fine-tuned)"
+          ],
+          "checks": [
+            {
+              "b": "BM25",
+              "delta_total": -0.161292,
+              "ci_total": [
+                -0.215092,
+                -0.106774
+              ],
+              "verdict": "harmful"
+            },
+            {
+              "b": "SBERT (zero-shot)",
+              "delta_total": -0.023156,
+              "ci_total": [
+                -0.080677,
+                0.036544
+              ],
+              "verdict": "not resolved"
+            },
+            {
+              "b": "SBERT (weak fine-tuned)",
+              "delta_total": 0.056907,
+              "ci_total": [
+                0.009416,
+                0.105887
+              ],
+              "verdict": "justified"
+            },
+            {
+              "b": "cross-encoder (A1)",
+              "delta_total": -0.309202,
+              "ci_total": [
+                -0.370203,
+                -0.244934
+              ],
+              "verdict": "harmful"
+            },
+            {
+              "b": "cross-encoder (weak)",
+              "delta_total": -0.136396,
+              "ci_total": [
+                -0.201323,
+                -0.0707
+              ],
+              "verdict": "harmful"
+            }
+          ]
+        },
+        {
+          "rung": "BM25",
+          "cost": 5,
+          "auc_total": 0.636197,
+          "beaten_by": [
+            "SBERT (zero-shot)",
+            "SBERT (weak fine-tuned)"
+          ],
+          "checks": [
+            {
+              "b": "SBERT (zero-shot)",
+              "delta_total": 0.138136,
+              "ci_total": [
+                0.083098,
+                0.195938
+              ],
+              "verdict": "justified"
+            },
+            {
+              "b": "SBERT (weak fine-tuned)",
+              "delta_total": 0.218199,
+              "ci_total": [
+                0.166661,
+                0.271283
+              ],
+              "verdict": "justified"
+            },
+            {
+              "b": "cross-encoder (A1)",
+              "delta_total": -0.14791,
+              "ci_total": [
+                -0.217167,
+                -0.0763
+              ],
+              "verdict": "harmful"
+            },
+            {
+              "b": "cross-encoder (weak)",
+              "delta_total": 0.024896,
+              "ci_total": [
+                -0.044829,
+                0.096722
+              ],
+              "verdict": "not resolved"
+            }
+          ]
+        },
+        {
+          "rung": "SBERT (zero-shot)",
+          "cost": 6,
+          "auc_total": 0.774332,
+          "beaten_by": [
+            "SBERT (weak fine-tuned)"
+          ],
+          "checks": [
+            {
+              "b": "SBERT (weak fine-tuned)",
+              "delta_total": 0.080063,
+              "ci_total": [
+                0.047633,
+                0.115636
+              ],
+              "verdict": "justified"
+            },
+            {
+              "b": "cross-encoder (A1)",
+              "delta_total": -0.286046,
+              "ci_total": [
+                -0.34601,
+                -0.226151
+              ],
+              "verdict": "harmful"
+            },
+            {
+              "b": "cross-encoder (weak)",
+              "delta_total": -0.113239,
+              "ci_total": [
+                -0.179562,
+                -0.0475
+              ],
+              "verdict": "harmful"
+            }
+          ]
+        },
+        {
+          "rung": "SBERT (weak fine-tuned)",
+          "cost": 7,
+          "auc_total": 0.854395,
+          "beaten_by": [],
+          "checks": [
+            {
+              "b": "cross-encoder (A1)",
+              "delta_total": -0.366109,
+              "ci_total": [
+                -0.423302,
+                -0.307543
+              ],
+              "verdict": "harmful"
+            },
+            {
+              "b": "cross-encoder (weak)",
+              "delta_total": -0.193302,
+              "ci_total": [
+                -0.249239,
+                -0.140653
+              ],
+              "verdict": "harmful"
+            }
+          ]
+        }
+      ]
+    }
+  }
 }
