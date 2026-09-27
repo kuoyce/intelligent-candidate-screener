@@ -65,4 +65,4 @@ are listed, qualified by plan. Cite them as e.g. "D23 (baseline)".
 | D46 | Nothing is fitted or tuned on the final set | live | [top-down-reset](../plan/2026-09-26-top-down-reset/02-design-spec.md) |
 | D47 | Fit / No Fit is the only label scheme, everywhere | live | [top-down-reset](../plan/2026-09-26-top-down-reset/02-design-spec.md) |
 | D48 | The selected screening pipeline | pending (P4.6) | [top-down-reset](../plan/2026-09-26-top-down-reset/03-work-plan.md) |
-| D49 | The selected extractor | pending (P5.5) | [top-down-reset](../plan/2026-09-26-top-down-reset/03-work-plan.md) |
+| D49 | Extraction split by role: the learned tagger adds free-text JD requirements; the rules matcher does CV skills and every exact/alias match; rung 1b stays on rules | live | [top-down-reset](../plan/2026-09-26-top-down-reset/08-extraction.md) |

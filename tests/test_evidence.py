@@ -74,6 +74,26 @@ def test_without_an_encoder_only_name_matches_count():
     assert [e.status for e in found] == ["matched", "missing", "missing"]
 
 
+class StubTagger:
+    def predict_spans(self, text):
+        out = []
+        for phrase in ("Python and SQL", "team player", "strong written communication in English across many teams"):
+            i = text.find(phrase)
+            if i >= 0:
+                out.append((i, i + len(phrase)))
+        return out
+
+
+def test_the_tagger_adds_only_short_free_text_requirements():
+    jd = JD + " A team player with strong written communication in English across many teams."
+    reqs = req.requirements(jd, StubMatcher(), StubTagger())
+    kinds = {r.canonical: r.kind for r in reqs}
+    assert kinds == {"Python": "skill", "SQL": "skill", "Apache Airflow": "skill",
+                     "team player": "free_text"}      # vocab span skipped; long span dropped
+    free = [r for r in reqs if r.kind == "free_text"][0]
+    assert jd[free.start:free.end] == free.text
+
+
 def test_sentences_keep_offsets():
     for start, end, body in ev.sentences(CV):
         assert CV[start:end] == body

@@ -26,6 +26,27 @@ def _matcher():
 
 
 @st.cache_resource
+def _tagger():
+    """The learned JD-requirement tagger (D49), when its cached weights exist."""
+    try:
+        from candidate_screener.extraction.ner import load_ner
+        return load_ner()
+    except Exception:
+        return None
+
+
+@st.cache_resource
+def _encoder():
+    """MiniLM for the semantic `supported` step, when the ml group is installed."""
+    try:
+        from candidate_screener.matching.neural import MODEL_ID
+        from candidate_screener.matching.sbert import Encoder
+        return Encoder(MODEL_ID, "minilm-zero-shot")
+    except Exception:
+        return None
+
+
+@st.cache_resource
 def _ranker(has_metadata: bool):
     ranker = pipeline.default_ranker(has_metadata)
     ranker.fit(None)
@@ -57,7 +78,7 @@ def _run(jd_text: str, cvs: pd.DataFrame, jd_meta: dict | None) -> None:
     has_meta = bool(jd_meta and jd_meta.get("keyword")) and "cv_keyword" in cvs
     start = time.perf_counter()
     results = pipeline.screen(jd_text, cvs, jd_meta=jd_meta, ranker=_ranker(has_meta),
-                              matcher=_matcher())
+                              matcher=_matcher(), encoder=_encoder(), tagger=_tagger())
     st.session_state.update(results=results, jd_text=jd_text, chat=[], cvs=cvs,
                             seconds=time.perf_counter() - start, n=len(cvs))
 

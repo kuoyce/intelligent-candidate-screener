@@ -33,6 +33,13 @@ JSON-lines, spaCy-era: `{content, annotation: [{label, points: [{start, end, tex
 2. **222 spans (6.2%) have broken offsets** — the stored `text` does not match the slice its
    offsets point at (inclusive/exclusive `end` plus stray whitespace). Converting these to
    BIO without repair puts tags on the wrong tokens and produces silently wrong NER scores.
+
+   *Superseded 27 Sep 2026 (P5, `plan/2026-09-26-top-down-reset/08-extraction.md` §3).*
+   The cause is **HTML escaping**, not inclusive/exclusive `end`. `content` holds
+   `&amp;` / `&lt;` / `&gt;` while the offsets index the unescaped text, so every broken
+   span is shifted by a positive multiple of 4 (or 3). Unescaping repairs all 222, and
+   none is dropped. `data/dataturks.py` does it and asserts `text[start:end] == span` for
+   every survivor.
 3. **`Skills` spans are multi-skill blobs**, frequently a whole skills section rather than
    one skill. They need segmentation against the ESCO vocabulary before skill-level scoring.
 4. **20 test documents** cannot carry the §7 extraction-F1 target.

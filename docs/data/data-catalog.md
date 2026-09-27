@@ -125,7 +125,7 @@ inventing the pairs from nothing.
 | Licence | **None declared** on the repo (459 stars, last push 2019) |
 | PII | **Direct** — `Name` and `Email Address` are annotated entity classes; 5 distinct emails and 17 phone-like strings remain in the raw text |
 | Format | JSON-lines, spaCy-era `{content, annotation:[{label, points:[{start,end,text}]}]}` |
-| Caveats | **6.2% of spans (222) have offsets that do not match their stored text** — inclusive/exclusive `end` bug. Must be repaired or dropped when converting to BIO. 20 test docs is too few for the §7 F1 target |
+| Caveats | **6.2% of spans (222) have offsets that do not match their stored text** — inclusive/exclusive `end` bug. Must be repaired or dropped when converting to BIO. *Superseded 27 Sep 2026: the cause is HTML escaping (`&amp;` etc. in `content`, offsets on the unescaped text); unescaping repairs all 222 (`data/dataturks.py`, 08-extraction.md §3).* 20 test docs is too few for the §7 F1 target |
 | Role | Resume-native gold seed; de-identify before use; supplement with B2 |
 
 ### B2 · `jjzha/skillspan` — **Tier 1, primary skill-span supervision**

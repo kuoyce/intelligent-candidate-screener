@@ -1,5 +1,9 @@
 """End-to-end screening: rank a pool of CVs against one JD and show the evidence.
 
+Extraction follows D49: the learned tagger (optional, `tagger=`) adds free-text JD
+requirements, and the rules matcher does every exact / alias match on the CV side. The
+semantic `supported` step runs when an `encoder` is passed.
+
     screen(jd_text, cvs) -> [Result, ...] in rank order
 
 The ranker is the rung the registered rule selected (D48, `SELECTED`). The Fit / No Fit
@@ -57,7 +61,7 @@ def _frame(jd_text: str, cvs: pd.DataFrame, jd_meta: dict | None) -> pd.DataFram
 
 
 def screen(jd_text: str, cvs: pd.DataFrame, jd_meta: dict | None = None, ranker=None,
-           matcher=None, encoder=None) -> list[Result]:
+           matcher=None, encoder=None, tagger=None) -> list[Result]:
     """Rank `cvs` (columns `cv_id`, `cv_text`, optional `cv_keyword`, `cv_exp_band`)."""
     frame = _frame(jd_text, cvs, jd_meta)
     has_meta = frame.jd_keyword.notna().all() and frame.cv_keyword.notna().any()
@@ -68,7 +72,7 @@ def screen(jd_text: str, cvs: pd.DataFrame, jd_meta: dict | None = None, ranker=
     if matcher is None:
         from candidate_screener.extraction.rules import default_matcher
         matcher = default_matcher()
-    wanted = req.skill_requirements(jd_text, matcher)
+    wanted = req.requirements(jd_text, matcher, tagger)
     need_years = req.years_required(jd_text)
     order = np.lexsort((frame.cv_id.to_numpy(), -scores))
     pct = pd.Series(scores).rank(pct=True).to_numpy()

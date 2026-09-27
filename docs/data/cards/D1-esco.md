@@ -8,7 +8,7 @@
 | On disk | `data/raw/esco_dataset-v1.2.1-classification/` — 40.3 MB (verified files: `skills_en.csv`, `occupations_en.csv`, `occupationSkillRelations_en.csv`) |
 | Licence | European Commission ESCO terms of use — **redistribution of derived extracts is open question Q11** |
 | PII | None |
-| Verified rows | 13,960 skills · 3,043 occupations · 126,051 occupation↔skill links |
+| Verified rows | 13,960 skills · 3,043 occupations · 126,051 occupation↔skill links. *Amended 27 Sep 2026:* the 13,960 are **rows**. They hold 13,939 distinct concepts: 21 concepts appear twice with differing fields (08-extraction.md §10) |
 
 ## Verified figures (19 Aug 2026)
 
