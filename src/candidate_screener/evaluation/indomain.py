@@ -224,6 +224,8 @@ def evaluate(rungs: list, classifiers: dict, comparisons: list[tuple[str, str]],
             cls_block[cname] = {"status": spec.status, "figures": [
                 f.as_dict() for f in cls_figures(cname, system.classify(pairs), lab,
                                                  rule_version, seed)]}
+        if hasattr(system, "selection"):
+            systems[system.name]["hyperparameter_selection"] = system.selection
         if hasattr(system, "weights"):
             systems[system.name]["learned_weights"] = {k: float(v) for k, v in system.weights.items()}
     cls_block = cls_block

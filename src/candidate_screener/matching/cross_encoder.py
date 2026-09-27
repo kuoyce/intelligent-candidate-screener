@@ -1,9 +1,13 @@
 """Stage 4 rungs: cross-encoders that read the JD and CV together (MiniLM, one logit).
 
 4a trains on A1 as the proposal intended, with labels collapsed to Fit / No Fit (D47):
-folds 1-4 of the doubly-disjoint CV train, fold 0 held back for the class threshold.
-4b trains on the weak pairs' train split, with the threshold set on weak validation.
-Hyperparameters are fixed in advance. Nothing is fitted on the final set (D46).
+folds 1-4 of the doubly-disjoint CV train, fold 0 held back for selection and threshold.
+4b trains on the weak pairs' train split, with weak validation held back.
+
+Hyperparameters are chosen on that held-back split (plan 03 row 4.1), from a two-point
+grid, by validation AUC: the conventional setting, and a larger learning rate with more
+epochs for a new head on little data. The first grid point with lr 2e-5 and 1 epoch left
+4a's loss at ln 2 (it learned nothing). Nothing is fitted or chosen on the final set (D46).
 """
 from __future__ import annotations
 
@@ -17,6 +21,8 @@ from candidate_screener.matching.base import BaseSystem
 WEIGHTS = PROCESSED / "matching"
 CE_CONFIG = {"base": neural.MODEL_ID, "loss": "BinaryCrossEntropyLoss", "epochs": 1,
              "lr": 2e-5, "batch": 16, "warmup_ratio": 0.1, "max_length": 384, "seed": 0}
+#: The selection grid. The first point is `CE_CONFIG` unchanged, so its cache is reused.
+CE_GRID = ({}, {"lr": 5e-5, "epochs": 3})
 
 
 def best_threshold(y: np.ndarray, p: np.ndarray) -> float:
@@ -36,18 +42,32 @@ class _CrossEncoder(BaseSystem):
 
     def _fit(self, train):
         neural.require_torch()
+        from sklearn.metrics import roc_auc_score
         from sentence_transformers.cross_encoder import CrossEncoder
         fit_frame, val_frame, data_digest = self._training_data()
-        config = {**CE_CONFIG, "data": data_digest, "rung": self.rung}
-        out = WEIGHTS / f"ce-{self.rung}-{neural.fingerprint(config)}"
-        if not (out / "config.json").exists():
-            self._train(fit_frame, out)
+        self.selection = []
+        best = None
+        for override in CE_GRID:
+            config = {**CE_CONFIG, **override, "data": data_digest, "rung": self.rung}
+            out = WEIGHTS / f"ce-{self.rung}-{neural.fingerprint(config)}"
+            if not (out / "config.json").exists():
+                self._train(fit_frame, out, config)
+            self.model = CrossEncoder(str(out), device="cpu", local_files_only=True)
+            self.model.max_seq_length = CE_CONFIG["max_length"]
+            p = self._predict(val_frame)
+            auc = float(roc_auc_score(val_frame.fit, p))
+            self.selection.append({"lr": config["lr"], "epochs": config["epochs"],
+                                   "validation_auc": round(auc, 4),
+                                   "validation_spread": round(float(p.max() - p.min()), 4)})
+            if best is None or auc > best[0]:
+                best = (auc, out, p)
+        _, out, p = best
         self.model = CrossEncoder(str(out), device="cpu", local_files_only=True)
         self.model.max_seq_length = CE_CONFIG["max_length"]
-        self.threshold = best_threshold(val_frame.fit.to_numpy(), self._predict(val_frame))
+        self.threshold = best_threshold(val_frame.fit.to_numpy(), p)
 
-    def _train(self, frame: pd.DataFrame, out) -> None:
-        neural.set_determinism(CE_CONFIG["seed"])
+    def _train(self, frame: pd.DataFrame, out, config: dict = CE_CONFIG) -> None:
+        neural.set_determinism(config["seed"])
         from datasets import Dataset
         from sentence_transformers.cross_encoder import (CrossEncoder, CrossEncoderTrainer,
                                                          CrossEncoderTrainingArguments, losses)
@@ -57,10 +77,10 @@ class _CrossEncoder(BaseSystem):
         data = Dataset.from_dict({"jd": frame.jd_text.tolist(), "cv": frame.cv_text.tolist(),
                                   "label": frame.fit.astype(float).tolist()})
         args = CrossEncoderTrainingArguments(
-            output_dir=str(out) + "-work", num_train_epochs=CE_CONFIG["epochs"],
-            per_device_train_batch_size=CE_CONFIG["batch"], learning_rate=CE_CONFIG["lr"],
-            warmup_ratio=CE_CONFIG["warmup_ratio"], seed=CE_CONFIG["seed"],
-            data_seed=CE_CONFIG["seed"], report_to=[], save_strategy="no", use_cpu=True,
+            output_dir=str(out) + "-work", num_train_epochs=config["epochs"],
+            per_device_train_batch_size=config["batch"], learning_rate=config["lr"],
+            warmup_ratio=config["warmup_ratio"], seed=config["seed"],
+            data_seed=config["seed"], report_to=[], save_strategy="no", use_cpu=True,
             disable_tqdm=True, logging_steps=20)
         CrossEncoderTrainer(model=model, args=args, train_dataset=data,
                             loss=losses.BinaryCrossEntropyLoss(model)).train()
