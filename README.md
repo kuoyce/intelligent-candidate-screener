@@ -49,6 +49,29 @@ Two sources need a human: the Kaggle PDF corpus (account + API token) and ESCO
 uv run jupyter lab notebooks/       # the EDA
 ```
 
+For executable extraction on local Djinni data, use these notebooks in reading order:
+
+- [`10-entity-extraction-inputs.ipynb`](notebooks/10-entity-extraction-inputs.ipynb): validate inputs and sample only the committed training region.
+- [`11-rule-based-entity-extraction.ipynb`](notebooks/11-rule-based-entity-extraction.ipynb): extract skills/tools, titles and qualifications with exact field-relative evidence spans.
+- [`12-entity-extraction-evaluation.ipynb`](notebooks/12-entity-extraction-evaluation.ipynb): check offsets, reproducibility and synthetic regressions, and report the status of labelled evaluation.
+
+The [approved implementation plan](plan/2026-10-05-entity-extraction-notebooks/README.md)
+uses 1,000 training CVs and 1,000 training JDs by default. Its versioned seed vocabulary
+and context rules provide a limited offline baseline; document coverage is descriptive,
+not extraction accuracy. DataTurks/SkillSpan gold evaluation remains blocked when those
+sources are absent. Real document text and entity surfaces stay in git-ignored local
+artifacts; saved notebook outputs contain aggregates and synthetic examples only.
+
+The same extraction can run without Jupyter:
+
+```bash
+uv run python -m candidate_screener.extraction.run --sample-size 1000 --seed 0
+uv run python -m candidate_screener.extraction.run --sample-size 1000 --seed 0 --check
+```
+
+`--check` verifies source/code provenance, local artifact hashes, exact offsets and
+reproduced predictions; it does not measure extraction accuracy.
+
 ## Build the derived artefacts
 
 ```bash

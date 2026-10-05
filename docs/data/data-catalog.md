@@ -18,6 +18,16 @@ Four figures below were **superseded during acquisition** — B2's span volume, 
 contamination count, D1's tech coverage and D2's skill vocabulary. Each is marked
 *Superseded 19 Aug 2026* in place.
 
+**Local extraction campaign, 5 Oct 2026:** the acquisition status above is historical.
+This checkout currently supplies raw A1/A2 and processed A1 splits; B1/B2/ESCO/data-jobs
+are absent locally. Notebooks 10–12 produce a separate, regenerable extraction sample
+and evidence records under `data/processed/extraction/`, using only A2's committed
+training region. A versioned seed vocabulary supplies limited rule-based mentions;
+coverage is descriptive and A2 has no extraction gold. These artifacts do not change
+matching labels, pools or the annotation campaign. See the
+[approved plan](../../plan/2026-10-05-entity-extraction-notebooks/README.md) and
+[A2 card](cards/A2-djinni.md).
+
 Legend — **Tier 1** adopt, **Tier 2** adopt with stated caveats, **Tier 3** evaluated and rejected (recorded so the decision is traceable).
 
 ---

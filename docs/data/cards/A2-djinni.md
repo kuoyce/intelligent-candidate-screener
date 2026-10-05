@@ -44,3 +44,15 @@ The in-domain end-to-end evaluation set (action plan §3.4). It replaces the "20
 self-collected job descriptions" plan, which had no lawful collection path.
 
 Explored in [`notebooks/03-djinni-in-domain.ipynb`](../../../notebooks/03-djinni-in-domain.ipynb).
+
+## Local extraction use (5 Oct 2026)
+
+Notebooks 10–12 additionally use a deterministic sample of the committed **training
+region** for rule-based skill/tool, title and qualification mentions. Evidence offsets
+are relative to immutable source fields; `Position` is a profile/vacancy title rather
+than an employment-history claim, and `Looking For` is aspirational context.
+`Primary Keyword` and experience categories are not extraction gold or model outputs.
+The seed vocabulary is limited and is not an ESCO mapping. A2 supplies descriptive
+coverage and operational validation only; extraction accuracy needs separate labelled
+sources. Local evidence stays under git-ignored `data/processed/extraction/`.
+See the [implementation plan](../../../plan/2026-10-05-entity-extraction-notebooks/README.md).

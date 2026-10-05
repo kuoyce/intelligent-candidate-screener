@@ -82,6 +82,26 @@ data/
 `interim/`, `processed/` and `vocab/` are populated in Phase 3 and are empty apart from
 `interim/c1_a1_contamination.csv`, written by `profile --check livecareer`.
 
+## Local entity extraction artifacts
+
+Notebooks 10–12 call `candidate_screener.extraction` to rebuild local extraction
+artifacts under `data/processed/extraction/` from the Djinni raw parquet files and
+the committed `docs/data/manifests/a2-partition.csv`. Only training-region documents
+are eligible. The default sample is 1,000 CVs and 1,000 JDs at seed 0; the package
+supports configurable sample sizes. Source fields stay immutable and offsets are
+relative to their original field text. Evidence surfaces and sample documents are
+local artifacts and must not be committed or printed in notebook outputs.
+
+Run provenance records input/partition hashes, seed, sampled document IDs, fields
+and extractor/vocabulary versions. A seed vocabulary is used when ESCO is unavailable;
+its identifiers are not ESCO identifiers. These unlabelled documents support coverage
+and integrity checks only. Missing DataTurks/SkillSpan sources block gold accuracy
+evaluation, which requires separate adapters and frozen evaluation protocols.
+
+See [the approved extraction plan](../plan/2026-10-05-entity-extraction-notebooks/README.md)
+for implementation scope and [notebook 10](../notebooks/10-entity-extraction-inputs.ipynb)
+for reproducible input preparation.
+
 ## Handling notes
 
 - **DataTurks contains direct PII** (`Name`, `Email Address` are annotated classes, plus residual

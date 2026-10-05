@@ -1,6 +1,6 @@
 # Entity extraction notebooks on available local data
 
-Date: 5 October 2026. Status: proposed; awaiting plan approval before implementation.
+Date: 5 October 2026. Status: approved by the user on 5 October; implemented and validated.
 
 ## Requirement and relationship to the existing design
 
@@ -178,6 +178,6 @@ Canonical mapping evaluation needs independently labelled mappings and stays blo
 | EE4 | Certification/activity/theme supervision? | Deferred; no additional annotation or claims |
 | EE5 | Role/date linking and overlapping employment? | Deferred; no computed durations |
 
-Approval of this plan resolves EN1–EN4 using the proposed choices. Other original
-open questions remain explicit later-stage gates. No implementation, branch creation
-or commit has occurred at the planning stage.
+The user's approval resolves EN1–EN4 using the proposed choices. Other original
+open questions remain explicit later-stage gates. Implementation uses branch
+`feat/entity-extraction-notebooks-2026-10-05`; the plan was committed before code work.

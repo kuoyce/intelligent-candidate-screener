@@ -1,0 +1,169 @@
+{
+  "artifact_sha256": {
+    "entities.parquet": "8ad1de2255d310ca9b014e287895f8deb8424ce65d18d9f420f01d4e64ac22cd",
+    "sample-manifest.json": "13dc70f74d5f872c8e30713a88c9091de1741b67d210af01837fad4766cf99b4"
+  },
+  "availability": {
+    "data-jobs": {
+      "catalog_id": "D2",
+      "missing_artifacts": [
+        "*-train-*.parquet"
+      ],
+      "status": "missing"
+    },
+    "dataturks": {
+      "catalog_id": "B1",
+      "missing_artifacts": [
+        "traindata.json",
+        "testdata.json"
+      ],
+      "status": "missing"
+    },
+    "djinni-cv": {
+      "catalog_id": "A2",
+      "missing_artifacts": [],
+      "status": "present_unvalidated"
+    },
+    "djinni-jd": {
+      "catalog_id": "A2",
+      "missing_artifacts": [],
+      "status": "present_unvalidated"
+    },
+    "esco": {
+      "catalog_id": "D1",
+      "missing_artifacts": [
+        "skills_en.csv",
+        "occupations_en.csv",
+        "occupationSkillRelations_en.csv"
+      ],
+      "status": "missing"
+    },
+    "skillspan": {
+      "catalog_id": "B2",
+      "missing_artifacts": [
+        "*-train-*.parquet",
+        "*-validation-*.parquet",
+        "*-test-*.parquet"
+      ],
+      "status": "missing"
+    }
+  },
+  "configuration": {
+    "code_sha256": {
+      "inputs.py": "6e389914ea7bc64dfaaf1a119fe52c36282b47cb6025ffa0b0a074b80e707ebc",
+      "rules.py": "769081a3a69f52b955b5e9ac6c7d1926bd1544d25291d9072636c5f1bb19f907",
+      "run.py": "8bdfd38663856c4c85c39f3af1057abda41dd5c34f90f692bdb14dd1615679bc",
+      "schema.py": "025665eb365b8e51780e0c68059a498f5572e952d6881be0ed7b1fe9306686b0",
+      "vocabulary.py": "d70388e1d54f051542c8085331efe1e9d541e25dd789af918bb51284bfa2991f"
+    },
+    "extractor_version": "rules-v1",
+    "fields": {
+      "cv": [
+        "Position",
+        "Moreinfo",
+        "Looking For",
+        "Highlights"
+      ],
+      "jd": [
+        "Position",
+        "Long Description"
+      ]
+    },
+    "input_sha256": {
+      "djinni-cv/default-train-0000.parquet": "a7b1378e0b231507c377659bf2c80fa4ba60c4e31e1107b13425d103879ecc3b",
+      "djinni-jd/default-train-0000.parquet": "71dddaf0d9660f34ddf946953b67f54f1e7d60e22dcf9a4b8139b6378b18aab9"
+    },
+    "package_version": "0.1.0",
+    "partition_sha256": "e8b7951db4ef346390e03166b356a10658beb4a65a720571b4360bf4c46c1b85",
+    "region": "train",
+    "sample_size": 1000,
+    "sampling_rule": "sort IDs; Python Random(seed).sample; sort selected IDs",
+    "seed": 0,
+    "text_version": "raw-v1",
+    "vocabulary_sha256": "6215cdad81fc92d55f8e0b8e1add5802130c92a5cb0f0b52584d0aa80e87ca8b",
+    "vocabulary_version": "seed-v1"
+  },
+  "run_id": "13dc70f74d5f872c8e30",
+  "summary": {
+    "coverage": {
+      "cv": {
+        "by_context_status": {
+          "learning": 148,
+          "negated": 1,
+          "unqualified": 2845
+        },
+        "by_label": {
+          "DEGREE": 32,
+          "KNOWLEDGE": 2214,
+          "SKILL": 199,
+          "TITLE": 549
+        },
+        "descriptive_coverage": 0.68,
+        "documents": 1000,
+        "documents_with_entities": 680,
+        "documents_with_label": {
+          "DEGREE": 30,
+          "KNOWLEDGE": 521,
+          "SKILL": 123,
+          "TITLE": 338
+        },
+        "entities": 2994
+      },
+      "jd": {
+        "by_context_status": {
+          "learning": 9,
+          "negated": 4,
+          "unqualified": 3591
+        },
+        "by_label": {
+          "DEGREE": 41,
+          "KNOWLEDGE": 3023,
+          "SKILL": 205,
+          "TITLE": 335
+        },
+        "descriptive_coverage": 0.754,
+        "documents": 1000,
+        "documents_with_entities": 754,
+        "documents_with_label": {
+          "DEGREE": 36,
+          "KNOWLEDGE": 662,
+          "SKILL": 137,
+          "TITLE": 229
+        },
+        "entities": 3604
+      }
+    },
+    "gold_accuracy": {
+      "reason": "Gold adapters pending; unlabelled A2 measures descriptive coverage only",
+      "status": "blocked"
+    },
+    "input_counts": {
+      "cv": {
+        "eligible_documents": 157688,
+        "fields": [
+          "Position",
+          "Moreinfo",
+          "Looking For",
+          "Highlights"
+        ],
+        "raw_documents": 210250,
+        "sampled_documents": 1000
+      },
+      "jd": {
+        "eligible_documents": 106423,
+        "fields": [
+          "Position",
+          "Long Description"
+        ],
+        "raw_documents": 141897,
+        "sampled_documents": 1000
+      }
+    },
+    "integrity": {
+      "entities_checked": 6598,
+      "exact_field_offsets": true,
+      "training_only": true,
+      "unique_entity_ids": true
+    }
+  }
+}
