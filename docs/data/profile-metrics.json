@@ -1,5 +1,8 @@
 {
   "generated": "2026-08-19T11:50:52+00:00",
+  "updated": {
+    "titles": "2026-10-06T12:13:30+00:00"
+  },
   "checks": {
     "fit": {
       "splits": {
@@ -317,6 +320,207 @@
         "Senior Data Engineer": 44563,
         "Senior Data Scientist": 36957,
         "Senior Data Analyst": 29216
+      }
+    },
+    "titles": {
+      "esco_occupations": {
+        "preferredLabel": {
+          "rows": 3043,
+          "fill_rate": 1.0,
+          "distinct": 3039,
+          "examples": [
+            "early years teaching assistant",
+            "legal policy officer",
+            "mining, construction and civil engineering machinery distribution manager",
+            "food service worker",
+            "technical director"
+          ],
+          "pii_in_field": {
+            "email_like": 0,
+            "phone_like": 0
+          }
+        },
+        "altLabels_fill_rate": 1.0,
+        "altLabels_total": 30417,
+        "ict_isco_prefixes": [
+          "25",
+          "35",
+          "133"
+        ],
+        "ict_occupations": 110,
+        "ict_altLabels_total": 749,
+        "ict_examples": [
+          "ICT security administrator",
+          "software analyst",
+          "performance video operator",
+          "integration engineer",
+          "search engine optimisation expert"
+        ],
+        "normalised_alias_strings": 31116,
+        "normalised_alias_strings_ict": 813
+      },
+      "data_jobs": {
+        "job_title_short": {
+          "rows": 785741,
+          "fill_rate": 1.0,
+          "distinct": 10,
+          "examples": [
+            "Data Analyst",
+            "Data Engineer",
+            "Data Scientist",
+            "Business Analyst",
+            "Software Engineer",
+            "Senior Data Engineer",
+            "Senior Data Scientist",
+            "Senior Data Analyst",
+            "Machine Learning Engineer",
+            "Cloud Engineer"
+          ],
+          "pii_in_field": {
+            "email_like": 0,
+            "phone_like": 0
+          },
+          "classes": {
+            "Data Analyst": 196075,
+            "Data Engineer": 186241,
+            "Data Scientist": 172286,
+            "Business Analyst": 49063,
+            "Software Engineer": 44929,
+            "Senior Data Engineer": 44563,
+            "Senior Data Scientist": 36957,
+            "Senior Data Analyst": 29216,
+            "Machine Learning Engineer": 14080,
+            "Cloud Engineer": 12331
+          }
+        },
+        "job_title": {
+          "rows": 785741,
+          "fill_rate": 1.0,
+          "distinct": 234666,
+          "examples": [
+            "Data Engineer",
+            "Data Scientist",
+            "Data Analyst",
+            "Senior Data Engineer",
+            "Senior Data Scientist"
+          ],
+          "pii_in_field": {
+            "email_like": 1,
+            "phone_like": 428
+          }
+        },
+        "job_title_normalised_distinct": 94401
+      },
+      "livecareer": {
+        "Category": {
+          "rows": 2484,
+          "fill_rate": 1.0,
+          "distinct": 24,
+          "examples": [
+            "INFORMATION-TECHNOLOGY",
+            "BUSINESS-DEVELOPMENT",
+            "ADVOCATE",
+            "CHEF",
+            "FINANCE"
+          ],
+          "pii_in_field": {
+            "email_like": 0,
+            "phone_like": 0
+          },
+          "classes": {
+            "INFORMATION-TECHNOLOGY": 120,
+            "BUSINESS-DEVELOPMENT": 120,
+            "ADVOCATE": 118,
+            "CHEF": 118,
+            "FINANCE": 118,
+            "ENGINEERING": 118,
+            "ACCOUNTANT": 118,
+            "FITNESS": 117,
+            "AVIATION": 117,
+            "SALES": 116,
+            "HEALTHCARE": 115,
+            "CONSULTANT": 115,
+            "BANKING": 115,
+            "CONSTRUCTION": 112,
+            "PUBLIC-RELATIONS": 111,
+            "HR": 110,
+            "DESIGNER": 107,
+            "ARTS": 103,
+            "TEACHER": 102,
+            "APPAREL": 97,
+            "DIGITAL-MEDIA": 96,
+            "AGRICULTURE": 63,
+            "AUTOMOBILE": 36,
+            "BPO": 22
+          }
+        },
+        "it_categories": [
+          "INFORMATION-TECHNOLOGY"
+        ],
+        "it_rows": 120
+      },
+      "resume_atlas": {
+        "Category": {
+          "rows": 13389,
+          "fill_rate": 1.0,
+          "distinct": 43,
+          "examples": [
+            "Education",
+            "Electrical Engineering",
+            "Mechanical Engineer",
+            "Consultant",
+            "Civil Engineer"
+          ],
+          "pii_in_field": {
+            "email_like": 0,
+            "phone_like": 0
+          },
+          "classes": {
+            "Education": 410,
+            "Electrical Engineering": 384,
+            "Mechanical Engineer": 384,
+            "Consultant": 368,
+            "Civil Engineer": 364,
+            "Sales": 364,
+            "Management": 361,
+            "Human Resources": 360,
+            "Digital Media": 358,
+            "Accountant": 350,
+            "Java Developer": 348,
+            "Building and Construction": 345,
+            "Operations Manager": 345,
+            "Architecture": 344,
+            "Testing": 344,
+            "Aviation": 340,
+            "Business Analyst": 340,
+            "Finance": 339,
+            "SQL Developer": 338,
+            "Public Relations": 337,
+            "Arts": 332,
+            "Health and Fitness": 332,
+            "Network Security Engineer": 330,
+            "DotNet Developer": 329,
+            "Apparel": 320,
+            "Banking": 314,
+            "Automobile": 313,
+            "Web Designing": 309,
+            "SAP Developer": 304,
+            "Data Science": 299,
+            "ETL Developer": 294,
+            "Agriculture": 293,
+            "Advocate": 291,
+            "DevOps": 289,
+            "PMO": 286,
+            "Information Technology": 274,
+            "Designing": 258,
+            "Database": 257,
+            "Python Developer": 248,
+            "BPO": 203,
+            "React Developer": 182,
+            "Food and Beverages": 162,
+            "Blockchain": 47
+          }
+        }
       }
     }
   }

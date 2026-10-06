@@ -1,0 +1,1587 @@
+{
+  "plan": "plan/2026-10-06-extraction-and-rerank (P2, tasks 2.1-2.3)",
+  "region": "A2 train only (D19); eval-region documents are filtered out before use",
+  "normalisation": {
+    "seniority": [
+      "chief",
+      "head",
+      "intern",
+      "internship",
+      "jr",
+      "junior",
+      "lead",
+      "mid",
+      "middle",
+      "principal",
+      "senior",
+      "sr",
+      "strong",
+      "teamlead",
+      "techlead",
+      "trainee"
+    ],
+    "phrases": {
+      "front end": "frontend",
+      "back end": "backend",
+      "full stack": "fullstack",
+      "ui ux": "uiux",
+      "ux ui": "uiux",
+      "react native": "reactnative",
+      "quality assurance": "qa",
+      "machine learning": "ml",
+      "dot net": "dotnet",
+      "team lead": "teamlead",
+      "tech lead": "techlead",
+      "technical lead": "techlead",
+      "head of": "head"
+    },
+    "synonyms": {
+      "golang": "go",
+      "js": "javascript",
+      "reactjs": "react",
+      "vuejs": "vue",
+      "angularjs": "angular",
+      "nodejs": "nodejs",
+      "node": "nodejs",
+      "net": "dotnet",
+      "csharp": "c#",
+      "cpp": "c++",
+      "programmer": "developer",
+      "dev": "developer",
+      "sw": "software",
+      "fullstackdeveloper": "fullstack"
+    },
+    "tech_tokens_dropped_by_t_b2": [
+      "1c",
+      "abap",
+      "angular",
+      "bitrix",
+      "c",
+      "c#",
+      "c++",
+      "clojure",
+      "css",
+      "dart",
+      "delphi",
+      "django",
+      "dotnet",
+      "drupal",
+      "elixir",
+      "erlang",
+      "flutter",
+      "go",
+      "haskell",
+      "html",
+      "java",
+      "javascript",
+      "kotlin",
+      "laravel",
+      "magento",
+      "nestjs",
+      "nextjs",
+      "nodejs",
+      "objective",
+      "odoo",
+      "oracle",
+      "perl",
+      "php",
+      "python",
+      "rails",
+      "react",
+      "reactnative",
+      "ruby",
+      "rust",
+      "salesforce",
+      "sap",
+      "scala",
+      "shopify",
+      "spring",
+      "sql",
+      "swift",
+      "symfony",
+      "typescript",
+      "unity",
+      "unreal",
+      "vue",
+      "wordpress",
+      "xamarin"
+    ]
+  },
+  "sources": {
+    "esco_occupations": {
+      "preferredLabel": {
+        "rows": 3043,
+        "fill_rate": 1.0,
+        "distinct": 3039,
+        "examples": [
+          "early years teaching assistant",
+          "legal policy officer",
+          "mining, construction and civil engineering machinery distribution manager",
+          "food service worker",
+          "technical director"
+        ],
+        "pii_in_field": {
+          "email_like": 0,
+          "phone_like": 0
+        }
+      },
+      "altLabels_fill_rate": 1.0,
+      "altLabels_total": 30417,
+      "ict_isco_prefixes": [
+        "25",
+        "35",
+        "133"
+      ],
+      "ict_occupations": 110,
+      "ict_altLabels_total": 749,
+      "ict_examples": [
+        "ICT security administrator",
+        "software analyst",
+        "performance video operator",
+        "integration engineer",
+        "search engine optimisation expert"
+      ],
+      "normalised_alias_strings": 31116,
+      "normalised_alias_strings_ict": 813
+    },
+    "data_jobs": {
+      "job_title_short": {
+        "rows": 785741,
+        "fill_rate": 1.0,
+        "distinct": 10,
+        "examples": [
+          "Data Analyst",
+          "Data Engineer",
+          "Data Scientist",
+          "Business Analyst",
+          "Software Engineer",
+          "Senior Data Engineer",
+          "Senior Data Scientist",
+          "Senior Data Analyst",
+          "Machine Learning Engineer",
+          "Cloud Engineer"
+        ],
+        "pii_in_field": {
+          "email_like": 0,
+          "phone_like": 0
+        },
+        "classes": {
+          "Data Analyst": 196075,
+          "Data Engineer": 186241,
+          "Data Scientist": 172286,
+          "Business Analyst": 49063,
+          "Software Engineer": 44929,
+          "Senior Data Engineer": 44563,
+          "Senior Data Scientist": 36957,
+          "Senior Data Analyst": 29216,
+          "Machine Learning Engineer": 14080,
+          "Cloud Engineer": 12331
+        }
+      },
+      "job_title": {
+        "rows": 785741,
+        "fill_rate": 1.0,
+        "distinct": 234666,
+        "examples": [
+          "Data Engineer",
+          "Data Scientist",
+          "Data Analyst",
+          "Senior Data Engineer",
+          "Senior Data Scientist"
+        ],
+        "pii_in_field": {
+          "email_like": 1,
+          "phone_like": 428
+        }
+      },
+      "job_title_normalised_distinct": 94401
+    },
+    "livecareer": {
+      "Category": {
+        "rows": 2484,
+        "fill_rate": 1.0,
+        "distinct": 24,
+        "examples": [
+          "INFORMATION-TECHNOLOGY",
+          "BUSINESS-DEVELOPMENT",
+          "ADVOCATE",
+          "CHEF",
+          "FINANCE"
+        ],
+        "pii_in_field": {
+          "email_like": 0,
+          "phone_like": 0
+        },
+        "classes": {
+          "INFORMATION-TECHNOLOGY": 120,
+          "BUSINESS-DEVELOPMENT": 120,
+          "ADVOCATE": 118,
+          "CHEF": 118,
+          "FINANCE": 118,
+          "ENGINEERING": 118,
+          "ACCOUNTANT": 118,
+          "FITNESS": 117,
+          "AVIATION": 117,
+          "SALES": 116,
+          "HEALTHCARE": 115,
+          "CONSULTANT": 115,
+          "BANKING": 115,
+          "CONSTRUCTION": 112,
+          "PUBLIC-RELATIONS": 111,
+          "HR": 110,
+          "DESIGNER": 107,
+          "ARTS": 103,
+          "TEACHER": 102,
+          "APPAREL": 97,
+          "DIGITAL-MEDIA": 96,
+          "AGRICULTURE": 63,
+          "AUTOMOBILE": 36,
+          "BPO": 22
+        }
+      },
+      "it_categories": [
+        "INFORMATION-TECHNOLOGY"
+      ],
+      "it_rows": 120
+    },
+    "resume_atlas": {
+      "Category": {
+        "rows": 13389,
+        "fill_rate": 1.0,
+        "distinct": 43,
+        "examples": [
+          "Education",
+          "Electrical Engineering",
+          "Mechanical Engineer",
+          "Consultant",
+          "Civil Engineer"
+        ],
+        "pii_in_field": {
+          "email_like": 0,
+          "phone_like": 0
+        },
+        "classes": {
+          "Education": 410,
+          "Electrical Engineering": 384,
+          "Mechanical Engineer": 384,
+          "Consultant": 368,
+          "Civil Engineer": 364,
+          "Sales": 364,
+          "Management": 361,
+          "Human Resources": 360,
+          "Digital Media": 358,
+          "Accountant": 350,
+          "Java Developer": 348,
+          "Building and Construction": 345,
+          "Operations Manager": 345,
+          "Architecture": 344,
+          "Testing": 344,
+          "Aviation": 340,
+          "Business Analyst": 340,
+          "Finance": 339,
+          "SQL Developer": 338,
+          "Public Relations": 337,
+          "Arts": 332,
+          "Health and Fitness": 332,
+          "Network Security Engineer": 330,
+          "DotNet Developer": 329,
+          "Apparel": 320,
+          "Banking": 314,
+          "Automobile": 313,
+          "Web Designing": 309,
+          "SAP Developer": 304,
+          "Data Science": 299,
+          "ETL Developer": 294,
+          "Agriculture": 293,
+          "Advocate": 291,
+          "DevOps": 289,
+          "PMO": 286,
+          "Information Technology": 274,
+          "Designing": 258,
+          "Database": 257,
+          "Python Developer": 248,
+          "BPO": 203,
+          "React Developer": 182,
+          "Food and Beverages": 162,
+          "Blockchain": 47
+        }
+      }
+    }
+  },
+  "taxonomy": {
+    "n_train": {
+      "jd": 106423,
+      "cv": 157688
+    },
+    "t_a": {
+      "jd": {
+        "classes": 45,
+        "min": 1,
+        "median": 1395.0,
+        "max": 13390,
+        "docs": 106423,
+        "classes_under_10": 4,
+        "other_share": 0.0528,
+        "sizes": {
+          "JavaScript": 13390,
+          "Java": 6568,
+          "DevOps": 5956,
+          ".NET": 5806,
+          "Other": 5623,
+          "QA Automation": 5268,
+          "Marketing": 5242,
+          "QA": 5126,
+          "Node.js": 4768,
+          "PHP": 4366,
+          "Python": 4232,
+          "Project Manager": 3454,
+          "HR": 3029,
+          "Design": 3028,
+          "Sales": 3017,
+          "C++": 2775,
+          "Business Analyst": 2769,
+          "Support": 2155,
+          "Android": 1976,
+          "iOS": 1774,
+          "Data Science": 1719,
+          "Product Manager": 1462,
+          "Ruby": 1395,
+          "Lead": 1386,
+          "Sysadmin": 1303,
+          "Golang": 1292,
+          "SQL": 1116,
+          "Data Engineer": 1085,
+          "Unity": 884,
+          "Lead Generation": 633,
+          "Security": 625,
+          "Data Analyst": 593,
+          "Recruiter": 466,
+          "Artist": 431,
+          "Scala": 368,
+          "Technical Writing": 331,
+          "SEO": 304,
+          "Flutter": 301,
+          "Scrum Master": 167,
+          "Salesforce": 127,
+          "Rust": 109,
+          "Block-chain": 1,
+          "SAP": 1,
+          "React": 1,
+          "Product Owner": 1
+        }
+      },
+      "cv": {
+        "classes": 41,
+        "min": 120,
+        "median": 2321.0,
+        "max": 25448,
+        "docs": 157658,
+        "classes_under_10": 0,
+        "other_share": 0.0252,
+        "sizes": {
+          "JavaScript": 25448,
+          "QA": 18843,
+          "Design": 11171,
+          "Project Manager": 9349,
+          "Java": 8634,
+          ".NET": 7054,
+          "Marketing": 6790,
+          "Python": 5703,
+          "PHP": 5275,
+          "QA Automation": 4276,
+          "Other": 3981,
+          "Recruiter": 3685,
+          "Node.js": 3649,
+          "HR": 3612,
+          "Support": 3431,
+          "Business Analyst": 3315,
+          "DevOps": 3094,
+          "Product Manager": 3038,
+          "Sales": 2843,
+          "iOS": 2420,
+          "Android": 2321,
+          "C++": 2258,
+          "Data Science": 1956,
+          "Artist": 1932,
+          "Lead": 1808,
+          "Data Analyst": 1695,
+          "Unity": 1357,
+          "Sysadmin": 1125,
+          "Ruby": 1031,
+          "Golang": 1001,
+          "SQL": 842,
+          "Flutter": 831,
+          "SEO": 649,
+          "Lead Generation": 608,
+          "Data Engineer": 598,
+          "Security": 576,
+          "Technical Writing": 529,
+          "Scrum Master": 275,
+          "Scala": 273,
+          "Salesforce": 262,
+          "Rust": 120
+        }
+      }
+    },
+    "normalisation": {
+      "jd": {
+        "raw_distinct": 50661,
+        "normalised_distinct": 21197,
+        "empty_after_normalisation": 795,
+        "had_seniority_token": 0.4324,
+        "function_distinct": 18643
+      },
+      "cv": {
+        "raw_distinct": 36817,
+        "normalised_distinct": 12532,
+        "empty_after_normalisation": 2730,
+        "had_seniority_token": 0.3001,
+        "function_distinct": 10780
+      }
+    },
+    "t_b": {
+      "10": {
+        "t_b1": {
+          "classes": 479,
+          "jd": {
+            "classes": 479,
+            "min": 10,
+            "median": 39.0,
+            "max": 3582,
+            "docs": 73348,
+            "coverage": {
+              "k": 73348,
+              "n": 106423,
+              "share": 0.6892,
+              "ci95": [
+                0.6864,
+                0.692
+              ]
+            }
+          },
+          "cv": {
+            "classes": 479,
+            "min": 10,
+            "median": 40.0,
+            "max": 14663,
+            "docs": 133638,
+            "coverage": {
+              "k": 133638,
+              "n": 157688,
+              "share": 0.8475,
+              "ci95": [
+                0.8457,
+                0.8492
+              ]
+            }
+          }
+        },
+        "t_b2_function": {
+          "classes": 371,
+          "jd_coverage": 0.7075,
+          "cv_coverage": 0.845
+        }
+      },
+      "20": {
+        "t_b1": {
+          "classes": 298,
+          "jd": {
+            "classes": 298,
+            "min": 20,
+            "median": 76.0,
+            "max": 3582,
+            "docs": 69468,
+            "coverage": {
+              "k": 69468,
+              "n": 106423,
+              "share": 0.6528,
+              "ci95": [
+                0.6499,
+                0.6556
+              ]
+            }
+          },
+          "cv": {
+            "classes": 298,
+            "min": 20,
+            "median": 78.0,
+            "max": 14663,
+            "docs": 129791,
+            "coverage": {
+              "k": 129791,
+              "n": 157688,
+              "share": 0.8231,
+              "ci95": [
+                0.8212,
+                0.825
+              ]
+            }
+          }
+        },
+        "t_b2_function": {
+          "classes": 217,
+          "jd_coverage": 0.6759,
+          "cv_coverage": 0.8232
+        }
+      },
+      "50": {
+        "t_b1": {
+          "classes": 159,
+          "jd": {
+            "classes": 159,
+            "min": 50,
+            "median": 162.0,
+            "max": 3582,
+            "docs": 63081,
+            "coverage": {
+              "k": 63081,
+              "n": 106423,
+              "share": 0.5927,
+              "ci95": [
+                0.5898,
+                0.5957
+              ]
+            }
+          },
+          "cv": {
+            "classes": 159,
+            "min": 50,
+            "median": 180.0,
+            "max": 14663,
+            "docs": 122190,
+            "coverage": {
+              "k": 122190,
+              "n": 157688,
+              "share": 0.7749,
+              "ci95": [
+                0.7728,
+                0.7769
+              ]
+            }
+          }
+        },
+        "t_b2_function": {
+          "classes": 120,
+          "jd_coverage": 0.6375,
+          "cv_coverage": 0.7887
+        }
+      }
+    },
+    "fanout_m": 20,
+    "fanout": {
+      "jd": {
+        "JavaScript": {
+          "docs": 13390,
+          "share_in_a_family": 0.7728,
+          "families": 99,
+          "families_for_80pct_of_mapped": 9,
+          "top_families": {
+            "frontend developer": 0.26,
+            "react developer": 0.086,
+            "fullstack developer": 0.064,
+            "angular developer": 0.056
+          }
+        },
+        "Java": {
+          "docs": 6568,
+          "share_in_a_family": 0.7439,
+          "families": 65,
+          "families_for_80pct_of_mapped": 5,
+          "top_families": {
+            "java developer": 0.465,
+            "java software developer": 0.041,
+            "java": 0.037,
+            "backend developer": 0.036
+          }
+        },
+        "DevOps": {
+          "docs": 5956,
+          "share_in_a_family": 0.6716,
+          "families": 36,
+          "families_for_80pct_of_mapped": 2,
+          "top_families": {
+            "devops engineer": 0.497,
+            "devops": 0.15,
+            "cloud engineer": 0.008,
+            "systems engineer": 0.002
+          }
+        },
+        ".NET": {
+          "docs": 5806,
+          "share_in_a_family": 0.6926,
+          "families": 60,
+          "families_for_80pct_of_mapped": 8,
+          "top_families": {
+            "dotnet developer": 0.319,
+            "fullstack developer": 0.066,
+            "fullstack dotnet developer": 0.044,
+            "c# developer": 0.038
+          }
+        },
+        "Other": {
+          "docs": 5623,
+          "share_in_a_family": 0.3486,
+          "families": 193,
+          "families_for_80pct_of_mapped": 55,
+          "top_families": {
+            "technical writer": 0.023,
+            "fullstack developer": 0.018,
+            "salesforce developer": 0.015,
+            "account manager": 0.011
+          }
+        },
+        "QA Automation": {
+          "docs": 5268,
+          "share_in_a_family": 0.6741,
+          "families": 32,
+          "families_for_80pct_of_mapped": 7,
+          "top_families": {
+            "qa automation engineer": 0.148,
+            "automation qa engineer": 0.144,
+            "qa automation": 0.079,
+            "automation qa": 0.066
+          }
+        },
+        "Marketing": {
+          "docs": 5242,
+          "share_in_a_family": 0.5011,
+          "families": 72,
+          "families_for_80pct_of_mapped": 20,
+          "top_families": {
+            "marketing manager": 0.06,
+            "digital marketing manager": 0.032,
+            "copywriter": 0.029,
+            "content manager": 0.029
+          }
+        },
+        "QA": {
+          "docs": 5126,
+          "share_in_a_family": 0.7503,
+          "families": 31,
+          "families_for_80pct_of_mapped": 3,
+          "top_families": {
+            "qa engineer": 0.294,
+            "manual qa engineer": 0.208,
+            "manual qa": 0.099,
+            "qa": 0.051
+          }
+        },
+        "Node.js": {
+          "docs": 4768,
+          "share_in_a_family": 0.7869,
+          "families": 52,
+          "families_for_80pct_of_mapped": 6,
+          "top_families": {
+            "nodejs developer": 0.269,
+            "fullstack developer": 0.159,
+            "backend developer": 0.111,
+            "fullstack": 0.041
+          }
+        },
+        "PHP": {
+          "docs": 4366,
+          "share_in_a_family": 0.7293,
+          "families": 46,
+          "families_for_80pct_of_mapped": 8,
+          "top_families": {
+            "php developer": 0.314,
+            "fullstack developer": 0.066,
+            "php": 0.062,
+            "wordpress developer": 0.047
+          }
+        },
+        "Python": {
+          "docs": 4232,
+          "share_in_a_family": 0.7112,
+          "families": 57,
+          "families_for_80pct_of_mapped": 5,
+          "top_families": {
+            "python developer": 0.426,
+            "backend developer": 0.05,
+            "fullstack developer": 0.043,
+            "python": 0.032
+          }
+        },
+        "Project Manager": {
+          "docs": 3454,
+          "share_in_a_family": 0.7154,
+          "families": 28,
+          "families_for_80pct_of_mapped": 3,
+          "top_families": {
+            "project manager": 0.489,
+            "it project manager": 0.056,
+            "scrum master": 0.034,
+            "delivery manager": 0.032
+          }
+        },
+        "Lead": {
+          "docs": 1386,
+          "share_in_a_family": 0.3817,
+          "families": 82,
+          "families_for_80pct_of_mapped": 19,
+          "top_families": {
+            "solution architect": 0.065,
+            "cto": 0.036,
+            "engineering manager": 0.027,
+            "architect": 0.027
+          }
+        },
+        "Data Science": {
+          "docs": 1719,
+          "share_in_a_family": 0.591,
+          "families": 26,
+          "families_for_80pct_of_mapped": 4,
+          "top_families": {
+            "data scientist": 0.236,
+            "data engineer": 0.138,
+            "ml engineer": 0.075,
+            "data analyst": 0.063
+          }
+        },
+        "Data Engineer": {
+          "docs": 1085,
+          "share_in_a_family": 0.6018,
+          "families": 27,
+          "families_for_80pct_of_mapped": 2,
+          "top_families": {
+            "data engineer": 0.477,
+            "big data engineer": 0.065,
+            "database developer": 0.01,
+            "database administrator": 0.008
+          }
+        },
+        "Data Analyst": {
+          "docs": 593,
+          "share_in_a_family": 0.489,
+          "families": 18,
+          "families_for_80pct_of_mapped": 2,
+          "top_families": {
+            "data analyst": 0.344,
+            "product analyst": 0.047,
+            "bi analyst": 0.024,
+            "bi developer": 0.019
+          }
+        }
+      },
+      "cv": {
+        "JavaScript": {
+          "docs": 25448,
+          "share_in_a_family": 0.9125,
+          "families": 103,
+          "families_for_80pct_of_mapped": 5,
+          "top_families": {
+            "frontend developer": 0.57,
+            "react developer": 0.055,
+            "javascript developer": 0.052,
+            "fullstack developer": 0.047
+          }
+        },
+        "Java": {
+          "docs": 8634,
+          "share_in_a_family": 0.9261,
+          "families": 80,
+          "families_for_80pct_of_mapped": 3,
+          "top_families": {
+            "java developer": 0.654,
+            "java software developer": 0.082,
+            "software developer": 0.065,
+            "java": 0.054
+          }
+        },
+        "DevOps": {
+          "docs": 3094,
+          "share_in_a_family": 0.8213,
+          "families": 40,
+          "families_for_80pct_of_mapped": 2,
+          "top_families": {
+            "devops engineer": 0.54,
+            "devops": 0.223,
+            "system administrator": 0.021,
+            "software developer": 0.006
+          }
+        },
+        ".NET": {
+          "docs": 7054,
+          "share_in_a_family": 0.8602,
+          "families": 68,
+          "families_for_80pct_of_mapped": 6,
+          "top_families": {
+            "dotnet developer": 0.489,
+            "software developer": 0.08,
+            "c# developer": 0.052,
+            "fullstack developer": 0.03
+          }
+        },
+        "Other": {
+          "docs": 3981,
+          "share_in_a_family": 0.4288,
+          "families": 145,
+          "families_for_80pct_of_mapped": 40,
+          "top_families": {
+            "project manager": 0.037,
+            "graphic designer": 0.022,
+            "uiux designer": 0.019,
+            "finance manager": 0.017
+          }
+        },
+        "QA Automation": {
+          "docs": 4276,
+          "share_in_a_family": 0.8279,
+          "families": 34,
+          "families_for_80pct_of_mapped": 4,
+          "top_families": {
+            "qa automation engineer": 0.307,
+            "automation qa engineer": 0.21,
+            "qa engineer": 0.137,
+            "test automation engineer": 0.028
+          }
+        },
+        "Marketing": {
+          "docs": 6790,
+          "share_in_a_family": 0.6429,
+          "families": 82,
+          "families_for_80pct_of_mapped": 18,
+          "top_families": {
+            "marketing manager": 0.185,
+            "digital marketing manager": 0.037,
+            "marketing": 0.034,
+            "copywriter": 0.026
+          }
+        },
+        "QA": {
+          "docs": 18843,
+          "share_in_a_family": 0.9207,
+          "families": 56,
+          "families_for_80pct_of_mapped": 2,
+          "top_families": {
+            "qa engineer": 0.644,
+            "manual qa engineer": 0.178,
+            "qa": 0.061,
+            "qa manual": 0.009
+          }
+        },
+        "Node.js": {
+          "docs": 3649,
+          "share_in_a_family": 0.872,
+          "families": 52,
+          "families_for_80pct_of_mapped": 6,
+          "top_families": {
+            "nodejs developer": 0.31,
+            "fullstack developer": 0.113,
+            "software developer": 0.109,
+            "fullstack web developer": 0.072
+          }
+        },
+        "PHP": {
+          "docs": 5275,
+          "share_in_a_family": 0.8591,
+          "families": 53,
+          "families_for_80pct_of_mapped": 6,
+          "top_families": {
+            "php developer": 0.44,
+            "php": 0.103,
+            "fullstack web developer": 0.054,
+            "software developer": 0.041
+          }
+        },
+        "Python": {
+          "docs": 5703,
+          "share_in_a_family": 0.8969,
+          "families": 69,
+          "families_for_80pct_of_mapped": 4,
+          "top_families": {
+            "python developer": 0.523,
+            "python django developer": 0.108,
+            "software developer": 0.08,
+            "python": 0.041
+          }
+        },
+        "Project Manager": {
+          "docs": 9349,
+          "share_in_a_family": 0.8488,
+          "families": 76,
+          "families_for_80pct_of_mapped": 1,
+          "top_families": {
+            "project manager": 0.728,
+            "it project manager": 0.024,
+            "delivery manager": 0.019,
+            "scrum master": 0.009
+          }
+        },
+        "Lead": {
+          "docs": 1808,
+          "share_in_a_family": 0.4928,
+          "families": 91,
+          "families_for_80pct_of_mapped": 16,
+          "top_families": {
+            "cto": 0.143,
+            "solution architect": 0.041,
+            "architect": 0.035,
+            "engineering manager": 0.035
+          }
+        },
+        "Data Science": {
+          "docs": 1956,
+          "share_in_a_family": 0.8098,
+          "families": 41,
+          "families_for_80pct_of_mapped": 2,
+          "top_families": {
+            "data scientist": 0.551,
+            "ml engineer": 0.105,
+            "data analyst": 0.071,
+            "data engineer": 0.015
+          }
+        },
+        "Data Engineer": {
+          "docs": 598,
+          "share_in_a_family": 0.7709,
+          "families": 19,
+          "families_for_80pct_of_mapped": 2,
+          "top_families": {
+            "data engineer": 0.587,
+            "big data engineer": 0.052,
+            "data analyst": 0.025,
+            "software developer": 0.022
+          }
+        },
+        "Data Analyst": {
+          "docs": 1695,
+          "share_in_a_family": 0.7965,
+          "families": 27,
+          "families_for_80pct_of_mapped": 1,
+          "top_families": {
+            "data analyst": 0.69,
+            "product analyst": 0.021,
+            "analyst": 0.016,
+            "data scientist": 0.011
+          }
+        }
+      }
+    },
+    "fanout_all_keywords": {
+      "jd": {
+        "families_per_keyword_median": 26.0,
+        "keywords_with_5plus_families": 41
+      },
+      "cv": {
+        "families_per_keyword_median": 34.0,
+        "keywords_with_5plus_families": 41
+      }
+    },
+    "purity": {
+      "jd": {
+        "doc_weighted": 0.8306,
+        "families_below_0.8": 105,
+        "least_pure": {
+          "software developer": 0.148,
+          "fullstack": 0.242,
+          "bi developer": 0.244,
+          "fullstack software developer": 0.254,
+          "mobile developer": 0.28
+        }
+      },
+      "cv": {
+        "doc_weighted": 0.8868,
+        "families_below_0.8": 88,
+        "least_pure": {
+          "developer": 0.159,
+          "software developer": 0.204,
+          "fullstack software developer": 0.28,
+          "blockchain developer": 0.295,
+          "account manager": 0.314
+        }
+      }
+    },
+    "alias_coverage": {
+      "jd": {
+        "esco_all": {
+          "docs": {
+            "k": 26009,
+            "n": 105628,
+            "share": 0.2462,
+            "ci95": [
+              0.2436,
+              0.2488
+            ]
+          },
+          "distinct_strings": {
+            "k": 544,
+            "n": 21197,
+            "share": 0.0257
+          }
+        },
+        "esco_ict": {
+          "docs": {
+            "k": 13445,
+            "n": 105628,
+            "share": 0.1273,
+            "ci95": [
+              0.1253,
+              0.1293
+            ]
+          },
+          "distinct_strings": {
+            "k": 149,
+            "n": 21197,
+            "share": 0.007
+          }
+        },
+        "data_jobs_all": {
+          "docs": {
+            "k": 72256,
+            "n": 105628,
+            "share": 0.6841,
+            "ci95": [
+              0.6813,
+              0.6869
+            ]
+          },
+          "distinct_strings": {
+            "k": 2457,
+            "n": 21197,
+            "share": 0.1159
+          }
+        },
+        "data_jobs_min5": {
+          "docs": {
+            "k": 60996,
+            "n": 105628,
+            "share": 0.5775,
+            "ci95": [
+              0.5745,
+              0.5804
+            ]
+          },
+          "distinct_strings": {
+            "k": 1083,
+            "n": 21197,
+            "share": 0.0511
+          }
+        },
+        "esco_or_data_jobs_all": {
+          "docs": {
+            "k": 74459,
+            "n": 105628,
+            "share": 0.7049,
+            "ci95": [
+              0.7022,
+              0.7077
+            ]
+          },
+          "distinct_strings": {
+            "k": 2727,
+            "n": 21197,
+            "share": 0.1287
+          }
+        },
+        "esco_or_data_jobs_min5": {
+          "docs": {
+            "k": 65570,
+            "n": 105628,
+            "share": 0.6208,
+            "ci95": [
+              0.6178,
+              0.6237
+            ]
+          },
+          "distinct_strings": {
+            "k": 1463,
+            "n": 21197,
+            "share": 0.069
+          }
+        }
+      },
+      "cv": {
+        "esco_all": {
+          "docs": {
+            "k": 65964,
+            "n": 154958,
+            "share": 0.4257,
+            "ci95": [
+              0.4232,
+              0.4282
+            ]
+          },
+          "distinct_strings": {
+            "k": 496,
+            "n": 12532,
+            "share": 0.0396
+          }
+        },
+        "esco_ict": {
+          "docs": {
+            "k": 27770,
+            "n": 154958,
+            "share": 0.1792,
+            "ci95": [
+              0.1773,
+              0.1811
+            ]
+          },
+          "distinct_strings": {
+            "k": 121,
+            "n": 12532,
+            "share": 0.0097
+          }
+        },
+        "data_jobs_all": {
+          "docs": {
+            "k": 123827,
+            "n": 154958,
+            "share": 0.7991,
+            "ci95": [
+              0.7971,
+              0.8011
+            ]
+          },
+          "distinct_strings": {
+            "k": 1648,
+            "n": 12532,
+            "share": 0.1315
+          }
+        },
+        "data_jobs_min5": {
+          "docs": {
+            "k": 110911,
+            "n": 154958,
+            "share": 0.7157,
+            "ci95": [
+              0.7135,
+              0.718
+            ]
+          },
+          "distinct_strings": {
+            "k": 796,
+            "n": 12532,
+            "share": 0.0635
+          }
+        },
+        "esco_or_data_jobs_all": {
+          "docs": {
+            "k": 129864,
+            "n": 154958,
+            "share": 0.8381,
+            "ci95": [
+              0.8362,
+              0.8399
+            ]
+          },
+          "distinct_strings": {
+            "k": 1900,
+            "n": 12532,
+            "share": 0.1516
+          }
+        },
+        "esco_or_data_jobs_min5": {
+          "docs": {
+            "k": 120571,
+            "n": 154958,
+            "share": 0.7781,
+            "ci95": [
+              0.776,
+              0.7802
+            ]
+          },
+          "distinct_strings": {
+            "k": 1140,
+            "n": 12532,
+            "share": 0.091
+          }
+        }
+      }
+    }
+  },
+  "title_in_text": {
+    "seed": 0,
+    "sample_n": 300,
+    "first_chars": 200,
+    "min_alias_tokens": 2,
+    "alias_strings": {
+      "esco": 29986,
+      "data_jobs": 9419,
+      "a2_train_families": 246,
+      "any": 39233
+    },
+    "jd": {
+      "n": 300,
+      "own_position_exact": {
+        "found": {
+          "k": 97,
+          "n": 300,
+          "share": 0.3233,
+          "ci95": [
+            0.2729,
+            0.3782
+          ]
+        },
+        "found_in_first_200": {
+          "k": 56,
+          "n": 300,
+          "share": 0.1867,
+          "ci95": [
+            0.1466,
+            0.2346
+          ]
+        },
+        "found_only_later": {
+          "k": 41,
+          "n": 300,
+          "share": 0.1367,
+          "ci95": [
+            0.1024,
+            0.1802
+          ]
+        }
+      },
+      "own_family_title": {
+        "found": {
+          "k": 73,
+          "n": 201,
+          "share": 0.3632,
+          "ci95": [
+            0.2998,
+            0.4317
+          ]
+        },
+        "found_in_first_200": {
+          "k": 43,
+          "n": 201,
+          "share": 0.2139,
+          "ci95": [
+            0.1629,
+            0.2757
+          ]
+        },
+        "found_only_later": {
+          "k": 30,
+          "n": 201,
+          "share": 0.1493,
+          "ci95": [
+            0.1066,
+            0.2051
+          ]
+        },
+        "note": "only documents whose Position is a T-B1 family"
+      },
+      "any_alias_title": {
+        "esco": {
+          "found": {
+            "k": 93,
+            "n": 300,
+            "share": 0.31,
+            "ci95": [
+              0.2603,
+              0.3645
+            ]
+          },
+          "found_in_first_200": {
+            "k": 38,
+            "n": 300,
+            "share": 0.1267,
+            "ci95": [
+              0.0937,
+              0.1691
+            ]
+          },
+          "found_only_later": {
+            "k": 55,
+            "n": 300,
+            "share": 0.1833,
+            "ci95": [
+              0.1436,
+              0.231
+            ]
+          }
+        },
+        "data_jobs": {
+          "found": {
+            "k": 220,
+            "n": 300,
+            "share": 0.7333,
+            "ci95": [
+              0.6806,
+              0.7802
+            ]
+          },
+          "found_in_first_200": {
+            "k": 83,
+            "n": 300,
+            "share": 0.2767,
+            "ci95": [
+              0.2291,
+              0.3299
+            ]
+          },
+          "found_only_later": {
+            "k": 137,
+            "n": 300,
+            "share": 0.4567,
+            "ci95": [
+              0.4012,
+              0.5132
+            ]
+          }
+        },
+        "a2_train_families": {
+          "found": {
+            "k": 151,
+            "n": 300,
+            "share": 0.5033,
+            "ci95": [
+              0.4471,
+              0.5595
+            ]
+          },
+          "found_in_first_200": {
+            "k": 68,
+            "n": 300,
+            "share": 0.2267,
+            "ci95": [
+              0.1829,
+              0.2773
+            ]
+          },
+          "found_only_later": {
+            "k": 83,
+            "n": 300,
+            "share": 0.2767,
+            "ci95": [
+              0.2291,
+              0.3299
+            ]
+          }
+        },
+        "any": {
+          "found": {
+            "k": 235,
+            "n": 300,
+            "share": 0.7833,
+            "ci95": [
+              0.7333,
+              0.8262
+            ]
+          },
+          "found_in_first_200": {
+            "k": 102,
+            "n": 300,
+            "share": 0.34,
+            "ci95": [
+              0.2887,
+              0.3953
+            ]
+          },
+          "found_only_later": {
+            "k": 133,
+            "n": 300,
+            "share": 0.4433,
+            "ci95": [
+              0.3882,
+              0.4999
+            ]
+          }
+        }
+      },
+      "earliest_family_title_is_own_family": {
+        "k": 55,
+        "n": 94,
+        "share": 0.5851,
+        "ci95": [
+          0.4841,
+          0.6794
+        ],
+        "note": "documents whose Position is a multi-token T-B1 family and whose text contains any multi-token T-B1 family title: is the earliest one the document's own?"
+      }
+    },
+    "cv_v2": {
+      "n": 300,
+      "own_position_exact": {
+        "found": {
+          "k": 81,
+          "n": 300,
+          "share": 0.27,
+          "ci95": [
+            0.2229,
+            0.3229
+          ]
+        },
+        "found_in_first_200": {
+          "k": 49,
+          "n": 300,
+          "share": 0.1633,
+          "ci95": [
+            0.1258,
+            0.2094
+          ]
+        },
+        "found_only_later": {
+          "k": 32,
+          "n": 300,
+          "share": 0.1067,
+          "ci95": [
+            0.0766,
+            0.1467
+          ]
+        }
+      },
+      "own_family_title": {
+        "found": {
+          "k": 73,
+          "n": 250,
+          "share": 0.292,
+          "ci95": [
+            0.2391,
+            0.3512
+          ]
+        },
+        "found_in_first_200": {
+          "k": 45,
+          "n": 250,
+          "share": 0.18,
+          "ci95": [
+            0.1373,
+            0.2324
+          ]
+        },
+        "found_only_later": {
+          "k": 28,
+          "n": 250,
+          "share": 0.112,
+          "ci95": [
+            0.0786,
+            0.1571
+          ]
+        },
+        "note": "only documents whose Position is a T-B1 family"
+      },
+      "any_alias_title": {
+        "esco": {
+          "found": {
+            "k": 129,
+            "n": 300,
+            "share": 0.43,
+            "ci95": [
+              0.3752,
+              0.4866
+            ]
+          },
+          "found_in_first_200": {
+            "k": 63,
+            "n": 300,
+            "share": 0.21,
+            "ci95": [
+              0.1677,
+              0.2596
+            ]
+          },
+          "found_only_later": {
+            "k": 66,
+            "n": 300,
+            "share": 0.22,
+            "ci95": [
+              0.1768,
+              0.2703
+            ]
+          }
+        },
+        "data_jobs": {
+          "found": {
+            "k": 186,
+            "n": 300,
+            "share": 0.62,
+            "ci95": [
+              0.5639,
+              0.6731
+            ]
+          },
+          "found_in_first_200": {
+            "k": 111,
+            "n": 300,
+            "share": 0.37,
+            "ci95": [
+              0.3173,
+              0.426
+            ]
+          },
+          "found_only_later": {
+            "k": 75,
+            "n": 300,
+            "share": 0.25,
+            "ci95": [
+              0.2044,
+              0.302
+            ]
+          }
+        },
+        "a2_train_families": {
+          "found": {
+            "k": 164,
+            "n": 300,
+            "share": 0.5467,
+            "ci95": [
+              0.4901,
+              0.6021
+            ]
+          },
+          "found_in_first_200": {
+            "k": 91,
+            "n": 300,
+            "share": 0.3033,
+            "ci95": [
+              0.2541,
+              0.3576
+            ]
+          },
+          "found_only_later": {
+            "k": 73,
+            "n": 300,
+            "share": 0.2433,
+            "ci95": [
+              0.1982,
+              0.2949
+            ]
+          }
+        },
+        "any": {
+          "found": {
+            "k": 206,
+            "n": 300,
+            "share": 0.6867,
+            "ci95": [
+              0.6321,
+              0.7365
+            ]
+          },
+          "found_in_first_200": {
+            "k": 128,
+            "n": 300,
+            "share": 0.4267,
+            "ci95": [
+              0.372,
+              0.4832
+            ]
+          },
+          "found_only_later": {
+            "k": 78,
+            "n": 300,
+            "share": 0.26,
+            "ci95": [
+              0.2136,
+              0.3124
+            ]
+          }
+        }
+      },
+      "earliest_family_title_is_own_family": {
+        "k": 56,
+        "n": 132,
+        "share": 0.4242,
+        "ci95": [
+          0.3432,
+          0.5095
+        ],
+        "note": "documents whose Position is a multi-token T-B1 family and whose text contains any multi-token T-B1 family title: is the earliest one the document's own?"
+      }
+    },
+    "alias_table": "ESCO occupation labels; data_jobs titles in >= 5 postings; T-B1 families (m=20); each >= 2 tokens"
+  }
+}
