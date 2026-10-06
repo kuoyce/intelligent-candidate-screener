@@ -1,0 +1,1071 @@
+{
+  "plan": "plan/2026-10-06-extraction-and-rerank (P4, tasks 4.1-4.4)",
+  "text_variant": "v2 (CV text without Position; JD text = Long Description)",
+  "reference_date": "2023-09-01",
+  "rules": "src/candidate_screener/extraction/experience.py (module docstring)",
+  "jd_years_to_exp_years": "<1 no_exp, <2 1y, <3 2y, <5 3y, else 5y; then JD_EXP_TO_BAND",
+  "cv_years_to_band": "cv_experience_band",
+  "unknown_band": "experience_compatible = 0 (the rung-1a rule, unchanged)",
+  "seniority_levels": [
+    "intern",
+    "junior",
+    "middle",
+    "senior",
+    "lead"
+  ],
+  "seniority_years_fallback": "<2 junior, <5 middle, else senior",
+  "selection": {
+    "rule": "variants compared on A2 train only, by accuracy_all; ties keep the default",
+    "defaults": {
+      "jd_aggregate": "max",
+      "seniority_pick": "first"
+    },
+    "chosen": {
+      "jd_aggregate": "max",
+      "seniority_pick_jd": "max",
+      "seniority_pick_cv": "max"
+    }
+  },
+  "intervals": "documents: Wilson 95%; pairs: percentile bootstrap over JDs, 10000 resamples, seed 0",
+  "a2_train": {
+    "region": "train (D19)",
+    "seed": 0,
+    "n_jd": 2000,
+    "n_cv": 2000,
+    "jd_years": {
+      "variants": {
+        "max": {
+          "n": 2000,
+          "coverage": {
+            "k": 1317,
+            "n": 2000,
+            "share": 0.6585,
+            "ci95": [
+              0.6374,
+              0.679
+            ]
+          },
+          "accuracy_all": {
+            "k": 1107,
+            "n": 2000,
+            "share": 0.5535,
+            "ci95": [
+              0.5316,
+              0.5752
+            ]
+          },
+          "accuracy_covered": {
+            "k": 1107,
+            "n": 1317,
+            "share": 0.8405,
+            "ci95": [
+              0.8198,
+              0.8593
+            ]
+          },
+          "within_one_covered": {
+            "k": 1310,
+            "n": 1317,
+            "share": 0.9947,
+            "ci95": [
+              0.9891,
+              0.9974
+            ]
+          },
+          "confusion_oracle_by_extracted": {
+            "0-1": {
+              "0-1": 150,
+              "2-3": 24,
+              "4-6": 6,
+              "7+": 0,
+              "none": 192
+            },
+            "2-3": {
+              "0-1": 29,
+              "2-3": 758,
+              "4-6": 70,
+              "7+": 0,
+              "none": 386
+            },
+            "4-6": {
+              "0-1": 1,
+              "2-3": 80,
+              "4-6": 199,
+              "7+": 0,
+              "none": 105
+            }
+          }
+        },
+        "first": {
+          "n": 2000,
+          "coverage": {
+            "k": 1317,
+            "n": 2000,
+            "share": 0.6585,
+            "ci95": [
+              0.6374,
+              0.679
+            ]
+          },
+          "accuracy_all": {
+            "k": 1103,
+            "n": 2000,
+            "share": 0.5515,
+            "ci95": [
+              0.5296,
+              0.5732
+            ]
+          },
+          "accuracy_covered": {
+            "k": 1103,
+            "n": 1317,
+            "share": 0.8375,
+            "ci95": [
+              0.8166,
+              0.8564
+            ]
+          },
+          "within_one_covered": {
+            "k": 1307,
+            "n": 1317,
+            "share": 0.9924,
+            "ci95": [
+              0.9861,
+              0.9959
+            ]
+          },
+          "confusion_oracle_by_extracted": {
+            "0-1": {
+              "0-1": 152,
+              "2-3": 25,
+              "4-6": 3,
+              "7+": 0,
+              "none": 192
+            },
+            "2-3": {
+              "0-1": 36,
+              "2-3": 760,
+              "4-6": 61,
+              "7+": 0,
+              "none": 386
+            },
+            "4-6": {
+              "0-1": 7,
+              "2-3": 82,
+              "4-6": 191,
+              "7+": 0,
+              "none": 105
+            }
+          }
+        }
+      },
+      "selected": "max"
+    },
+    "cv_years": {
+      "n": 2000,
+      "coverage": {
+        "k": 888,
+        "n": 2000,
+        "share": 0.444,
+        "ci95": [
+          0.4224,
+          0.4659
+        ]
+      },
+      "accuracy_all": {
+        "k": 602,
+        "n": 2000,
+        "share": 0.301,
+        "ci95": [
+          0.2813,
+          0.3215
+        ]
+      },
+      "accuracy_covered": {
+        "k": 602,
+        "n": 888,
+        "share": 0.6779,
+        "ci95": [
+          0.6465,
+          0.7078
+        ]
+      },
+      "within_one_covered": {
+        "k": 798,
+        "n": 888,
+        "share": 0.8986,
+        "ci95": [
+          0.8771,
+          0.9168
+        ]
+      },
+      "confusion_oracle_by_extracted": {
+        "0-1": {
+          "0-1": 62,
+          "2-3": 48,
+          "4-6": 33,
+          "7+": 26,
+          "none": 395
+        },
+        "2-3": {
+          "0-1": 24,
+          "2-3": 177,
+          "4-6": 44,
+          "7+": 18,
+          "none": 310
+        },
+        "4-6": {
+          "0-1": 3,
+          "2-3": 25,
+          "4-6": 158,
+          "7+": 31,
+          "none": 228
+        },
+        "7+": {
+          "0-1": 2,
+          "2-3": 8,
+          "4-6": 24,
+          "7+": 205,
+          "none": 179
+        }
+      },
+      "by_source": {
+        "statement": {
+          "n": 686,
+          "accuracy": {
+            "k": 508,
+            "n": 686,
+            "share": 0.7405,
+            "ci95": [
+              0.7064,
+              0.7719
+            ]
+          }
+        },
+        "ranges": {
+          "n": 202,
+          "accuracy": {
+            "k": 94,
+            "n": 202,
+            "share": 0.4653,
+            "ci95": [
+              0.3978,
+              0.5341
+            ]
+          }
+        }
+      }
+    },
+    "seniority": {
+      "jd": {
+        "variants": {
+          "first": {
+            "documents": 2000,
+            "n_with_position_token": 837,
+            "position_token_rate": {
+              "k": 837,
+              "n": 2000,
+              "share": 0.4185,
+              "ci95": [
+                0.3971,
+                0.4403
+              ]
+            },
+            "token_coverage": {
+              "k": 234,
+              "n": 837,
+              "share": 0.2796,
+              "ci95": [
+                0.2502,
+                0.3109
+              ]
+            },
+            "token_accuracy": {
+              "k": 164,
+              "n": 234,
+              "share": 0.7009,
+              "ci95": [
+                0.6393,
+                0.7559
+              ]
+            },
+            "years_fallback_n": 422,
+            "years_fallback_accuracy": {
+              "k": 218,
+              "n": 422,
+              "share": 0.5166,
+              "ci95": [
+                0.469,
+                0.5639
+              ]
+            },
+            "coverage_with_fallback": {
+              "k": 656,
+              "n": 837,
+              "share": 0.7838,
+              "ci95": [
+                0.7546,
+                0.8103
+              ]
+            },
+            "accuracy_all": {
+              "k": 382,
+              "n": 837,
+              "share": 0.4564,
+              "ci95": [
+                0.4229,
+                0.4903
+              ]
+            },
+            "confusion_position_by_extracted": {
+              "intern": {
+                "intern": 8,
+                "junior": 0,
+                "middle": 0,
+                "senior": 0,
+                "lead": 1,
+                "none": 8
+              },
+              "junior": {
+                "intern": 0,
+                "junior": 44,
+                "middle": 4,
+                "senior": 1,
+                "lead": 5,
+                "none": 33
+              },
+              "middle": {
+                "intern": 0,
+                "junior": 17,
+                "middle": 129,
+                "senior": 8,
+                "lead": 13,
+                "none": 44
+              },
+              "senior": {
+                "intern": 0,
+                "junior": 3,
+                "middle": 143,
+                "senior": 154,
+                "lead": 20,
+                "none": 76
+              },
+              "lead": {
+                "intern": 0,
+                "junior": 4,
+                "middle": 21,
+                "senior": 34,
+                "lead": 47,
+                "none": 20
+              }
+            }
+          },
+          "max": {
+            "documents": 2000,
+            "n_with_position_token": 837,
+            "position_token_rate": {
+              "k": 837,
+              "n": 2000,
+              "share": 0.4185,
+              "ci95": [
+                0.3971,
+                0.4403
+              ]
+            },
+            "token_coverage": {
+              "k": 234,
+              "n": 837,
+              "share": 0.2796,
+              "ci95": [
+                0.2502,
+                0.3109
+              ]
+            },
+            "token_accuracy": {
+              "k": 172,
+              "n": 234,
+              "share": 0.735,
+              "ci95": [
+                0.675,
+                0.7875
+              ]
+            },
+            "years_fallback_n": 422,
+            "years_fallback_accuracy": {
+              "k": 218,
+              "n": 422,
+              "share": 0.5166,
+              "ci95": [
+                0.469,
+                0.5639
+              ]
+            },
+            "coverage_with_fallback": {
+              "k": 656,
+              "n": 837,
+              "share": 0.7838,
+              "ci95": [
+                0.7546,
+                0.8103
+              ]
+            },
+            "accuracy_all": {
+              "k": 390,
+              "n": 837,
+              "share": 0.4659,
+              "ci95": [
+                0.4324,
+                0.4998
+              ]
+            },
+            "confusion_position_by_extracted": {
+              "intern": {
+                "intern": 6,
+                "junior": 0,
+                "middle": 0,
+                "senior": 1,
+                "lead": 2,
+                "none": 8
+              },
+              "junior": {
+                "intern": 0,
+                "junior": 44,
+                "middle": 3,
+                "senior": 1,
+                "lead": 6,
+                "none": 33
+              },
+              "middle": {
+                "intern": 0,
+                "junior": 14,
+                "middle": 130,
+                "senior": 9,
+                "lead": 14,
+                "none": 44
+              },
+              "senior": {
+                "intern": 0,
+                "junior": 3,
+                "middle": 129,
+                "senior": 161,
+                "lead": 27,
+                "none": 76
+              },
+              "lead": {
+                "intern": 0,
+                "junior": 4,
+                "middle": 21,
+                "senior": 32,
+                "lead": 49,
+                "none": 20
+              }
+            }
+          }
+        },
+        "selected": "max"
+      },
+      "cv": {
+        "variants": {
+          "first": {
+            "documents": 2000,
+            "n_with_position_token": 567,
+            "position_token_rate": {
+              "k": 567,
+              "n": 2000,
+              "share": 0.2835,
+              "ci95": [
+                0.2642,
+                0.3037
+              ]
+            },
+            "token_coverage": {
+              "k": 199,
+              "n": 567,
+              "share": 0.351,
+              "ci95": [
+                0.3128,
+                0.3911
+              ]
+            },
+            "token_accuracy": {
+              "k": 125,
+              "n": 199,
+              "share": 0.6281,
+              "ci95": [
+                0.5592,
+                0.6923
+              ]
+            },
+            "years_fallback_n": 142,
+            "years_fallback_accuracy": {
+              "k": 65,
+              "n": 142,
+              "share": 0.4577,
+              "ci95": [
+                0.378,
+                0.5397
+              ]
+            },
+            "coverage_with_fallback": {
+              "k": 341,
+              "n": 567,
+              "share": 0.6014,
+              "ci95": [
+                0.5606,
+                0.6409
+              ]
+            },
+            "accuracy_all": {
+              "k": 190,
+              "n": 567,
+              "share": 0.3351,
+              "ci95": [
+                0.2975,
+                0.3749
+              ]
+            },
+            "confusion_position_by_extracted": {
+              "intern": {
+                "intern": 3,
+                "junior": 1,
+                "middle": 1,
+                "senior": 1,
+                "lead": 0,
+                "none": 5
+              },
+              "junior": {
+                "intern": 16,
+                "junior": 55,
+                "middle": 11,
+                "senior": 12,
+                "lead": 13,
+                "none": 120
+              },
+              "middle": {
+                "intern": 2,
+                "junior": 6,
+                "middle": 22,
+                "senior": 3,
+                "lead": 2,
+                "none": 26
+              },
+              "senior": {
+                "intern": 3,
+                "junior": 4,
+                "middle": 7,
+                "senior": 62,
+                "lead": 16,
+                "none": 48
+              },
+              "lead": {
+                "intern": 0,
+                "junior": 3,
+                "middle": 2,
+                "senior": 48,
+                "lead": 48,
+                "none": 27
+              }
+            }
+          },
+          "max": {
+            "documents": 2000,
+            "n_with_position_token": 567,
+            "position_token_rate": {
+              "k": 567,
+              "n": 2000,
+              "share": 0.2835,
+              "ci95": [
+                0.2642,
+                0.3037
+              ]
+            },
+            "token_coverage": {
+              "k": 199,
+              "n": 567,
+              "share": 0.351,
+              "ci95": [
+                0.3128,
+                0.3911
+              ]
+            },
+            "token_accuracy": {
+              "k": 131,
+              "n": 199,
+              "share": 0.6583,
+              "ci95": [
+                0.59,
+                0.7206
+              ]
+            },
+            "years_fallback_n": 142,
+            "years_fallback_accuracy": {
+              "k": 65,
+              "n": 142,
+              "share": 0.4577,
+              "ci95": [
+                0.378,
+                0.5397
+              ]
+            },
+            "coverage_with_fallback": {
+              "k": 341,
+              "n": 567,
+              "share": 0.6014,
+              "ci95": [
+                0.5606,
+                0.6409
+              ]
+            },
+            "accuracy_all": {
+              "k": 196,
+              "n": 567,
+              "share": 0.3457,
+              "ci95": [
+                0.3077,
+                0.3857
+              ]
+            },
+            "confusion_position_by_extracted": {
+              "intern": {
+                "intern": 2,
+                "junior": 2,
+                "middle": 1,
+                "senior": 1,
+                "lead": 0,
+                "none": 5
+              },
+              "junior": {
+                "intern": 9,
+                "junior": 56,
+                "middle": 11,
+                "senior": 14,
+                "lead": 17,
+                "none": 120
+              },
+              "middle": {
+                "intern": 1,
+                "junior": 5,
+                "middle": 24,
+                "senior": 3,
+                "lead": 2,
+                "none": 26
+              },
+              "senior": {
+                "intern": 1,
+                "junior": 3,
+                "middle": 8,
+                "senior": 60,
+                "lead": 20,
+                "none": 48
+              },
+              "lead": {
+                "intern": 0,
+                "junior": 1,
+                "middle": 2,
+                "senior": 44,
+                "lead": 54,
+                "none": 27
+              }
+            }
+          }
+        },
+        "selected": "max"
+      }
+    }
+  },
+  "final_set_documents": {
+    "note": "measurement only: no final-set label is read; oracle = the true fields",
+    "n_jd": 60,
+    "n_cv": 600,
+    "n_pairs": 600,
+    "jd_years": {
+      "n": 60,
+      "coverage": {
+        "k": 36,
+        "n": 60,
+        "share": 0.6,
+        "ci95": [
+          0.4737,
+          0.7143
+        ]
+      },
+      "accuracy_all": {
+        "k": 25,
+        "n": 60,
+        "share": 0.4167,
+        "ci95": [
+          0.3006,
+          0.5427
+        ]
+      },
+      "accuracy_covered": {
+        "k": 25,
+        "n": 36,
+        "share": 0.6944,
+        "ci95": [
+          0.5314,
+          0.82
+        ]
+      },
+      "within_one_covered": {
+        "k": 33,
+        "n": 36,
+        "share": 0.9167,
+        "ci95": [
+          0.7817,
+          0.9713
+        ]
+      },
+      "confusion_oracle_by_extracted": {
+        "0-1": {
+          "0-1": 8,
+          "2-3": 2,
+          "4-6": 1,
+          "7+": 0,
+          "none": 10
+        },
+        "2-3": {
+          "0-1": 1,
+          "2-3": 9,
+          "4-6": 1,
+          "7+": 0,
+          "none": 8
+        },
+        "4-6": {
+          "0-1": 2,
+          "2-3": 4,
+          "4-6": 8,
+          "7+": 0,
+          "none": 6
+        }
+      }
+    },
+    "cv_years": {
+      "n": 600,
+      "coverage": {
+        "k": 280,
+        "n": 600,
+        "share": 0.4667,
+        "ci95": [
+          0.4271,
+          0.5067
+        ]
+      },
+      "accuracy_all": {
+        "k": 201,
+        "n": 600,
+        "share": 0.335,
+        "ci95": [
+          0.2984,
+          0.3737
+        ]
+      },
+      "accuracy_covered": {
+        "k": 201,
+        "n": 280,
+        "share": 0.7179,
+        "ci95": [
+          0.6625,
+          0.7673
+        ]
+      },
+      "within_one_covered": {
+        "k": 257,
+        "n": 280,
+        "share": 0.9179,
+        "ci95": [
+          0.8798,
+          0.9446
+        ]
+      },
+      "confusion_oracle_by_extracted": {
+        "0-1": {
+          "0-1": 16,
+          "2-3": 5,
+          "4-6": 8,
+          "7+": 4,
+          "none": 103
+        },
+        "2-3": {
+          "0-1": 7,
+          "2-3": 49,
+          "4-6": 18,
+          "7+": 6,
+          "none": 100
+        },
+        "4-6": {
+          "0-1": 1,
+          "2-3": 8,
+          "4-6": 69,
+          "7+": 7,
+          "none": 65
+        },
+        "7+": {
+          "0-1": 0,
+          "2-3": 4,
+          "4-6": 11,
+          "7+": 67,
+          "none": 52
+        }
+      }
+    },
+    "experience_compatible_pairs": {
+      "generic": {
+        "n_pairs": 400,
+        "n_jds": 40,
+        "agreement": 0.465,
+        "agreement_ci95": [
+          0.3675,
+          0.5625
+        ],
+        "kappa": 0.1507,
+        "kappa_ci95": [
+          0.0737,
+          0.249
+        ],
+        "compatible_rate_oracle": 0.7625,
+        "compatible_rate_extracted": 0.2525,
+        "extracted_1_oracle_0": 5,
+        "extracted_0_oracle_1": 209,
+        "both_bands_extracted": 119,
+        "agreement_where_both_extracted": 0.9244
+      },
+      "targeted": {
+        "n_pairs": 200,
+        "n_jds": 20,
+        "agreement": 0.375,
+        "agreement_ci95": [
+          0.255,
+          0.495
+        ],
+        "kappa": 0.0281,
+        "kappa_ci95": [
+          -0.0479,
+          0.1321
+        ],
+        "compatible_rate_oracle": 0.765,
+        "compatible_rate_extracted": 0.23,
+        "extracted_1_oracle_0": 9,
+        "extracted_0_oracle_1": 116,
+        "both_bands_extracted": 56,
+        "agreement_where_both_extracted": 0.7321
+      },
+      "total": {
+        "n_pairs": 600,
+        "n_jds": 60,
+        "agreement": 0.435,
+        "agreement_ci95": [
+          0.3567,
+          0.5133
+        ],
+        "kappa": 0.1093,
+        "kappa_ci95": [
+          0.05,
+          0.1813
+        ],
+        "compatible_rate_oracle": 0.7633,
+        "compatible_rate_extracted": 0.245,
+        "extracted_1_oracle_0": 14,
+        "extracted_0_oracle_1": 325,
+        "both_bands_extracted": 175,
+        "agreement_where_both_extracted": 0.8629
+      }
+    },
+    "seniority": {
+      "jd": {
+        "documents": 60,
+        "n_with_position_token": 20,
+        "position_token_rate": {
+          "k": 20,
+          "n": 60,
+          "share": 0.3333,
+          "ci95": [
+            0.2273,
+            0.4594
+          ]
+        },
+        "token_coverage": {
+          "k": 6,
+          "n": 20,
+          "share": 0.3,
+          "ci95": [
+            0.1455,
+            0.519
+          ]
+        },
+        "token_accuracy": {
+          "k": 5,
+          "n": 6,
+          "share": 0.8333,
+          "ci95": [
+            0.4365,
+            0.9699
+          ]
+        },
+        "years_fallback_n": 11,
+        "years_fallback_accuracy": {
+          "k": 5,
+          "n": 11,
+          "share": 0.4545,
+          "ci95": [
+            0.2127,
+            0.7199
+          ]
+        },
+        "coverage_with_fallback": {
+          "k": 17,
+          "n": 20,
+          "share": 0.85,
+          "ci95": [
+            0.6396,
+            0.9476
+          ]
+        },
+        "accuracy_all": {
+          "k": 10,
+          "n": 20,
+          "share": 0.5,
+          "ci95": [
+            0.2993,
+            0.7007
+          ]
+        },
+        "confusion_position_by_extracted": {
+          "junior": {
+            "intern": 0,
+            "junior": 1,
+            "middle": 0,
+            "senior": 0,
+            "lead": 0,
+            "none": 1
+          },
+          "middle": {
+            "intern": 0,
+            "junior": 0,
+            "middle": 1,
+            "senior": 1,
+            "lead": 0,
+            "none": 1
+          },
+          "senior": {
+            "intern": 0,
+            "junior": 0,
+            "middle": 2,
+            "senior": 7,
+            "lead": 0,
+            "none": 1
+          },
+          "lead": {
+            "intern": 0,
+            "junior": 1,
+            "middle": 1,
+            "senior": 2,
+            "lead": 1,
+            "none": 0
+          }
+        }
+      },
+      "cv": {
+        "documents": 600,
+        "n_with_position_token": 152,
+        "position_token_rate": {
+          "k": 152,
+          "n": 600,
+          "share": 0.2533,
+          "ci95": [
+            0.2202,
+            0.2896
+          ]
+        },
+        "token_coverage": {
+          "k": 48,
+          "n": 152,
+          "share": 0.3158,
+          "ci95": [
+            0.2472,
+            0.3935
+          ]
+        },
+        "token_accuracy": {
+          "k": 30,
+          "n": 48,
+          "share": 0.625,
+          "ci95": [
+            0.4836,
+            0.7478
+          ]
+        },
+        "years_fallback_n": 42,
+        "years_fallback_accuracy": {
+          "k": 20,
+          "n": 42,
+          "share": 0.4762,
+          "ci95": [
+            0.3336,
+            0.6228
+          ]
+        },
+        "coverage_with_fallback": {
+          "k": 90,
+          "n": 152,
+          "share": 0.5921,
+          "ci95": [
+            0.5126,
+            0.667
+          ]
+        },
+        "accuracy_all": {
+          "k": 50,
+          "n": 152,
+          "share": 0.3289,
+          "ci95": [
+            0.2593,
+            0.407
+          ]
+        },
+        "confusion_position_by_extracted": {
+          "intern": {
+            "intern": 0,
+            "junior": 0,
+            "middle": 0,
+            "senior": 0,
+            "lead": 0,
+            "none": 5
+          },
+          "junior": {
+            "intern": 2,
+            "junior": 8,
+            "middle": 1,
+            "senior": 5,
+            "lead": 7,
+            "none": 25
+          },
+          "middle": {
+            "intern": 1,
+            "junior": 1,
+            "middle": 6,
+            "senior": 1,
+            "lead": 0,
+            "none": 5
+          },
+          "senior": {
+            "intern": 0,
+            "junior": 0,
+            "middle": 1,
+            "senior": 21,
+            "lead": 5,
+            "none": 17
+          },
+          "lead": {
+            "intern": 2,
+            "junior": 1,
+            "middle": 1,
+            "senior": 12,
+            "lead": 15,
+            "none": 10
+          }
+        }
+      }
+    }
+  }
+}
