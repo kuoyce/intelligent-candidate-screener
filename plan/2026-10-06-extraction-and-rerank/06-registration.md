@@ -22,7 +22,7 @@ the human grades `yc_raw` / `van_raw` for ordering (D52). **Text:** `text_v2` (D
 
 | Rung | System | Stage |
 |---|---|---|
-| X1 | extracted metadata rule: `2 × role_match + experience_compatible`, both extracted (02 §3.4) | 1 |
+| X1 | extracted metadata rule: `2 × role_match + experience_compatible`, both extracted (02 §3.4). **An unknown experience band on either side counts as compatible (1)** (amendment A1) | 1 |
 | X2 | X1 + TF-IDF (fixed rank-normalised sum, as 1a+2) | 1 |
 | X3 | X1 + skill overlap | 1 |
 | X4 | X1 + SBERT weak | 1 |
@@ -77,7 +77,7 @@ two disagree in verdict, both are stated.
 | O2 | selected cross-encoder | TF-IDF | Against the cheap lexical ranker |
 | O3 | R3 bi-encoder | SBERT weak | Is it the supervision or the architecture? |
 | O4 | selected cross-encoder | R3 | The architecture, at equal supervision |
-| O5 | each reranker | random | **The floor** (user, 6 Oct): it must beat guessing. Random = 0.5 pairwise |
+| O5 | each reranker | random | **The floor** (user, 6 Oct): it must beat guessing: the **paired** per-JD Δ(system − random) 95% CI lower bound > 0, total scope (amendment A2) |
 
 Each ordering figure is reported on `full`, `llm_free` and `fit_only` (02 §5). The
 **fit_only** figure is the one that matches the stage-2 role (ordering the Fit CVs).
@@ -102,3 +102,10 @@ X4 → bi-encoder (R3) → cross-encoder (R1/R2).
   run-to-run noise.
 - **Stop rule (04 §3):** if every trained reranker fails O5 on the batch's own validation
   split, the batch is reported as insufficient; it is **not** extended to chase a result.
+
+## 7. Amendments (all before any held-out rung was scored)
+
+| # | Date | Change | Why | Post-hoc? |
+|---|---|---|---|---|
+| A1 | 7 Oct 2026 | X1's experience term: an unknown band (no experience stated) on either side counts as compatible, not 0 | P4 measured that 40–55% of documents state no experience; under unknown → 0 the extracted check agrees with the true one on only 0.435 of pairs (0.863 where both sides state it). User decision | No: X1 not yet scored. Based on extractor measurements, not on a matching result |
+| A2 | 7 Oct 2026 | O5 "beats random" = paired Δ vs random, CI lower bound > 0 | The P5 record left the test ambiguous. User decision | No: no reranker scored |
