@@ -90,3 +90,15 @@ The shortlist filters to `Primary Keyword ∈ {Data Science, Data Engineer, Data
 the only bucket `AI Engineer`/`ML Engineer`-titled rows fold into, verified via `Position`
 substring matching. It does **not** stratify or otherwise change task 3.4's own 200-pair
 build, which stays unstratified across all 41 role families per D14.
+
+## P6 (extraction-and-rerank) — the D50 LLM scoring batch
+
+| File | What it is |
+|---|---|
+| `llm-train-batch.csv` | `pair_id, jd_id, cv_id, split {train,validation}, selection_reason, replicate` — the **only** pairs D50 allows the LLM to score: 100 A2 JDs × 10 CVs, `region == train` only, none in the final set. 80 / 20 JDs train / validation, CV-disjoint. `replicate` marks the 100 pairs a re-score would use (Q-A1b, off by default) |
+| `llm-train-batch.json` | Spec, seed, the manifest's SHA-256, and counts. `rerank.scoring_batch --check` rebuilds the batch in memory and compares |
+| `llm-train-scores.csv` | *(written by `--collect`, not yet)* ids and 0-100 scores only, keyed by (`agent_sha256`, model, run, draw); run 11 (+12 replicate), draw `a2_train_batch`. Never `judgements.csv` (D43/D51) |
+
+Built by `uv run python -m candidate_screener.rerank.scoring_batch --build`; same design as the
+final set's `generic` stratum (8 same-`Primary Keyword` + 2 other, TF-IDF banded). See
+`plan/2026-10-06-extraction-and-rerank/15-p6-batch.md`.

@@ -1,0 +1,65 @@
+{
+  "decision": "D50",
+  "plan": "plan/2026-10-06-extraction-and-rerank/04-llm-scoring-batch.md",
+  "spec": {
+    "batch": 1,
+    "n_jds": 100,
+    "per_jd": 10,
+    "seed": 0,
+    "keywords": null,
+    "same_keyword_min": 8,
+    "reuse_jds": false
+  },
+  "region": "train (a2-partition.csv, D19)",
+  "design": "final set's generic design (Q-A2): 8 same-Primary-Keyword CVs banded high/high/high/mid/mid/mid/low/low + 2 other-keyword banded high/mid, TF-IDF cosine within each JD's pools; each CV drawn once",
+  "split": "80/20 by JD (seeded), validation CV-disjoint from train",
+  "replicate": "100 pairs seeded (llm_recheck.subsample_ids); dispatched only with --replicate (Q-A1b open)",
+  "manifest": "llm-train-batch.csv",
+  "manifest_sha256": "a21c6e25586c727e7a42bc7ab74a35c61c6cc009fb63ca2ddaea6e77dc55871c",
+  "summary": {
+    "eligible": {
+      "jds": 106423,
+      "cvs": 157688,
+      "jds_by_exp_band": {
+        "2-3": 64618,
+        "0-1": 21046,
+        "4-6": 20759
+      }
+    },
+    "pairs": 1000,
+    "jds": 100,
+    "cvs": 1000,
+    "per_split": {
+      "train": {
+        "jds": 80,
+        "cvs": 800,
+        "pairs": 800,
+        "replicate_pairs": 82
+      },
+      "validation": {
+        "jds": 20,
+        "cvs": 200,
+        "pairs": 200,
+        "replicate_pairs": 18
+      }
+    },
+    "validation_pairs_dropped_for_cv_overlap": 0,
+    "cvs_in_both_splits": 0,
+    "by_selection_reason": {
+      "same_keyword:high": 300,
+      "same_keyword:mid": 300,
+      "same_keyword:low": 200,
+      "other_keyword:mid": 100,
+      "other_keyword:high": 100
+    },
+    "on_category_rate": 0.8,
+    "candidates_per_jd": {
+      "10": 100
+    },
+    "jds_by_exp_band": {
+      "4-6": 34,
+      "0-1": 33,
+      "2-3": 33
+    }
+  }
+}
