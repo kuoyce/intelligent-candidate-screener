@@ -7,6 +7,8 @@
 - `normalise`: alias → canonical label, string matching against SBERT.
 - `metrics`: span-level strict / partial P/R/F1 with a bootstrap CI.
 - `evaluate`: the committed record `output/extraction/extraction-metrics.json`.
+- `title_profile` (plan 2026-10-06 P2) and `role_family` (P3, E2): job title -> role
+  family from text only; record `output/extraction/role-family-metrics.json`.
 
 The design is `plan/2026-09-26-top-down-reset/02-design-spec.md` §6; the record of what
 was built is `08-extraction.md` in the same directory.
