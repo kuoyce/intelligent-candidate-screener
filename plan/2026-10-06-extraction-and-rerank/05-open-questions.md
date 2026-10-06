@@ -9,7 +9,6 @@ discuss later).
 |---|---|---|---|
 | Q-A1b | Include the ~100-call replicate (re-score 10% to measure the score's noise)? | Without it the score's run-to-run noise is unknown | Yes; ~7% more calls |
 | Q-B2 | Hand-check sample size for the title extractor, and who labels it | Gives a ground truth where the keyword is too coarse | ~100 strings per side; labelled by the user or a teammate (no LLM, D42) |
-| Q-B3 | P3 merges a split family into a specific keyword when it is that keyword's own title (`Data Science/data engineer` → `Data Engineer`, 4 merges; [12](12-p3-role-family.md) §1.4). Accept? | Without it, two data engineers can be called different roles by the oracle and `role_match` | Accept (60 classes instead of 64) |
 | Q-D2 | The exact `llm_free` subset for ordering: reuse `final_set.LLM_FREE_TIERS` (pairs where no LLM label entered the final label) | The subset is the guard against the LLM scoring itself | Reuse unchanged |
 | Q-D3 | `text_v2` also needs the training texts re-cut (P1.3): are retrained TF-IDF and SBERT weak accepted as the `v2` baselines? | Otherwise the baselines saw `Position` in training | Yes |
 
@@ -17,6 +16,9 @@ discuss later).
 
 | Date | Question | Answer |
 |---|---|---|
+| 7 Oct | Q-B3: P3's merge step (a split family folds into a keyword when it is that keyword's own most common title; 4 merges) | **Accepted** (user): 60 classes |
+| 7 Oct | Q-P4-1: unknown experience band in X1 | **Compatible (1)**, registered as amendment A1 |
+| 7 Oct | "Beats random" test (O5) | Paired Δ vs random, CI lower bound > 0 (amendment A2) |
 | 6 Oct | Q-B1: role-family taxonomy and method | **T-A, split generic**: `Primary Keyword`, with `Data Science`, `Lead` and `Other` split into normalised-title families. Extracted by a **text → family classifier**, title spans as features and UI evidence (evidence: 11-p2-data-checks.md) |
 | 6 Oct | Q-A3: How is dispatch unfrozen? | Answered in P6.1 ([15](15-p6-batch.md)): a new module `rerank/scoring_batch.py` imports the frozen instrument from `llm_recheck` and runs its own guarded loop; `annotation/` is not edited and `DISPATCH_CLOSED` stays `True` |
 | 6 Oct | Q-A1: Batch size | **B**: 100 JDs × 10 CVs = 1,000 calls (80 train / 20 validation JDs). The ~100-call replicate was not addressed, so it stays an open sub-question (Q-A1b) |
