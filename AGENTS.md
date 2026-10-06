@@ -10,7 +10,7 @@ NUS ISS PLP Group 2: an intelligent candidate-screening system. It ranks resumes
 job description and shows the evidence. The research question (proposal v3,
 `docs/proposal/`): **does more sophisticated matching earn its complexity?** The ladder is
 rules → TF-IDF/BM25 → Sentence-BERT → cross-encoder. The current plan is
-`plan/2026-09-26-top-down-reset/`.
+`plan/2026-10-06-extraction-and-rerank/`.
 
 ## Data Structure
 
@@ -77,8 +77,8 @@ No runnable scripts under `plan/`; code that outlives a decision goes in the pac
 
    It is frozen. A changed rule is a new `rule_version` and a new file. Do not score systems
    against one annotator.
-2. **Fit / No Fit only** (D47). `Fit` = `Good Fit` ∪ `Potential Fit`. No figure is
-   computed on three classes. Raw labels stay in the manifests for audit.
+2. **Fit / No Fit for classification** (D47). `Fit` = `Good Fit` ∪ `Potential Fit`. The
+   only graded figure is ordering (nDCG, pairwise) on the human grades (D52).
 3. **Report `generic`, `targeted` and `total` together** (D29 amended). Never a total
    without both strata beside it.
 4. **Every figure carries its *n* and a CI**, bootstrapped over **queries (JDs)**, never
@@ -87,22 +87,23 @@ No runnable scripts under `plan/`; code that outlives a decision goes in the pac
    hyperparameters included. Tune on A1's doubly-disjoint CV folds or on the weak-pair
    validation split. Code that fits a model never reads `a2-final-labels.csv` or
    `judgements.csv`.
-6. **Metadata is its own rung**, so text models are never credited with what a category
-   field does for free. Report within-family AUC beside the headline.
+6. **No metadata at inference** (D53): systems read `text_v2`; fields are labels or
+   oracles. Report within-family AUC beside the headline.
 7. **Inter-annotator agreement is reported, with no target** (D44): context, not a goal.
 8. **Decide before you look.** A rule or bar that decides between rungs is committed
-   (`plan/…/06-registration.md`) before the held-out rungs are scored. Anything seen
+   in the plan before the held-out rungs are scored. Anything seen
    earlier is labelled `exploratory`.
 
 ## Annotation and the LLM
 
 - **Collection is closed** (D42). No new labels, no new batches, and no Claude subprocess
   is ever started from this repository: `llm_recheck --dispatch/--judge` and
-  `prompt_calibration` raise `DispatchClosed`. Reopening needs a decision in the log.
+  `prompt_calibration` raise `DispatchClosed`. The one exception is the D50 scoring batch,
+  scoped in code. Reopening further needs a decision in the log.
 - **The LLM is a secondary annotator, not a system** (D43). Exactly one series enters the
-  final set: instrument `5d986c82`, `claude-haiku-4-5`, runs 9/10. No system is trained on
-  LLM labels. If the LLM is ever scored as a system, it is scored on the `llm_free`
-  subset.
+  final set: instrument `5d986c82`, `claude-haiku-4-5`, runs 9/10. Only a reranker may
+  train on LLM output, and only on the D50 batch (D51). Ordering figures and any LLM
+  scored as a system are reported on the `llm_free` subset.
 - **LLM labels never enter `judgements.csv`.** They live in `llm-*.csv`, keyed by
   (`agent_sha256`, model, run, draw). Never pool across those axes.
 - Every document displayed to a person passes `annotation.redact`.
@@ -129,8 +130,7 @@ No runnable scripts under `plan/`; code that outlives a decision goes in the pac
 - Numbered, one topic each, executed before committing so the outputs are visible on GitHub.
 - Redact PII **inside the notebook** rather than relying on stripping outputs later.
 - Cite measured figures from `docs/data/profile-metrics.json` (corpus) and
-  `output/…` records (models) instead of restating prose — numbers then
-  update when the profile or the baseline is re-run, and the notebook cannot drift from them.
+  `output/…` records (models) instead of restating prose, so a notebook cannot drift.
 - A notebook **reports** a model, it does not define one. `tests/test_notebook_is_thin.py`
   fails if a code cell constructs a vectoriser, a BM25 model or a classifier — that code
   belongs in the package, where it can be regression-tested.
