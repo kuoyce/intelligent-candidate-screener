@@ -6,9 +6,14 @@ metadata cannot help). Classifiers get accuracy, binary macro-F1, F1 of Fit, and
 Every figure names its scope (generic, targeted or total), its n, a CI resampling JDs, and
 the final set's rule version. A total is never emitted without both strata beside it.
 
+`--text-variant v2` (D53) scores the text rungs on CV text without `Position` into its
+own record, `indomain-metrics-v2.json`, with the residual title leak beside it
+(`evaluation.text_leak`). The `v1` record is never rewritten by a `v2` run.
+
 Usage:
     uv run python -m candidate_screener.evaluation.indomain --seed 0
     uv run python -m candidate_screener.evaluation.indomain --check
+    uv run python -m candidate_screener.evaluation.indomain --text-variant v2 [--check]
 """
 from __future__ import annotations
 
@@ -29,6 +34,9 @@ CLS_METRICS = ("accuracy", "macro_f1", "f1_fit", "kappa")
 SUBSETS = ("all", "llm_free")
 RECORD = OUTPUT / "matching" / "indomain-metrics.json"
 COSTS = OUTPUT / "matching" / "indomain-costs.json"
+RECORDS = {"v1": (RECORD, COSTS),
+           "v2": (OUTPUT / "matching" / "indomain-metrics-v2.json",
+                  OUTPUT / "matching" / "indomain-costs-v2.json")}
 DECIMALS = 6
 
 
@@ -192,13 +200,19 @@ def assert_total_has_strata(figures: list[dict]) -> None:
 
 
 def evaluate(rungs: list, classifiers: dict, comparisons: list[tuple[str, str]],
-             seed: int = 0) -> tuple[dict, dict]:
-    """Score every rung on A2, compute every figure, return (record, costs)."""
+             seed: int = 0, text_variant: str = "v1") -> tuple[dict, dict]:
+    """Score every rung on A2, compute every figure, return (record, costs).
+
+    Under `v1` the record is exactly the pre-D53 one. Under any other variant it also
+    names the variant, carries the residual-leak report, and runs no selection (every
+    re-scored rung is `exploratory`, so none can test the registered rule)."""
     from candidate_screener.matching import corpus
+    corpus.check_variant(text_variant)
     frame = final_set.load()
     rule_version = int(frame.rule_version.iloc[0])
     lab = labels(frame)
-    pairs = corpus.a2_pairs().assign(keyword_match=lambda d: corpus.keyword_match(d))
+    pairs = corpus.a2_pairs(text_variant=text_variant).assign(
+        keyword_match=lambda d: corpus.keyword_match(d))
     pairs = pairs.set_index("pair_id").loc[lab.index].reset_index()
 
     systems, costs, scores, unscoreable, cls_block = {}, {}, {}, [], {}
@@ -256,9 +270,25 @@ def evaluate(rungs: list, classifiers: dict, comparisons: list[tuple[str, str]],
             memo[key] = paired_delta(scores[b], scores[a], lab, pairs, "auc", scope, subset, seed)
         return memo[key]
 
-    chosen = {ctx: selection.select(scores, auc_total, delta, ctx)
-              for ctx in ("metadata", "text_only")}
+    if text_variant == "v1":
+        chosen = {ctx: selection.select(scores, auc_total, delta, ctx)
+                  for ctx in ("metadata", "text_only")}
+    else:
+        chosen = {"not_run": "every text_v2 rung here is exploratory (plan 2026-10-06 "
+                             "02 §2); selection under D53 waits for the registered rungs"}
+    variant_block = {}
+    if text_variant != "v1":
+        from candidate_screener.evaluation import text_leak
+        variant_block = {
+            "text_variant": text_variant,
+            "text_variant_definition": {
+                "cv_fields": list(corpus.CV_FIELDS_BY_VARIANT[text_variant]),
+                "jd_text": "Long Description",
+                "decision": "D53"},
+            "residual_leak": text_leak.report(pairs, seed),
+        }
     record = {
+        **variant_block,
         "seed": seed,
         "reference": {"file": final_set.FINAL_CSV.name, "rule_version": rule_version,
                       "sha256": hashlib.sha256(final_set.FINAL_CSV.read_bytes()).hexdigest(),
@@ -284,27 +314,34 @@ def main(argv: list[str] | None = None) -> int:
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--check", action="store_true", help="rebuild and diff, write nothing")
+    ap.add_argument("--text-variant", choices=sorted(RECORDS), default="v1",
+                    help="v1: CV text with Position (pre-D53); v2: without (D53)")
     args = ap.parse_args(argv)
-    record, costs = evaluate(ladder.rungs(), ladder.classifiers(), ladder.comparisons(),
-                             args.seed)
+    record_path, costs_path = RECORDS[args.text_variant]
+    if args.text_variant == "v1":
+        record, costs = evaluate(ladder.rungs(), ladder.classifiers(), ladder.comparisons(),
+                                 args.seed)
+    else:
+        record, costs = evaluate(ladder.text_v2_rungs(), {}, ladder.comparisons(),
+                                 args.seed, text_variant=args.text_variant)
     if args.check:
-        committed = RECORD.read_text(encoding="utf-8") if RECORD.exists() else ""
+        committed = record_path.read_text(encoding="utf-8") if record_path.exists() else ""
         same = committed == render(record)
-        print(f"[{'PASS' if same else 'FAIL'}] rebuild reproduces {RECORD.name}")
+        print(f"[{'PASS' if same else 'FAIL'}] rebuild reproduces {record_path.name}")
         if not same and committed:
             old = json.loads(committed)
             for name, block in record["systems"].items():
                 if old.get("systems", {}).get(name) != block:
                     print(f"  differs: system {name}")
         return 0 if same else 1
-    RECORD.parent.mkdir(parents=True, exist_ok=True)
-    RECORD.write_text(render(record), encoding="utf-8")
-    COSTS.write_text(render(costs), encoding="utf-8")
+    record_path.parent.mkdir(parents=True, exist_ok=True)
+    record_path.write_text(render(record), encoding="utf-8")
+    costs_path.write_text(render(costs), encoding="utf-8")
     for name, block in record["systems"].items():
         f = {(x["metric"], x["scope"]): x for x in block["figures"] if x["subset"] == "all"}
         cells = " / ".join(f"{f[('auc', s)]['value']:.3f}" for s in final_set.SCOPES)
         print(f"  {name:28s} AUC {cells}   [{block['status']}]")
-    print(f"-> {RECORD}")
+    print(f"-> {record_path}")
     return 0
 
 

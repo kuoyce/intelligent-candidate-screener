@@ -69,6 +69,22 @@ def rungs() -> list[Rung]:
     return out
 
 
+def text_v2_rungs() -> list[Rung]:
+    """The existing text rungs re-scored on `text_v2` (D53, plan 2026-10-06 P1.4), every
+    one `exploratory`: their configurations were seen on `text_v1`. The metadata rungs
+    read no text and are carried unchanged as references. No metadata hybrid: D53 forbids
+    metadata at inference, and the cross-encoders and the learned hybrid are out of P1."""
+    return [
+        Rung(rules.Random, "exploratory"),
+        Rung(rules.KeywordMatch, "exploratory"),
+        Rung(rules.Metadata, "exploratory"),
+        Rung(lambda: lexical.Tfidf("v2"), "exploratory"),
+        Rung(lambda: lexical.Bm25("v2"), "exploratory"),
+        Rung(lambda: sbert.SbertZeroShot("v2"), "exploratory"),
+        Rung(lambda: sbert.SbertWeak("v2"), "exploratory"),
+    ]
+
+
 def classifiers() -> dict:
     return {"metadata rule (Fit iff keyword match)": (rules.metadata_classifier, "exploratory")}
 

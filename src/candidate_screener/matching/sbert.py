@@ -5,6 +5,10 @@ is not cut at 256 tokens. Embeddings are cached per (model, text) under
 `data/processed/embeddings/`. 3a is zero-shot. 3b is fine-tuned with
 MultipleNegativesRankingLoss on the weak pairs' train split (JD, positive CV, hard or
 easy negative CV), with hyperparameters fixed in advance: nothing is tuned (D46).
+
+`text_variant` (D53): under `v2` the weak pairs' CV text has no `Position`, and the
+embedding cache and the fine-tuned weights live under their own keys. The `v1` keys are
+the pre-D53 ones unchanged, so the committed `v1` record still reproduces.
 """
 from __future__ import annotations
 
@@ -84,8 +88,17 @@ class SbertZeroShot(_BiEncoder):
     name, rung = "SBERT (zero-shot)", "3a"
     trained_on = "nothing (pretrained MiniLM, cached)"
 
+    def __init__(self, text_variant: str = "v1") -> None:
+        super().__init__()
+        self.text_variant = text_variant
+
+    @staticmethod
+    def cache_key(text_variant: str = "v1") -> str:
+        from candidate_screener.matching import corpus
+        return f"minilm-zero-shot{corpus.variant_tag(text_variant)}"
+
     def _fit(self, train):
-        self.encoder = Encoder(neural.MODEL_ID, "minilm-zero-shot")
+        self.encoder = Encoder(neural.MODEL_ID, self.cache_key(self.text_variant))
 
 
 def weak_triplets(frame: pd.DataFrame) -> pd.DataFrame:
@@ -103,13 +116,35 @@ class SbertWeak(_BiEncoder):
     name, rung = "SBERT (weak fine-tuned)", "3b"
     trained_on = "weak pairs, A2 train region (metadata labels)"
 
+    def __init__(self, text_variant: str = "v1") -> None:
+        super().__init__()
+        from candidate_screener.matching import corpus
+        self.text_variant = corpus.check_variant(text_variant)
+        if text_variant != "v1":
+            self.trained_on = f"{SbertWeak.trained_on}, text_{text_variant}"
+
+    @staticmethod
+    def config(text_variant: str = "v1") -> dict:
+        """Everything the weights depend on. `v1` omits the key so its pre-D53 fingerprint
+        (and cached weights) stay valid; any other variant names itself."""
+        from candidate_screener.data import weak_pairs
+        from candidate_screener.matching import corpus
+        config = {**FT_CONFIG, "weak_pairs": neural.file_digest(weak_pairs.MANIFEST)}
+        if corpus.check_variant(text_variant) != "v1":
+            config["text_variant"] = text_variant
+        return config
+
+    @classmethod
+    def cache_key(cls, text_variant: str = "v1") -> str:
+        return f"sbert-weak-{neural.fingerprint(cls.config(text_variant))}"
+
     def _fit(self, train):
         from candidate_screener.data import weak_pairs
-        config = {**FT_CONFIG, "weak_pairs": neural.file_digest(weak_pairs.MANIFEST)}
-        key = f"sbert-weak-{neural.fingerprint(config)}"
+        key = self.cache_key(self.text_variant)
         out = WEIGHTS / key
         if not (out / "config.json").exists():
-            self._train(weak_pairs.with_text(weak_pairs.load().query("split == 'train'")), out)
+            self._train(weak_pairs.with_text(weak_pairs.load().query("split == 'train'"),
+                                             self.text_variant), out)
         self.encoder = Encoder(str(out), key)
 
     @staticmethod

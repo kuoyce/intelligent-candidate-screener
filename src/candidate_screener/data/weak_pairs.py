@@ -93,9 +93,9 @@ def load() -> pd.DataFrame:
     return pd.read_csv(MANIFEST)
 
 
-def with_text(frame: pd.DataFrame) -> pd.DataFrame:
-    """Attach text (and metadata) from the train-region sample."""
-    jd, cv = corpus.a2_train_documents()
+def with_text(frame: pd.DataFrame, text_variant: str = "v1") -> pd.DataFrame:
+    """Attach text (and metadata) from the train-region sample, in `text_variant` (D53)."""
+    jd, cv = corpus.a2_train_documents(text_variant=text_variant)
     jd, cv = jd.set_index("id"), cv.set_index("id")
     return frame.assign(
         jd_text=frame.jd_id.map(jd.jd_text), cv_text=frame.cv_id.map(cv.cv_text),

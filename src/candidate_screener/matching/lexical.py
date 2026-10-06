@@ -3,7 +3,8 @@ hybrid that adds a text score to the metadata rule.
 
 On A2 the document frequencies come from a seeded sample of the **train** region (D19),
 never from the 600 evaluation pairs. Text is used as written — no skill-boost augment,
-which belongs to the skill-overlap rung.
+which belongs to the skill-overlap rung. `text_variant` (D53) picks the train-region CV
+text the IDF is fitted on; the pairs a rung scores carry their own variant's text.
 """
 from __future__ import annotations
 
@@ -16,20 +17,24 @@ from candidate_screener.matching import corpus
 from candidate_screener.matching.base import BaseSystem
 
 
-def a2_train_texts() -> tuple[pd.Series, pd.Series]:
-    jd, cv = corpus.a2_train_documents()
+def a2_train_texts(text_variant: str = "v1") -> tuple[pd.Series, pd.Series]:
+    jd, cv = corpus.a2_train_documents(text_variant=text_variant)
     return cv.cv_text, jd.jd_text
 
 
-@lru_cache(maxsize=1)
-def a2_vectorizer():
-    """The A2 TF-IDF space, fitted once per process and shared by every rung using it."""
-    return tfidf.fit_shared_vectorizer(*a2_train_texts())
+@lru_cache(maxsize=2)
+def a2_vectorizer(text_variant: str = "v1"):
+    """The A2 TF-IDF space, fitted once per process and variant, shared by every rung."""
+    return tfidf.fit_shared_vectorizer(*a2_train_texts(text_variant))
 
 
-@lru_cache(maxsize=1)
-def a2_bm25():
-    return bm25.fit_bm25(a2_train_texts()[0])
+@lru_cache(maxsize=2)
+def a2_bm25(text_variant: str = "v1"):
+    return bm25.fit_bm25(a2_train_texts(text_variant)[0])
+
+
+def _variant_note(text_variant: str) -> str:
+    return "" if corpus.check_variant(text_variant) == "v1" else f" (text_{text_variant})"
 
 
 class Tfidf(BaseSystem):
@@ -37,9 +42,14 @@ class Tfidf(BaseSystem):
     trained_on = "IDF from 20k+20k A2 train-region documents"
     can_explain = True
 
+    def __init__(self, text_variant: str = "v1") -> None:
+        super().__init__()
+        self.text_variant = text_variant
+        self.trained_on = Tfidf.trained_on + _variant_note(text_variant)
+
     def _fit(self, train):
         self.vectorizer = (tfidf.fit_shared_vectorizer(*train) if train is not None
-                           else a2_vectorizer())
+                           else a2_vectorizer(self.text_variant))
 
     def _score(self, pairs):
         return tfidf.pair_cosine_scores(self.vectorizer, pairs.cv_text, pairs.jd_text)
@@ -53,8 +63,14 @@ class Bm25(BaseSystem):
     trained_on = "IDF/avgdl from 20k A2 train-region CVs"
     can_explain = True
 
+    def __init__(self, text_variant: str = "v1") -> None:
+        super().__init__()
+        self.text_variant = text_variant
+        self.trained_on = Bm25.trained_on + _variant_note(text_variant)
+
     def _fit(self, train):
-        self.model = bm25.fit_bm25(train[0]) if train is not None else a2_bm25()
+        self.model = (bm25.fit_bm25(train[0]) if train is not None
+                      else a2_bm25(self.text_variant))
 
     def _score(self, pairs):
         return bm25.pair_bm25_scores(self.model, pairs.cv_text, pairs.jd_text)
