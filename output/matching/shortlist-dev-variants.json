@@ -1,0 +1,1646 @@
+{
+  "plan": "plan/2026-10-07-shortlist-recall (amendment Z)",
+  "dev_set": {
+    "report": "shortlist-dev-set.json"
+  },
+  "models": {
+    "role_family": "44b7fff54614",
+    "jd_title": "18b47dfd129f"
+  },
+  "rules": {
+    "families": {
+      "Z1": "soft role, JD text probabilities, weight w (w = 2 is X2)",
+      "Z1L": "soft role, JD one-hot on a title lookup hit else text probabilities",
+      "Z2": "hard: any of the JD text classifier's top 3 in the CV role set",
+      "Z2L": "hard: title family on a lookup hit, else the JD text top 3",
+      "Z3": "hard: title family on a lookup hit, else the JD text top 1"
+    },
+    "text_term": "TF-IDF, per-JD min-max x 0.999 (as X2 and Y2)",
+    "option": "per family, highest dev-select proxy Recall@50; ties (6 dp) to the cheaper option (smaller weight; smaller k, then context off)",
+    "verdict": "a family 'beats X2' when its chosen option's dev-select Recall@50 is strictly above X2's; dev-train is reported as a check, not a second vote",
+    "split": "exploratory: Recall@50 by whether the JD title is a lookup hit (an input property), for each family's choice and X2; decides nothing",
+    "status": "post-hoc, dev only; amendment Z in 03 \u00a73; fixed before the first Z run"
+  },
+  "rungs": {
+    "extracted rule + TF-IDF": {
+      "family": "X2",
+      "options": null,
+      "proxy": {
+        "dev-train": {
+          "recall@10": {
+            "value": 0.324311,
+            "ci95": [
+              0.296217,
+              0.353688
+            ],
+            "n_jd": 249
+          },
+          "recall@50": {
+            "value": 0.713107,
+            "ci95": [
+              0.681006,
+              0.744511
+            ],
+            "n_jd": 249
+          }
+        },
+        "dev-select": {
+          "recall@10": {
+            "value": 0.349819,
+            "ci95": [
+              0.312494,
+              0.387979
+            ],
+            "n_jd": 150
+          },
+          "recall@50": {
+            "value": 0.726621,
+            "ci95": [
+              0.685325,
+              0.766974
+            ],
+            "n_jd": 150
+          }
+        }
+      }
+    },
+    "Z1 soft role, JD text, weight 2 + TF-IDF": {
+      "family": "Z1",
+      "options": {
+        "weight": 2
+      },
+      "proxy": {
+        "dev-train": {
+          "recall@10": {
+            "value": 0.324311,
+            "ci95": [
+              0.296217,
+              0.353688
+            ],
+            "n_jd": 249
+          },
+          "recall@50": {
+            "value": 0.713107,
+            "ci95": [
+              0.681006,
+              0.744511
+            ],
+            "n_jd": 249
+          }
+        },
+        "dev-select": {
+          "recall@10": {
+            "value": 0.349819,
+            "ci95": [
+              0.312494,
+              0.387979
+            ],
+            "n_jd": 150
+          },
+          "recall@50": {
+            "value": 0.726621,
+            "ci95": [
+              0.685325,
+              0.766974
+            ],
+            "n_jd": 150
+          }
+        }
+      },
+      "scores_sha256": "030f8627fe04c2c6bc98a330f628bf7cd77aa9f77d8945bc8646edaadb74f9f0"
+    },
+    "Z1 soft role, JD text, weight 4 + TF-IDF": {
+      "family": "Z1",
+      "options": {
+        "weight": 4
+      },
+      "proxy": {
+        "dev-train": {
+          "recall@10": {
+            "value": 0.32277,
+            "ci95": [
+              0.293519,
+              0.352704
+            ],
+            "n_jd": 249
+          },
+          "recall@50": {
+            "value": 0.730499,
+            "ci95": [
+              0.696506,
+              0.763822
+            ],
+            "n_jd": 249
+          }
+        },
+        "dev-select": {
+          "recall@10": {
+            "value": 0.347546,
+            "ci95": [
+              0.309645,
+              0.385818
+            ],
+            "n_jd": 150
+          },
+          "recall@50": {
+            "value": 0.745475,
+            "ci95": [
+              0.703196,
+              0.786967
+            ],
+            "n_jd": 150
+          }
+        }
+      },
+      "scores_sha256": "f117c33416c57e51a32bb8920bcbb20850bd17d35b2342cdf37185948b698b43"
+    },
+    "Z1 soft role, JD text, weight 8 + TF-IDF": {
+      "family": "Z1",
+      "options": {
+        "weight": 8
+      },
+      "proxy": {
+        "dev-train": {
+          "recall@10": {
+            "value": 0.319886,
+            "ci95": [
+              0.290371,
+              0.350073
+            ],
+            "n_jd": 249
+          },
+          "recall@50": {
+            "value": 0.746711,
+            "ci95": [
+              0.712447,
+              0.779454
+            ],
+            "n_jd": 249
+          }
+        },
+        "dev-select": {
+          "recall@10": {
+            "value": 0.353692,
+            "ci95": [
+              0.315058,
+              0.392982
+            ],
+            "n_jd": 150
+          },
+          "recall@50": {
+            "value": 0.759951,
+            "ci95": [
+              0.717055,
+              0.801707
+            ],
+            "n_jd": 150
+          }
+        }
+      },
+      "scores_sha256": "87ecae9b329fb07c39195d4ee101da8d4f22fec43333d8e3d08d132da05f6a12"
+    },
+    "Z1 soft role, JD text, weight 16 + TF-IDF": {
+      "family": "Z1",
+      "options": {
+        "weight": 16
+      },
+      "proxy": {
+        "dev-train": {
+          "recall@10": {
+            "value": 0.317907,
+            "ci95": [
+              0.287994,
+              0.348431
+            ],
+            "n_jd": 249
+          },
+          "recall@50": {
+            "value": 0.753407,
+            "ci95": [
+              0.718285,
+              0.786989
+            ],
+            "n_jd": 249
+          }
+        },
+        "dev-select": {
+          "recall@10": {
+            "value": 0.352637,
+            "ci95": [
+              0.313662,
+              0.392631
+            ],
+            "n_jd": 150
+          },
+          "recall@50": {
+            "value": 0.769019,
+            "ci95": [
+              0.726388,
+              0.810209
+            ],
+            "n_jd": 150
+          }
+        }
+      },
+      "scores_sha256": "39d7873a24a63be3641b2a2773d1754acfb1d6fbf54fd8837ffb4df4237ef581"
+    },
+    "Z1L soft role, JD lookup_or_text, weight 2 + TF-IDF": {
+      "family": "Z1L",
+      "options": {
+        "weight": 2
+      },
+      "proxy": {
+        "dev-train": {
+          "recall@10": {
+            "value": 0.338067,
+            "ci95": [
+              0.309643,
+              0.367704
+            ],
+            "n_jd": 249
+          },
+          "recall@50": {
+            "value": 0.721072,
+            "ci95": [
+              0.688649,
+              0.752838
+            ],
+            "n_jd": 249
+          }
+        },
+        "dev-select": {
+          "recall@10": {
+            "value": 0.356989,
+            "ci95": [
+              0.318984,
+              0.396096
+            ],
+            "n_jd": 150
+          },
+          "recall@50": {
+            "value": 0.737836,
+            "ci95": [
+              0.695289,
+              0.778327
+            ],
+            "n_jd": 150
+          }
+        }
+      },
+      "scores_sha256": "2dad0c2da87f58e534bdf350933484fc79ba8adc6e8cea8beab969e575585888"
+    },
+    "Z1L soft role, JD lookup_or_text, weight 4 + TF-IDF": {
+      "family": "Z1L",
+      "options": {
+        "weight": 4
+      },
+      "proxy": {
+        "dev-train": {
+          "recall@10": {
+            "value": 0.337891,
+            "ci95": [
+              0.308527,
+              0.368519
+            ],
+            "n_jd": 249
+          },
+          "recall@50": {
+            "value": 0.738665,
+            "ci95": [
+              0.704252,
+              0.771948
+            ],
+            "n_jd": 249
+          }
+        },
+        "dev-select": {
+          "recall@10": {
+            "value": 0.359881,
+            "ci95": [
+              0.321098,
+              0.399845
+            ],
+            "n_jd": 150
+          },
+          "recall@50": {
+            "value": 0.750317,
+            "ci95": [
+              0.70673,
+              0.792403
+            ],
+            "n_jd": 150
+          }
+        }
+      },
+      "scores_sha256": "6005b6bd4fa907016ed25e3d549b5954bbc947d5d7bee8034dbee78efaf5f6c6"
+    },
+    "Z1L soft role, JD lookup_or_text, weight 8 + TF-IDF": {
+      "family": "Z1L",
+      "options": {
+        "weight": 8
+      },
+      "proxy": {
+        "dev-train": {
+          "recall@10": {
+            "value": 0.336425,
+            "ci95": [
+              0.306449,
+              0.367521
+            ],
+            "n_jd": 249
+          },
+          "recall@50": {
+            "value": 0.756379,
+            "ci95": [
+              0.721158,
+              0.790144
+            ],
+            "n_jd": 249
+          }
+        },
+        "dev-select": {
+          "recall@10": {
+            "value": 0.361819,
+            "ci95": [
+              0.32223,
+              0.402523
+            ],
+            "n_jd": 150
+          },
+          "recall@50": {
+            "value": 0.764491,
+            "ci95": [
+              0.719361,
+              0.807908
+            ],
+            "n_jd": 150
+          }
+        }
+      },
+      "scores_sha256": "4e801bba5c6f3c295be0e3a80b592185ce00c92c272be9f5bbc44d8e2a2c67f4"
+    },
+    "Z1L soft role, JD lookup_or_text, weight 16 + TF-IDF": {
+      "family": "Z1L",
+      "options": {
+        "weight": 16
+      },
+      "proxy": {
+        "dev-train": {
+          "recall@10": {
+            "value": 0.335647,
+            "ci95": [
+              0.30549,
+              0.367214
+            ],
+            "n_jd": 249
+          },
+          "recall@50": {
+            "value": 0.762217,
+            "ci95": [
+              0.726247,
+              0.797048
+            ],
+            "n_jd": 249
+          }
+        },
+        "dev-select": {
+          "recall@10": {
+            "value": 0.361251,
+            "ci95": [
+              0.320965,
+              0.402548
+            ],
+            "n_jd": 150
+          },
+          "recall@50": {
+            "value": 0.772336,
+            "ci95": [
+              0.727883,
+              0.815304
+            ],
+            "n_jd": 150
+          }
+        }
+      },
+      "scores_sha256": "52a50c9f9922585be5ce88e470cbe88c05a8222f973bdf41b0a61fe2fbbe4e13"
+    },
+    "Z2 JD text top-3 filter (k=0, context=off) + TF-IDF": {
+      "family": "Z2",
+      "options": {
+        "k": 0,
+        "context": false
+      },
+      "proxy": {
+        "dev-train": {
+          "recall@10": {
+            "value": 0.208027,
+            "ci95": [
+              0.188803,
+              0.227786
+            ],
+            "n_jd": 249
+          },
+          "recall@50": {
+            "value": 0.539106,
+            "ci95": [
+              0.511393,
+              0.566865
+            ],
+            "n_jd": 249
+          }
+        },
+        "dev-select": {
+          "recall@10": {
+            "value": 0.21593,
+            "ci95": [
+              0.189616,
+              0.24479
+            ],
+            "n_jd": 150
+          },
+          "recall@50": {
+            "value": 0.538732,
+            "ci95": [
+              0.501659,
+              0.576259
+            ],
+            "n_jd": 150
+          }
+        }
+      },
+      "scores_sha256": "03f4de85ad1d2d41dd7d39acb4f7c89d94fb845d0622446e3bb64ddb039c6d4d"
+    },
+    "Z2 JD text top-3 filter (k=0, context=on) + TF-IDF": {
+      "family": "Z2",
+      "options": {
+        "k": 0,
+        "context": true
+      },
+      "proxy": {
+        "dev-train": {
+          "recall@10": {
+            "value": 0.182789,
+            "ci95": [
+              0.16826,
+              0.197771
+            ],
+            "n_jd": 249
+          },
+          "recall@50": {
+            "value": 0.468511,
+            "ci95": [
+              0.441149,
+              0.496006
+            ],
+            "n_jd": 249
+          }
+        },
+        "dev-select": {
+          "recall@10": {
+            "value": 0.18833,
+            "ci95": [
+              0.165973,
+              0.212768
+            ],
+            "n_jd": 150
+          },
+          "recall@50": {
+            "value": 0.45836,
+            "ci95": [
+              0.425443,
+              0.4932
+            ],
+            "n_jd": 150
+          }
+        }
+      },
+      "scores_sha256": "1e20615bbcce548c2c00d6ce499bbd333697cddf6be4bd61cd0a6d87ded38179"
+    },
+    "Z2 JD text top-3 filter (k=1, context=off) + TF-IDF": {
+      "family": "Z2",
+      "options": {
+        "k": 1,
+        "context": false
+      },
+      "proxy": {
+        "dev-train": {
+          "recall@10": {
+            "value": 0.217419,
+            "ci95": [
+              0.196851,
+              0.239044
+            ],
+            "n_jd": 249
+          },
+          "recall@50": {
+            "value": 0.56875,
+            "ci95": [
+              0.539331,
+              0.598426
+            ],
+            "n_jd": 249
+          }
+        },
+        "dev-select": {
+          "recall@10": {
+            "value": 0.219666,
+            "ci95": [
+              0.192574,
+              0.249999
+            ],
+            "n_jd": 150
+          },
+          "recall@50": {
+            "value": 0.56239,
+            "ci95": [
+              0.52348,
+              0.602037
+            ],
+            "n_jd": 150
+          }
+        }
+      },
+      "scores_sha256": "9a0bb2433b3f8b2e9b23300cb45da86927c8f091195f1cdaebbbc76e3766dec4"
+    },
+    "Z2 JD text top-3 filter (k=1, context=on) + TF-IDF": {
+      "family": "Z2",
+      "options": {
+        "k": 1,
+        "context": true
+      },
+      "proxy": {
+        "dev-train": {
+          "recall@10": {
+            "value": 0.239669,
+            "ci95": [
+              0.217812,
+              0.262588
+            ],
+            "n_jd": 249
+          },
+          "recall@50": {
+            "value": 0.638975,
+            "ci95": [
+              0.608221,
+              0.670368
+            ],
+            "n_jd": 249
+          }
+        },
+        "dev-select": {
+          "recall@10": {
+            "value": 0.248375,
+            "ci95": [
+              0.21881,
+              0.280618
+            ],
+            "n_jd": 150
+          },
+          "recall@50": {
+            "value": 0.641557,
+            "ci95": [
+              0.602835,
+              0.680236
+            ],
+            "n_jd": 150
+          }
+        }
+      },
+      "scores_sha256": "52cf2c93e3e9d84ebabe795cea26be4e0325613012b8528168298f5541630122"
+    },
+    "Z2 JD text top-3 filter (k=2, context=off) + TF-IDF": {
+      "family": "Z2",
+      "options": {
+        "k": 2,
+        "context": false
+      },
+      "proxy": {
+        "dev-train": {
+          "recall@10": {
+            "value": 0.216669,
+            "ci95": [
+              0.195567,
+              0.238672
+            ],
+            "n_jd": 249
+          },
+          "recall@50": {
+            "value": 0.560554,
+            "ci95": [
+              0.530171,
+              0.59101
+            ],
+            "n_jd": 249
+          }
+        },
+        "dev-select": {
+          "recall@10": {
+            "value": 0.221478,
+            "ci95": [
+              0.19445,
+              0.251252
+            ],
+            "n_jd": 150
+          },
+          "recall@50": {
+            "value": 0.545227,
+            "ci95": [
+              0.507074,
+              0.583935
+            ],
+            "n_jd": 150
+          }
+        }
+      },
+      "scores_sha256": "54b0680529815d081db36cd18a8d0aa69dab54b78289e88ffd38da3fc632a295"
+    },
+    "Z2 JD text top-3 filter (k=2, context=on) + TF-IDF": {
+      "family": "Z2",
+      "options": {
+        "k": 2,
+        "context": true
+      },
+      "proxy": {
+        "dev-train": {
+          "recall@10": {
+            "value": 0.229108,
+            "ci95": [
+              0.207567,
+              0.251681
+            ],
+            "n_jd": 249
+          },
+          "recall@50": {
+            "value": 0.602877,
+            "ci95": [
+              0.572209,
+              0.633157
+            ],
+            "n_jd": 249
+          }
+        },
+        "dev-select": {
+          "recall@10": {
+            "value": 0.233077,
+            "ci95": [
+              0.205688,
+              0.263198
+            ],
+            "n_jd": 150
+          },
+          "recall@50": {
+            "value": 0.591639,
+            "ci95": [
+              0.552404,
+              0.630593
+            ],
+            "n_jd": 150
+          }
+        }
+      },
+      "scores_sha256": "67d3d2fa1f9e15505dc5890e02b9697b3c06a7c8e08834534751b502ae9b7ef6"
+    },
+    "Z2 JD text top-3 filter (k=3, context=off) + TF-IDF": {
+      "family": "Z2",
+      "options": {
+        "k": 3,
+        "context": false
+      },
+      "proxy": {
+        "dev-train": {
+          "recall@10": {
+            "value": 0.212941,
+            "ci95": [
+              0.192148,
+              0.234616
+            ],
+            "n_jd": 249
+          },
+          "recall@50": {
+            "value": 0.543938,
+            "ci95": [
+              0.513994,
+              0.573952
+            ],
+            "n_jd": 249
+          }
+        },
+        "dev-select": {
+          "recall@10": {
+            "value": 0.213043,
+            "ci95": [
+              0.186014,
+              0.242535
+            ],
+            "n_jd": 150
+          },
+          "recall@50": {
+            "value": 0.52588,
+            "ci95": [
+              0.48748,
+              0.56502
+            ],
+            "n_jd": 150
+          }
+        }
+      },
+      "scores_sha256": "eafc7f6b67f89e61fed7af183d5275da0fa4e956c2f11bea8f7f6b4d446ea195"
+    },
+    "Z2 JD text top-3 filter (k=3, context=on) + TF-IDF": {
+      "family": "Z2",
+      "options": {
+        "k": 3,
+        "context": true
+      },
+      "proxy": {
+        "dev-train": {
+          "recall@10": {
+            "value": 0.218166,
+            "ci95": [
+              0.197566,
+              0.239639
+            ],
+            "n_jd": 249
+          },
+          "recall@50": {
+            "value": 0.56846,
+            "ci95": [
+              0.53802,
+              0.599025
+            ],
+            "n_jd": 249
+          }
+        },
+        "dev-select": {
+          "recall@10": {
+            "value": 0.219442,
+            "ci95": [
+              0.192645,
+              0.249346
+            ],
+            "n_jd": 150
+          },
+          "recall@50": {
+            "value": 0.554361,
+            "ci95": [
+              0.51566,
+              0.593854
+            ],
+            "n_jd": 150
+          }
+        }
+      },
+      "scores_sha256": "aff5d6e707fb20c502c59e7a68a22dc0d4491e0d00c4b8301500ba646a37ae0b"
+    },
+    "Z2L JD lookup_or_text top-3 filter (k=0, context=off) + TF-IDF": {
+      "family": "Z2L",
+      "options": {
+        "k": 0,
+        "context": false
+      },
+      "proxy": {
+        "dev-train": {
+          "recall@10": {
+            "value": 0.233833,
+            "ci95": [
+              0.212495,
+              0.255811
+            ],
+            "n_jd": 249
+          },
+          "recall@50": {
+            "value": 0.592383,
+            "ci95": [
+              0.562899,
+              0.62269
+            ],
+            "n_jd": 249
+          }
+        },
+        "dev-select": {
+          "recall@10": {
+            "value": 0.241764,
+            "ci95": [
+              0.214548,
+              0.271069
+            ],
+            "n_jd": 150
+          },
+          "recall@50": {
+            "value": 0.602998,
+            "ci95": [
+              0.562646,
+              0.643129
+            ],
+            "n_jd": 150
+          }
+        }
+      },
+      "scores_sha256": "7f2f338b235b11b2f3defd2746b88ea0bccff0acd9530427534628cdfec04b76"
+    },
+    "Z2L JD lookup_or_text top-3 filter (k=0, context=on) + TF-IDF": {
+      "family": "Z2L",
+      "options": {
+        "k": 0,
+        "context": true
+      },
+      "proxy": {
+        "dev-train": {
+          "recall@10": {
+            "value": 0.221154,
+            "ci95": [
+              0.202638,
+              0.240306
+            ],
+            "n_jd": 249
+          },
+          "recall@50": {
+            "value": 0.519906,
+            "ci95": [
+              0.49256,
+              0.547357
+            ],
+            "n_jd": 249
+          }
+        },
+        "dev-select": {
+          "recall@10": {
+            "value": 0.23256,
+            "ci95": [
+              0.207339,
+              0.260556
+            ],
+            "n_jd": 150
+          },
+          "recall@50": {
+            "value": 0.511736,
+            "ci95": [
+              0.477512,
+              0.546238
+            ],
+            "n_jd": 150
+          }
+        }
+      },
+      "scores_sha256": "3028b409be1cf9312ea6b3ccdbfce427b3364df5004951d8b5febb9ce6b963d0"
+    },
+    "Z2L JD lookup_or_text top-3 filter (k=1, context=off) + TF-IDF": {
+      "family": "Z2L",
+      "options": {
+        "k": 1,
+        "context": false
+      },
+      "proxy": {
+        "dev-train": {
+          "recall@10": {
+            "value": 0.249507,
+            "ci95": [
+              0.225769,
+              0.274189
+            ],
+            "n_jd": 249
+          },
+          "recall@50": {
+            "value": 0.627099,
+            "ci95": [
+              0.595698,
+              0.658886
+            ],
+            "n_jd": 249
+          }
+        },
+        "dev-select": {
+          "recall@10": {
+            "value": 0.24979,
+            "ci95": [
+              0.219315,
+              0.282634
+            ],
+            "n_jd": 150
+          },
+          "recall@50": {
+            "value": 0.63979,
+            "ci95": [
+              0.596181,
+              0.682355
+            ],
+            "n_jd": 150
+          }
+        }
+      },
+      "scores_sha256": "51636a0bf231397274db339522100a9ec41a4e4d283a013eb9f4c8be5f9d892e"
+    },
+    "Z2L JD lookup_or_text top-3 filter (k=1, context=on) + TF-IDF": {
+      "family": "Z2L",
+      "options": {
+        "k": 1,
+        "context": true
+      },
+      "proxy": {
+        "dev-train": {
+          "recall@10": {
+            "value": 0.289081,
+            "ci95": [
+              0.263718,
+              0.315562
+            ],
+            "n_jd": 249
+          },
+          "recall@50": {
+            "value": 0.67544,
+            "ci95": [
+              0.644662,
+              0.705674
+            ],
+            "n_jd": 249
+          }
+        },
+        "dev-select": {
+          "recall@10": {
+            "value": 0.298366,
+            "ci95": [
+              0.263957,
+              0.334868
+            ],
+            "n_jd": 150
+          },
+          "recall@50": {
+            "value": 0.685814,
+            "ci95": [
+              0.643538,
+              0.726878
+            ],
+            "n_jd": 150
+          }
+        }
+      },
+      "scores_sha256": "bd5b29d9d6e7f371251fea9b856e2d6ed7efabbe69c854ba8705f4d253c21e35"
+    },
+    "Z2L JD lookup_or_text top-3 filter (k=2, context=off) + TF-IDF": {
+      "family": "Z2L",
+      "options": {
+        "k": 2,
+        "context": false
+      },
+      "proxy": {
+        "dev-train": {
+          "recall@10": {
+            "value": 0.243533,
+            "ci95": [
+              0.219995,
+              0.268207
+            ],
+            "n_jd": 249
+          },
+          "recall@50": {
+            "value": 0.621025,
+            "ci95": [
+              0.589246,
+              0.653449
+            ],
+            "n_jd": 249
+          }
+        },
+        "dev-select": {
+          "recall@10": {
+            "value": 0.24178,
+            "ci95": [
+              0.21362,
+              0.272335
+            ],
+            "n_jd": 150
+          },
+          "recall@50": {
+            "value": 0.621085,
+            "ci95": [
+              0.577524,
+              0.663964
+            ],
+            "n_jd": 150
+          }
+        }
+      },
+      "scores_sha256": "a38318f1ec8a2fc5c303a6e3211012a9d26110c6f6982703350b8715bebe83ca"
+    },
+    "Z2L JD lookup_or_text top-3 filter (k=2, context=on) + TF-IDF": {
+      "family": "Z2L",
+      "options": {
+        "k": 2,
+        "context": true
+      },
+      "proxy": {
+        "dev-train": {
+          "recall@10": {
+            "value": 0.261198,
+            "ci95": [
+              0.236563,
+              0.286928
+            ],
+            "n_jd": 249
+          },
+          "recall@50": {
+            "value": 0.662701,
+            "ci95": [
+              0.631308,
+              0.694434
+            ],
+            "n_jd": 249
+          }
+        },
+        "dev-select": {
+          "recall@10": {
+            "value": 0.266051,
+            "ci95": [
+              0.236154,
+              0.298473
+            ],
+            "n_jd": 150
+          },
+          "recall@50": {
+            "value": 0.668681,
+            "ci95": [
+              0.623305,
+              0.712801
+            ],
+            "n_jd": 150
+          }
+        }
+      },
+      "scores_sha256": "844bee9fca04031effe0d3e7fde6489df9943110649929e8468e607152799ad1"
+    },
+    "Z2L JD lookup_or_text top-3 filter (k=3, context=off) + TF-IDF": {
+      "family": "Z2L",
+      "options": {
+        "k": 3,
+        "context": false
+      },
+      "proxy": {
+        "dev-train": {
+          "recall@10": {
+            "value": 0.240436,
+            "ci95": [
+              0.217088,
+              0.265288
+            ],
+            "n_jd": 249
+          },
+          "recall@50": {
+            "value": 0.602927,
+            "ci95": [
+              0.571228,
+              0.635769
+            ],
+            "n_jd": 249
+          }
+        },
+        "dev-select": {
+          "recall@10": {
+            "value": 0.235182,
+            "ci95": [
+              0.206024,
+              0.267087
+            ],
+            "n_jd": 150
+          },
+          "recall@50": {
+            "value": 0.598614,
+            "ci95": [
+              0.555381,
+              0.641803
+            ],
+            "n_jd": 150
+          }
+        }
+      },
+      "scores_sha256": "fa6186c54ff3556308a81ee5b3876f373fbe0a229d2ab9b4575039d6bc550a43"
+    },
+    "Z2L JD lookup_or_text top-3 filter (k=3, context=on) + TF-IDF": {
+      "family": "Z2L",
+      "options": {
+        "k": 3,
+        "context": true
+      },
+      "proxy": {
+        "dev-train": {
+          "recall@10": {
+            "value": 0.249801,
+            "ci95": [
+              0.225871,
+              0.275223
+            ],
+            "n_jd": 249
+          },
+          "recall@50": {
+            "value": 0.629801,
+            "ci95": [
+              0.597458,
+              0.66251
+            ],
+            "n_jd": 249
+          }
+        },
+        "dev-select": {
+          "recall@10": {
+            "value": 0.249071,
+            "ci95": [
+              0.219058,
+              0.281874
+            ],
+            "n_jd": 150
+          },
+          "recall@50": {
+            "value": 0.628803,
+            "ci95": [
+              0.584166,
+              0.672978
+            ],
+            "n_jd": 150
+          }
+        }
+      },
+      "scores_sha256": "43326f057bed63c1afdb49773edc9805597113fb30dd6c067e404d2a373d0fe3"
+    },
+    "Z3 JD lookup_or_text top-1 filter (k=0, context=off) + TF-IDF": {
+      "family": "Z3",
+      "options": {
+        "k": 0,
+        "context": false
+      },
+      "proxy": {
+        "dev-train": {
+          "recall@10": {
+            "value": 0.240098,
+            "ci95": [
+              0.218596,
+              0.262619
+            ],
+            "n_jd": 249
+          },
+          "recall@50": {
+            "value": 0.609994,
+            "ci95": [
+              0.578693,
+              0.641339
+            ],
+            "n_jd": 249
+          }
+        },
+        "dev-select": {
+          "recall@10": {
+            "value": 0.250547,
+            "ci95": [
+              0.220887,
+              0.281896
+            ],
+            "n_jd": 150
+          },
+          "recall@50": {
+            "value": 0.619492,
+            "ci95": [
+              0.578295,
+              0.660987
+            ],
+            "n_jd": 150
+          }
+        }
+      },
+      "scores_sha256": "3c8e837db24ed922f03648edcdefd1dd8e8d0f0f5fbe41753b0b77918a2f3498"
+    },
+    "Z3 JD lookup_or_text top-1 filter (k=0, context=on) + TF-IDF": {
+      "family": "Z3",
+      "options": {
+        "k": 0,
+        "context": true
+      },
+      "proxy": {
+        "dev-train": {
+          "recall@10": {
+            "value": 0.234734,
+            "ci95": [
+              0.214727,
+              0.255451
+            ],
+            "n_jd": 249
+          },
+          "recall@50": {
+            "value": 0.531546,
+            "ci95": [
+              0.504527,
+              0.558683
+            ],
+            "n_jd": 249
+          }
+        },
+        "dev-select": {
+          "recall@10": {
+            "value": 0.242379,
+            "ci95": [
+              0.215696,
+              0.270708
+            ],
+            "n_jd": 150
+          },
+          "recall@50": {
+            "value": 0.525113,
+            "ci95": [
+              0.490136,
+              0.559961
+            ],
+            "n_jd": 150
+          }
+        }
+      },
+      "scores_sha256": "3da1fa0a00d8cf709254056f3ba25eca51d895ba2dab892a42b64c1d0ff6d17a"
+    },
+    "Z3 JD lookup_or_text top-1 filter (k=1, context=off) + TF-IDF": {
+      "family": "Z3",
+      "options": {
+        "k": 1,
+        "context": false
+      },
+      "proxy": {
+        "dev-train": {
+          "recall@10": {
+            "value": 0.251811,
+            "ci95": [
+              0.228325,
+              0.276321
+            ],
+            "n_jd": 249
+          },
+          "recall@50": {
+            "value": 0.641809,
+            "ci95": [
+              0.608862,
+              0.675209
+            ],
+            "n_jd": 249
+          }
+        },
+        "dev-select": {
+          "recall@10": {
+            "value": 0.261337,
+            "ci95": [
+              0.228866,
+              0.295621
+            ],
+            "n_jd": 150
+          },
+          "recall@50": {
+            "value": 0.66231,
+            "ci95": [
+              0.618595,
+              0.705357
+            ],
+            "n_jd": 150
+          }
+        }
+      },
+      "scores_sha256": "3797ae90043f4b4bf80d4232b7783c606f1c675820c3534692130d7472b1d57a"
+    },
+    "Z3 JD lookup_or_text top-1 filter (k=1, context=on) + TF-IDF": {
+      "family": "Z3",
+      "options": {
+        "k": 1,
+        "context": true
+      },
+      "proxy": {
+        "dev-train": {
+          "recall@10": {
+            "value": 0.293509,
+            "ci95": [
+              0.267319,
+              0.321207
+            ],
+            "n_jd": 249
+          },
+          "recall@50": {
+            "value": 0.670386,
+            "ci95": [
+              0.637891,
+              0.702079
+            ],
+            "n_jd": 249
+          }
+        },
+        "dev-select": {
+          "recall@10": {
+            "value": 0.319999,
+            "ci95": [
+              0.283195,
+              0.357722
+            ],
+            "n_jd": 150
+          },
+          "recall@50": {
+            "value": 0.691992,
+            "ci95": [
+              0.649039,
+              0.733753
+            ],
+            "n_jd": 150
+          }
+        }
+      },
+      "scores_sha256": "67d91de6cf39f3a9da2af051ff9210a22998220eb0b0d1d76b394ee23c1fbfca"
+    },
+    "Z3 JD lookup_or_text top-1 filter (k=2, context=off) + TF-IDF": {
+      "family": "Z3",
+      "options": {
+        "k": 2,
+        "context": false
+      },
+      "proxy": {
+        "dev-train": {
+          "recall@10": {
+            "value": 0.244632,
+            "ci95": [
+              0.221691,
+              0.269067
+            ],
+            "n_jd": 249
+          },
+          "recall@50": {
+            "value": 0.639146,
+            "ci95": [
+              0.605394,
+              0.672545
+            ],
+            "n_jd": 249
+          }
+        },
+        "dev-select": {
+          "recall@10": {
+            "value": 0.249698,
+            "ci95": [
+              0.218871,
+              0.281838
+            ],
+            "n_jd": 150
+          },
+          "recall@50": {
+            "value": 0.651667,
+            "ci95": [
+              0.607113,
+              0.6959
+            ],
+            "n_jd": 150
+          }
+        }
+      },
+      "scores_sha256": "4a32c61b8e0c129bf6104a126385bf2a0513d8439456c6622b8c6be8920103dc"
+    },
+    "Z3 JD lookup_or_text top-1 filter (k=2, context=on) + TF-IDF": {
+      "family": "Z3",
+      "options": {
+        "k": 2,
+        "context": true
+      },
+      "proxy": {
+        "dev-train": {
+          "recall@10": {
+            "value": 0.265708,
+            "ci95": [
+              0.240985,
+              0.291783
+            ],
+            "n_jd": 249
+          },
+          "recall@50": {
+            "value": 0.685314,
+            "ci95": [
+              0.652269,
+              0.718188
+            ],
+            "n_jd": 249
+          }
+        },
+        "dev-select": {
+          "recall@10": {
+            "value": 0.282133,
+            "ci95": [
+              0.248993,
+              0.316996
+            ],
+            "n_jd": 150
+          },
+          "recall@50": {
+            "value": 0.697385,
+            "ci95": [
+              0.652041,
+              0.741498
+            ],
+            "n_jd": 150
+          }
+        }
+      },
+      "scores_sha256": "294f77168204f5b106fa63b13a240975d6896b424de21d50c97d7e789a86474e"
+    },
+    "Z3 JD lookup_or_text top-1 filter (k=3, context=off) + TF-IDF": {
+      "family": "Z3",
+      "options": {
+        "k": 3,
+        "context": false
+      },
+      "proxy": {
+        "dev-train": {
+          "recall@10": {
+            "value": 0.246413,
+            "ci95": [
+              0.223258,
+              0.271033
+            ],
+            "n_jd": 249
+          },
+          "recall@50": {
+            "value": 0.628082,
+            "ci95": [
+              0.595003,
+              0.661931
+            ],
+            "n_jd": 249
+          }
+        },
+        "dev-select": {
+          "recall@10": {
+            "value": 0.245993,
+            "ci95": [
+              0.214051,
+              0.279192
+            ],
+            "n_jd": 150
+          },
+          "recall@50": {
+            "value": 0.629292,
+            "ci95": [
+              0.584323,
+              0.6741
+            ],
+            "n_jd": 150
+          }
+        }
+      },
+      "scores_sha256": "758685e9b599a7a781b47d52406a2bf510b060f1b0682f1d972e0b056884c63e"
+    },
+    "Z3 JD lookup_or_text top-1 filter (k=3, context=on) + TF-IDF": {
+      "family": "Z3",
+      "options": {
+        "k": 3,
+        "context": true
+      },
+      "proxy": {
+        "dev-train": {
+          "recall@10": {
+            "value": 0.258872,
+            "ci95": [
+              0.234763,
+              0.284223
+            ],
+            "n_jd": 249
+          },
+          "recall@50": {
+            "value": 0.663886,
+            "ci95": [
+              0.630605,
+              0.697301
+            ],
+            "n_jd": 249
+          }
+        },
+        "dev-select": {
+          "recall@10": {
+            "value": 0.264119,
+            "ci95": [
+              0.231443,
+              0.298479
+            ],
+            "n_jd": 150
+          },
+          "recall@50": {
+            "value": 0.658626,
+            "ci95": [
+              0.612504,
+              0.704348
+            ],
+            "n_jd": 150
+          }
+        }
+      },
+      "scores_sha256": "9a67bc95daa24593918c8a886bb567d6f7f70527d48507c40019c78693261c51"
+    }
+  },
+  "choices": {
+    "Z1": {
+      "name": "Z1 soft role, JD text, weight 16 + TF-IDF",
+      "options": {
+        "weight": 16
+      },
+      "dev_select_recall@50": 0.769019,
+      "dev_train_recall@50": 0.753407,
+      "beats_x2": true,
+      "by_lookup_hit": {
+        "lookup_hit": {
+          "value": 0.803983,
+          "n_jd": 98
+        },
+        "lookup_miss": {
+          "value": 0.703125,
+          "n_jd": 52
+        }
+      }
+    },
+    "Z1L": {
+      "name": "Z1L soft role, JD lookup_or_text, weight 16 + TF-IDF",
+      "options": {
+        "weight": 16
+      },
+      "dev_select_recall@50": 0.772336,
+      "dev_train_recall@50": 0.762217,
+      "beats_x2": true,
+      "by_lookup_hit": {
+        "lookup_hit": {
+          "value": 0.80906,
+          "n_jd": 98
+        },
+        "lookup_miss": {
+          "value": 0.703125,
+          "n_jd": 52
+        }
+      }
+    },
+    "Z2": {
+      "name": "Z2 JD text top-3 filter (k=1, context=on) + TF-IDF",
+      "options": {
+        "k": 1,
+        "context": true
+      },
+      "dev_select_recall@50": 0.641557,
+      "dev_train_recall@50": 0.638975,
+      "beats_x2": false,
+      "by_lookup_hit": {
+        "lookup_hit": {
+          "value": 0.658348,
+          "n_jd": 98
+        },
+        "lookup_miss": {
+          "value": 0.609914,
+          "n_jd": 52
+        }
+      }
+    },
+    "Z2L": {
+      "name": "Z2L JD lookup_or_text top-3 filter (k=1, context=on) + TF-IDF",
+      "options": {
+        "k": 1,
+        "context": true
+      },
+      "dev_select_recall@50": 0.685814,
+      "dev_train_recall@50": 0.67544,
+      "beats_x2": false,
+      "by_lookup_hit": {
+        "lookup_hit": {
+          "value": 0.726088,
+          "n_jd": 98
+        },
+        "lookup_miss": {
+          "value": 0.609914,
+          "n_jd": 52
+        }
+      }
+    },
+    "Z3": {
+      "name": "Z3 JD lookup_or_text top-1 filter (k=2, context=on) + TF-IDF",
+      "options": {
+        "k": 2,
+        "context": true
+      },
+      "dev_select_recall@50": 0.697385,
+      "dev_train_recall@50": 0.685314,
+      "beats_x2": false,
+      "by_lookup_hit": {
+        "lookup_hit": {
+          "value": 0.731397,
+          "n_jd": 98
+        },
+        "lookup_miss": {
+          "value": 0.633285,
+          "n_jd": 52
+        }
+      }
+    },
+    "X2": {
+      "dev_select_recall@50": 0.726621,
+      "dev_train_recall@50": 0.713107,
+      "by_lookup_hit": {
+        "lookup_hit": {
+          "value": 0.759395,
+          "n_jd": 98
+        },
+        "lookup_miss": {
+          "value": 0.664856,
+          "n_jd": 52
+        }
+      }
+    }
+  }
+}

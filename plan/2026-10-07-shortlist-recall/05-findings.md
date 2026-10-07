@@ -135,6 +135,7 @@ error, and the fallback errors are frequent.
 | ID | Question | Why it matters | Recommendation |
 |---|---|---|---|
 | Q-R6 | The early stop fired (Y2 0.664 < X2 0.727 on dev). Options: (a) **stop as planned**: freeze 03 §2 with the dev choices, score once on the final set at Q8, and report post-hoc Y beside the registered P7 miss; (b) **stop and skip Q8**: record the dev result only, keep X2 for P8.5 (Q-P7-2 (a)), return to P8; (c) **one new dev variant**, post-hoc and registered first, that follows the diagnosis: use the title family only on a **lookup hit**, else P3's JD text distribution, and keep the CV side soft (`Σ p_jd p_cv` with the JD side one-hot on a hit). Dev only; continue only if it beats X2 on dev-select | (a) spends a final-set look on rungs already known to be worse on dev. (c) is the one change the diagnosis points to, but it is a further post-hoc step | **(b)**, with (c) only if you want one more try. Q4/Q5 (main tech, learned combination) are not worth starting while the role term is the bottleneck |
+| Q-R7 | After amendment Z: Z1L (and Z1) beat X2 on dev, with the best weight at the grid's edge. Next? (a) extend the weight grid upward (32, 64, and the limit: order by role agreement, text only for ties) on dev, then freeze and score Z1L once on the final set at Q8, post-hoc beside the P7 miss; (b) freeze w = 16 as chosen and go to Q8; (c) stop here | Q-R6 is superseded if a Z rung goes forward. Scoring on the final set is the only test of fit | **(a)**: one more dev step costs ~5 min and avoids freezing a value chosen at a grid edge. Then Q8 with Z1L (classical) and its SBERT-weak twin for the advanced bar |
 
 ## Amendment Z: three explorations (user, 7 Oct), rules fixed before the run
 
@@ -155,3 +156,44 @@ only on a lookup hit, else the full JD text. They are tested as five families, i
 A family "beats X2" when its chosen option's dev-select Recall@50 is strictly above X2's
 (0.727). Recall@50 split by lookup hit / miss is reported for each choice and for X2
 (exploratory). **Assumption to confirm:** item (1) read as a larger soft weight.
+
+### Amendment Z results (record `shortlist-dev-variants.json`)
+
+Proxy Recall@50, dev-select (150 JDs). CIs are per rung, **not paired**. Each family at
+its dev-chosen option:
+
+| Family | Chosen | dev-select R@50 [CI] | R@10 | dev-train R@50 | lookup hit (98 JDs) | lookup miss (52) | Beats X2? |
+|---|---|---|---|---|---|---|---|
+| X2 (reference) | — | 0.727 [0.685, 0.767] | 0.350 | 0.713 | 0.759 | 0.665 | — |
+| **Z1** soft, text JD | w = 16 | **0.769** [0.726, 0.810] | 0.353 | 0.753 | 0.804 | 0.703 | **yes** |
+| **Z1L** soft, title on hit | w = 16 | **0.772** [0.728, 0.815] | 0.361 | 0.762 | 0.809 | 0.703 | **yes** |
+| Z2 hard, JD text top 3 | k = 1, context on | 0.642 | 0.248 | 0.639 | 0.658 | 0.610 | no |
+| Z2L hard, title on hit else top 3 | k = 1, context on | 0.686 | 0.298 | 0.675 | 0.726 | 0.610 | no |
+| Z3 hard, title on hit else top 1 | k = 2, context on | 0.697 | 0.282 | 0.685 | 0.731 | 0.633 | no |
+
+Z1 by weight (dev-select): w = 2 0.727 (= X2, as tested), 4 0.746, 8 0.760, 16 0.769.
+Z1L: 0.738, 0.750, 0.765, 0.772.
+
+**Reading.**
+
+- **Soft beats hard.** Every soft variant at w ≥ 4 is above X2. Every hard variant is
+  below it, including the JD top-3 filter. The hard filter's loss is not only about the JD
+  side. Its CV side is a role *set* that misses the right family for ~19% of CVs at k = 1,
+  and a hard match turns each miss into a drop below every matching CV.
+- **A larger weight is the gain.** It keeps the role ordering from being overtaken by text
+  similarity. The best weight is the **edge of the grid** (16), and recall was still
+  rising, so the optimum may be higher. At w = 16, text can only reorder CVs whose role
+  agreement differs by under ~0.06.
+- **The title helps a little, only via lookup hits.** Z1L vs Z1 is +0.003 on dev-select
+  and +0.009 on dev-train. On hit JDs it is +0.005; on miss JDs it is identical by
+  construction. Within the hard filters, the title on a hit lifts Z2 → Z2L by +0.044.
+- **JD top 3 does not help as a hard filter** (Z2 0.642 < Z3's top-1 0.697). Three JD
+  families plus the CV set admit too many other-role CVs.
+- dev-train agrees with dev-select on every ordering above.
+
+**Caveats.** The gains over X2 (+0.04) are about the size of one rung's CI half-width. A
+paired per-JD delta was not computed (the CIs above are unpaired, so they overstate the
+uncertainty of a within-JD comparison). Proxy relevance is the oracle role family, so a
+stronger role weight is favoured *by construction* of the proxy. The final set measures
+fit, where the role still matters (96.5% of fits share the JD's keyword) but not
+exclusively.
