@@ -85,11 +85,13 @@ No runnable scripts under `plan/`; code that outlives a decision goes in the pac
 4. **Every figure carries its *n* and a CI**, bootstrapped over **queries (JDs)**, never
    over pairs. Rung comparisons use **paired** deltas.
 5. **Nothing is fitted or tuned on the final set** (D46): weights, thresholds and
-   hyperparameters included. Tune on A1's doubly-disjoint CV folds or on the weak-pair
-   validation split. Code that fits a model never reads `a2-final-labels.csv` or
+   hyperparameters included. Tune on A1's doubly-disjoint CV folds, on the weak-pair
+   validation split, or on a development set drawn from the A2 `train` region (D19). Code that fits a model never reads `a2-final-labels.csv` or
    `judgements.csv`.
 6. **No metadata at inference** (D53): systems read `text_v2`; fields are labels or
-   oracles. Report within-family AUC beside the headline.
+   oracles. The one exception is the JD title, `jd_title` = the A2 JD `Position` (D54).
+   CV `Position`, `Primary Keyword` and experience fields are never inputs. Report
+   within-family AUC beside the headline.
 7. **Inter-annotator agreement is reported, with no target** (D44): context, not a goal.
 8. **Decide before you look.** A rule or bar that decides between rungs is committed
    in the plan before the held-out rungs are scored. Anything seen
