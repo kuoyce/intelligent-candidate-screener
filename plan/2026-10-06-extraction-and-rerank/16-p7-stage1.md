@@ -98,6 +98,60 @@ justified over it on K1, K3, or K4 with B and A swapped.
 - Costs in `stage1-costs.json` include embedding-cache hits and are not comparable
   across rungs; latency stays with `evaluation/latency.py`.
 
+## 6a. Why S2 misses: diagnosis (exploratory, 7 Oct, after scoring)
+
+**Exploratory.** Run after the held-out figures were seen, and it reads the final-set
+labels (relevance), so nothing here may tune a rung (D46). A fix it suggests is a new
+rung: registered, tuned on train data only, and reported as post-hoc. Script was ad hoc
+(scratchpad), on X2 and the oracle 1a over the same `v2` pools; it is not in the package.
+
+**What changed from the metadata rule.** The formula has the same shape
+(`2 × role + experience`, plus `0.999 ×` per-JD min-max TF-IDF), but three inputs differ:
+
+| | Oracle 1a / 1a+2 | X1 / X2 |
+|---|---|---|
+| Role term | keyword equality, **0 or 1** | soft agreement `Σ p_jd p_cv`, **continuous in [0, 1]** |
+| Label space | `Primary Keyword` (~45) | 60 role families (T-A split generic) |
+| Experience | true bands; unknown → 0 | extracted bands (stated on 60% of JDs, 47% of CVs); unknown → 1 (A1), so 1 on 95% of pairs |
+
+In 1a a keyword match (≥ 2) always outranks a mismatch (≤ 1.999), so the keyword acts as a
+filter. With a continuous role term the text can overtake it (role 0.3 + top TF-IDF = 1.6 >
+role 0.7 + bottom TF-IDF = 1.4). Extractor accuracy on the final-set documents (P3, P4):
+role family JD 0.683 / CV 0.700 (top-3 0.850 / 0.877).
+
+**Where the fits are lost** (367 fits over 59 JDs):
+
+| Finding | Figure |
+|---|---|
+| Fits sharing the JD's true keyword | 0.965 (same true family 0.913) |
+| Same-keyword CVs per 500-pool | median 26.5 (min 10, max 80) |
+| Fits missed in top 50: oracle 1a / X2 | **5 / 71** |
+| Missed fits that share the JD's true keyword | 0.873 (so: extraction error, not an atypical fit) |
+| `role_match`, missed vs kept fits (median) | **0.051 vs 0.639** |
+| X2 rank of missed fits (quartiles) | 73 / 95 / 187: well past the cut, not just below it |
+| CVs outranking a missed fit (median): other-keyword / same-keyword non-fit | **75 / 17** |
+| Share of top 50 with the JD's true keyword: X2 / oracle | 0.417 / 0.574 |
+| `role_match` at rank 1 / rank 50 (median per JD) | 0.730 / 0.008 |
+| X2 Recall@50 by whether the JD's family is predicted right | right 0.841 (41 JDs) / wrong 0.637 (18 JDs) |
+| … generic: right / wrong | 0.828 (31) / 0.665 (8) |
+| … targeted: right / wrong | 0.883 (10) / 0.615 (10) |
+
+**Reading.** The scores are not flat; they are lopsided. The role model is confident about
+the first ~20 CVs of a pool, then `role_match` is near 0 and the rest of the top 50 is
+ordered by TF-IDF across all roles. Fits are lost where the extractor does not recognise
+them as the JD's role (the JD's family is wrong for 18 of 59 JDs; many same-role CVs get a
+low agreement), and other-role CVs with similar wording fill the shortlist. Where the JD's
+family is right, X2 Recall@50 is 0.84.
+
+**Caveat.** The 490 distractors are unjudged and assumed not fits. Some of the
+other-keyword CVs that outrank a missed fit may be real fits, so the recall figures are
+upper bounds on what a judged pool would show, and "crowded out by wrong roles" is an
+upper bound too.
+
+**Candidate fixes (not built, not registered):** a hard filter on the JD's top-k families
+(top-3 holds the right family 85–88% of the time), or a larger role weight. Either needs a
+registration entry and train-only tuning before it is scored.
+
 ## 7. Deviations and open questions
 
 - **Deviation (workflow):** implemented inline rather than by sub-agents, to keep the
