@@ -31,7 +31,8 @@ from candidate_screener.matching.base import BaseSystem
 INPUT_COLUMNS = ("jd_id", "jd_title", "jd_text", "cv_text")
 #: Per-text extraction results, shared by every rule built on the same model objects (the
 #: dev set scores eight option settings over the same CVs).
-_SHARED: dict[tuple[int, int], tuple[dict, dict]] = {}
+_SHARED: dict[tuple[int, int], tuple[dict, dict, dict]] = {}
+_CV_PROBA: dict[int, dict] = {}
 
 
 def _inputs(pairs: pd.DataFrame) -> pd.DataFrame:
@@ -80,6 +81,7 @@ class RoleFilterRule(BaseSystem):
         self.role_model, self.title_model = role_model, title_model
         self._cv: dict[str, object] = {}
         self._jd: dict[str, tuple] = {}
+        self._jd_text: dict[str, np.ndarray] = {}
         self.name = f"role filter (k={k}, context={'on' if context else 'off'})"
 
     def _fit(self, train):
@@ -88,8 +90,8 @@ class RoleFilterRule(BaseSystem):
             self.role_model = role_family.load_role_model()
         if self.title_model is None:
             self.title_model = jd_title.load_title_model()
-        self._cv, self._jd = _SHARED.setdefault((id(self.role_model), id(self.title_model)),
-                                                ({}, {}))
+        self._cv, self._jd, self._jd_text = _SHARED.setdefault(
+            (id(self.role_model), id(self.title_model)), ({}, {}, {}))
         self.trained_on = (f"role-family classifier {self.role_model.fingerprint} (P3, A2 "
                            f"train fit part); title classifier {self.title_model.fingerprint} "
                            "(same fit part's Position strings); experience: rules (P4)")
@@ -101,15 +103,29 @@ class RoleFilterRule(BaseSystem):
             self._cv.update(zip(todo, role_set.cv_roles(todo, self.role_model)))
         return [self._cv[t] for t in texts]
 
-    def _jd_family(self, titles: list) -> list[str | None]:
+    def _jd_family(self, titles: list) -> list[tuple[str | None, str, str]]:
+        """Per title: (C1 family, the title as `title_similarity` compares it, C1 source)."""
         from candidate_screener.extraction import jd_title
         keys = ["" if t is None or (isinstance(t, float) and np.isnan(t)) else str(t)
                 for t in titles]
         todo = sorted({t for t in keys if t not in self._jd})
         if todo:
             fam = jd_title.jd_family(todo, self.title_model)
-            self._jd.update(zip(todo, zip(fam.family, [jd_title_key(t) for t in todo])))
+            self._jd.update(zip(todo, zip(fam.family, [jd_title_key(t) for t in todo],
+                                          fam.source)))
         return [self._jd[t] for t in keys]
+
+    def _jd_text_proba(self, texts: list[str]) -> np.ndarray:
+        """P3's JD-side role probabilities from the JD text (as X1 uses them)."""
+        from candidate_screener.extraction import role_family
+        todo = sorted({t for t in texts if t not in self._jd_text})
+        if todo:
+            self._jd_text.update(zip(todo, role_family.predict_proba(todo, "jd", self.role_model)))
+        return np.stack([self._jd_text[t] for t in texts])
+
+    def _jd_sets(self, x: pd.DataFrame, jd: list[tuple]) -> list[frozenset[str]]:
+        """The JD's role families the CV's set must meet: C1's one family (Y rungs)."""
+        return [frozenset() if f is None else frozenset({f}) for f, _, _ in jd]
 
     def components(self, pairs: pd.DataFrame) -> pd.DataFrame:
         """`jd_family`, `family_match`, `title_similarity`, `experience_compatible`."""
@@ -117,8 +133,8 @@ class RoleFilterRule(BaseSystem):
         x = _inputs(pairs)
         cv = self._cv_roles(["" if pd.isna(t) else str(t) for t in x.cv_text])
         jd = self._jd_family(x.jd_title.tolist())
-        match = [int(f is not None and f in r.families(self.k, self.context))
-                 for (f, _), r in zip(jd, cv)]
+        sets = self._jd_sets(x, jd)
+        match = [int(bool(s & r.families(self.k, self.context))) for s, r in zip(sets, cv)]
         sim_cache: dict[tuple, float] = {}
 
         def sim(key: str, titles: tuple[str, ...]) -> float:
@@ -126,10 +142,10 @@ class RoleFilterRule(BaseSystem):
                 sim_cache[(key, titles)] = max((trigram_cosine(key, t) for t in titles),
                                                default=0.0)
             return sim_cache[(key, titles)]
-        sims = [sim(key, r.titles(self.context)) for (_, key), r in zip(jd, cv)]
+        sims = [sim(key, r.titles(self.context)) for (_, key, _), r in zip(jd, cv)]
         exp = experience.experience_compatible_extracted(
             x.jd_text.tolist(), x.cv_text.tolist(), unknown_compatible=True).to_numpy()
-        return pd.DataFrame({"jd_family": [f for f, _ in jd], "family_match": match,
+        return pd.DataFrame({"jd_family": [f for f, _, _ in jd], "family_match": match,
                              "title_similarity": sims, "experience_compatible": exp})
 
     def level(self, pairs: pd.DataFrame) -> np.ndarray:
@@ -141,6 +157,91 @@ class RoleFilterRule(BaseSystem):
 
     def options(self) -> dict:
         return {"k": self.k, "context": self.context}
+
+
+JD_SET_MODES = ("text", "lookup_or_text")
+
+
+class JdSetFilter(RoleFilterRule):
+    """Z2 / Z2L / Z3 (amendment Z, 03 §3): the hard filter with a **set** on the JD side.
+
+    `jd_mode="text"`: the JD text classifier's top-`jd_top` families (Z2 at 3).
+    `jd_mode="lookup_or_text"`: C1's family when the title is in the alias table (a lookup
+    hit), else the text classifier's top-`jd_top` (Z2L at 3, Z3 at 1). A pair matches when
+    the JD set and the CV's role set share a family."""
+    rung = "Z2"
+
+    def __init__(self, jd_mode: str, jd_top: int, k: int = 0, context: bool = False,
+                 role_model=None, title_model=None) -> None:
+        super().__init__(k, context, role_model, title_model)
+        if jd_mode not in JD_SET_MODES:
+            raise ValueError(f"jd_mode must be one of {JD_SET_MODES}")
+        self.jd_mode, self.jd_top = jd_mode, jd_top
+        self.name = (f"JD {jd_mode} top-{jd_top} filter (k={k}, "
+                     f"context={'on' if context else 'off'})")
+
+    def _jd_sets(self, x, jd):
+        proba = self._jd_text_proba(["" if pd.isna(t) else str(t) for t in x.jd_text])
+        top = np.argsort(-proba, axis=1, kind="stable")[:, :self.jd_top]
+        labels = self.role_model.labels
+        out = []
+        for (f, _, source), row in zip(jd, top):
+            if self.jd_mode == "lookup_or_text" and source == "lookup":
+                out.append(frozenset({f}))
+            else:
+                out.append(frozenset(labels[j] for j in row))
+        return out
+
+    def options(self) -> dict:
+        return {"jd_mode": self.jd_mode, "jd_top": self.jd_top, "k": self.k,
+                "context": self.context}
+
+
+class SoftRoleWeight(RoleFilterRule):
+    """Z1 / Z1L (amendment Z): X1's soft role term with a larger weight,
+    `w × Σ_k p_jd(k) p_cv(k) + experience_compatible`.
+
+    `jd_mode="text"`: p_jd from the JD text classifier (Z1; w = 2 is X1 itself).
+    `jd_mode="lookup_or_text"`: p_jd one-hot on C1's family at a lookup hit, else the text
+    classifier's (Z1L). p_cv is always P3's CV-side probabilities (soft)."""
+    rung = "Z1"
+
+    def __init__(self, jd_mode: str, weight: float, role_model=None, title_model=None) -> None:
+        super().__init__(0, False, role_model, title_model)
+        if jd_mode not in JD_SET_MODES:
+            raise ValueError(f"jd_mode must be one of {JD_SET_MODES}")
+        self.jd_mode, self.weight = jd_mode, weight
+        self.name = f"soft role, JD {jd_mode}, weight {weight:g}"
+
+    def _fit(self, train):
+        super()._fit(train)
+        self._cv_p = _CV_PROBA.setdefault(id(self.role_model), {})
+
+    def role_match(self, pairs: pd.DataFrame) -> np.ndarray:
+        from candidate_screener.extraction import role_family
+        x = _inputs(pairs)
+        p_jd = self._jd_text_proba(["" if pd.isna(t) else str(t) for t in x.jd_text])
+        if self.jd_mode == "lookup_or_text":
+            labels = self.role_model.labels
+            for i, (f, _, source) in enumerate(self._jd_family(x.jd_title.tolist())):
+                if source == "lookup":
+                    p_jd[i] = 0.0
+                    p_jd[i, labels.index(f)] = 1.0
+        cv = ["" if pd.isna(t) else str(t) for t in x.cv_text]
+        todo = sorted({t for t in cv if t not in self._cv_p})
+        if todo:
+            self._cv_p.update(zip(todo, role_family.predict_proba(todo, "cv", self.role_model)))
+        return role_family.soft_agreement(p_jd, np.stack([self._cv_p[t] for t in cv]))
+
+    def level(self, pairs: pd.DataFrame) -> np.ndarray:
+        from candidate_screener.extraction import experience
+        x = _inputs(pairs)
+        exp = experience.experience_compatible_extracted(
+            x.jd_text.tolist(), x.cv_text.tolist(), unknown_compatible=True).to_numpy()
+        return self.weight * self.role_match(pairs) + exp
+
+    def options(self) -> dict:
+        return {"jd_mode": self.jd_mode, "weight": self.weight}
 
 
 class RoleFilterPlus(lexical.MetadataPlus):

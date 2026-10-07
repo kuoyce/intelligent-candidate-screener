@@ -39,6 +39,7 @@ from candidate_screener.extraction.role_set import KS
 from candidate_screener.matching.base import BaseSystem
 
 RECORD = OUTPUT / "matching" / "shortlist-dev.json"
+VARIANTS_RECORD = OUTPUT / "matching" / "shortlist-dev-variants.json"
 TEXT_VARIANT = "v2"
 METRICS = (10, 50)
 SELECT_ON = ("dev-select", 50)
@@ -266,6 +267,97 @@ def choose(rungs: dict[str, dict]) -> dict:
     return out
 
 
+# --- amendment Z: three explorations (user, 7 Oct) ---------------------------------------------
+
+WEIGHTS = (2, 4, 8, 16)
+#: family -> (factory args, cheapest-first option list). All take TF-IDF as the text term.
+Z_FAMILIES = {
+    "Z1": ("soft", "text", [{"weight": w} for w in WEIGHTS]),
+    "Z1L": ("soft", "lookup_or_text", [{"weight": w} for w in WEIGHTS]),
+    "Z2": ("set", ("text", 3), [{"k": k, "context": c} for k, c in OPTIONS]),
+    "Z2L": ("set", ("lookup_or_text", 3), [{"k": k, "context": c} for k, c in OPTIONS]),
+    "Z3": ("set", ("lookup_or_text", 1), [{"k": k, "context": c} for k, c in OPTIONS]),
+}
+Z_RULES = {
+    "families": {"Z1": "soft role, JD text probabilities, weight w (w = 2 is X2)",
+                 "Z1L": "soft role, JD one-hot on a title lookup hit else text probabilities",
+                 "Z2": "hard: any of the JD text classifier's top 3 in the CV role set",
+                 "Z2L": "hard: title family on a lookup hit, else the JD text top 3",
+                 "Z3": "hard: title family on a lookup hit, else the JD text top 1"},
+    "text_term": "TF-IDF, per-JD min-max x 0.999 (as X2 and Y2)",
+    "option": "per family, highest dev-select proxy Recall@50; ties (6 dp) to the cheaper "
+              "option (smaller weight; smaller k, then context off)",
+    "verdict": "a family 'beats X2' when its chosen option's dev-select Recall@50 is strictly "
+               "above X2's; dev-train is reported as a check, not a second vote",
+    "split": "exploratory: Recall@50 by whether the JD title is a lookup hit (an input "
+             "property), for each family's choice and X2; decides nothing",
+    "status": "post-hoc, dev only; amendment Z in 03 §3; fixed before the first Z run",
+}
+
+
+def evaluate_variants(seed: int = 0) -> dict:
+    from candidate_screener.extraction import jd_title, role_family as rf
+    from candidate_screener.matching import extracted, lexical, role_filter as yf
+    dev = dev_pools.build()
+    frame = dev_pools.pairs(dev)
+    rel = dev_pools.labels(dev, frame).to_numpy()
+    role_model, title_model = rf.load_role_model(), jd_title.load_title_model()
+    tfidf = lexical.Tfidf(TEXT_VARIANT)
+    tfidf.fit(None)
+    tfidf = Fixed(tfidf, frame)
+    hit = jd_title.jd_family(dev["jd"].title.tolist(), title_model).source.eq("lookup")
+    hit = dict(zip(dev["jd"]["id"], hit))
+    sel = (frame.split == "dev-select").to_numpy()
+
+    def by_hit(s: np.ndarray) -> dict:
+        v = recall_per_jd(frame[sel], s[sel], rel[sel], 50)
+        h = v.index.map(hit).to_numpy(dtype=bool)
+        return {"lookup_hit": {"value": round(float(v[h].mean()), DECIMALS), "n_jd": int(h.sum())},
+                "lookup_miss": {"value": round(float(v[~h].mean()), DECIMALS),
+                                "n_jd": int((~h).sum())}}
+
+    rungs, scores = {}, {}
+    x2 = extracted.ExtractedPlus(tfidf, "X2", extracted.ExtractedRule(role_model))
+    x2.fit(None)
+    s = x2.score(frame).to_numpy()
+    rungs[x2.name] = {"family": "X2", "options": None, "proxy": figures(frame, s, rel, seed)}
+    scores[x2.name] = s
+    for fam, (kind, arg, options) in Z_FAMILIES.items():
+        for opt in options:
+            if kind == "soft":
+                rule = yf.SoftRoleWeight(arg, opt["weight"], role_model, title_model)
+            else:
+                rule = yf.JdSetFilter(arg[0], arg[1], opt["k"], opt["context"], role_model,
+                                      title_model)
+            rule.fit(None)
+            system = yf.RoleFilterPlus(tfidf, fam, rule)
+            system.fit(None)
+            s = system.score(frame).to_numpy()
+            name = f"{fam} {system.name}"
+            rungs[name] = {"family": fam, "options": opt, "proxy": figures(frame, s, rel, seed),
+                           "scores_sha256": hashlib.sha256(np.round(s, 9).tobytes()).hexdigest()}
+            scores[name] = s
+            _log(f"{name}: dev-select R@50 {value(rungs[name]):.4f}")
+    x2_sel = value(rungs[x2.name])
+    choices = {}
+    for fam, (_, _, options) in Z_FAMILIES.items():
+        cands = [(n, r) for n, r in rungs.items() if r["family"] == fam]
+        best = max(cands, key=lambda nr: (round(value(nr[1]), DECIMALS),
+                                          -options.index(nr[1]["options"])))
+        choices[fam] = {"name": best[0], "options": best[1]["options"],
+                        "dev_select_recall@50": value(best[1]),
+                        "dev_train_recall@50": value(best[1], "dev-train"),
+                        "beats_x2": bool(value(best[1]) > x2_sel),
+                        "by_lookup_hit": by_hit(scores[best[0]])}
+    choices["X2"] = {"dev_select_recall@50": x2_sel,
+                     "dev_train_recall@50": value(rungs[x2.name], "dev-train"),
+                     "by_lookup_hit": by_hit(scores[x2.name])}
+    return {"plan": "plan/2026-10-07-shortlist-recall (amendment Z)",
+            "dev_set": {"report": dev_pools.REPORT.name},
+            "models": {"role_family": role_model.fingerprint, "jd_title": title_model.fingerprint},
+            "rules": Z_RULES, "rungs": rungs, "choices": choices}
+
+
 def render(doc: dict) -> str:
     return json.dumps(doc, indent=2) + "\n"
 
@@ -274,7 +366,19 @@ def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--check", action="store_true", help="rebuild and diff, write nothing")
+    ap.add_argument("--variants", action="store_true", help="amendment Z (Z1-Z3), own record")
     a = ap.parse_args(argv)
+    if a.variants:
+        record = evaluate_variants(a.seed)
+        fresh = render(record)
+        if a.check:
+            same = VARIANTS_RECORD.exists() and VARIANTS_RECORD.read_text(encoding="utf-8") == fresh
+            print(f"[{'PASS' if same else 'FAIL'}] rebuild reproduces {VARIANTS_RECORD.name}")
+            return 0 if same else 1
+        VARIANTS_RECORD.write_text(fresh, encoding="utf-8")
+        print(json.dumps(record["choices"], indent=1))
+        print(f"-> {VARIANTS_RECORD}")
+        return 0
     record = evaluate(a.seed)
     if a.check:
         same = RECORD.exists() and RECORD.read_text(encoding="utf-8") == render(record)

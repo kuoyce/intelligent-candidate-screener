@@ -52,3 +52,4 @@ running plan's §3 verdict), as in the running plan's §5.
 
 | # | Date | Change | Why | Post-hoc? |
 |---|---|---|---|---|
+| Z | 7 Oct 2026 | After the Q3 early stop, five dev-only variants (user request): **Z1** soft role term with weight w ∈ {2, 4, 8, 16} (w = 2 is X2); **Z1L** the same with the JD side one-hot on a title lookup hit, else the text classifier; **Z2** hard filter on the JD text classifier's top 3; **Z2L** title family on a lookup hit, else text top 3; **Z3** title family on a lookup hit, else text top 1. TF-IDF text term throughout. Options and verdict rules in `shortlist_dev.Z_RULES`, fixed before the first Z run. No final-set scoring is implied: Q8 still waits on review | The Q3 diagnosis: a hard match on one title-derived family fails where C1 is wrong | yes |

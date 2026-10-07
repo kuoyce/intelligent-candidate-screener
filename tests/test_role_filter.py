@@ -133,3 +133,51 @@ def test_trigram_cosine():
 def test_components_never_read_final_labels_or_judgements():
     for module in (jd_title, role_set, yf):
         assert reads_final_labels(module) == []
+
+
+# --- amendment Z: JD-side sets and the soft role weight ---------------------------------
+
+def test_jd_set_uses_the_title_on_a_lookup_hit_else_the_text_top_n(models):
+    role, title = models
+    cv = "QA engineer\nregression testing"
+    frame = pd.concat([_frame(["Python Developer"], [cv], jd_text="manual testing regression bugs"),
+                       _frame(["Python guru"], [cv], jd_text="manual testing regression bugs")
+                       .assign(pair_id="p9", jd_id="k")], ignore_index=True)
+    z = yf.JdSetFilter("lookup_or_text", 1, k=0, context=True, role_model=role, title_model=title)
+    z.fit(None)
+    # hit: the title says Python, so a QA CV does not match; miss: the text says QA, it does
+    assert list(z.components(frame).family_match) == [0, 1]
+    top3 = yf.JdSetFilter("text", 3, k=0, context=True, role_model=role, title_model=title)
+    top3.fit(None)
+    assert list(top3.components(frame).family_match) == [1, 1]   # 3 labels: top-3 is all
+
+
+def test_soft_weight_two_with_text_jd_is_x1(models):
+    """Z1 at w = 2 is X1 exactly, so the weight is the only thing Z1 changes."""
+    from candidate_screener.matching import extracted
+    role, title = models
+    frame = _frame(["Python Developer"] * 3, ["java spring", "python django", "QA engineer"])
+    z = yf.SoftRoleWeight("text", 2, role, title)
+    z.fit(None)
+    x1 = extracted.ExtractedRule(role)
+    x1.fit(None)
+    assert np.allclose(z.level(frame), x1.score(frame).to_numpy())
+    z8 = yf.SoftRoleWeight("text", 8, role, title)
+    z8.fit(None)
+    assert np.allclose(z8.level(frame) - 1, 4 * (z.level(frame) - 1))   # experience is 1 here
+
+
+def test_z_rungs_never_read_cv_position_keyword_or_experience_fields(models):
+    role, title = models
+    cvs = ["Java developer\nspring", "QA engineer\nregression", "Python developer\ndjango"]
+    frame = _frame(["Python Developer", "Data guru", "QA lead"], cvs)
+    rng = np.random.default_rng(1)
+    scrambled = frame.assign(**{c: rng.permutation(frame[c].to_numpy())
+                                for c in ("cv_keyword", "cv_exp_band", "jd_exp_band")},
+                             cv_position=["cto", "QA engineer", "Java developer"],
+                             jd_keyword=["QA", "Java", "Python"])
+    for z in (yf.JdSetFilter("text", 3, 1, True, role, title),
+              yf.JdSetFilter("lookup_or_text", 3, 1, True, role, title),
+              yf.SoftRoleWeight("lookup_or_text", 8, role, title)):
+        z.fit(None)
+        assert np.array_equal(z.level(frame), z.level(scrambled))

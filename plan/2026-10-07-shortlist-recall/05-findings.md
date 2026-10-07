@@ -135,3 +135,23 @@ error, and the fallback errors are frequent.
 | ID | Question | Why it matters | Recommendation |
 |---|---|---|---|
 | Q-R6 | The early stop fired (Y2 0.664 < X2 0.727 on dev). Options: (a) **stop as planned**: freeze 03 §2 with the dev choices, score once on the final set at Q8, and report post-hoc Y beside the registered P7 miss; (b) **stop and skip Q8**: record the dev result only, keep X2 for P8.5 (Q-P7-2 (a)), return to P8; (c) **one new dev variant**, post-hoc and registered first, that follows the diagnosis: use the title family only on a **lookup hit**, else P3's JD text distribution, and keep the CV side soft (`Σ p_jd p_cv` with the JD side one-hot on a hit). Dev only; continue only if it beats X2 on dev-select | (a) spends a final-set look on rungs already known to be worse on dev. (c) is the one change the diagnosis points to, but it is a further post-hoc step | **(b)**, with (c) only if you want one more try. Q4/Q5 (main tech, learned combination) are not worth starting while the role term is the bottleneck |
+
+## Amendment Z: three explorations (user, 7 Oct), rules fixed before the run
+
+The user asked for three explorations: (1) the soft alternative to the hard filter, read
+as P7 §6a's "larger role weight"; (2) a hard filter on the JD side's top 3; (3) the title
+only on a lookup hit, else the full JD text. They are tested as five families, in
+`matching/role_filter.py` (`SoftRoleWeight`, `JdSetFilter`), scored by
+`shortlist_dev --variants` into `output/matching/shortlist-dev-variants.json`:
+
+| Family | JD side | Match | Options (chosen on dev-select R@50, ties to cheaper) |
+|---|---|---|---|
+| Z1 | text classifier probabilities | soft `w × Σ p_jd p_cv` | w ∈ {2, 4, 8, 16} |
+| Z1L | one-hot title family on a lookup hit, else text probabilities | soft | w ∈ {2, 4, 8, 16} |
+| Z2 | text top 3 | hard, vs CV role set | k ∈ 0–3 × context |
+| Z2L | title family on a hit, else text top 3 | hard | k × context |
+| Z3 | title family on a hit, else text top 1 | hard | k × context |
+
+A family "beats X2" when its chosen option's dev-select Recall@50 is strictly above X2's
+(0.727). Recall@50 split by lookup hit / miss is reported for each choice and for X2
+(exploratory). **Assumption to confirm:** item (1) read as a larger soft weight.
