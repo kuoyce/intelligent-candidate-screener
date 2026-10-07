@@ -269,7 +269,10 @@ def choose(rungs: dict[str, dict]) -> dict:
 
 # --- amendment Z: three explorations (user, 7 Oct) ---------------------------------------------
 
-WEIGHTS = (2, 4, 8, 16)
+#: Amendment Z' (7 Oct) extended the grid past 16, where Z1/Z1L were still rising.
+#: `LIMIT` stands for "order by role agreement; experience, then text, only break ties".
+LIMIT = 1e6
+WEIGHTS = (2, 4, 8, 16, 32, 64, LIMIT)
 #: family -> (factory args, cheapest-first option list). All take TF-IDF as the text term.
 Z_FAMILIES = {
     "Z1": ("soft", "text", [{"weight": w} for w in WEIGHTS]),
@@ -287,6 +290,10 @@ Z_RULES = {
     "text_term": "TF-IDF, per-JD min-max x 0.999 (as X2 and Y2)",
     "option": "per family, highest dev-select proxy Recall@50; ties (6 dp) to the cheaper "
               "option (smaller weight; smaller k, then context off)",
+    "grid_extension": "amendment Z': weights 32, 64 and the limit (1e6) added after w = 16 "
+                      "was the grid's edge; the same option rule over the whole grid",
+    "paired": "each choice's per-JD Recall@50 minus X2's, dev-select, mean with a "
+              "JD-resampled CI; reported, the verdict stays the point-estimate rule",
     "verdict": "a family 'beats X2' when its chosen option's dev-select Recall@50 is strictly "
                "above X2's; dev-train is reported as a check, not a second vote",
     "split": "exploratory: Recall@50 by whether the JD title is a lookup hit (an input "
@@ -339,6 +346,13 @@ def evaluate_variants(seed: int = 0) -> dict:
             scores[name] = s
             _log(f"{name}: dev-select R@50 {value(rungs[name]):.4f}")
     x2_sel = value(rungs[x2.name])
+    x2_per = recall_per_jd(frame[sel], scores[x2.name][sel], rel[sel], 50)
+
+    def paired(s: np.ndarray) -> dict:
+        d = (recall_per_jd(frame[sel], s[sel], rel[sel], 50) - x2_per).dropna()
+        lo, hi = resample.mean_ci(d, seed=seed)
+        return {"delta": round(float(d.mean()), DECIMALS),
+                "ci95": [round(lo, DECIMALS), round(hi, DECIMALS)], "n_jd": int(len(d))}
     choices = {}
     for fam, (_, _, options) in Z_FAMILIES.items():
         cands = [(n, r) for n, r in rungs.items() if r["family"] == fam]
@@ -348,6 +362,7 @@ def evaluate_variants(seed: int = 0) -> dict:
                         "dev_select_recall@50": value(best[1]),
                         "dev_train_recall@50": value(best[1], "dev-train"),
                         "beats_x2": bool(value(best[1]) > x2_sel),
+                        "paired_delta_vs_x2_dev_select": paired(scores[best[0]]),
                         "by_lookup_hit": by_hit(scores[best[0]])}
     choices["X2"] = {"dev_select_recall@50": x2_sel,
                      "dev_train_recall@50": value(rungs[x2.name], "dev-train"),
