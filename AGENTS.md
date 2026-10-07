@@ -36,6 +36,8 @@ uv run python -m candidate_screener.baselines.run --check      # the frozen Phas
 uv run python -m candidate_screener.evaluation.final_set --check   # the reference (D41)
 uv run python -m candidate_screener.evaluation.indomain --check    # the ladder vs the reference
 uv run python -m candidate_screener.evaluation.stage1 --check      # X rungs, K1–K5, S2 (text_v2)
+uv run python -m candidate_screener.evaluation.dev_pools --check       # shortlist-recall dev set (A2 train)
+uv run python -m candidate_screener.evaluation.shortlist_dev --check   # Y rungs on the dev set (~12 min)
 uv run pytest                                                   # the suite (no data needed)
 uv run jupyter nbconvert --to notebook --execute --inplace notebooks/NN-*.ipynb
 ```

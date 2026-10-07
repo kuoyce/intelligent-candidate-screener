@@ -1,0 +1,3254 @@
+{
+  "plan": "plan/2026-10-07-shortlist-recall (Q2, Q3)",
+  "dev_set": {
+    "report": "shortlist-dev-set.json",
+    "pools_sha256": "ef6afca62b9d6b25af3a6d76acd6e7e7ded03b21b51c3515c1aa875164dd29ea"
+  },
+  "models": {
+    "role_family": "44b7fff54614",
+    "jd_title": "18b47dfd129f"
+  },
+  "text_variant": "v2",
+  "jd_title": "A2 JD Position as given (D54, Q-R2)",
+  "rules": {
+    "option": "per Y rung, highest dev-select proxy Recall@50; ties (6 dp) to smaller k, then context off",
+    "y2_vs_y2t": "higher dev-select Recall@50 at each one's chosen option; ties to Y2",
+    "early_stop": "dev-best classical Y (Y1, Y2, Y2t) must beat X2's dev-select Recall@50 (strict, point estimate), else stop and go to Q8 with what exists",
+    "pilot_shaped": "relevance among the 10 seeded slots only; reported, decides nothing",
+    "fixed": "7 Oct 2026, in this module, before its first run"
+  },
+  "note": "Proxy relevance = same oracle role family (Q-R3); it measures agreement with the metadata, not fit. Recall per JD over JDs with a relevant CV; CIs resample JDs (10,000). TF-IDF's IDF is the shared A2 vectoriser (a seeded train-region sample, unsupervised).",
+  "components": {
+    "c1_dev_jds": {
+      "n": 400,
+      "accuracy": {
+        "value": 0.7675,
+        "ci95": [
+          0.725,
+          0.8075
+        ],
+        "n": 400
+      },
+      "source_share": {
+        "lookup": 0.625,
+        "classifier": 0.375,
+        "none": 0.0
+      },
+      "accuracy_by_source": {
+        "lookup": 0.9,
+        "classifier": 0.5467
+      },
+      "p3_text_classifier_accuracy": {
+        "value": 0.7775,
+        "ci95": [
+          0.7375,
+          0.8175
+        ],
+        "n": 400
+      }
+    },
+    "c1_final_set_jds": {
+      "generic": {
+        "n": 40,
+        "accuracy": {
+          "value": 0.8,
+          "ci95": [
+            0.675,
+            0.925
+          ],
+          "n": 40
+        },
+        "source_share": {
+          "lookup": 0.675,
+          "classifier": 0.325,
+          "none": 0.0
+        },
+        "accuracy_by_source": {
+          "lookup": 0.8519,
+          "classifier": 0.6923
+        },
+        "p3_text_classifier_accuracy": {
+          "value": 0.775,
+          "ci95": [
+            0.625,
+            0.9
+          ],
+          "n": 40
+        }
+      },
+      "targeted": {
+        "n": 20,
+        "accuracy": {
+          "value": 0.65,
+          "ci95": [
+            0.45,
+            0.85
+          ],
+          "n": 20
+        },
+        "source_share": {
+          "lookup": 0.55,
+          "classifier": 0.45,
+          "none": 0.0
+        },
+        "accuracy_by_source": {
+          "lookup": 0.9091,
+          "classifier": 0.3333
+        },
+        "p3_text_classifier_accuracy": {
+          "value": 0.5,
+          "ci95": [
+            0.3,
+            0.7
+          ],
+          "n": 20
+        }
+      },
+      "total": {
+        "n": 60,
+        "accuracy": {
+          "value": 0.75,
+          "ci95": [
+            0.6333,
+            0.85
+          ],
+          "n": 60
+        },
+        "source_share": {
+          "lookup": 0.6333,
+          "classifier": 0.3667,
+          "none": 0.0
+        },
+        "accuracy_by_source": {
+          "lookup": 0.8684,
+          "classifier": 0.5455
+        },
+        "p3_text_classifier_accuracy": {
+          "value": 0.6833,
+          "ci95": [
+            0.5667,
+            0.8
+          ],
+          "n": 60
+        }
+      },
+      "note": "measurement only (D46): oracle = role_family(Primary Keyword, Position) of the final-set JD; no final label is read"
+    },
+    "c2_dev_cvs": {
+      "n": 14170,
+      "any_span": 0.9308,
+      "options": {
+        "k=0,context=off": {
+          "recall": {
+            "value": 0.7299,
+            "ci95": [
+              0.7226,
+              0.7372
+            ],
+            "n": 14170
+          },
+          "mean_set_size": 2.6444,
+          "empty_share": 0.0692
+        },
+        "k=0,context=on": {
+          "recall": {
+            "value": 0.3248,
+            "ci95": [
+              0.3172,
+              0.3325
+            ],
+            "n": 14170
+          },
+          "mean_set_size": 0.6452,
+          "empty_share": 0.5406
+        },
+        "k=1,context=off": {
+          "recall": {
+            "value": 0.858,
+            "ci95": [
+              0.8522,
+              0.8637
+            ],
+            "n": 14170
+          },
+          "mean_set_size": 2.8414,
+          "empty_share": 0.0
+        },
+        "k=1,context=on": {
+          "recall": {
+            "value": 0.8093,
+            "ci95": [
+              0.8026,
+              0.8158
+            ],
+            "n": 14170
+          },
+          "mean_set_size": 1.297,
+          "empty_share": 0.0
+        },
+        "k=2,context=off": {
+          "recall": {
+            "value": 0.9066,
+            "ci95": [
+              0.9016,
+              0.9113
+            ],
+            "n": 14170
+          },
+          "mean_set_size": 3.4136,
+          "empty_share": 0.0
+        },
+        "k=2,context=on": {
+          "recall": {
+            "value": 0.8932,
+            "ci95": [
+              0.8879,
+              0.8983
+            ],
+            "n": 14170
+          },
+          "mean_set_size": 2.2009,
+          "empty_share": 0.0
+        },
+        "k=3,context=off": {
+          "recall": {
+            "value": 0.9318,
+            "ci95": [
+              0.9276,
+              0.9359
+            ],
+            "n": 14170
+          },
+          "mean_set_size": 4.1426,
+          "empty_share": 0.0
+        },
+        "k=3,context=on": {
+          "recall": {
+            "value": 0.9261,
+            "ci95": [
+              0.9217,
+              0.9304
+            ],
+            "n": 14170
+          },
+          "mean_set_size": 3.153,
+          "empty_share": 0.0
+        }
+      }
+    }
+  },
+  "rungs": {
+    "TF-IDF": {
+      "rung": "2",
+      "status": "reference",
+      "options": null,
+      "scores_sha256": "8ed3f51299a0f7ab38d6c16d5b32c503df7b2739efa126fd0548f4578ff3339b",
+      "proxy": {
+        "dev-train": {
+          "recall@10": {
+            "value": 0.200159,
+            "ci95": [
+              0.179923,
+              0.221042
+            ],
+            "n_jd": 249
+          },
+          "recall@50": {
+            "value": 0.481247,
+            "ci95": [
+              0.452152,
+              0.510346
+            ],
+            "n_jd": 249
+          }
+        },
+        "dev-select": {
+          "recall@10": {
+            "value": 0.199974,
+            "ci95": [
+              0.172644,
+              0.229944
+            ],
+            "n_jd": 150
+          },
+          "recall@50": {
+            "value": 0.458673,
+            "ci95": [
+              0.419917,
+              0.497855
+            ],
+            "n_jd": 150
+          }
+        }
+      },
+      "pilot_shaped": {
+        "dev-train": {
+          "recall@10": {
+            "value": 0.198493,
+            "ci95": [
+              0.174201,
+              0.224102
+            ],
+            "n_jd": 248
+          },
+          "recall@50": {
+            "value": 0.492127,
+            "ci95": [
+              0.460229,
+              0.525226
+            ],
+            "n_jd": 248
+          }
+        },
+        "dev-select": {
+          "recall@10": {
+            "value": 0.202178,
+            "ci95": [
+              0.171202,
+              0.234208
+            ],
+            "n_jd": 147
+          },
+          "recall@50": {
+            "value": 0.466254,
+            "ci95": [
+              0.423907,
+              0.509283
+            ],
+            "n_jd": 147
+          }
+        }
+      }
+    },
+    "SBERT (weak fine-tuned)": {
+      "rung": "3b",
+      "status": "reference",
+      "options": null,
+      "scores_sha256": "9768ae829e581416a0dc691321864316b6ece4f428df75c47b89e66970e9235c",
+      "proxy": {
+        "dev-train": {
+          "recall@10": {
+            "value": 0.193439,
+            "ci95": [
+              0.175151,
+              0.212742
+            ],
+            "n_jd": 249
+          },
+          "recall@50": {
+            "value": 0.53095,
+            "ci95": [
+              0.502782,
+              0.55955
+            ],
+            "n_jd": 249
+          }
+        },
+        "dev-select": {
+          "recall@10": {
+            "value": 0.194985,
+            "ci95": [
+              0.167174,
+              0.224671
+            ],
+            "n_jd": 150
+          },
+          "recall@50": {
+            "value": 0.501119,
+            "ci95": [
+              0.463348,
+              0.53943
+            ],
+            "n_jd": 150
+          }
+        }
+      },
+      "pilot_shaped": {
+        "dev-train": {
+          "recall@10": {
+            "value": 0.197221,
+            "ci95": [
+              0.174537,
+              0.22091
+            ],
+            "n_jd": 248
+          },
+          "recall@50": {
+            "value": 0.537922,
+            "ci95": [
+              0.504222,
+              0.571215
+            ],
+            "n_jd": 248
+          }
+        },
+        "dev-select": {
+          "recall@10": {
+            "value": 0.192258,
+            "ci95": [
+              0.16363,
+              0.223316
+            ],
+            "n_jd": 147
+          },
+          "recall@50": {
+            "value": 0.503158,
+            "ci95": [
+              0.459667,
+              0.547741
+            ],
+            "n_jd": 147
+          }
+        }
+      }
+    },
+    "extracted rule + TF-IDF": {
+      "rung": "X2",
+      "status": "reference (P7 registered)",
+      "options": null,
+      "scores_sha256": "030f8627fe04c2c6bc98a330f628bf7cd77aa9f77d8945bc8646edaadb74f9f0",
+      "proxy": {
+        "dev-train": {
+          "recall@10": {
+            "value": 0.324311,
+            "ci95": [
+              0.296217,
+              0.353688
+            ],
+            "n_jd": 249
+          },
+          "recall@50": {
+            "value": 0.713107,
+            "ci95": [
+              0.681006,
+              0.744511
+            ],
+            "n_jd": 249
+          }
+        },
+        "dev-select": {
+          "recall@10": {
+            "value": 0.349819,
+            "ci95": [
+              0.312494,
+              0.387979
+            ],
+            "n_jd": 150
+          },
+          "recall@50": {
+            "value": 0.726621,
+            "ci95": [
+              0.685325,
+              0.766974
+            ],
+            "n_jd": 150
+          }
+        }
+      },
+      "pilot_shaped": {
+        "dev-train": {
+          "recall@10": {
+            "value": 0.332469,
+            "ci95": [
+              0.300355,
+              0.365234
+            ],
+            "n_jd": 248
+          },
+          "recall@50": {
+            "value": 0.71575,
+            "ci95": [
+              0.68078,
+              0.749521
+            ],
+            "n_jd": 248
+          }
+        },
+        "dev-select": {
+          "recall@10": {
+            "value": 0.351393,
+            "ci95": [
+              0.311224,
+              0.392979
+            ],
+            "n_jd": 147
+          },
+          "recall@50": {
+            "value": 0.733665,
+            "ci95": [
+              0.688208,
+              0.777373
+            ],
+            "n_jd": 147
+          }
+        }
+      }
+    },
+    "Y1 role filter (k=0, context=off)": {
+      "rung": "Y1",
+      "status": "dev",
+      "options": {
+        "k": 0,
+        "context": false
+      },
+      "scores_sha256": "28aae70be4bc12d2ac98ed1313f922c891a0c359ae45c8a66ebd0f8a370a78f6",
+      "proxy": {
+        "dev-train": {
+          "recall@10": {
+            "value": 0.136843,
+            "ci95": [
+              0.121137,
+              0.153459
+            ],
+            "n_jd": 249
+          },
+          "recall@50": {
+            "value": 0.481307,
+            "ci95": [
+              0.44628,
+              0.516637
+            ],
+            "n_jd": 249
+          }
+        },
+        "dev-select": {
+          "recall@10": {
+            "value": 0.13874,
+            "ci95": [
+              0.116774,
+              0.162971
+            ],
+            "n_jd": 150
+          },
+          "recall@50": {
+            "value": 0.47714,
+            "ci95": [
+              0.43038,
+              0.52428
+            ],
+            "n_jd": 150
+          }
+        }
+      },
+      "pilot_shaped": {
+        "dev-train": {
+          "recall@10": {
+            "value": 0.1322,
+            "ci95": [
+              0.112543,
+              0.152794
+            ],
+            "n_jd": 248
+          },
+          "recall@50": {
+            "value": 0.482887,
+            "ci95": [
+              0.443931,
+              0.52254
+            ],
+            "n_jd": 248
+          }
+        },
+        "dev-select": {
+          "recall@10": {
+            "value": 0.128523,
+            "ci95": [
+              0.102041,
+              0.157313
+            ],
+            "n_jd": 147
+          },
+          "recall@50": {
+            "value": 0.492104,
+            "ci95": [
+              0.438168,
+              0.545311
+            ],
+            "n_jd": 147
+          }
+        }
+      }
+    },
+    "Y2 role filter (k=0, context=off)": {
+      "rung": "Y2",
+      "status": "dev",
+      "options": {
+        "k": 0,
+        "context": false
+      },
+      "scores_sha256": "53fa81c174f80ea6b8c4230d766ffc2d9c949cb27632c01847772becb6dbd5c1",
+      "proxy": {
+        "dev-train": {
+          "recall@10": {
+            "value": 0.229785,
+            "ci95": [
+              0.208233,
+              0.252152
+            ],
+            "n_jd": 249
+          },
+          "recall@50": {
+            "value": 0.591516,
+            "ci95": [
+              0.559187,
+              0.624408
+            ],
+            "n_jd": 249
+          }
+        },
+        "dev-select": {
+          "recall@10": {
+            "value": 0.235679,
+            "ci95": [
+              0.207263,
+              0.265581
+            ],
+            "n_jd": 150
+          },
+          "recall@50": {
+            "value": 0.597526,
+            "ci95": [
+              0.555038,
+              0.63992
+            ],
+            "n_jd": 150
+          }
+        }
+      },
+      "pilot_shaped": {
+        "dev-train": {
+          "recall@10": {
+            "value": 0.231423,
+            "ci95": [
+              0.206149,
+              0.258138
+            ],
+            "n_jd": 248
+          },
+          "recall@50": {
+            "value": 0.597638,
+            "ci95": [
+              0.561634,
+              0.634578
+            ],
+            "n_jd": 248
+          }
+        },
+        "dev-select": {
+          "recall@10": {
+            "value": 0.239027,
+            "ci95": [
+              0.207197,
+              0.272676
+            ],
+            "n_jd": 147
+          },
+          "recall@50": {
+            "value": 0.60281,
+            "ci95": [
+              0.554906,
+              0.65051
+            ],
+            "n_jd": 147
+          }
+        }
+      }
+    },
+    "Y2t role filter (k=0, context=off)": {
+      "rung": "Y2t",
+      "status": "dev",
+      "options": {
+        "k": 0,
+        "context": false
+      },
+      "scores_sha256": "cdf3c93ac2804a9bbfb2ce814a4b54d5d0f712a9629b6c2be2a74b58f50e728a",
+      "proxy": {
+        "dev-train": {
+          "recall@10": {
+            "value": 0.227879,
+            "ci95": [
+              0.207067,
+              0.249387
+            ],
+            "n_jd": 249
+          },
+          "recall@50": {
+            "value": 0.575785,
+            "ci95": [
+              0.545226,
+              0.606189
+            ],
+            "n_jd": 249
+          }
+        },
+        "dev-select": {
+          "recall@10": {
+            "value": 0.238514,
+            "ci95": [
+              0.210086,
+              0.268632
+            ],
+            "n_jd": 150
+          },
+          "recall@50": {
+            "value": 0.586676,
+            "ci95": [
+              0.546036,
+              0.626494
+            ],
+            "n_jd": 150
+          }
+        }
+      },
+      "pilot_shaped": {
+        "dev-train": {
+          "recall@10": {
+            "value": 0.232359,
+            "ci95": [
+              0.207157,
+              0.258569
+            ],
+            "n_jd": 248
+          },
+          "recall@50": {
+            "value": 0.588494,
+            "ci95": [
+              0.554579,
+              0.622626
+            ],
+            "n_jd": 248
+          }
+        },
+        "dev-select": {
+          "recall@10": {
+            "value": 0.242428,
+            "ci95": [
+              0.211734,
+              0.274174
+            ],
+            "n_jd": 147
+          },
+          "recall@50": {
+            "value": 0.593578,
+            "ci95": [
+              0.54859,
+              0.638647
+            ],
+            "n_jd": 147
+          }
+        }
+      }
+    },
+    "Y4 role filter (k=0, context=off)": {
+      "rung": "Y4",
+      "status": "dev",
+      "options": {
+        "k": 0,
+        "context": false
+      },
+      "scores_sha256": "af6620369754b9f0fc9485c1e037dd842bef22aac9390215ed8b6a2d9ab7fbaf",
+      "proxy": {
+        "dev-train": {
+          "recall@10": {
+            "value": 0.230868,
+            "ci95": [
+              0.209792,
+              0.252874
+            ],
+            "n_jd": 249
+          },
+          "recall@50": {
+            "value": 0.614725,
+            "ci95": [
+              0.583111,
+              0.646637
+            ],
+            "n_jd": 249
+          }
+        },
+        "dev-select": {
+          "recall@10": {
+            "value": 0.228619,
+            "ci95": [
+              0.199186,
+              0.260073
+            ],
+            "n_jd": 150
+          },
+          "recall@50": {
+            "value": 0.616046,
+            "ci95": [
+              0.573861,
+              0.657919
+            ],
+            "n_jd": 150
+          }
+        }
+      },
+      "pilot_shaped": {
+        "dev-train": {
+          "recall@10": {
+            "value": 0.229551,
+            "ci95": [
+              0.203915,
+              0.256336
+            ],
+            "n_jd": 248
+          },
+          "recall@50": {
+            "value": 0.619312,
+            "ci95": [
+              0.584028,
+              0.655246
+            ],
+            "n_jd": 248
+          }
+        },
+        "dev-select": {
+          "recall@10": {
+            "value": 0.226271,
+            "ci95": [
+              0.193106,
+              0.260448
+            ],
+            "n_jd": 147
+          },
+          "recall@50": {
+            "value": 0.625891,
+            "ci95": [
+              0.578839,
+              0.672376
+            ],
+            "n_jd": 147
+          }
+        }
+      }
+    },
+    "Y1 role filter (k=0, context=on)": {
+      "rung": "Y1",
+      "status": "dev",
+      "options": {
+        "k": 0,
+        "context": true
+      },
+      "scores_sha256": "a56dcbcfe91cffb71dc6e40aa210e0e56f53b4b87b7a1061591856c8e4e6a4d8",
+      "proxy": {
+        "dev-train": {
+          "recall@10": {
+            "value": 0.161619,
+            "ci95": [
+              0.14638,
+              0.177504
+            ],
+            "n_jd": 249
+          },
+          "recall@50": {
+            "value": 0.302817,
+            "ci95": [
+              0.284171,
+              0.321571
+            ],
+            "n_jd": 249
+          }
+        },
+        "dev-select": {
+          "recall@10": {
+            "value": 0.157277,
+            "ci95": [
+              0.137354,
+              0.178059
+            ],
+            "n_jd": 150
+          },
+          "recall@50": {
+            "value": 0.285153,
+            "ci95": [
+              0.260092,
+              0.30914
+            ],
+            "n_jd": 150
+          }
+        }
+      },
+      "pilot_shaped": {
+        "dev-train": {
+          "recall@10": {
+            "value": 0.155314,
+            "ci95": [
+              0.136089,
+              0.175907
+            ],
+            "n_jd": 248
+          },
+          "recall@50": {
+            "value": 0.299995,
+            "ci95": [
+              0.275273,
+              0.324478
+            ],
+            "n_jd": 248
+          }
+        },
+        "dev-select": {
+          "recall@10": {
+            "value": 0.155734,
+            "ci95": [
+              0.131074,
+              0.181365
+            ],
+            "n_jd": 147
+          },
+          "recall@50": {
+            "value": 0.274781,
+            "ci95": [
+              0.242587,
+              0.307823
+            ],
+            "n_jd": 147
+          }
+        }
+      }
+    },
+    "Y2 role filter (k=0, context=on)": {
+      "rung": "Y2",
+      "status": "dev",
+      "options": {
+        "k": 0,
+        "context": true
+      },
+      "scores_sha256": "d3649164ef287fd80104707a1344e624e422cf682793c2c6b7193515ac3da262",
+      "proxy": {
+        "dev-train": {
+          "recall@10": {
+            "value": 0.223915,
+            "ci95": [
+              0.204418,
+              0.244638
+            ],
+            "n_jd": 249
+          },
+          "recall@50": {
+            "value": 0.527637,
+            "ci95": [
+              0.501141,
+              0.555024
+            ],
+            "n_jd": 249
+          }
+        },
+        "dev-select": {
+          "recall@10": {
+            "value": 0.236193,
+            "ci95": [
+              0.209811,
+              0.264529
+            ],
+            "n_jd": 150
+          },
+          "recall@50": {
+            "value": 0.511988,
+            "ci95": [
+              0.475794,
+              0.54748
+            ],
+            "n_jd": 150
+          }
+        }
+      },
+      "pilot_shaped": {
+        "dev-train": {
+          "recall@10": {
+            "value": 0.21731,
+            "ci95": [
+              0.193692,
+              0.242007
+            ],
+            "n_jd": 248
+          },
+          "recall@50": {
+            "value": 0.541787,
+            "ci95": [
+              0.510801,
+              0.573181
+            ],
+            "n_jd": 248
+          }
+        },
+        "dev-select": {
+          "recall@10": {
+            "value": 0.228822,
+            "ci95": [
+              0.198087,
+              0.260771
+            ],
+            "n_jd": 147
+          },
+          "recall@50": {
+            "value": 0.49919,
+            "ci95": [
+              0.457765,
+              0.541182
+            ],
+            "n_jd": 147
+          }
+        }
+      }
+    },
+    "Y2t role filter (k=0, context=on)": {
+      "rung": "Y2t",
+      "status": "dev",
+      "options": {
+        "k": 0,
+        "context": true
+      },
+      "scores_sha256": "41ba0ffad8ce87c973ed2d8fe716a0a5a153347b087ed933bcdb94cd1c4440c8",
+      "proxy": {
+        "dev-train": {
+          "recall@10": {
+            "value": 0.198101,
+            "ci95": [
+              0.182096,
+              0.214943
+            ],
+            "n_jd": 249
+          },
+          "recall@50": {
+            "value": 0.463644,
+            "ci95": [
+              0.438203,
+              0.489249
+            ],
+            "n_jd": 249
+          }
+        },
+        "dev-select": {
+          "recall@10": {
+            "value": 0.218557,
+            "ci95": [
+              0.193472,
+              0.245211
+            ],
+            "n_jd": 150
+          },
+          "recall@50": {
+            "value": 0.456734,
+            "ci95": [
+              0.423446,
+              0.489952
+            ],
+            "n_jd": 150
+          }
+        }
+      },
+      "pilot_shaped": {
+        "dev-train": {
+          "recall@10": {
+            "value": 0.194556,
+            "ci95": [
+              0.173891,
+              0.21623
+            ],
+            "n_jd": 248
+          },
+          "recall@50": {
+            "value": 0.470214,
+            "ci95": [
+              0.44014,
+              0.500072
+            ],
+            "n_jd": 248
+          }
+        },
+        "dev-select": {
+          "recall@10": {
+            "value": 0.208414,
+            "ci95": [
+              0.179138,
+              0.239027
+            ],
+            "n_jd": 147
+          },
+          "recall@50": {
+            "value": 0.449749,
+            "ci95": [
+              0.409013,
+              0.489917
+            ],
+            "n_jd": 147
+          }
+        }
+      }
+    },
+    "Y4 role filter (k=0, context=on)": {
+      "rung": "Y4",
+      "status": "dev",
+      "options": {
+        "k": 0,
+        "context": true
+      },
+      "scores_sha256": "1dc504648a7a46b258f2ed4d678655c8e0a19e19b315fb540e8251fe64e17e7a",
+      "proxy": {
+        "dev-train": {
+          "recall@10": {
+            "value": 0.220878,
+            "ci95": [
+              0.203109,
+              0.24004
+            ],
+            "n_jd": 249
+          },
+          "recall@50": {
+            "value": 0.558147,
+            "ci95": [
+              0.531097,
+              0.586057
+            ],
+            "n_jd": 249
+          }
+        },
+        "dev-select": {
+          "recall@10": {
+            "value": 0.229361,
+            "ci95": [
+              0.202487,
+              0.258574
+            ],
+            "n_jd": 150
+          },
+          "recall@50": {
+            "value": 0.533883,
+            "ci95": [
+              0.49663,
+              0.571692
+            ],
+            "n_jd": 150
+          }
+        }
+      },
+      "pilot_shaped": {
+        "dev-train": {
+          "recall@10": {
+            "value": 0.218318,
+            "ci95": [
+              0.195565,
+              0.242512
+            ],
+            "n_jd": 248
+          },
+          "recall@50": {
+            "value": 0.559764,
+            "ci95": [
+              0.527866,
+              0.59159
+            ],
+            "n_jd": 248
+          }
+        },
+        "dev-select": {
+          "recall@10": {
+            "value": 0.224571,
+            "ci95": [
+              0.192906,
+              0.25737
+            ],
+            "n_jd": 147
+          },
+          "recall@50": {
+            "value": 0.515347,
+            "ci95": [
+              0.469874,
+              0.561389
+            ],
+            "n_jd": 147
+          }
+        }
+      }
+    },
+    "Y1 role filter (k=1, context=off)": {
+      "rung": "Y1",
+      "status": "dev",
+      "options": {
+        "k": 1,
+        "context": false
+      },
+      "scores_sha256": "e27482e52d554a9be5b53dff1375cfe1f49ed993cf1f8c56b2cab364fb49c325",
+      "proxy": {
+        "dev-train": {
+          "recall@10": {
+            "value": 0.156508,
+            "ci95": [
+              0.137237,
+              0.176682
+            ],
+            "n_jd": 249
+          },
+          "recall@50": {
+            "value": 0.534297,
+            "ci95": [
+              0.496267,
+              0.572948
+            ],
+            "n_jd": 249
+          }
+        },
+        "dev-select": {
+          "recall@10": {
+            "value": 0.159424,
+            "ci95": [
+              0.132326,
+              0.188733
+            ],
+            "n_jd": 150
+          },
+          "recall@50": {
+            "value": 0.536708,
+            "ci95": [
+              0.485773,
+              0.587517
+            ],
+            "n_jd": 150
+          }
+        }
+      },
+      "pilot_shaped": {
+        "dev-train": {
+          "recall@10": {
+            "value": 0.150922,
+            "ci95": [
+              0.128528,
+              0.174971
+            ],
+            "n_jd": 248
+          },
+          "recall@50": {
+            "value": 0.539339,
+            "ci95": [
+              0.498368,
+              0.580598
+            ],
+            "n_jd": 248
+          }
+        },
+        "dev-select": {
+          "recall@10": {
+            "value": 0.145813,
+            "ci95": [
+              0.115768,
+              0.177721
+            ],
+            "n_jd": 147
+          },
+          "recall@50": {
+            "value": 0.54608,
+            "ci95": [
+              0.489067,
+              0.603014
+            ],
+            "n_jd": 147
+          }
+        }
+      }
+    },
+    "Y2 role filter (k=1, context=off)": {
+      "rung": "Y2",
+      "status": "dev",
+      "options": {
+        "k": 1,
+        "context": false
+      },
+      "scores_sha256": "4be5b035624a163b2bc41339ac5b7bdef266e230d2dcc57a041cb8b34e23a331",
+      "proxy": {
+        "dev-train": {
+          "recall@10": {
+            "value": 0.243452,
+            "ci95": [
+              0.219418,
+              0.268643
+            ],
+            "n_jd": 249
+          },
+          "recall@50": {
+            "value": 0.622825,
+            "ci95": [
+              0.588731,
+              0.657378
+            ],
+            "n_jd": 249
+          }
+        },
+        "dev-select": {
+          "recall@10": {
+            "value": 0.243631,
+            "ci95": [
+              0.211976,
+              0.277037
+            ],
+            "n_jd": 150
+          },
+          "recall@50": {
+            "value": 0.634027,
+            "ci95": [
+              0.588077,
+              0.678844
+            ],
+            "n_jd": 150
+          }
+        }
+      },
+      "pilot_shaped": {
+        "dev-train": {
+          "recall@10": {
+            "value": 0.251584,
+            "ci95": [
+              0.222998,
+              0.281394
+            ],
+            "n_jd": 248
+          },
+          "recall@50": {
+            "value": 0.626872,
+            "ci95": [
+              0.589358,
+              0.664172
+            ],
+            "n_jd": 248
+          }
+        },
+        "dev-select": {
+          "recall@10": {
+            "value": 0.246113,
+            "ci95": [
+              0.210884,
+              0.282313
+            ],
+            "n_jd": 147
+          },
+          "recall@50": {
+            "value": 0.637512,
+            "ci95": [
+              0.58576,
+              0.688296
+            ],
+            "n_jd": 147
+          }
+        }
+      }
+    },
+    "Y2t role filter (k=1, context=off)": {
+      "rung": "Y2t",
+      "status": "dev",
+      "options": {
+        "k": 1,
+        "context": false
+      },
+      "scores_sha256": "34b15dbeb048dee6a26a5ee1e0544ab60c1690d715f618cf9dcaa6ab343f72af",
+      "proxy": {
+        "dev-train": {
+          "recall@10": {
+            "value": 0.238635,
+            "ci95": [
+              0.215886,
+              0.261852
+            ],
+            "n_jd": 249
+          },
+          "recall@50": {
+            "value": 0.613528,
+            "ci95": [
+              0.580513,
+              0.646468
+            ],
+            "n_jd": 249
+          }
+        },
+        "dev-select": {
+          "recall@10": {
+            "value": 0.245654,
+            "ci95": [
+              0.214389,
+              0.278819
+            ],
+            "n_jd": 150
+          },
+          "recall@50": {
+            "value": 0.629384,
+            "ci95": [
+              0.585604,
+              0.67182
+            ],
+            "n_jd": 150
+          }
+        }
+      },
+      "pilot_shaped": {
+        "dev-train": {
+          "recall@10": {
+            "value": 0.244024,
+            "ci95": [
+              0.21731,
+              0.271745
+            ],
+            "n_jd": 248
+          },
+          "recall@50": {
+            "value": 0.626872,
+            "ci95": [
+              0.591662,
+              0.6623
+            ],
+            "n_jd": 248
+          }
+        },
+        "dev-select": {
+          "recall@10": {
+            "value": 0.251215,
+            "ci95": [
+              0.217074,
+              0.286929
+            ],
+            "n_jd": 147
+          },
+          "recall@50": {
+            "value": 0.629981,
+            "ci95": [
+              0.582601,
+              0.6776
+            ],
+            "n_jd": 147
+          }
+        }
+      }
+    },
+    "Y4 role filter (k=1, context=off)": {
+      "rung": "Y4",
+      "status": "dev",
+      "options": {
+        "k": 1,
+        "context": false
+      },
+      "scores_sha256": "5c42d998e2cb7a030e574405f9d6d5cef9265409cc5b14befcc7f7859628ae8b",
+      "proxy": {
+        "dev-train": {
+          "recall@10": {
+            "value": 0.244153,
+            "ci95": [
+              0.220472,
+              0.268334
+            ],
+            "n_jd": 249
+          },
+          "recall@50": {
+            "value": 0.647651,
+            "ci95": [
+              0.614568,
+              0.680667
+            ],
+            "n_jd": 249
+          }
+        },
+        "dev-select": {
+          "recall@10": {
+            "value": 0.242191,
+            "ci95": [
+              0.209595,
+              0.276777
+            ],
+            "n_jd": 150
+          },
+          "recall@50": {
+            "value": 0.649091,
+            "ci95": [
+              0.603918,
+              0.692692
+            ],
+            "n_jd": 150
+          }
+        }
+      },
+      "pilot_shaped": {
+        "dev-train": {
+          "recall@10": {
+            "value": 0.246544,
+            "ci95": [
+              0.21875,
+              0.275495
+            ],
+            "n_jd": 248
+          },
+          "recall@50": {
+            "value": 0.647537,
+            "ci95": [
+              0.610743,
+              0.684982
+            ],
+            "n_jd": 248
+          }
+        },
+        "dev-select": {
+          "recall@10": {
+            "value": 0.241294,
+            "ci95": [
+              0.204932,
+              0.278223
+            ],
+            "n_jd": 147
+          },
+          "recall@50": {
+            "value": 0.656341,
+            "ci95": [
+              0.606293,
+              0.705782
+            ],
+            "n_jd": 147
+          }
+        }
+      }
+    },
+    "Y1 role filter (k=1, context=on)": {
+      "rung": "Y1",
+      "status": "dev",
+      "options": {
+        "k": 1,
+        "context": true
+      },
+      "scores_sha256": "34aae230682e3fa720ef8c2604ab301fc39bcdd4deb20ffb4e613b6aa4218dc8",
+      "proxy": {
+        "dev-train": {
+          "recall@10": {
+            "value": 0.247202,
+            "ci95": [
+              0.222191,
+              0.273271
+            ],
+            "n_jd": 249
+          },
+          "recall@50": {
+            "value": 0.569828,
+            "ci95": [
+              0.532907,
+              0.607463
+            ],
+            "n_jd": 249
+          }
+        },
+        "dev-select": {
+          "recall@10": {
+            "value": 0.255894,
+            "ci95": [
+              0.221712,
+              0.290847
+            ],
+            "n_jd": 150
+          },
+          "recall@50": {
+            "value": 0.579015,
+            "ci95": [
+              0.52763,
+              0.628245
+            ],
+            "n_jd": 150
+          }
+        }
+      },
+      "pilot_shaped": {
+        "dev-train": {
+          "recall@10": {
+            "value": 0.244744,
+            "ci95": [
+              0.215366,
+              0.27549
+            ],
+            "n_jd": 248
+          },
+          "recall@50": {
+            "value": 0.572245,
+            "ci95": [
+              0.531634,
+              0.612067
+            ],
+            "n_jd": 248
+          }
+        },
+        "dev-select": {
+          "recall@10": {
+            "value": 0.244088,
+            "ci95": [
+              0.205499,
+              0.28369
+            ],
+            "n_jd": 147
+          },
+          "recall@50": {
+            "value": 0.582523,
+            "ci95": [
+              0.526927,
+              0.637027
+            ],
+            "n_jd": 147
+          }
+        }
+      }
+    },
+    "Y2 role filter (k=1, context=on)": {
+      "rung": "Y2",
+      "status": "dev",
+      "options": {
+        "k": 1,
+        "context": true
+      },
+      "scores_sha256": "9775c1f873a0050c923c45280e312b94376e9a11e4a9ef6dd21da8790c7e1590",
+      "proxy": {
+        "dev-train": {
+          "recall@10": {
+            "value": 0.286634,
+            "ci95": [
+              0.260142,
+              0.314008
+            ],
+            "n_jd": 249
+          },
+          "recall@50": {
+            "value": 0.657221,
+            "ci95": [
+              0.624713,
+              0.690269
+            ],
+            "n_jd": 249
+          }
+        },
+        "dev-select": {
+          "recall@10": {
+            "value": 0.295587,
+            "ci95": [
+              0.259987,
+              0.332698
+            ],
+            "n_jd": 150
+          },
+          "recall@50": {
+            "value": 0.663627,
+            "ci95": [
+              0.618492,
+              0.706364
+            ],
+            "n_jd": 150
+          }
+        }
+      },
+      "pilot_shaped": {
+        "dev-train": {
+          "recall@10": {
+            "value": 0.303067,
+            "ci95": [
+              0.272105,
+              0.335325
+            ],
+            "n_jd": 248
+          },
+          "recall@50": {
+            "value": 0.65325,
+            "ci95": [
+              0.617632,
+              0.688508
+            ],
+            "n_jd": 248
+          }
+        },
+        "dev-select": {
+          "recall@10": {
+            "value": 0.300656,
+            "ci95": [
+              0.261048,
+              0.341958
+            ],
+            "n_jd": 147
+          },
+          "recall@50": {
+            "value": 0.658042,
+            "ci95": [
+              0.607264,
+              0.707362
+            ],
+            "n_jd": 147
+          }
+        }
+      }
+    },
+    "Y2t role filter (k=1, context=on)": {
+      "rung": "Y2t",
+      "status": "dev",
+      "options": {
+        "k": 1,
+        "context": true
+      },
+      "scores_sha256": "dd170834743ce913ecf4a12cdded1e291ba7ab7d648a00393782cf9f5fd5ffa4",
+      "proxy": {
+        "dev-train": {
+          "recall@10": {
+            "value": 0.260055,
+            "ci95": [
+              0.235561,
+              0.286063
+            ],
+            "n_jd": 249
+          },
+          "recall@50": {
+            "value": 0.636668,
+            "ci95": [
+              0.60456,
+              0.669318
+            ],
+            "n_jd": 249
+          }
+        },
+        "dev-select": {
+          "recall@10": {
+            "value": 0.262882,
+            "ci95": [
+              0.228959,
+              0.297873
+            ],
+            "n_jd": 150
+          },
+          "recall@50": {
+            "value": 0.647082,
+            "ci95": [
+              0.602351,
+              0.689946
+            ],
+            "n_jd": 150
+          }
+        }
+      },
+      "pilot_shaped": {
+        "dev-train": {
+          "recall@10": {
+            "value": 0.262241,
+            "ci95": [
+              0.233367,
+              0.292627
+            ],
+            "n_jd": 248
+          },
+          "recall@50": {
+            "value": 0.641585,
+            "ci95": [
+              0.607791,
+              0.675646
+            ],
+            "n_jd": 248
+          }
+        },
+        "dev-select": {
+          "recall@10": {
+            "value": 0.26069,
+            "ci95": [
+              0.222425,
+              0.301506
+            ],
+            "n_jd": 147
+          },
+          "recall@50": {
+            "value": 0.648567,
+            "ci95": [
+              0.600462,
+              0.696429
+            ],
+            "n_jd": 147
+          }
+        }
+      }
+    },
+    "Y4 role filter (k=1, context=on)": {
+      "rung": "Y4",
+      "status": "dev",
+      "options": {
+        "k": 1,
+        "context": true
+      },
+      "scores_sha256": "fac34e953a46baef83eaca3f934afc003be5001d4af7e512a194611ce2ab3289",
+      "proxy": {
+        "dev-train": {
+          "recall@10": {
+            "value": 0.288474,
+            "ci95": [
+              0.262455,
+              0.316004
+            ],
+            "n_jd": 249
+          },
+          "recall@50": {
+            "value": 0.673472,
+            "ci95": [
+              0.641783,
+              0.705313
+            ],
+            "n_jd": 249
+          }
+        },
+        "dev-select": {
+          "recall@10": {
+            "value": 0.28727,
+            "ci95": [
+              0.252168,
+              0.323408
+            ],
+            "n_jd": 150
+          },
+          "recall@50": {
+            "value": 0.677525,
+            "ci95": [
+              0.632143,
+              0.721024
+            ],
+            "n_jd": 150
+          }
+        }
+      },
+      "pilot_shaped": {
+        "dev-train": {
+          "recall@10": {
+            "value": 0.294067,
+            "ci95": [
+              0.262745,
+              0.327407
+            ],
+            "n_jd": 248
+          },
+          "recall@50": {
+            "value": 0.674827,
+            "ci95": [
+              0.641055,
+              0.708885
+            ],
+            "n_jd": 248
+          }
+        },
+        "dev-select": {
+          "recall@10": {
+            "value": 0.289035,
+            "ci95": [
+              0.251053,
+              0.327583
+            ],
+            "n_jd": 147
+          },
+          "recall@50": {
+            "value": 0.675899,
+            "ci95": [
+              0.626215,
+              0.724247
+            ],
+            "n_jd": 147
+          }
+        }
+      }
+    },
+    "Y1 role filter (k=2, context=off)": {
+      "rung": "Y1",
+      "status": "dev",
+      "options": {
+        "k": 2,
+        "context": false
+      },
+      "scores_sha256": "b9e98b6d1a7d94df8c11b7ac4300bf0d3237400f884d5047b02d05c314d5207a",
+      "proxy": {
+        "dev-train": {
+          "recall@10": {
+            "value": 0.146632,
+            "ci95": [
+              0.127888,
+              0.166663
+            ],
+            "n_jd": 249
+          },
+          "recall@50": {
+            "value": 0.517847,
+            "ci95": [
+              0.48104,
+              0.556083
+            ],
+            "n_jd": 249
+          }
+        },
+        "dev-select": {
+          "recall@10": {
+            "value": 0.156163,
+            "ci95": [
+              0.128745,
+              0.186472
+            ],
+            "n_jd": 150
+          },
+          "recall@50": {
+            "value": 0.532068,
+            "ci95": [
+              0.482583,
+              0.581305
+            ],
+            "n_jd": 150
+          }
+        }
+      },
+      "pilot_shaped": {
+        "dev-train": {
+          "recall@10": {
+            "value": 0.143793,
+            "ci95": [
+              0.12176,
+              0.167269
+            ],
+            "n_jd": 248
+          },
+          "recall@50": {
+            "value": 0.517137,
+            "ci95": [
+              0.477101,
+              0.557748
+            ],
+            "n_jd": 248
+          }
+        },
+        "dev-select": {
+          "recall@10": {
+            "value": 0.131519,
+            "ci95": [
+              0.104025,
+              0.160998
+            ],
+            "n_jd": 147
+          },
+          "recall@50": {
+            "value": 0.52023,
+            "ci95": [
+              0.466132,
+              0.574142
+            ],
+            "n_jd": 147
+          }
+        }
+      }
+    },
+    "Y2 role filter (k=2, context=off)": {
+      "rung": "Y2",
+      "status": "dev",
+      "options": {
+        "k": 2,
+        "context": false
+      },
+      "scores_sha256": "b3e611ca70be0e1a5952a176566787f013a555e3669c1fc3649e606c7f069c38",
+      "proxy": {
+        "dev-train": {
+          "recall@10": {
+            "value": 0.236563,
+            "ci95": [
+              0.212656,
+              0.261762
+            ],
+            "n_jd": 249
+          },
+          "recall@50": {
+            "value": 0.623224,
+            "ci95": [
+              0.589362,
+              0.657853
+            ],
+            "n_jd": 249
+          }
+        },
+        "dev-select": {
+          "recall@10": {
+            "value": 0.235505,
+            "ci95": [
+              0.206743,
+              0.266503
+            ],
+            "n_jd": 150
+          },
+          "recall@50": {
+            "value": 0.616106,
+            "ci95": [
+              0.568212,
+              0.663039
+            ],
+            "n_jd": 150
+          }
+        }
+      },
+      "pilot_shaped": {
+        "dev-train": {
+          "recall@10": {
+            "value": 0.239991,
+            "ci95": [
+              0.211404,
+              0.269731
+            ],
+            "n_jd": 248
+          },
+          "recall@50": {
+            "value": 0.629104,
+            "ci95": [
+              0.59202,
+              0.666331
+            ],
+            "n_jd": 248
+          }
+        },
+        "dev-select": {
+          "recall@10": {
+            "value": 0.237326,
+            "ci95": [
+              0.205782,
+              0.269922
+            ],
+            "n_jd": 147
+          },
+          "recall@50": {
+            "value": 0.621137,
+            "ci95": [
+              0.569045,
+              0.673348
+            ],
+            "n_jd": 147
+          }
+        }
+      }
+    },
+    "Y2t role filter (k=2, context=off)": {
+      "rung": "Y2t",
+      "status": "dev",
+      "options": {
+        "k": 2,
+        "context": false
+      },
+      "scores_sha256": "db4232bf616488646428ae00156913fbd683fbe731be3aedceebb31ae7b7ecb2",
+      "proxy": {
+        "dev-train": {
+          "recall@10": {
+            "value": 0.236514,
+            "ci95": [
+              0.214108,
+              0.259763
+            ],
+            "n_jd": 249
+          },
+          "recall@50": {
+            "value": 0.61395,
+            "ci95": [
+              0.580723,
+              0.647628
+            ],
+            "n_jd": 249
+          }
+        },
+        "dev-select": {
+          "recall@10": {
+            "value": 0.245753,
+            "ci95": [
+              0.21601,
+              0.277482
+            ],
+            "n_jd": 150
+          },
+          "recall@50": {
+            "value": 0.61453,
+            "ci95": [
+              0.566912,
+              0.659783
+            ],
+            "n_jd": 150
+          }
+        }
+      },
+      "pilot_shaped": {
+        "dev-train": {
+          "recall@10": {
+            "value": 0.242007,
+            "ci95": [
+              0.215726,
+              0.269729
+            ],
+            "n_jd": 248
+          },
+          "recall@50": {
+            "value": 0.631624,
+            "ci95": [
+              0.59591,
+              0.667411
+            ],
+            "n_jd": 248
+          }
+        },
+        "dev-select": {
+          "recall@10": {
+            "value": 0.24668,
+            "ci95": [
+              0.215418,
+              0.279074
+            ],
+            "n_jd": 147
+          },
+          "recall@50": {
+            "value": 0.617857,
+            "ci95": [
+              0.568999,
+              0.667177
+            ],
+            "n_jd": 147
+          }
+        }
+      }
+    },
+    "Y4 role filter (k=2, context=off)": {
+      "rung": "Y4",
+      "status": "dev",
+      "options": {
+        "k": 2,
+        "context": false
+      },
+      "scores_sha256": "e533382671f4d3b0b3e883bebf1e354f643fbe53c0b314936da995b556e80288",
+      "proxy": {
+        "dev-train": {
+          "recall@10": {
+            "value": 0.241654,
+            "ci95": [
+              0.2178,
+              0.266208
+            ],
+            "n_jd": 249
+          },
+          "recall@50": {
+            "value": 0.648437,
+            "ci95": [
+              0.615185,
+              0.682123
+            ],
+            "n_jd": 249
+          }
+        },
+        "dev-select": {
+          "recall@10": {
+            "value": 0.238758,
+            "ci95": [
+              0.208595,
+              0.271522
+            ],
+            "n_jd": 150
+          },
+          "recall@50": {
+            "value": 0.627014,
+            "ci95": [
+              0.579362,
+              0.672366
+            ],
+            "n_jd": 150
+          }
+        }
+      },
+      "pilot_shaped": {
+        "dev-train": {
+          "recall@10": {
+            "value": 0.245104,
+            "ci95": [
+              0.217382,
+              0.274842
+            ],
+            "n_jd": 248
+          },
+          "recall@50": {
+            "value": 0.650946,
+            "ci95": [
+              0.613622,
+              0.688318
+            ],
+            "n_jd": 248
+          }
+        },
+        "dev-select": {
+          "recall@10": {
+            "value": 0.235058,
+            "ci95": [
+              0.202381,
+              0.268707
+            ],
+            "n_jd": 147
+          },
+          "recall@50": {
+            "value": 0.631341,
+            "ci95": [
+              0.581293,
+              0.681732
+            ],
+            "n_jd": 147
+          }
+        }
+      }
+    },
+    "Y1 role filter (k=2, context=on)": {
+      "rung": "Y1",
+      "status": "dev",
+      "options": {
+        "k": 2,
+        "context": true
+      },
+      "scores_sha256": "e6126cb85d4186bc03f8cde0b6e7dff693cdfd845ca6b45bed395adddbb4231f",
+      "proxy": {
+        "dev-train": {
+          "recall@10": {
+            "value": 0.192292,
+            "ci95": [
+              0.169642,
+              0.216214
+            ],
+            "n_jd": 249
+          },
+          "recall@50": {
+            "value": 0.582497,
+            "ci95": [
+              0.543713,
+              0.621003
+            ],
+            "n_jd": 249
+          }
+        },
+        "dev-select": {
+          "recall@10": {
+            "value": 0.211488,
+            "ci95": [
+              0.179567,
+              0.245915
+            ],
+            "n_jd": 150
+          },
+          "recall@50": {
+            "value": 0.604851,
+            "ci95": [
+              0.553688,
+              0.654789
+            ],
+            "n_jd": 150
+          }
+        }
+      },
+      "pilot_shaped": {
+        "dev-train": {
+          "recall@10": {
+            "value": 0.185556,
+            "ci95": [
+              0.15985,
+              0.212702
+            ],
+            "n_jd": 248
+          },
+          "recall@50": {
+            "value": 0.583669,
+            "ci95": [
+              0.542697,
+              0.624066
+            ],
+            "n_jd": 248
+          }
+        },
+        "dev-select": {
+          "recall@10": {
+            "value": 0.193716,
+            "ci95": [
+              0.159823,
+              0.228744
+            ],
+            "n_jd": 147
+          },
+          "recall@50": {
+            "value": 0.601134,
+            "ci95": [
+              0.545917,
+              0.654868
+            ],
+            "n_jd": 147
+          }
+        }
+      }
+    },
+    "Y2 role filter (k=2, context=on)": {
+      "rung": "Y2",
+      "status": "dev",
+      "options": {
+        "k": 2,
+        "context": true
+      },
+      "scores_sha256": "2e1a37fed1546862974a48f3914dacb8ef9a2621230008b688bd7c4e0f8a36f6",
+      "proxy": {
+        "dev-train": {
+          "recall@10": {
+            "value": 0.257639,
+            "ci95": [
+              0.232747,
+              0.284142
+            ],
+            "n_jd": 249
+          },
+          "recall@50": {
+            "value": 0.661194,
+            "ci95": [
+              0.626476,
+              0.696003
+            ],
+            "n_jd": 249
+          }
+        },
+        "dev-select": {
+          "recall@10": {
+            "value": 0.26361,
+            "ci95": [
+              0.232656,
+              0.296472
+            ],
+            "n_jd": 150
+          },
+          "recall@50": {
+            "value": 0.659475,
+            "ci95": [
+              0.609294,
+              0.707655
+            ],
+            "n_jd": 150
+          }
+        }
+      },
+      "pilot_shaped": {
+        "dev-train": {
+          "recall@10": {
+            "value": 0.265697,
+            "ci95": [
+              0.236535,
+              0.296083
+            ],
+            "n_jd": 248
+          },
+          "recall@50": {
+            "value": 0.663306,
+            "ci95": [
+              0.626008,
+              0.701181
+            ],
+            "n_jd": 248
+          }
+        },
+        "dev-select": {
+          "recall@10": {
+            "value": 0.264537,
+            "ci95": [
+              0.230807,
+              0.299036
+            ],
+            "n_jd": 147
+          },
+          "recall@50": {
+            "value": 0.665355,
+            "ci95": [
+              0.611054,
+              0.718537
+            ],
+            "n_jd": 147
+          }
+        }
+      }
+    },
+    "Y2t role filter (k=2, context=on)": {
+      "rung": "Y2t",
+      "status": "dev",
+      "options": {
+        "k": 2,
+        "context": true
+      },
+      "scores_sha256": "f4c788157d3ba82242d1acc4756b5e6aaf449198c19e147f5f9a46a5b6463130",
+      "proxy": {
+        "dev-train": {
+          "recall@10": {
+            "value": 0.232976,
+            "ci95": [
+              0.210514,
+              0.256865
+            ],
+            "n_jd": 249
+          },
+          "recall@50": {
+            "value": 0.650559,
+            "ci95": [
+              0.616121,
+              0.685024
+            ],
+            "n_jd": 249
+          }
+        },
+        "dev-select": {
+          "recall@10": {
+            "value": 0.245513,
+            "ci95": [
+              0.215283,
+              0.277984
+            ],
+            "n_jd": 150
+          },
+          "recall@50": {
+            "value": 0.647123,
+            "ci95": [
+              0.597686,
+              0.694522
+            ],
+            "n_jd": 150
+          }
+        }
+      },
+      "pilot_shaped": {
+        "dev-train": {
+          "recall@10": {
+            "value": 0.226959,
+            "ci95": [
+              0.200245,
+              0.254536
+            ],
+            "n_jd": 248
+          },
+          "recall@50": {
+            "value": 0.660786,
+            "ci95": [
+              0.624784,
+              0.696717
+            ],
+            "n_jd": 248
+          }
+        },
+        "dev-select": {
+          "recall@10": {
+            "value": 0.237326,
+            "ci95": [
+              0.203187,
+              0.272636
+            ],
+            "n_jd": 147
+          },
+          "recall@50": {
+            "value": 0.656122,
+            "ci95": [
+              0.604494,
+              0.706683
+            ],
+            "n_jd": 147
+          }
+        }
+      }
+    },
+    "Y4 role filter (k=2, context=on)": {
+      "rung": "Y4",
+      "status": "dev",
+      "options": {
+        "k": 2,
+        "context": true
+      },
+      "scores_sha256": "12ae0b1b972228adb5839f32eaa6838db7e48184c257d9251c601db00cfdf907",
+      "proxy": {
+        "dev-train": {
+          "recall@10": {
+            "value": 0.259647,
+            "ci95": [
+              0.234681,
+              0.28568
+            ],
+            "n_jd": 249
+          },
+          "recall@50": {
+            "value": 0.67964,
+            "ci95": [
+              0.646015,
+              0.713405
+            ],
+            "n_jd": 249
+          }
+        },
+        "dev-select": {
+          "recall@10": {
+            "value": 0.262253,
+            "ci95": [
+              0.229937,
+              0.295898
+            ],
+            "n_jd": 150
+          },
+          "recall@50": {
+            "value": 0.670302,
+            "ci95": [
+              0.620789,
+              0.716918
+            ],
+            "n_jd": 150
+          }
+        }
+      },
+      "pilot_shaped": {
+        "dev-train": {
+          "recall@10": {
+            "value": 0.265265,
+            "ci95": [
+              0.237183,
+              0.294931
+            ],
+            "n_jd": 248
+          },
+          "recall@50": {
+            "value": 0.677587,
+            "ci95": [
+              0.641056,
+              0.714142
+            ],
+            "n_jd": 248
+          }
+        },
+        "dev-select": {
+          "recall@10": {
+            "value": 0.262269,
+            "ci95": [
+              0.228256,
+              0.296283
+            ],
+            "n_jd": 147
+          },
+          "recall@50": {
+            "value": 0.675559,
+            "ci95": [
+              0.624535,
+              0.725391
+            ],
+            "n_jd": 147
+          }
+        }
+      }
+    },
+    "Y1 role filter (k=3, context=off)": {
+      "rung": "Y1",
+      "status": "dev",
+      "options": {
+        "k": 3,
+        "context": false
+      },
+      "scores_sha256": "ffb620b5ec71375a6e6fafef7fec977b831eecb603135d47f225f62a90aa53f9",
+      "proxy": {
+        "dev-train": {
+          "recall@10": {
+            "value": 0.135075,
+            "ci95": [
+              0.117161,
+              0.154264
+            ],
+            "n_jd": 249
+          },
+          "recall@50": {
+            "value": 0.490952,
+            "ci95": [
+              0.454974,
+              0.528404
+            ],
+            "n_jd": 249
+          }
+        },
+        "dev-select": {
+          "recall@10": {
+            "value": 0.13841,
+            "ci95": [
+              0.111823,
+              0.168714
+            ],
+            "n_jd": 150
+          },
+          "recall@50": {
+            "value": 0.497176,
+            "ci95": [
+              0.447735,
+              0.547129
+            ],
+            "n_jd": 150
+          }
+        }
+      },
+      "pilot_shaped": {
+        "dev-train": {
+          "recall@10": {
+            "value": 0.129104,
+            "ci95": [
+              0.108007,
+              0.151786
+            ],
+            "n_jd": 248
+          },
+          "recall@50": {
+            "value": 0.487351,
+            "ci95": [
+              0.447651,
+              0.527842
+            ],
+            "n_jd": 248
+          }
+        },
+        "dev-select": {
+          "recall@10": {
+            "value": 0.122449,
+            "ci95": [
+              0.096939,
+              0.14966
+            ],
+            "n_jd": 147
+          },
+          "recall@50": {
+            "value": 0.489253,
+            "ci95": [
+              0.435274,
+              0.544542
+            ],
+            "n_jd": 147
+          }
+        }
+      }
+    },
+    "Y2 role filter (k=3, context=off)": {
+      "rung": "Y2",
+      "status": "dev",
+      "options": {
+        "k": 3,
+        "context": false
+      },
+      "scores_sha256": "969928fef0dc534049ea2b33abc6d182da4511e31dcbac9d5ca6c89c9c7e2812",
+      "proxy": {
+        "dev-train": {
+          "recall@10": {
+            "value": 0.235851,
+            "ci95": [
+              0.212037,
+              0.261003
+            ],
+            "n_jd": 249
+          },
+          "recall@50": {
+            "value": 0.609923,
+            "ci95": [
+              0.575875,
+              0.64443
+            ],
+            "n_jd": 249
+          }
+        },
+        "dev-select": {
+          "recall@10": {
+            "value": 0.230236,
+            "ci95": [
+              0.200645,
+              0.262635
+            ],
+            "n_jd": 150
+          },
+          "recall@50": {
+            "value": 0.598451,
+            "ci95": [
+              0.551082,
+              0.645136
+            ],
+            "n_jd": 150
+          }
+        }
+      },
+      "pilot_shaped": {
+        "dev-train": {
+          "recall@10": {
+            "value": 0.239991,
+            "ci95": [
+              0.211262,
+              0.269447
+            ],
+            "n_jd": 248
+          },
+          "recall@50": {
+            "value": 0.618976,
+            "ci95": [
+              0.581533,
+              0.656035
+            ],
+            "n_jd": 248
+          }
+        },
+        "dev-select": {
+          "recall@10": {
+            "value": 0.229673,
+            "ci95": [
+              0.197803,
+              0.262555
+            ],
+            "n_jd": 147
+          },
+          "recall@50": {
+            "value": 0.604859,
+            "ci95": [
+              0.553836,
+              0.656635
+            ],
+            "n_jd": 147
+          }
+        }
+      }
+    },
+    "Y2t role filter (k=3, context=off)": {
+      "rung": "Y2t",
+      "status": "dev",
+      "options": {
+        "k": 3,
+        "context": false
+      },
+      "scores_sha256": "ea33b34ef9bc28d87786d1156bbf7fc8a5ff0f02344022f528f41690fc2ee480",
+      "proxy": {
+        "dev-train": {
+          "recall@10": {
+            "value": 0.236019,
+            "ci95": [
+              0.213847,
+              0.259147
+            ],
+            "n_jd": 249
+          },
+          "recall@50": {
+            "value": 0.604684,
+            "ci95": [
+              0.570741,
+              0.639122
+            ],
+            "n_jd": 249
+          }
+        },
+        "dev-select": {
+          "recall@10": {
+            "value": 0.241998,
+            "ci95": [
+              0.211861,
+              0.274119
+            ],
+            "n_jd": 150
+          },
+          "recall@50": {
+            "value": 0.606796,
+            "ci95": [
+              0.559009,
+              0.652791
+            ],
+            "n_jd": 150
+          }
+        }
+      },
+      "pilot_shaped": {
+        "dev-train": {
+          "recall@10": {
+            "value": 0.241935,
+            "ci95": [
+              0.215222,
+              0.269657
+            ],
+            "n_jd": 248
+          },
+          "recall@50": {
+            "value": 0.621832,
+            "ci95": [
+              0.585972,
+              0.658266
+            ],
+            "n_jd": 248
+          }
+        },
+        "dev-select": {
+          "recall@10": {
+            "value": 0.245262,
+            "ci95": [
+              0.214164,
+              0.277457
+            ],
+            "n_jd": 147
+          },
+          "recall@50": {
+            "value": 0.609232,
+            "ci95": [
+              0.560519,
+              0.658163
+            ],
+            "n_jd": 147
+          }
+        }
+      }
+    },
+    "Y4 role filter (k=3, context=off)": {
+      "rung": "Y4",
+      "status": "dev",
+      "options": {
+        "k": 3,
+        "context": false
+      },
+      "scores_sha256": "a8a02fd844165986d3e59e461b5e74dd32f89c4af7b07629b9a61a7a5162e530",
+      "proxy": {
+        "dev-train": {
+          "recall@10": {
+            "value": 0.240972,
+            "ci95": [
+              0.217792,
+              0.264998
+            ],
+            "n_jd": 249
+          },
+          "recall@50": {
+            "value": 0.641604,
+            "ci95": [
+              0.607765,
+              0.675483
+            ],
+            "n_jd": 249
+          }
+        },
+        "dev-select": {
+          "recall@10": {
+            "value": 0.229428,
+            "ci95": [
+              0.199729,
+              0.262158
+            ],
+            "n_jd": 150
+          },
+          "recall@50": {
+            "value": 0.616961,
+            "ci95": [
+              0.569991,
+              0.662324
+            ],
+            "n_jd": 150
+          }
+        }
+      },
+      "pilot_shaped": {
+        "dev-train": {
+          "recall@10": {
+            "value": 0.241575,
+            "ci95": [
+              0.213854,
+              0.271241
+            ],
+            "n_jd": 248
+          },
+          "recall@50": {
+            "value": 0.647705,
+            "ci95": [
+              0.610382,
+              0.68498
+            ],
+            "n_jd": 248
+          }
+        },
+        "dev-select": {
+          "recall@10": {
+            "value": 0.223154,
+            "ci95": [
+              0.190719,
+              0.256681
+            ],
+            "n_jd": 147
+          },
+          "recall@50": {
+            "value": 0.621866,
+            "ci95": [
+              0.571962,
+              0.672137
+            ],
+            "n_jd": 147
+          }
+        }
+      }
+    },
+    "Y1 role filter (k=3, context=on)": {
+      "rung": "Y1",
+      "status": "dev",
+      "options": {
+        "k": 3,
+        "context": true
+      },
+      "scores_sha256": "19e3bb07a60adabdd7767722de6f366ae4db87b311f81010d3793d95d5983f1c",
+      "proxy": {
+        "dev-train": {
+          "recall@10": {
+            "value": 0.1646,
+            "ci95": [
+              0.144181,
+              0.186085
+            ],
+            "n_jd": 249
+          },
+          "recall@50": {
+            "value": 0.538668,
+            "ci95": [
+              0.50127,
+              0.576495
+            ],
+            "n_jd": 249
+          }
+        },
+        "dev-select": {
+          "recall@10": {
+            "value": 0.174958,
+            "ci95": [
+              0.145057,
+              0.208369
+            ],
+            "n_jd": 150
+          },
+          "recall@50": {
+            "value": 0.541859,
+            "ci95": [
+              0.491531,
+              0.592494
+            ],
+            "n_jd": 150
+          }
+        }
+      },
+      "pilot_shaped": {
+        "dev-train": {
+          "recall@10": {
+            "value": 0.155314,
+            "ci95": [
+              0.13256,
+              0.17994
+            ],
+            "n_jd": 248
+          },
+          "recall@50": {
+            "value": 0.536242,
+            "ci95": [
+              0.496399,
+              0.576181
+            ],
+            "n_jd": 248
+          }
+        },
+        "dev-select": {
+          "recall@10": {
+            "value": 0.158163,
+            "ci95": [
+              0.127551,
+              0.192177
+            ],
+            "n_jd": 147
+          },
+          "recall@50": {
+            "value": 0.536022,
+            "ci95": [
+              0.479656,
+              0.591108
+            ],
+            "n_jd": 147
+          }
+        }
+      }
+    },
+    "Y2 role filter (k=3, context=on)": {
+      "rung": "Y2",
+      "status": "dev",
+      "options": {
+        "k": 3,
+        "context": true
+      },
+      "scores_sha256": "08218e59b20bba385a4d22770e5bbb76db36240e610c624e7c396320f5491632",
+      "proxy": {
+        "dev-train": {
+          "recall@10": {
+            "value": 0.248812,
+            "ci95": [
+              0.224229,
+              0.274549
+            ],
+            "n_jd": 249
+          },
+          "recall@50": {
+            "value": 0.63675,
+            "ci95": [
+              0.602375,
+              0.671954
+            ],
+            "n_jd": 249
+          }
+        },
+        "dev-select": {
+          "recall@10": {
+            "value": 0.245,
+            "ci95": [
+              0.214223,
+              0.277848
+            ],
+            "n_jd": 150
+          },
+          "recall@50": {
+            "value": 0.627043,
+            "ci95": [
+              0.578243,
+              0.674691
+            ],
+            "n_jd": 150
+          }
+        }
+      },
+      "pilot_shaped": {
+        "dev-train": {
+          "recall@10": {
+            "value": 0.254608,
+            "ci95": [
+              0.225446,
+              0.284497
+            ],
+            "n_jd": 248
+          },
+          "recall@50": {
+            "value": 0.636113,
+            "ci95": [
+              0.598886,
+              0.67382
+            ],
+            "n_jd": 248
+          }
+        },
+        "dev-select": {
+          "recall@10": {
+            "value": 0.244129,
+            "ci95": [
+              0.211328,
+              0.277943
+            ],
+            "n_jd": 147
+          },
+          "recall@50": {
+            "value": 0.630369,
+            "ci95": [
+              0.577136,
+              0.682483
+            ],
+            "n_jd": 147
+          }
+        }
+      }
+    },
+    "Y2t role filter (k=3, context=on)": {
+      "rung": "Y2t",
+      "status": "dev",
+      "options": {
+        "k": 3,
+        "context": true
+      },
+      "scores_sha256": "4ba92449c683474684553b704ed4344b77d14a846b2dfcab3e147a9b8a5970c6",
+      "proxy": {
+        "dev-train": {
+          "recall@10": {
+            "value": 0.227877,
+            "ci95": [
+              0.205516,
+              0.25104
+            ],
+            "n_jd": 249
+          },
+          "recall@50": {
+            "value": 0.619853,
+            "ci95": [
+              0.58507,
+              0.655099
+            ],
+            "n_jd": 249
+          }
+        },
+        "dev-select": {
+          "recall@10": {
+            "value": 0.236621,
+            "ci95": [
+              0.206898,
+              0.26831
+            ],
+            "n_jd": 150
+          },
+          "recall@50": {
+            "value": 0.620891,
+            "ci95": [
+              0.572359,
+              0.667722
+            ],
+            "n_jd": 150
+          }
+        }
+      },
+      "pilot_shaped": {
+        "dev-train": {
+          "recall@10": {
+            "value": 0.221774,
+            "ci95": [
+              0.196069,
+              0.248992
+            ],
+            "n_jd": 248
+          },
+          "recall@50": {
+            "value": 0.633089,
+            "ci95": [
+              0.596726,
+              0.669787
+            ],
+            "n_jd": 248
+          }
+        },
+        "dev-select": {
+          "recall@10": {
+            "value": 0.231374,
+            "ci95": [
+              0.198368,
+              0.26555
+            ],
+            "n_jd": 147
+          },
+          "recall@50": {
+            "value": 0.623688,
+            "ci95": [
+              0.572521,
+              0.67483
+            ],
+            "n_jd": 147
+          }
+        }
+      }
+    },
+    "Y4 role filter (k=3, context=on)": {
+      "rung": "Y4",
+      "status": "dev",
+      "options": {
+        "k": 3,
+        "context": true
+      },
+      "scores_sha256": "ff3a2436b6df00266aa85531c5308c2abd6216130e376b52d0601138150e4b94",
+      "proxy": {
+        "dev-train": {
+          "recall@10": {
+            "value": 0.249264,
+            "ci95": [
+              0.225443,
+              0.273574
+            ],
+            "n_jd": 249
+          },
+          "recall@50": {
+            "value": 0.658303,
+            "ci95": [
+              0.624275,
+              0.692669
+            ],
+            "n_jd": 249
+          }
+        },
+        "dev-select": {
+          "recall@10": {
+            "value": 0.246939,
+            "ci95": [
+              0.215679,
+              0.280306
+            ],
+            "n_jd": 150
+          },
+          "recall@50": {
+            "value": 0.641447,
+            "ci95": [
+              0.593833,
+              0.68735
+            ],
+            "n_jd": 150
+          }
+        }
+      },
+      "pilot_shaped": {
+        "dev-train": {
+          "recall@10": {
+            "value": 0.25216,
+            "ci95": [
+              0.224798,
+              0.280748
+            ],
+            "n_jd": 248
+          },
+          "recall@50": {
+            "value": 0.66105,
+            "ci95": [
+              0.623823,
+              0.697965
+            ],
+            "n_jd": 248
+          }
+        },
+        "dev-select": {
+          "recall@10": {
+            "value": 0.243562,
+            "ci95": [
+              0.210034,
+              0.27794
+            ],
+            "n_jd": 147
+          },
+          "recall@50": {
+            "value": 0.644825,
+            "ci95": [
+              0.594048,
+              0.695094
+            ],
+            "n_jd": 147
+          }
+        }
+      }
+    }
+  },
+  "choices": {
+    "Y1": {
+      "name": "Y1 role filter (k=2, context=on)",
+      "options": {
+        "k": 2,
+        "context": true
+      },
+      "dev_select_recall@50": 0.604851,
+      "dev_train_recall@50": 0.582497
+    },
+    "Y2": {
+      "name": "Y2 role filter (k=1, context=on)",
+      "options": {
+        "k": 1,
+        "context": true
+      },
+      "dev_select_recall@50": 0.663627,
+      "dev_train_recall@50": 0.657221
+    },
+    "Y2t": {
+      "name": "Y2t role filter (k=2, context=on)",
+      "options": {
+        "k": 2,
+        "context": true
+      },
+      "dev_select_recall@50": 0.647123,
+      "dev_train_recall@50": 0.650559
+    },
+    "Y4": {
+      "name": "Y4 role filter (k=1, context=on)",
+      "options": {
+        "k": 1,
+        "context": true
+      },
+      "dev_select_recall@50": 0.677525,
+      "dev_train_recall@50": 0.673472
+    },
+    "Y2_vs_Y2t": "Y2",
+    "early_stop": {
+      "dev_best_classical": "Y2",
+      "its_dev_select_recall@50": 0.663627,
+      "x2_dev_select_recall@50": 0.726621,
+      "beats_x2": false,
+      "decision": "stop: record, go to Q8"
+    }
+  }
+}
