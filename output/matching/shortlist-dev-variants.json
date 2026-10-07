@@ -17,6 +17,8 @@
     },
     "text_term": "TF-IDF, per-JD min-max x 0.999 (as X2 and Y2)",
     "option": "per family, highest dev-select proxy Recall@50; ties (6 dp) to the cheaper option (smaller weight; smaller k, then context off)",
+    "grid_extension": "amendment Z': weights 32, 64 and the limit (1e6) added after w = 16 was the grid's edge; the same option rule over the whole grid",
+    "paired": "each choice's per-JD Recall@50 minus X2's, dev-select, mean with a JD-resampled CI; reported, the verdict stays the point-estimate rule",
     "verdict": "a family 'beats X2' when its chosen option's dev-select Recall@50 is strictly above X2's; dev-train is reported as a check, not a second vote",
     "split": "exploratory: Recall@50 by whether the JD title is a lookup hit (an input property), for each family's choice and X2; decides nothing",
     "status": "post-hoc, dev only; amendment Z in 03 \u00a73; fixed before the first Z run"
@@ -244,6 +246,141 @@
       },
       "scores_sha256": "39d7873a24a63be3641b2a2773d1754acfb1d6fbf54fd8837ffb4df4237ef581"
     },
+    "Z1 soft role, JD text, weight 32 + TF-IDF": {
+      "family": "Z1",
+      "options": {
+        "weight": 32
+      },
+      "proxy": {
+        "dev-train": {
+          "recall@10": {
+            "value": 0.316694,
+            "ci95": [
+              0.286602,
+              0.347321
+            ],
+            "n_jd": 249
+          },
+          "recall@50": {
+            "value": 0.757717,
+            "ci95": [
+              0.722059,
+              0.791826
+            ],
+            "n_jd": 249
+          }
+        },
+        "dev-select": {
+          "recall@10": {
+            "value": 0.352315,
+            "ci95": [
+              0.312911,
+              0.392568
+            ],
+            "n_jd": 150
+          },
+          "recall@50": {
+            "value": 0.776043,
+            "ci95": [
+              0.734616,
+              0.816402
+            ],
+            "n_jd": 150
+          }
+        }
+      },
+      "scores_sha256": "7926e37e84a7fddcc5f75e869623625f22c27498d2f93f659054ed9ccf477eca"
+    },
+    "Z1 soft role, JD text, weight 64 + TF-IDF": {
+      "family": "Z1",
+      "options": {
+        "weight": 64
+      },
+      "proxy": {
+        "dev-train": {
+          "recall@10": {
+            "value": 0.315249,
+            "ci95": [
+              0.285044,
+              0.345986
+            ],
+            "n_jd": 249
+          },
+          "recall@50": {
+            "value": 0.75796,
+            "ci95": [
+              0.721987,
+              0.792123
+            ],
+            "n_jd": 249
+          }
+        },
+        "dev-select": {
+          "recall@10": {
+            "value": 0.353253,
+            "ci95": [
+              0.31404,
+              0.393302
+            ],
+            "n_jd": 150
+          },
+          "recall@50": {
+            "value": 0.777494,
+            "ci95": [
+              0.736269,
+              0.817531
+            ],
+            "n_jd": 150
+          }
+        }
+      },
+      "scores_sha256": "ca6545a0036b38ee934faed9238c77a5bd984c2f0c28069a757763996619d04c"
+    },
+    "Z1 soft role, JD text, weight 1e+06 + TF-IDF": {
+      "family": "Z1",
+      "options": {
+        "weight": 1000000.0
+      },
+      "proxy": {
+        "dev-train": {
+          "recall@10": {
+            "value": 0.314048,
+            "ci95": [
+              0.284297,
+              0.344354
+            ],
+            "n_jd": 249
+          },
+          "recall@50": {
+            "value": 0.753609,
+            "ci95": [
+              0.717028,
+              0.788388
+            ],
+            "n_jd": 249
+          }
+        },
+        "dev-select": {
+          "recall@10": {
+            "value": 0.354837,
+            "ci95": [
+              0.315589,
+              0.394772
+            ],
+            "n_jd": 150
+          },
+          "recall@50": {
+            "value": 0.776265,
+            "ci95": [
+              0.734123,
+              0.817125
+            ],
+            "n_jd": 150
+          }
+        }
+      },
+      "scores_sha256": "a38c6463296a30669042294491f52126cfc7bd0a8fb83dd173811aa3f3307af0"
+    },
     "Z1L soft role, JD lookup_or_text, weight 2 + TF-IDF": {
       "family": "Z1L",
       "options": {
@@ -423,6 +560,141 @@
         }
       },
       "scores_sha256": "52a50c9f9922585be5ce88e470cbe88c05a8222f973bdf41b0a61fe2fbbe4e13"
+    },
+    "Z1L soft role, JD lookup_or_text, weight 32 + TF-IDF": {
+      "family": "Z1L",
+      "options": {
+        "weight": 32
+      },
+      "proxy": {
+        "dev-train": {
+          "recall@10": {
+            "value": 0.333755,
+            "ci95": [
+              0.303464,
+              0.365359
+            ],
+            "n_jd": 249
+          },
+          "recall@50": {
+            "value": 0.76582,
+            "ci95": [
+              0.729541,
+              0.800854
+            ],
+            "n_jd": 249
+          }
+        },
+        "dev-select": {
+          "recall@10": {
+            "value": 0.36045,
+            "ci95": [
+              0.320093,
+              0.401861
+            ],
+            "n_jd": 150
+          },
+          "recall@50": {
+            "value": 0.776685,
+            "ci95": [
+              0.732468,
+              0.819409
+            ],
+            "n_jd": 150
+          }
+        }
+      },
+      "scores_sha256": "ee2f6768f42f3cd44de506e4a8a6e66bc8f3a1172ffc0902868503ae6371effa"
+    },
+    "Z1L soft role, JD lookup_or_text, weight 64 + TF-IDF": {
+      "family": "Z1L",
+      "options": {
+        "weight": 64
+      },
+      "proxy": {
+        "dev-train": {
+          "recall@10": {
+            "value": 0.332177,
+            "ci95": [
+              0.301904,
+              0.363461
+            ],
+            "n_jd": 249
+          },
+          "recall@50": {
+            "value": 0.767395,
+            "ci95": [
+              0.731004,
+              0.802445
+            ],
+            "n_jd": 249
+          }
+        },
+        "dev-select": {
+          "recall@10": {
+            "value": 0.361951,
+            "ci95": [
+              0.321399,
+              0.403192
+            ],
+            "n_jd": 150
+          },
+          "recall@50": {
+            "value": 0.775885,
+            "ci95": [
+              0.732442,
+              0.817834
+            ],
+            "n_jd": 150
+          }
+        }
+      },
+      "scores_sha256": "3a019aa0766331e56ce8943034935eac83c91489f43435e65fa458159d8d604b"
+    },
+    "Z1L soft role, JD lookup_or_text, weight 1e+06 + TF-IDF": {
+      "family": "Z1L",
+      "options": {
+        "weight": 1000000.0
+      },
+      "proxy": {
+        "dev-train": {
+          "recall@10": {
+            "value": 0.331918,
+            "ci95": [
+              0.301648,
+              0.363261
+            ],
+            "n_jd": 249
+          },
+          "recall@50": {
+            "value": 0.761473,
+            "ci95": [
+              0.724447,
+              0.797452
+            ],
+            "n_jd": 249
+          }
+        },
+        "dev-select": {
+          "recall@10": {
+            "value": 0.362594,
+            "ci95": [
+              0.321989,
+              0.403859
+            ],
+            "n_jd": 150
+          },
+          "recall@50": {
+            "value": 0.77467,
+            "ci95": [
+              0.731232,
+              0.81664
+            ],
+            "n_jd": 150
+          }
+        }
+      },
+      "scores_sha256": "e55b8077cfd86e988a6775c7f4a5d340d1ed2af9a7a9fd830b24c43642a8e5f1"
     },
     "Z2 JD text top-3 filter (k=0, context=off) + TF-IDF": {
       "family": "Z2",
@@ -1531,39 +1803,55 @@
   },
   "choices": {
     "Z1": {
-      "name": "Z1 soft role, JD text, weight 16 + TF-IDF",
+      "name": "Z1 soft role, JD text, weight 64 + TF-IDF",
       "options": {
-        "weight": 16
+        "weight": 64
       },
-      "dev_select_recall@50": 0.769019,
-      "dev_train_recall@50": 0.753407,
+      "dev_select_recall@50": 0.777494,
+      "dev_train_recall@50": 0.75796,
       "beats_x2": true,
+      "paired_delta_vs_x2_dev_select": {
+        "delta": 0.050873,
+        "ci95": [
+          0.03546,
+          0.06702
+        ],
+        "n_jd": 150
+      },
       "by_lookup_hit": {
         "lookup_hit": {
-          "value": 0.803983,
+          "value": 0.811624,
           "n_jd": 98
         },
         "lookup_miss": {
-          "value": 0.703125,
+          "value": 0.713172,
           "n_jd": 52
         }
       }
     },
     "Z1L": {
-      "name": "Z1L soft role, JD lookup_or_text, weight 16 + TF-IDF",
+      "name": "Z1L soft role, JD lookup_or_text, weight 32 + TF-IDF",
       "options": {
-        "weight": 16
+        "weight": 32
       },
-      "dev_select_recall@50": 0.772336,
-      "dev_train_recall@50": 0.762217,
+      "dev_select_recall@50": 0.776685,
+      "dev_train_recall@50": 0.76582,
       "beats_x2": true,
+      "paired_delta_vs_x2_dev_select": {
+        "delta": 0.050064,
+        "ci95": [
+          0.021438,
+          0.077408
+        ],
+        "n_jd": 150
+      },
       "by_lookup_hit": {
         "lookup_hit": {
-          "value": 0.80906,
+          "value": 0.809389,
           "n_jd": 98
         },
         "lookup_miss": {
-          "value": 0.703125,
+          "value": 0.715052,
           "n_jd": 52
         }
       }
@@ -1577,6 +1865,14 @@
       "dev_select_recall@50": 0.641557,
       "dev_train_recall@50": 0.638975,
       "beats_x2": false,
+      "paired_delta_vs_x2_dev_select": {
+        "delta": -0.085064,
+        "ci95": [
+          -0.109817,
+          -0.060092
+        ],
+        "n_jd": 150
+      },
       "by_lookup_hit": {
         "lookup_hit": {
           "value": 0.658348,
@@ -1597,6 +1893,14 @@
       "dev_select_recall@50": 0.685814,
       "dev_train_recall@50": 0.67544,
       "beats_x2": false,
+      "paired_delta_vs_x2_dev_select": {
+        "delta": -0.040807,
+        "ci95": [
+          -0.064078,
+          -0.016187
+        ],
+        "n_jd": 150
+      },
       "by_lookup_hit": {
         "lookup_hit": {
           "value": 0.726088,
@@ -1617,6 +1921,14 @@
       "dev_select_recall@50": 0.697385,
       "dev_train_recall@50": 0.685314,
       "beats_x2": false,
+      "paired_delta_vs_x2_dev_select": {
+        "delta": -0.029237,
+        "ci95": [
+          -0.053715,
+          -0.004671
+        ],
+        "n_jd": 150
+      },
       "by_lookup_hit": {
         "lookup_hit": {
           "value": 0.731397,

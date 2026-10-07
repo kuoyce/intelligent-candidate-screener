@@ -197,3 +197,22 @@ uncertainty of a within-JD comparison). Proxy relevance is the oracle role famil
 stronger role weight is favoured *by construction* of the proxy. The final set measures
 fit, where the role still matters (96.5% of fits share the JD's keyword) but not
 exclusively.
+
+### Amendment Z′: extended weight grid (user chose Q-R7 (a))
+
+Dev-select proxy Recall@50 by weight (the limit = role first, experience then text break
+ties):
+
+| w | 2 | 4 | 8 | 16 | 32 | 64 | limit |
+|---|---|---|---|---|---|---|---|
+| Z1 | 0.727 | 0.746 | 0.760 | 0.769 | 0.776 | **0.7775** | 0.776 |
+| Z1L | 0.738 | 0.750 | 0.765 | 0.772 | **0.7767** | 0.776 | 0.775 |
+
+A plateau from 32 up. Chosen by the rule: **Z1 w = 64**, **Z1L w = 32**. Paired per-JD Δ
+Recall@50 vs X2 on dev-select: Z1 +0.051 [0.035, 0.067], Z1L +0.050 [0.021, 0.077]; hard
+variants Z2 −0.085, Z2L −0.041, Z3 −0.029 (all CIs below 0). dev-train: Z1 0.758, Z1L
+0.766, X2 0.713. On dev-select Z1L no longer beats Z1, though it does on dev-train. The
+title's net contribution on dev is about zero.
+
+**Q8 frozen** in 03 §2 (8 Oct) before any final-set score: Z1 and Z1L are scored, with
+comparisons M1–M5, S2 at 0.80, and selection "Z1 unless Z1L is justified over it on M3".

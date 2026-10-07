@@ -37,16 +37,48 @@ and reported beside the registered P7 miss. If several Y rungs pass, the cheapes
 rung is adopted unless a dearer passing rung is `justified` over it on paired Δ AUC (the
 running plan's §3 verdict), as in the running plan's §5.
 
-## 2. Frozen configuration (filled at Q8)
+## 2. Frozen configuration (filled at Q8, 8 Oct 2026, before any final-set score)
 
-| Rung | `k` | role-context | text term | classifier | C (Y5) | Notes |
-|---|---|---|---|---|---|---|
-| Y1 | | | — | | — | |
-| Y2 / Y2t | | | | | — | |
-| Y2m | | | | | — | scored only if Q4's check passed |
-| Y4 | | | SBERT weak | | — | |
-| Y5 | | | learned | | | |
-| Y-rel | | | | | — | only if Q7 passed |
+Chosen on the dev set by the committed rules (`shortlist_dev.RULES`, `Z_RULES`; records
+`shortlist-dev.json`, `shortlist-dev-variants.json`). Role model `44b7fff54614`, title
+model `18b47dfd129f`, text `text_v2` plus `jd_title` (D54).
+
+| Rung | Formula | Option | Dev-select R@50 | Scored at Q8? |
+|---|---|---|---|---|
+| Y1, Y2, Y2t, Y4 | hard role filter (01 §3) | Y2: k = 1, context on (best classical) | 0.664 | **no**: Q3 early stop (does not beat X2 on dev) |
+| Y2m, Y5, Y-rel | — | — | — | no: Q4, Q5, Q7 not run (Q-R4 review) |
+| Z2, Z2L, Z3 | hard filter, JD-side sets | — | ≤ 0.697 | **no**: below X2 on dev |
+| **Z1** | `64 × Σ p_jd p_cv + experience_compatible + 0.999 × per-JD min-max TF-IDF`; p_jd from the JD text | w = 64 | 0.7775 | **yes** |
+| **Z1L** | the same with p_jd one-hot on C1's family where the title is a lookup hit | w = 32 | 0.7767 | **yes** |
+
+Both Z rungs are **classical** (TF-IDF text term; S2 bar 0.80). No advanced rung is scored:
+none was chosen on dev, so the advanced bar (0.90) is not attempted.
+
+**Scored at Q8, once:** Z1 and Z1L, with X2, TF-IDF and the oracle 1a+2 as references
+(their P7 scores, recomputed; they must equal `stage1-metrics.json`'s `scores_sha256`).
+Same 500-candidate pools as P7, `text_v2`. Figures: per-JD AUC (and within-family), and
+Recall@10 / @50 on the pools. Generic, targeted and total; `all` and `llm_free`.
+
+**Comparisons** (paired per-JD Δ, B − A; the running plan's §3 verdict, applied to AUC and,
+separately, to Recall@50; for Recall@50 `llm_free` drops the pool rows of judged pairs
+whose label needed the LLM):
+
+| # | B | A | Question | Decides |
+|---|---|---|---|---|
+| M1 | Z1L | X2 | Do the title and a larger role weight fix P7's shortlist? | reported |
+| M2 | Z1 | X2 | Does the larger role weight alone? | reported |
+| M3 | Z1L | Z1 | What does the title add? | selection (below) |
+| M4 | Z1L | TF-IDF | Against plain text | reported |
+| M5 | Z1L | oracle 1a+2 | Cost of no CV metadata (expected ≤ 0) | nothing |
+
+**S2:** each of Z1, Z1L passes when its total Recall@50 point estimate ≥ 0.80. "CI above the
+bar" stated separately.
+
+**Selection (Q-R1).** Among Z1 and Z1L that pass S2, the cheaper, **Z1** (no title model),
+is adopted unless Z1L is `justified` over it on M3's AUC verdict. A rung that passes is
+adopted as the stage-1 retriever **post-hoc**, always reported beside the registered P7
+miss ("P7 registered: miss (0.779). Post-hoc Z: …"). If neither passes, nothing is adopted
+and Q-P7-2 stands.
 
 ## 3. Amendments
 
