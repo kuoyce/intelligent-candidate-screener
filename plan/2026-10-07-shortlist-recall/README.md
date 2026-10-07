@@ -1,7 +1,7 @@
 # Shortlist recall: role as a filter, the JD title, main-tech matching
 
 **Status: approved (7 Oct 2026)**, with the answers to Q-R1–Q-R5 in [04](04-open-questions.md).
-Branch `feat/shortlist-recall`. Scope of this pass: the core up to Q3, then a review (Q-R4).
+Branch `feat/shortlist-recall`. **Outcome (8 Oct):** hard role filters lost to X2 on dev (Q3 early stop); a larger soft role weight beat X2 on dev but tied it on the final set (Recall@50 0.781 vs 0.779), so S2 is still missed and nothing is adopted.
 Progress and findings: [05](05-findings.md).
 
 Follows [P7](../2026-10-06-extraction-and-rerank/16-p7-stage1.md): text-only stage 1 missed

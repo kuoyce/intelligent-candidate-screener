@@ -39,6 +39,7 @@ uv run python -m candidate_screener.evaluation.stage1 --check      # X rungs, K1
 uv run python -m candidate_screener.evaluation.dev_pools --check       # shortlist-recall dev set (A2 train)
 uv run python -m candidate_screener.evaluation.shortlist_dev --check   # Y rungs on the dev set (~12 min)
 uv run python -m candidate_screener.evaluation.shortlist_dev --variants --check  # amendment Z (Z1-Z3) on the dev set
+uv run python -m candidate_screener.evaluation.shortlist_final --check   # Q8: frozen Z1/Z1L on the final set
 uv run pytest                                                   # the suite (no data needed)
 uv run jupyter nbconvert --to notebook --execute --inplace notebooks/NN-*.ipynb
 ```

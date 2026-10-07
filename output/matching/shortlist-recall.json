@@ -1,0 +1,2662 @@
+{
+  "plan": "plan/2026-10-07-shortlist-recall (Q8; 03 \u00a72 frozen before this ran)",
+  "registered_result": "P7 registered: S2 miss (X2 Recall@50 0.779 < 0.80; X4 0.761 < 0.90)",
+  "status": "Z1 and Z1L are post-hoc: designed after the P7 S2 miss, options chosen on the A2-train dev set only (D46)",
+  "text_variant": "v2",
+  "jd_title": "A2 JD Position as given (D54)",
+  "reference": {
+    "file": "a2-final-labels.csv",
+    "rule_version": 1,
+    "sha256": "49a6a338cd1b0b6fee7d2a189f8794d97a23dc91873859e5caee22e090edf9bd"
+  },
+  "seed": 0,
+  "note": "AUC per JD over JDs with both classes; Recall over JDs with a fit, on P7's 500-candidate pools (490 unjudged distractors assumed not fits: upper-bound recall). CIs resample JDs. Recall llm_free drops the pool rows of judged pairs whose label needed the LLM.",
+  "systems": {
+    "TF-IDF": {
+      "status": "exploratory",
+      "scores_sha256": "eeabdbde958e89e4015cc59bad63fd78543fdbfa76d0c635e54eef02f85dbec1",
+      "pool_scores_sha256": "076cef4e100c0ab060e28369d78d2f4f23b6ea99d7c5284e2ea06315a4d59bf3",
+      "auc": [
+        {
+          "system": "TF-IDF",
+          "metric": "auc",
+          "scope": "generic",
+          "subset": "all",
+          "value": 0.780441,
+          "ci_low": 0.714107,
+          "ci_high": 0.840762,
+          "n_jd": 39,
+          "n_pairs": 390,
+          "rule_version": 1
+        },
+        {
+          "system": "TF-IDF",
+          "metric": "auc",
+          "scope": "targeted",
+          "subset": "all",
+          "value": 0.806923,
+          "ci_low": 0.741625,
+          "ci_high": 0.870143,
+          "n_jd": 20,
+          "n_pairs": 200,
+          "rule_version": 1
+        },
+        {
+          "system": "TF-IDF",
+          "metric": "auc",
+          "scope": "total",
+          "subset": "all",
+          "value": 0.789418,
+          "ci_low": 0.741454,
+          "ci_high": 0.835029,
+          "n_jd": 59,
+          "n_pairs": 590,
+          "rule_version": 1
+        },
+        {
+          "system": "TF-IDF",
+          "metric": "within_family_auc",
+          "scope": "generic",
+          "subset": "all",
+          "value": 0.737063,
+          "ci_low": 0.631502,
+          "ci_high": 0.833018,
+          "n_jd": 30,
+          "n_pairs": 240,
+          "rule_version": 1
+        },
+        {
+          "system": "TF-IDF",
+          "metric": "within_family_auc",
+          "scope": "targeted",
+          "subset": "all",
+          "value": 0.675132,
+          "ci_low": 0.561507,
+          "ci_high": 0.782445,
+          "n_jd": 18,
+          "n_pairs": 144,
+          "rule_version": 1
+        },
+        {
+          "system": "TF-IDF",
+          "metric": "within_family_auc",
+          "scope": "total",
+          "subset": "all",
+          "value": 0.713839,
+          "ci_low": 0.637114,
+          "ci_high": 0.788221,
+          "n_jd": 48,
+          "n_pairs": 384,
+          "rule_version": 1
+        },
+        {
+          "system": "TF-IDF",
+          "metric": "auc",
+          "scope": "generic",
+          "subset": "llm_free",
+          "value": 0.810077,
+          "ci_low": 0.746261,
+          "ci_high": 0.87048,
+          "n_jd": 38,
+          "n_pairs": 350,
+          "rule_version": 1
+        },
+        {
+          "system": "TF-IDF",
+          "metric": "auc",
+          "scope": "targeted",
+          "subset": "llm_free",
+          "value": 0.860458,
+          "ci_low": 0.778701,
+          "ci_high": 0.932353,
+          "n_jd": 17,
+          "n_pairs": 110,
+          "rule_version": 1
+        },
+        {
+          "system": "TF-IDF",
+          "metric": "auc",
+          "scope": "total",
+          "subset": "llm_free",
+          "value": 0.825649,
+          "ci_low": 0.775244,
+          "ci_high": 0.872569,
+          "n_jd": 55,
+          "n_pairs": 460,
+          "rule_version": 1
+        },
+        {
+          "system": "TF-IDF",
+          "metric": "within_family_auc",
+          "scope": "generic",
+          "subset": "llm_free",
+          "value": 0.779469,
+          "ci_low": 0.653027,
+          "ci_high": 0.889823,
+          "n_jd": 23,
+          "n_pairs": 174,
+          "rule_version": 1
+        },
+        {
+          "system": "TF-IDF",
+          "metric": "within_family_auc",
+          "scope": "targeted",
+          "subset": "llm_free",
+          "value": 0.691156,
+          "ci_low": 0.529575,
+          "ci_high": 0.840153,
+          "n_jd": 14,
+          "n_pairs": 69,
+          "rule_version": 1
+        },
+        {
+          "system": "TF-IDF",
+          "metric": "within_family_auc",
+          "scope": "total",
+          "subset": "llm_free",
+          "value": 0.746053,
+          "ci_low": 0.646546,
+          "ci_high": 0.839511,
+          "n_jd": 37,
+          "n_pairs": 243,
+          "rule_version": 1
+        }
+      ],
+      "retrieval": [
+        {
+          "system": "TF-IDF",
+          "metric": "recall@10",
+          "scope": "generic",
+          "value": 0.206349,
+          "ci_low": 0.142247,
+          "ci_high": 0.270555,
+          "n_jd": 39
+        },
+        {
+          "system": "TF-IDF",
+          "metric": "recall@50",
+          "scope": "generic",
+          "value": 0.588085,
+          "ci_low": 0.495696,
+          "ci_high": 0.675541,
+          "n_jd": 39
+        },
+        {
+          "system": "TF-IDF",
+          "metric": "recall@100",
+          "scope": "generic",
+          "value": 0.726302,
+          "ci_low": 0.638136,
+          "ci_high": 0.806808,
+          "n_jd": 39
+        },
+        {
+          "system": "TF-IDF",
+          "metric": "recall@10",
+          "scope": "targeted",
+          "value": 0.317679,
+          "ci_low": 0.22375,
+          "ci_high": 0.415183,
+          "n_jd": 20
+        },
+        {
+          "system": "TF-IDF",
+          "metric": "recall@50",
+          "scope": "targeted",
+          "value": 0.726429,
+          "ci_low": 0.62881,
+          "ci_high": 0.816964,
+          "n_jd": 20
+        },
+        {
+          "system": "TF-IDF",
+          "metric": "recall@100",
+          "scope": "targeted",
+          "value": 0.875536,
+          "ci_low": 0.806429,
+          "ci_high": 0.9375,
+          "n_jd": 20
+        },
+        {
+          "system": "TF-IDF",
+          "metric": "recall@10",
+          "scope": "total",
+          "value": 0.244088,
+          "ci_low": 0.189538,
+          "ci_high": 0.299209,
+          "n_jd": 59
+        },
+        {
+          "system": "TF-IDF",
+          "metric": "recall@50",
+          "scope": "total",
+          "value": 0.634981,
+          "ci_low": 0.562751,
+          "ci_high": 0.701959,
+          "n_jd": 59
+        },
+        {
+          "system": "TF-IDF",
+          "metric": "recall@100",
+          "scope": "total",
+          "value": 0.77689,
+          "ci_low": 0.711507,
+          "ci_high": 0.837941,
+          "n_jd": 59
+        }
+      ],
+      "retrieval_llm_free": [
+        {
+          "system": "TF-IDF",
+          "metric": "recall@10",
+          "scope": "generic",
+          "value": 0.225125,
+          "ci_low": 0.157069,
+          "ci_high": 0.295412,
+          "n_jd": 38
+        },
+        {
+          "system": "TF-IDF",
+          "metric": "recall@50",
+          "scope": "generic",
+          "value": 0.637051,
+          "ci_low": 0.541958,
+          "ci_high": 0.728979,
+          "n_jd": 38
+        },
+        {
+          "system": "TF-IDF",
+          "metric": "recall@100",
+          "scope": "generic",
+          "value": 0.768776,
+          "ci_low": 0.68658,
+          "ci_high": 0.844268,
+          "n_jd": 38
+        },
+        {
+          "system": "TF-IDF",
+          "metric": "recall@10",
+          "scope": "targeted",
+          "value": 0.370378,
+          "ci_low": 0.205592,
+          "ci_high": 0.539006,
+          "n_jd": 17
+        },
+        {
+          "system": "TF-IDF",
+          "metric": "recall@50",
+          "scope": "targeted",
+          "value": 0.808053,
+          "ci_low": 0.691807,
+          "ci_high": 0.910226,
+          "n_jd": 17
+        },
+        {
+          "system": "TF-IDF",
+          "metric": "recall@100",
+          "scope": "targeted",
+          "value": 0.915406,
+          "ci_low": 0.851541,
+          "ci_high": 0.971429,
+          "n_jd": 17
+        },
+        {
+          "system": "TF-IDF",
+          "metric": "recall@10",
+          "scope": "total",
+          "value": 0.270022,
+          "ci_low": 0.199753,
+          "ci_high": 0.344388,
+          "n_jd": 55
+        },
+        {
+          "system": "TF-IDF",
+          "metric": "recall@50",
+          "scope": "total",
+          "value": 0.689906,
+          "ci_low": 0.612272,
+          "ci_high": 0.762959,
+          "n_jd": 55
+        },
+        {
+          "system": "TF-IDF",
+          "metric": "recall@100",
+          "scope": "total",
+          "value": 0.814098,
+          "ci_low": 0.751687,
+          "ci_high": 0.870729,
+          "n_jd": 55
+        }
+      ],
+      "reproduces_p7": true
+    },
+    "extracted rule + TF-IDF": {
+      "status": "held-out (P7)",
+      "scores_sha256": "c53c0b664321b50fa6ed0f1929b4dc0509a967d6e88b7849d002f2e72217ac4e",
+      "pool_scores_sha256": "6d4e516fadd1982a6b4a2ddeed200d75246334462234827f47897fdd01d6d2b1",
+      "auc": [
+        {
+          "system": "extracted rule + TF-IDF",
+          "metric": "auc",
+          "scope": "generic",
+          "subset": "all",
+          "value": 0.862799,
+          "ci_low": 0.810236,
+          "ci_high": 0.909038,
+          "n_jd": 39,
+          "n_pairs": 390,
+          "rule_version": 1
+        },
+        {
+          "system": "extracted rule + TF-IDF",
+          "metric": "auc",
+          "scope": "targeted",
+          "subset": "all",
+          "value": 0.826333,
+          "ci_low": 0.755581,
+          "ci_high": 0.895656,
+          "n_jd": 20,
+          "n_pairs": 200,
+          "rule_version": 1
+        },
+        {
+          "system": "extracted rule + TF-IDF",
+          "metric": "auc",
+          "scope": "total",
+          "subset": "all",
+          "value": 0.850438,
+          "ci_low": 0.809176,
+          "ci_high": 0.889067,
+          "n_jd": 59,
+          "n_pairs": 590,
+          "rule_version": 1
+        },
+        {
+          "system": "extracted rule + TF-IDF",
+          "metric": "within_family_auc",
+          "scope": "generic",
+          "subset": "all",
+          "value": 0.758115,
+          "ci_low": 0.658192,
+          "ci_high": 0.848651,
+          "n_jd": 30,
+          "n_pairs": 240,
+          "rule_version": 1
+        },
+        {
+          "system": "extracted rule + TF-IDF",
+          "metric": "within_family_auc",
+          "scope": "targeted",
+          "subset": "all",
+          "value": 0.722718,
+          "ci_low": 0.598807,
+          "ci_high": 0.839947,
+          "n_jd": 18,
+          "n_pairs": 144,
+          "rule_version": 1
+        },
+        {
+          "system": "extracted rule + TF-IDF",
+          "metric": "within_family_auc",
+          "scope": "total",
+          "subset": "all",
+          "value": 0.744841,
+          "ci_low": 0.669914,
+          "ci_high": 0.816669,
+          "n_jd": 48,
+          "n_pairs": 384,
+          "rule_version": 1
+        },
+        {
+          "system": "extracted rule + TF-IDF",
+          "metric": "auc",
+          "scope": "generic",
+          "subset": "llm_free",
+          "value": 0.892706,
+          "ci_low": 0.846723,
+          "ci_high": 0.933459,
+          "n_jd": 38,
+          "n_pairs": 350,
+          "rule_version": 1
+        },
+        {
+          "system": "extracted rule + TF-IDF",
+          "metric": "auc",
+          "scope": "targeted",
+          "subset": "llm_free",
+          "value": 0.916993,
+          "ci_low": 0.832026,
+          "ci_high": 0.987255,
+          "n_jd": 17,
+          "n_pairs": 110,
+          "rule_version": 1
+        },
+        {
+          "system": "extracted rule + TF-IDF",
+          "metric": "auc",
+          "scope": "total",
+          "subset": "llm_free",
+          "value": 0.900213,
+          "ci_low": 0.859959,
+          "ci_high": 0.936541,
+          "n_jd": 55,
+          "n_pairs": 460,
+          "rule_version": 1
+        },
+        {
+          "system": "extracted rule + TF-IDF",
+          "metric": "within_family_auc",
+          "scope": "generic",
+          "subset": "llm_free",
+          "value": 0.771532,
+          "ci_low": 0.651654,
+          "ci_high": 0.878163,
+          "n_jd": 23,
+          "n_pairs": 174,
+          "rule_version": 1
+        },
+        {
+          "system": "extracted rule + TF-IDF",
+          "metric": "within_family_auc",
+          "scope": "targeted",
+          "subset": "llm_free",
+          "value": 0.82619,
+          "ci_low": 0.654762,
+          "ci_high": 0.97381,
+          "n_jd": 14,
+          "n_pairs": 69,
+          "rule_version": 1
+        },
+        {
+          "system": "extracted rule + TF-IDF",
+          "metric": "within_family_auc",
+          "scope": "total",
+          "subset": "llm_free",
+          "value": 0.792214,
+          "ci_low": 0.69131,
+          "ci_high": 0.881987,
+          "n_jd": 37,
+          "n_pairs": 243,
+          "rule_version": 1
+        }
+      ],
+      "retrieval": [
+        {
+          "system": "extracted rule + TF-IDF",
+          "metric": "recall@10",
+          "scope": "generic",
+          "value": 0.286396,
+          "ci_low": 0.215302,
+          "ci_high": 0.358029,
+          "n_jd": 39
+        },
+        {
+          "system": "extracted rule + TF-IDF",
+          "metric": "recall@50",
+          "scope": "generic",
+          "value": 0.794668,
+          "ci_low": 0.706244,
+          "ci_high": 0.873526,
+          "n_jd": 39
+        },
+        {
+          "system": "extracted rule + TF-IDF",
+          "metric": "recall@100",
+          "scope": "generic",
+          "value": 0.89998,
+          "ci_low": 0.833129,
+          "ci_high": 0.95177,
+          "n_jd": 39
+        },
+        {
+          "system": "extracted rule + TF-IDF",
+          "metric": "recall@10",
+          "scope": "targeted",
+          "value": 0.32631,
+          "ci_low": 0.206307,
+          "ci_high": 0.449821,
+          "n_jd": 20
+        },
+        {
+          "system": "extracted rule + TF-IDF",
+          "metric": "recall@50",
+          "scope": "targeted",
+          "value": 0.74875,
+          "ci_low": 0.617257,
+          "ci_high": 0.86006,
+          "n_jd": 20
+        },
+        {
+          "system": "extracted rule + TF-IDF",
+          "metric": "recall@100",
+          "scope": "targeted",
+          "value": 0.905179,
+          "ci_low": 0.839107,
+          "ci_high": 0.960714,
+          "n_jd": 20
+        },
+        {
+          "system": "extracted rule + TF-IDF",
+          "metric": "recall@10",
+          "scope": "total",
+          "value": 0.299926,
+          "ci_low": 0.237846,
+          "ci_high": 0.36292,
+          "n_jd": 59
+        },
+        {
+          "system": "extracted rule + TF-IDF",
+          "metric": "recall@50",
+          "scope": "total",
+          "value": 0.779103,
+          "ci_low": 0.705907,
+          "ci_high": 0.845117,
+          "n_jd": 59
+        },
+        {
+          "system": "extracted rule + TF-IDF",
+          "metric": "recall@100",
+          "scope": "total",
+          "value": 0.901742,
+          "ci_low": 0.853916,
+          "ci_high": 0.941357,
+          "n_jd": 59
+        }
+      ],
+      "retrieval_llm_free": [
+        {
+          "system": "extracted rule + TF-IDF",
+          "metric": "recall@10",
+          "scope": "generic",
+          "value": 0.310453,
+          "ci_low": 0.238009,
+          "ci_high": 0.380421,
+          "n_jd": 38
+        },
+        {
+          "system": "extracted rule + TF-IDF",
+          "metric": "recall@50",
+          "scope": "generic",
+          "value": 0.835067,
+          "ci_low": 0.752578,
+          "ci_high": 0.904292,
+          "n_jd": 38
+        },
+        {
+          "system": "extracted rule + TF-IDF",
+          "metric": "recall@100",
+          "scope": "generic",
+          "value": 0.926232,
+          "ci_low": 0.887521,
+          "ci_high": 0.959901,
+          "n_jd": 38
+        },
+        {
+          "system": "extracted rule + TF-IDF",
+          "metric": "recall@10",
+          "scope": "targeted",
+          "value": 0.414776,
+          "ci_low": 0.226961,
+          "ci_high": 0.609664,
+          "n_jd": 17
+        },
+        {
+          "system": "extracted rule + TF-IDF",
+          "metric": "recall@50",
+          "scope": "targeted",
+          "value": 0.885644,
+          "ci_low": 0.771289,
+          "ci_high": 0.97584,
+          "n_jd": 17
+        },
+        {
+          "system": "extracted rule + TF-IDF",
+          "metric": "recall@100",
+          "scope": "targeted",
+          "value": 0.940616,
+          "ci_low": 0.881793,
+          "ci_high": 0.988235,
+          "n_jd": 17
+        },
+        {
+          "system": "extracted rule + TF-IDF",
+          "metric": "recall@10",
+          "scope": "total",
+          "value": 0.342698,
+          "ci_low": 0.265908,
+          "ci_high": 0.422721,
+          "n_jd": 55
+        },
+        {
+          "system": "extracted rule + TF-IDF",
+          "metric": "recall@50",
+          "scope": "total",
+          "value": 0.8507,
+          "ci_low": 0.786154,
+          "ci_high": 0.906495,
+          "n_jd": 55
+        },
+        {
+          "system": "extracted rule + TF-IDF",
+          "metric": "recall@100",
+          "scope": "total",
+          "value": 0.930678,
+          "ci_low": 0.89852,
+          "ci_high": 0.959214,
+          "n_jd": 55
+        }
+      ],
+      "reproduces_p7": true
+    },
+    "metadata + TF-IDF": {
+      "status": "oracle",
+      "scores_sha256": "095b1a624f80445bfce3ed6cc40d496e03ef2bb449caa807a13edcd124930fd2",
+      "pool_scores_sha256": "d64cd1eaa1aae8a5a0a098057ad8baba2992640adc30d57c9904c07552736f15",
+      "auc": [
+        {
+          "system": "metadata + TF-IDF",
+          "metric": "auc",
+          "scope": "generic",
+          "subset": "all",
+          "value": 0.84302,
+          "ci_low": 0.776058,
+          "ci_high": 0.900027,
+          "n_jd": 39,
+          "n_pairs": 390,
+          "rule_version": 1
+        },
+        {
+          "system": "metadata + TF-IDF",
+          "metric": "auc",
+          "scope": "targeted",
+          "subset": "all",
+          "value": 0.851464,
+          "ci_low": 0.79701,
+          "ci_high": 0.904418,
+          "n_jd": 20,
+          "n_pairs": 200,
+          "rule_version": 1
+        },
+        {
+          "system": "metadata + TF-IDF",
+          "metric": "auc",
+          "scope": "total",
+          "subset": "all",
+          "value": 0.845882,
+          "ci_low": 0.799178,
+          "ci_high": 0.888099,
+          "n_jd": 59,
+          "n_pairs": 590,
+          "rule_version": 1
+        },
+        {
+          "system": "metadata + TF-IDF",
+          "metric": "within_family_auc",
+          "scope": "generic",
+          "subset": "all",
+          "value": 0.67619,
+          "ci_low": 0.570238,
+          "ci_high": 0.77619,
+          "n_jd": 30,
+          "n_pairs": 240,
+          "rule_version": 1
+        },
+        {
+          "system": "metadata + TF-IDF",
+          "metric": "within_family_auc",
+          "scope": "targeted",
+          "subset": "all",
+          "value": 0.732937,
+          "ci_low": 0.637532,
+          "ci_high": 0.823148,
+          "n_jd": 18,
+          "n_pairs": 144,
+          "rule_version": 1
+        },
+        {
+          "system": "metadata + TF-IDF",
+          "metric": "within_family_auc",
+          "scope": "total",
+          "subset": "all",
+          "value": 0.69747,
+          "ci_low": 0.620745,
+          "ci_high": 0.769544,
+          "n_jd": 48,
+          "n_pairs": 384,
+          "rule_version": 1
+        },
+        {
+          "system": "metadata + TF-IDF",
+          "metric": "auc",
+          "scope": "generic",
+          "subset": "llm_free",
+          "value": 0.87607,
+          "ci_low": 0.804979,
+          "ci_high": 0.937026,
+          "n_jd": 38,
+          "n_pairs": 350,
+          "rule_version": 1
+        },
+        {
+          "system": "metadata + TF-IDF",
+          "metric": "auc",
+          "scope": "targeted",
+          "subset": "llm_free",
+          "value": 0.819281,
+          "ci_low": 0.721287,
+          "ci_high": 0.904344,
+          "n_jd": 17,
+          "n_pairs": 110,
+          "rule_version": 1
+        },
+        {
+          "system": "metadata + TF-IDF",
+          "metric": "auc",
+          "scope": "total",
+          "subset": "llm_free",
+          "value": 0.858517,
+          "ci_low": 0.801669,
+          "ci_high": 0.909654,
+          "n_jd": 55,
+          "n_pairs": 460,
+          "rule_version": 1
+        },
+        {
+          "system": "metadata + TF-IDF",
+          "metric": "within_family_auc",
+          "scope": "generic",
+          "subset": "llm_free",
+          "value": 0.705659,
+          "ci_low": 0.574017,
+          "ci_high": 0.828847,
+          "n_jd": 23,
+          "n_pairs": 174,
+          "rule_version": 1
+        },
+        {
+          "system": "metadata + TF-IDF",
+          "metric": "within_family_auc",
+          "scope": "targeted",
+          "subset": "llm_free",
+          "value": 0.632483,
+          "ci_low": 0.456628,
+          "ci_high": 0.793197,
+          "n_jd": 14,
+          "n_pairs": 69,
+          "rule_version": 1
+        },
+        {
+          "system": "metadata + TF-IDF",
+          "metric": "within_family_auc",
+          "scope": "total",
+          "subset": "llm_free",
+          "value": 0.677971,
+          "ci_low": 0.56954,
+          "ci_high": 0.778679,
+          "n_jd": 37,
+          "n_pairs": 243,
+          "rule_version": 1
+        }
+      ],
+      "retrieval": [
+        {
+          "system": "metadata + TF-IDF",
+          "metric": "recall@10",
+          "scope": "generic",
+          "value": 0.424705,
+          "ci_low": 0.333483,
+          "ci_high": 0.518927,
+          "n_jd": 39
+        },
+        {
+          "system": "metadata + TF-IDF",
+          "metric": "recall@50",
+          "scope": "generic",
+          "value": 0.909086,
+          "ci_low": 0.844984,
+          "ci_high": 0.960979,
+          "n_jd": 39
+        },
+        {
+          "system": "metadata + TF-IDF",
+          "metric": "recall@100",
+          "scope": "generic",
+          "value": 0.981838,
+          "ci_low": 0.96688,
+          "ci_high": 0.993946,
+          "n_jd": 39
+        },
+        {
+          "system": "metadata + TF-IDF",
+          "metric": "recall@10",
+          "scope": "targeted",
+          "value": 0.584762,
+          "ci_low": 0.473155,
+          "ci_high": 0.696789,
+          "n_jd": 20
+        },
+        {
+          "system": "metadata + TF-IDF",
+          "metric": "recall@50",
+          "scope": "targeted",
+          "value": 0.969167,
+          "ci_low": 0.938333,
+          "ci_high": 0.99375,
+          "n_jd": 20
+        },
+        {
+          "system": "metadata + TF-IDF",
+          "metric": "recall@100",
+          "scope": "targeted",
+          "value": 0.99375,
+          "ci_low": 0.98125,
+          "ci_high": 1.0,
+          "n_jd": 20
+        },
+        {
+          "system": "metadata + TF-IDF",
+          "metric": "recall@10",
+          "scope": "total",
+          "value": 0.478962,
+          "ci_low": 0.403267,
+          "ci_high": 0.553168,
+          "n_jd": 59
+        },
+        {
+          "system": "metadata + TF-IDF",
+          "metric": "recall@50",
+          "scope": "total",
+          "value": 0.929453,
+          "ci_low": 0.882162,
+          "ci_high": 0.96627,
+          "n_jd": 59
+        },
+        {
+          "system": "metadata + TF-IDF",
+          "metric": "recall@100",
+          "scope": "total",
+          "value": 0.985876,
+          "ci_low": 0.975518,
+          "ci_high": 0.995763,
+          "n_jd": 59
+        }
+      ],
+      "retrieval_llm_free": [
+        {
+          "system": "metadata + TF-IDF",
+          "metric": "recall@10",
+          "scope": "generic",
+          "value": 0.453885,
+          "ci_low": 0.358113,
+          "ci_high": 0.549502,
+          "n_jd": 38
+        },
+        {
+          "system": "metadata + TF-IDF",
+          "metric": "recall@50",
+          "scope": "generic",
+          "value": 0.912249,
+          "ci_low": 0.845499,
+          "ci_high": 0.966502,
+          "n_jd": 38
+        },
+        {
+          "system": "metadata + TF-IDF",
+          "metric": "recall@100",
+          "scope": "generic",
+          "value": 0.985599,
+          "ci_low": 0.970175,
+          "ci_high": 0.997076,
+          "n_jd": 38
+        },
+        {
+          "system": "metadata + TF-IDF",
+          "metric": "recall@10",
+          "scope": "targeted",
+          "value": 0.664356,
+          "ci_low": 0.496705,
+          "ci_high": 0.815758,
+          "n_jd": 17
+        },
+        {
+          "system": "metadata + TF-IDF",
+          "metric": "recall@50",
+          "scope": "targeted",
+          "value": 0.980882,
+          "ci_low": 0.95,
+          "ci_high": 1.0,
+          "n_jd": 17
+        },
+        {
+          "system": "metadata + TF-IDF",
+          "metric": "recall@100",
+          "scope": "targeted",
+          "value": 0.988235,
+          "ci_low": 0.964706,
+          "ci_high": 1.0,
+          "n_jd": 17
+        },
+        {
+          "system": "metadata + TF-IDF",
+          "metric": "recall@10",
+          "scope": "total",
+          "value": 0.518939,
+          "ci_low": 0.431281,
+          "ci_high": 0.606093,
+          "n_jd": 55
+        },
+        {
+          "system": "metadata + TF-IDF",
+          "metric": "recall@50",
+          "scope": "total",
+          "value": 0.933463,
+          "ci_low": 0.884153,
+          "ci_high": 0.972621,
+          "n_jd": 55
+        },
+        {
+          "system": "metadata + TF-IDF",
+          "metric": "recall@100",
+          "scope": "total",
+          "value": 0.986414,
+          "ci_low": 0.973333,
+          "ci_high": 0.996364,
+          "n_jd": 55
+        }
+      ],
+      "reproduces_p7": true
+    },
+    "Z1": {
+      "status": "post-hoc",
+      "scores_sha256": "262e0085ab6bf6f00cb5996b898652a9ba51a5ac84e24f480041bae283547597",
+      "pool_scores_sha256": "4852aff9ba11bcec23a0ea42e69b1f9e5b7de42bfe58dd7f83c1d17b917ea081",
+      "auc": [
+        {
+          "system": "Z1",
+          "metric": "auc",
+          "scope": "generic",
+          "subset": "all",
+          "value": 0.866039,
+          "ci_low": 0.802787,
+          "ci_high": 0.91767,
+          "n_jd": 39,
+          "n_pairs": 390,
+          "rule_version": 1
+        },
+        {
+          "system": "Z1",
+          "metric": "auc",
+          "scope": "targeted",
+          "subset": "all",
+          "value": 0.76931,
+          "ci_low": 0.68888,
+          "ci_high": 0.84785,
+          "n_jd": 20,
+          "n_pairs": 200,
+          "rule_version": 1
+        },
+        {
+          "system": "Z1",
+          "metric": "auc",
+          "scope": "total",
+          "subset": "all",
+          "value": 0.833249,
+          "ci_low": 0.783632,
+          "ci_high": 0.878098,
+          "n_jd": 59,
+          "n_pairs": 590,
+          "rule_version": 1
+        },
+        {
+          "system": "Z1",
+          "metric": "within_family_auc",
+          "scope": "generic",
+          "subset": "all",
+          "value": 0.72123,
+          "ci_low": 0.612897,
+          "ci_high": 0.821985,
+          "n_jd": 30,
+          "n_pairs": 240,
+          "rule_version": 1
+        },
+        {
+          "system": "Z1",
+          "metric": "within_family_auc",
+          "scope": "targeted",
+          "subset": "all",
+          "value": 0.63502,
+          "ci_low": 0.50349,
+          "ci_high": 0.755457,
+          "n_jd": 18,
+          "n_pairs": 144,
+          "rule_version": 1
+        },
+        {
+          "system": "Z1",
+          "metric": "within_family_auc",
+          "scope": "total",
+          "subset": "all",
+          "value": 0.688901,
+          "ci_low": 0.607316,
+          "ci_high": 0.767846,
+          "n_jd": 48,
+          "n_pairs": 384,
+          "rule_version": 1
+        },
+        {
+          "system": "Z1",
+          "metric": "auc",
+          "scope": "generic",
+          "subset": "llm_free",
+          "value": 0.901415,
+          "ci_low": 0.85169,
+          "ci_high": 0.94418,
+          "n_jd": 38,
+          "n_pairs": 350,
+          "rule_version": 1
+        },
+        {
+          "system": "Z1",
+          "metric": "auc",
+          "scope": "targeted",
+          "subset": "llm_free",
+          "value": 0.898459,
+          "ci_low": 0.803361,
+          "ci_high": 0.971989,
+          "n_jd": 17,
+          "n_pairs": 110,
+          "rule_version": 1
+        },
+        {
+          "system": "Z1",
+          "metric": "auc",
+          "scope": "total",
+          "subset": "llm_free",
+          "value": 0.900501,
+          "ci_low": 0.856078,
+          "ci_high": 0.939647,
+          "n_jd": 55,
+          "n_pairs": 460,
+          "rule_version": 1
+        },
+        {
+          "system": "Z1",
+          "metric": "within_family_auc",
+          "scope": "generic",
+          "subset": "llm_free",
+          "value": 0.718944,
+          "ci_low": 0.599268,
+          "ci_high": 0.831056,
+          "n_jd": 23,
+          "n_pairs": 174,
+          "rule_version": 1
+        },
+        {
+          "system": "Z1",
+          "metric": "within_family_auc",
+          "scope": "targeted",
+          "subset": "llm_free",
+          "value": 0.831293,
+          "ci_low": 0.659864,
+          "ci_high": 0.962245,
+          "n_jd": 14,
+          "n_pairs": 69,
+          "rule_version": 1
+        },
+        {
+          "system": "Z1",
+          "metric": "within_family_auc",
+          "scope": "total",
+          "subset": "llm_free",
+          "value": 0.761454,
+          "ci_low": 0.662484,
+          "ci_high": 0.852318,
+          "n_jd": 37,
+          "n_pairs": 243,
+          "rule_version": 1
+        }
+      ],
+      "retrieval": [
+        {
+          "system": "Z1",
+          "metric": "recall@10",
+          "scope": "generic",
+          "value": 0.255881,
+          "ci_low": 0.184961,
+          "ci_high": 0.329265,
+          "n_jd": 39
+        },
+        {
+          "system": "Z1",
+          "metric": "recall@50",
+          "scope": "generic",
+          "value": 0.843,
+          "ci_low": 0.76053,
+          "ci_high": 0.914684,
+          "n_jd": 39
+        },
+        {
+          "system": "Z1",
+          "metric": "recall@100",
+          "scope": "generic",
+          "value": 0.937882,
+          "ci_low": 0.876168,
+          "ci_high": 0.977717,
+          "n_jd": 39
+        },
+        {
+          "system": "Z1",
+          "metric": "recall@10",
+          "scope": "targeted",
+          "value": 0.268631,
+          "ci_low": 0.16994,
+          "ci_high": 0.371074,
+          "n_jd": 20
+        },
+        {
+          "system": "Z1",
+          "metric": "recall@50",
+          "scope": "targeted",
+          "value": 0.658988,
+          "ci_low": 0.486426,
+          "ci_high": 0.81125,
+          "n_jd": 20
+        },
+        {
+          "system": "Z1",
+          "metric": "recall@100",
+          "scope": "targeted",
+          "value": 0.768274,
+          "ci_low": 0.608332,
+          "ci_high": 0.904464,
+          "n_jd": 20
+        },
+        {
+          "system": "Z1",
+          "metric": "recall@10",
+          "scope": "total",
+          "value": 0.260203,
+          "ci_low": 0.202771,
+          "ci_high": 0.319911,
+          "n_jd": 59
+        },
+        {
+          "system": "Z1",
+          "metric": "recall@50",
+          "scope": "total",
+          "value": 0.780623,
+          "ci_low": 0.69969,
+          "ci_high": 0.853183,
+          "n_jd": 59
+        },
+        {
+          "system": "Z1",
+          "metric": "recall@100",
+          "scope": "total",
+          "value": 0.880387,
+          "ci_low": 0.809436,
+          "ci_high": 0.938506,
+          "n_jd": 59
+        }
+      ],
+      "retrieval_llm_free": [
+        {
+          "system": "Z1",
+          "metric": "recall@10",
+          "scope": "generic",
+          "value": 0.272567,
+          "ci_low": 0.199341,
+          "ci_high": 0.347255,
+          "n_jd": 38
+        },
+        {
+          "system": "Z1",
+          "metric": "recall@50",
+          "scope": "generic",
+          "value": 0.880869,
+          "ci_low": 0.817042,
+          "ci_high": 0.937084,
+          "n_jd": 38
+        },
+        {
+          "system": "Z1",
+          "metric": "recall@100",
+          "scope": "generic",
+          "value": 0.966802,
+          "ci_low": 0.943212,
+          "ci_high": 0.986633,
+          "n_jd": 38
+        },
+        {
+          "system": "Z1",
+          "metric": "recall@10",
+          "scope": "targeted",
+          "value": 0.333824,
+          "ci_low": 0.177724,
+          "ci_high": 0.499869,
+          "n_jd": 17
+        },
+        {
+          "system": "Z1",
+          "metric": "recall@50",
+          "scope": "targeted",
+          "value": 0.784804,
+          "ci_low": 0.588725,
+          "ci_high": 0.941176,
+          "n_jd": 17
+        },
+        {
+          "system": "Z1",
+          "metric": "recall@100",
+          "scope": "targeted",
+          "value": 0.836975,
+          "ci_low": 0.660504,
+          "ci_high": 0.976471,
+          "n_jd": 17
+        },
+        {
+          "system": "Z1",
+          "metric": "recall@10",
+          "scope": "total",
+          "value": 0.291501,
+          "ci_low": 0.221515,
+          "ci_high": 0.364402,
+          "n_jd": 55
+        },
+        {
+          "system": "Z1",
+          "metric": "recall@50",
+          "scope": "total",
+          "value": 0.851176,
+          "ci_low": 0.776672,
+          "ci_high": 0.914856,
+          "n_jd": 55
+        },
+        {
+          "system": "Z1",
+          "metric": "recall@100",
+          "scope": "total",
+          "value": 0.926674,
+          "ci_low": 0.866081,
+          "ci_high": 0.97299,
+          "n_jd": 55
+        }
+      ],
+      "frozen": {
+        "jd_mode": "text",
+        "weight": 64
+      }
+    },
+    "Z1L": {
+      "status": "post-hoc",
+      "scores_sha256": "8f9af48458bc76a170e5155ac1265dcf866407ffa4759d6296b4d04dfdff0c10",
+      "pool_scores_sha256": "cec6e70489a3811ab541e2c9e7660b76699d7f5735df1804766381bb916144e5",
+      "auc": [
+        {
+          "system": "Z1L",
+          "metric": "auc",
+          "scope": "generic",
+          "subset": "all",
+          "value": 0.857059,
+          "ci_low": 0.803964,
+          "ci_high": 0.905048,
+          "n_jd": 39,
+          "n_pairs": 390,
+          "rule_version": 1
+        },
+        {
+          "system": "Z1L",
+          "metric": "auc",
+          "scope": "targeted",
+          "subset": "all",
+          "value": 0.803548,
+          "ci_low": 0.733818,
+          "ci_high": 0.871923,
+          "n_jd": 20,
+          "n_pairs": 200,
+          "rule_version": 1
+        },
+        {
+          "system": "Z1L",
+          "metric": "auc",
+          "scope": "total",
+          "subset": "all",
+          "value": 0.83892,
+          "ci_low": 0.796725,
+          "ci_high": 0.878568,
+          "n_jd": 59,
+          "n_pairs": 590,
+          "rule_version": 1
+        },
+        {
+          "system": "Z1L",
+          "metric": "within_family_auc",
+          "scope": "generic",
+          "subset": "all",
+          "value": 0.692659,
+          "ci_low": 0.590516,
+          "ci_high": 0.790795,
+          "n_jd": 30,
+          "n_pairs": 240,
+          "rule_version": 1
+        },
+        {
+          "system": "Z1L",
+          "metric": "within_family_auc",
+          "scope": "targeted",
+          "subset": "all",
+          "value": 0.651852,
+          "ci_low": 0.523379,
+          "ci_high": 0.772064,
+          "n_jd": 18,
+          "n_pairs": 144,
+          "rule_version": 1
+        },
+        {
+          "system": "Z1L",
+          "metric": "within_family_auc",
+          "scope": "total",
+          "subset": "all",
+          "value": 0.677356,
+          "ci_low": 0.598578,
+          "ci_high": 0.754522,
+          "n_jd": 48,
+          "n_pairs": 384,
+          "rule_version": 1
+        },
+        {
+          "system": "Z1L",
+          "metric": "auc",
+          "scope": "generic",
+          "subset": "llm_free",
+          "value": 0.885986,
+          "ci_low": 0.83833,
+          "ci_high": 0.928768,
+          "n_jd": 38,
+          "n_pairs": 350,
+          "rule_version": 1
+        },
+        {
+          "system": "Z1L",
+          "metric": "auc",
+          "scope": "targeted",
+          "subset": "llm_free",
+          "value": 0.904995,
+          "ci_low": 0.826655,
+          "ci_high": 0.967647,
+          "n_jd": 17,
+          "n_pairs": 110,
+          "rule_version": 1
+        },
+        {
+          "system": "Z1L",
+          "metric": "auc",
+          "scope": "total",
+          "subset": "llm_free",
+          "value": 0.891861,
+          "ci_low": 0.850919,
+          "ci_high": 0.928571,
+          "n_jd": 55,
+          "n_pairs": 460,
+          "rule_version": 1
+        },
+        {
+          "system": "Z1L",
+          "metric": "within_family_auc",
+          "scope": "generic",
+          "subset": "llm_free",
+          "value": 0.694099,
+          "ci_low": 0.570388,
+          "ci_high": 0.813147,
+          "n_jd": 23,
+          "n_pairs": 174,
+          "rule_version": 1
+        },
+        {
+          "system": "Z1L",
+          "metric": "within_family_auc",
+          "scope": "targeted",
+          "subset": "llm_free",
+          "value": 0.807483,
+          "ci_low": 0.659524,
+          "ci_high": 0.933333,
+          "n_jd": 14,
+          "n_pairs": 69,
+          "rule_version": 1
+        },
+        {
+          "system": "Z1L",
+          "metric": "within_family_auc",
+          "scope": "total",
+          "subset": "llm_free",
+          "value": 0.737001,
+          "ci_low": 0.640346,
+          "ci_high": 0.829731,
+          "n_jd": 37,
+          "n_pairs": 243,
+          "rule_version": 1
+        }
+      ],
+      "retrieval": [
+        {
+          "system": "Z1L",
+          "metric": "recall@10",
+          "scope": "generic",
+          "value": 0.26743,
+          "ci_low": 0.194707,
+          "ci_high": 0.341688,
+          "n_jd": 39
+        },
+        {
+          "system": "Z1L",
+          "metric": "recall@50",
+          "scope": "generic",
+          "value": 0.806013,
+          "ci_low": 0.708178,
+          "ci_high": 0.88955,
+          "n_jd": 39
+        },
+        {
+          "system": "Z1L",
+          "metric": "recall@100",
+          "scope": "generic",
+          "value": 0.922772,
+          "ci_low": 0.852818,
+          "ci_high": 0.973955,
+          "n_jd": 39
+        },
+        {
+          "system": "Z1L",
+          "metric": "recall@10",
+          "scope": "targeted",
+          "value": 0.315833,
+          "ci_low": 0.202317,
+          "ci_high": 0.434762,
+          "n_jd": 20
+        },
+        {
+          "system": "Z1L",
+          "metric": "recall@50",
+          "scope": "targeted",
+          "value": 0.731131,
+          "ci_low": 0.587854,
+          "ci_high": 0.860004,
+          "n_jd": 20
+        },
+        {
+          "system": "Z1L",
+          "metric": "recall@100",
+          "scope": "targeted",
+          "value": 0.8675,
+          "ci_low": 0.74131,
+          "ci_high": 0.966607,
+          "n_jd": 20
+        },
+        {
+          "system": "Z1L",
+          "metric": "recall@10",
+          "scope": "total",
+          "value": 0.283838,
+          "ci_low": 0.222137,
+          "ci_high": 0.34651,
+          "n_jd": 59
+        },
+        {
+          "system": "Z1L",
+          "metric": "recall@50",
+          "scope": "total",
+          "value": 0.78063,
+          "ci_low": 0.701162,
+          "ci_high": 0.853027,
+          "n_jd": 59
+        },
+        {
+          "system": "Z1L",
+          "metric": "recall@100",
+          "scope": "total",
+          "value": 0.904036,
+          "ci_low": 0.843234,
+          "ci_high": 0.953586,
+          "n_jd": 59
+        }
+      ],
+      "retrieval_llm_free": [
+        {
+          "system": "Z1L",
+          "metric": "recall@10",
+          "scope": "generic",
+          "value": 0.299916,
+          "ci_low": 0.220018,
+          "ci_high": 0.38272,
+          "n_jd": 38
+        },
+        {
+          "system": "Z1L",
+          "metric": "recall@50",
+          "scope": "generic",
+          "value": 0.842805,
+          "ci_low": 0.758344,
+          "ci_high": 0.915626,
+          "n_jd": 38
+        },
+        {
+          "system": "Z1L",
+          "metric": "recall@100",
+          "scope": "generic",
+          "value": 0.951295,
+          "ci_low": 0.904678,
+          "ci_high": 0.984962,
+          "n_jd": 38
+        },
+        {
+          "system": "Z1L",
+          "metric": "recall@10",
+          "scope": "targeted",
+          "value": 0.423459,
+          "ci_low": 0.248459,
+          "ci_high": 0.600352,
+          "n_jd": 17
+        },
+        {
+          "system": "Z1L",
+          "metric": "recall@50",
+          "scope": "targeted",
+          "value": 0.814216,
+          "ci_low": 0.642157,
+          "ci_high": 0.95098,
+          "n_jd": 17
+        },
+        {
+          "system": "Z1L",
+          "metric": "recall@100",
+          "scope": "targeted",
+          "value": 0.894608,
+          "ci_low": 0.75,
+          "ci_high": 1.0,
+          "n_jd": 17
+        },
+        {
+          "system": "Z1L",
+          "metric": "recall@10",
+          "scope": "total",
+          "value": 0.338102,
+          "ci_low": 0.2587,
+          "ci_high": 0.419233,
+          "n_jd": 55
+        },
+        {
+          "system": "Z1L",
+          "metric": "recall@50",
+          "scope": "total",
+          "value": 0.833968,
+          "ci_low": 0.757431,
+          "ci_high": 0.900795,
+          "n_jd": 55
+        },
+        {
+          "system": "Z1L",
+          "metric": "recall@100",
+          "scope": "total",
+          "value": 0.933773,
+          "ci_low": 0.879148,
+          "ci_high": 0.97674,
+          "n_jd": 55
+        }
+      ],
+      "frozen": {
+        "jd_mode": "lookup_or_text",
+        "weight": 32
+      }
+    }
+  },
+  "unscoreable": [],
+  "comparisons": [
+    {
+      "id": "M1",
+      "b": "Z1L",
+      "a": "extracted rule + TF-IDF",
+      "decides": "reported",
+      "verdict_auc": "not resolved",
+      "verdict_recall@50": "not resolved",
+      "auc_deltas": [
+        {
+          "metric": "auc",
+          "scope": "generic",
+          "subset": "all",
+          "delta": -0.00574,
+          "ci": [
+            -0.045626,
+            0.0329
+          ],
+          "half_width": 0.039263,
+          "n_jd": 39
+        },
+        {
+          "metric": "within_family_auc",
+          "scope": "generic",
+          "subset": "all",
+          "delta": -0.065456,
+          "ci": [
+            -0.14006,
+            0.00619
+          ],
+          "half_width": 0.073125,
+          "n_jd": 30
+        },
+        {
+          "metric": "auc",
+          "scope": "targeted",
+          "subset": "all",
+          "delta": -0.022786,
+          "ci": [
+            -0.068682,
+            0.025794
+          ],
+          "half_width": 0.047238,
+          "n_jd": 20
+        },
+        {
+          "metric": "within_family_auc",
+          "scope": "targeted",
+          "subset": "all",
+          "delta": -0.070866,
+          "ci": [
+            -0.148413,
+            0.010092
+          ],
+          "half_width": 0.079252,
+          "n_jd": 18
+        },
+        {
+          "metric": "auc",
+          "scope": "total",
+          "subset": "all",
+          "delta": -0.011518,
+          "ci": [
+            -0.043521,
+            0.018885
+          ],
+          "half_width": 0.031203,
+          "n_jd": 59
+        },
+        {
+          "metric": "within_family_auc",
+          "scope": "total",
+          "subset": "all",
+          "delta": -0.067485,
+          "ci": [
+            -0.122371,
+            -0.014222
+          ],
+          "half_width": 0.054075,
+          "n_jd": 48
+        },
+        {
+          "metric": "auc",
+          "scope": "generic",
+          "subset": "llm_free",
+          "delta": -0.00672,
+          "ci": [
+            -0.050517,
+            0.034652
+          ],
+          "half_width": 0.042585,
+          "n_jd": 38
+        },
+        {
+          "metric": "within_family_auc",
+          "scope": "generic",
+          "subset": "llm_free",
+          "delta": -0.077433,
+          "ci": [
+            -0.159213,
+            0.005282
+          ],
+          "half_width": 0.082248,
+          "n_jd": 23
+        },
+        {
+          "metric": "auc",
+          "scope": "targeted",
+          "subset": "llm_free",
+          "delta": -0.011998,
+          "ci": [
+            -0.070308,
+            0.063492
+          ],
+          "half_width": 0.0669,
+          "n_jd": 17
+        },
+        {
+          "metric": "within_family_auc",
+          "scope": "targeted",
+          "subset": "llm_free",
+          "delta": -0.018707,
+          "ci": [
+            -0.168367,
+            0.166667
+          ],
+          "half_width": 0.167517,
+          "n_jd": 14
+        },
+        {
+          "metric": "auc",
+          "scope": "total",
+          "subset": "llm_free",
+          "delta": -0.008351,
+          "ci": [
+            -0.044383,
+            0.027803
+          ],
+          "half_width": 0.036093,
+          "n_jd": 55
+        },
+        {
+          "metric": "within_family_auc",
+          "scope": "total",
+          "subset": "llm_free",
+          "delta": -0.055212,
+          "ci": [
+            -0.133205,
+            0.033269
+          ],
+          "half_width": 0.083237,
+          "n_jd": 37
+        }
+      ],
+      "recall@50_deltas": [
+        {
+          "metric": "recall@50",
+          "scope": "generic",
+          "delta": 0.011345,
+          "ci": [
+            -0.068223,
+            0.091477
+          ],
+          "half_width": 0.07985,
+          "n_jd": 39,
+          "subset": "all"
+        },
+        {
+          "metric": "recall@50",
+          "scope": "targeted",
+          "delta": -0.017619,
+          "ci": [
+            -0.137857,
+            0.129109
+          ],
+          "half_width": 0.133483,
+          "n_jd": 20,
+          "subset": "all"
+        },
+        {
+          "metric": "recall@50",
+          "scope": "total",
+          "delta": 0.001527,
+          "ci": [
+            -0.066775,
+            0.073561
+          ],
+          "half_width": 0.070168,
+          "n_jd": 59,
+          "subset": "all"
+        },
+        {
+          "metric": "recall@50",
+          "scope": "total",
+          "delta": -0.016732,
+          "ci": [
+            -0.081345,
+            0.047013
+          ],
+          "half_width": 0.064179,
+          "n_jd": 55,
+          "subset": "llm_free"
+        }
+      ]
+    },
+    {
+      "id": "M2",
+      "b": "Z1",
+      "a": "extracted rule + TF-IDF",
+      "decides": "reported",
+      "verdict_auc": "not resolved",
+      "verdict_recall@50": "not resolved",
+      "auc_deltas": [
+        {
+          "metric": "auc",
+          "scope": "generic",
+          "subset": "all",
+          "delta": 0.00324,
+          "ci": [
+            -0.033087,
+            0.038845
+          ],
+          "half_width": 0.035966,
+          "n_jd": 39
+        },
+        {
+          "metric": "within_family_auc",
+          "scope": "generic",
+          "subset": "all",
+          "delta": -0.036885,
+          "ci": [
+            -0.09909,
+            0.025
+          ],
+          "half_width": 0.062045,
+          "n_jd": 30
+        },
+        {
+          "metric": "auc",
+          "scope": "targeted",
+          "subset": "all",
+          "delta": -0.057024,
+          "ci": [
+            -0.118679,
+            -0.000294
+          ],
+          "half_width": 0.059193,
+          "n_jd": 20
+        },
+        {
+          "metric": "within_family_auc",
+          "scope": "targeted",
+          "subset": "all",
+          "delta": -0.087698,
+          "ci": [
+            -0.170536,
+            -0.010481
+          ],
+          "half_width": 0.080027,
+          "n_jd": 18
+        },
+        {
+          "metric": "auc",
+          "scope": "total",
+          "subset": "all",
+          "delta": -0.017189,
+          "ci": [
+            -0.049249,
+            0.013753
+          ],
+          "half_width": 0.031501,
+          "n_jd": 59
+        },
+        {
+          "metric": "within_family_auc",
+          "scope": "total",
+          "subset": "all",
+          "delta": -0.05594,
+          "ci": [
+            -0.105867,
+            -0.006647
+          ],
+          "half_width": 0.04961,
+          "n_jd": 48
+        },
+        {
+          "metric": "auc",
+          "scope": "generic",
+          "subset": "llm_free",
+          "delta": 0.008709,
+          "ci": [
+            -0.033725,
+            0.050251
+          ],
+          "half_width": 0.041988,
+          "n_jd": 38
+        },
+        {
+          "metric": "within_family_auc",
+          "scope": "generic",
+          "subset": "llm_free",
+          "delta": -0.052588,
+          "ci": [
+            -0.132195,
+            0.026708
+          ],
+          "half_width": 0.079451,
+          "n_jd": 23
+        },
+        {
+          "metric": "auc",
+          "scope": "targeted",
+          "subset": "llm_free",
+          "delta": -0.018534,
+          "ci": [
+            -0.086181,
+            0.060458
+          ],
+          "half_width": 0.073319,
+          "n_jd": 17
+        },
+        {
+          "metric": "within_family_auc",
+          "scope": "targeted",
+          "subset": "llm_free",
+          "delta": 0.005102,
+          "ci": [
+            -0.132653,
+            0.183673
+          ],
+          "half_width": 0.158163,
+          "n_jd": 14
+        },
+        {
+          "metric": "auc",
+          "scope": "total",
+          "subset": "llm_free",
+          "delta": 0.000289,
+          "ci": [
+            -0.035605,
+            0.036736
+          ],
+          "half_width": 0.03617,
+          "n_jd": 55
+        },
+        {
+          "metric": "within_family_auc",
+          "scope": "total",
+          "subset": "llm_free",
+          "delta": -0.030759,
+          "ci": [
+            -0.103348,
+            0.053089
+          ],
+          "half_width": 0.078218,
+          "n_jd": 37
+        }
+      ],
+      "recall@50_deltas": [
+        {
+          "metric": "recall@50",
+          "scope": "generic",
+          "delta": 0.048331,
+          "ci": [
+            0.001018,
+            0.112791
+          ],
+          "half_width": 0.055887,
+          "n_jd": 39,
+          "subset": "all"
+        },
+        {
+          "metric": "recall@50",
+          "scope": "targeted",
+          "delta": -0.089762,
+          "ci": [
+            -0.189286,
+            -0.014286
+          ],
+          "half_width": 0.0875,
+          "n_jd": 20,
+          "subset": "all"
+        },
+        {
+          "metric": "recall@50",
+          "scope": "total",
+          "delta": 0.00152,
+          "ci": [
+            -0.046914,
+            0.053877
+          ],
+          "half_width": 0.050396,
+          "n_jd": 59,
+          "subset": "all"
+        },
+        {
+          "metric": "recall@50",
+          "scope": "total",
+          "delta": 0.000476,
+          "ci": [
+            -0.049589,
+            0.056385
+          ],
+          "half_width": 0.052987,
+          "n_jd": 55,
+          "subset": "llm_free"
+        }
+      ]
+    },
+    {
+      "id": "M3",
+      "b": "Z1L",
+      "a": "Z1",
+      "decides": "selection",
+      "verdict_auc": "not resolved",
+      "verdict_recall@50": "not resolved",
+      "auc_deltas": [
+        {
+          "metric": "auc",
+          "scope": "generic",
+          "subset": "all",
+          "delta": -0.008979,
+          "ci": [
+            -0.044033,
+            0.021978
+          ],
+          "half_width": 0.033006,
+          "n_jd": 39
+        },
+        {
+          "metric": "within_family_auc",
+          "scope": "generic",
+          "subset": "all",
+          "delta": -0.028571,
+          "ci": [
+            -0.095238,
+            0.019048
+          ],
+          "half_width": 0.057143,
+          "n_jd": 30
+        },
+        {
+          "metric": "auc",
+          "scope": "targeted",
+          "subset": "all",
+          "delta": 0.034238,
+          "ci": [
+            -0.000893,
+            0.080244
+          ],
+          "half_width": 0.040568,
+          "n_jd": 20
+        },
+        {
+          "metric": "within_family_auc",
+          "scope": "targeted",
+          "subset": "all",
+          "delta": 0.016832,
+          "ci": [
+            -0.038261,
+            0.078704
+          ],
+          "half_width": 0.058482,
+          "n_jd": 18
+        },
+        {
+          "metric": "auc",
+          "scope": "total",
+          "subset": "all",
+          "delta": 0.005671,
+          "ci": [
+            -0.02196,
+            0.031444
+          ],
+          "half_width": 0.026702,
+          "n_jd": 59
+        },
+        {
+          "metric": "within_family_auc",
+          "scope": "total",
+          "subset": "all",
+          "delta": -0.011545,
+          "ci": [
+            -0.054712,
+            0.027333
+          ],
+          "half_width": 0.041023,
+          "n_jd": 48
+        },
+        {
+          "metric": "auc",
+          "scope": "generic",
+          "subset": "llm_free",
+          "delta": -0.015429,
+          "ci": [
+            -0.047932,
+            0.013393
+          ],
+          "half_width": 0.030663,
+          "n_jd": 38
+        },
+        {
+          "metric": "within_family_auc",
+          "scope": "generic",
+          "subset": "llm_free",
+          "delta": -0.024845,
+          "ci": [
+            -0.074534,
+            0.0
+          ],
+          "half_width": 0.037267,
+          "n_jd": 23
+        },
+        {
+          "metric": "auc",
+          "scope": "targeted",
+          "subset": "llm_free",
+          "delta": 0.006536,
+          "ci": [
+            -0.022876,
+            0.035948
+          ],
+          "half_width": 0.029412,
+          "n_jd": 17
+        },
+        {
+          "metric": "within_family_auc",
+          "scope": "targeted",
+          "subset": "llm_free",
+          "delta": -0.02381,
+          "ci": [
+            -0.107143,
+            0.035714
+          ],
+          "half_width": 0.071429,
+          "n_jd": 14
+        },
+        {
+          "metric": "auc",
+          "scope": "total",
+          "subset": "llm_free",
+          "delta": -0.00864,
+          "ci": [
+            -0.0329,
+            0.013402
+          ],
+          "half_width": 0.023151,
+          "n_jd": 55
+        },
+        {
+          "metric": "within_family_auc",
+          "scope": "total",
+          "subset": "llm_free",
+          "delta": -0.024453,
+          "ci": [
+            -0.070785,
+            0.009009
+          ],
+          "half_width": 0.039897,
+          "n_jd": 37
+        }
+      ],
+      "recall@50_deltas": [
+        {
+          "metric": "recall@50",
+          "scope": "generic",
+          "delta": -0.036986,
+          "ci": [
+            -0.098443,
+            0.002849
+          ],
+          "half_width": 0.050646,
+          "n_jd": 39,
+          "subset": "all"
+        },
+        {
+          "metric": "recall@50",
+          "scope": "targeted",
+          "delta": 0.072143,
+          "ci": [
+            -0.055714,
+            0.237143
+          ],
+          "half_width": 0.146429,
+          "n_jd": 20,
+          "subset": "all"
+        },
+        {
+          "metric": "recall@50",
+          "scope": "total",
+          "delta": 7e-06,
+          "ci": [
+            -0.058895,
+            0.06387
+          ],
+          "half_width": 0.061382,
+          "n_jd": 59,
+          "subset": "all"
+        },
+        {
+          "metric": "recall@50",
+          "scope": "total",
+          "delta": -0.017208,
+          "ci": [
+            -0.072411,
+            0.03767
+          ],
+          "half_width": 0.055041,
+          "n_jd": 55,
+          "subset": "llm_free"
+        }
+      ]
+    },
+    {
+      "id": "M4",
+      "b": "Z1L",
+      "a": "TF-IDF",
+      "decides": "reported",
+      "verdict_auc": "justified, one stratum",
+      "verdict_recall@50": "justified",
+      "auc_deltas": [
+        {
+          "metric": "auc",
+          "scope": "generic",
+          "subset": "all",
+          "delta": 0.076619,
+          "ci": [
+            0.019436,
+            0.140848
+          ],
+          "half_width": 0.060706,
+          "n_jd": 39
+        },
+        {
+          "metric": "within_family_auc",
+          "scope": "generic",
+          "subset": "all",
+          "delta": -0.044405,
+          "ci": [
+            -0.149881,
+            0.061747
+          ],
+          "half_width": 0.105814,
+          "n_jd": 30
+        },
+        {
+          "metric": "auc",
+          "scope": "targeted",
+          "subset": "all",
+          "delta": -0.003375,
+          "ci": [
+            -0.065197,
+            0.058477
+          ],
+          "half_width": 0.061837,
+          "n_jd": 20
+        },
+        {
+          "metric": "within_family_auc",
+          "scope": "targeted",
+          "subset": "all",
+          "delta": -0.02328,
+          "ci": [
+            -0.123151,
+            0.07963
+          ],
+          "half_width": 0.101391,
+          "n_jd": 18
+        },
+        {
+          "metric": "auc",
+          "scope": "total",
+          "subset": "all",
+          "delta": 0.049502,
+          "ci": [
+            0.003736,
+            0.096979
+          ],
+          "half_width": 0.046621,
+          "n_jd": 59
+        },
+        {
+          "metric": "within_family_auc",
+          "scope": "total",
+          "subset": "all",
+          "delta": -0.036483,
+          "ci": [
+            -0.113731,
+            0.039437
+          ],
+          "half_width": 0.076584,
+          "n_jd": 48
+        },
+        {
+          "metric": "auc",
+          "scope": "generic",
+          "subset": "llm_free",
+          "delta": 0.075909,
+          "ci": [
+            0.011575,
+            0.144033
+          ],
+          "half_width": 0.066229,
+          "n_jd": 38
+        },
+        {
+          "metric": "within_family_auc",
+          "scope": "generic",
+          "subset": "llm_free",
+          "delta": -0.085369,
+          "ci": [
+            -0.207522,
+            0.035824
+          ],
+          "half_width": 0.121673,
+          "n_jd": 23
+        },
+        {
+          "metric": "auc",
+          "scope": "targeted",
+          "subset": "llm_free",
+          "delta": 0.044538,
+          "ci": [
+            -0.017647,
+            0.117647
+          ],
+          "half_width": 0.067647,
+          "n_jd": 17
+        },
+        {
+          "metric": "within_family_auc",
+          "scope": "targeted",
+          "subset": "llm_free",
+          "delta": 0.116327,
+          "ci": [
+            -0.008512,
+            0.277211
+          ],
+          "half_width": 0.142861,
+          "n_jd": 14
+        },
+        {
+          "metric": "auc",
+          "scope": "total",
+          "subset": "llm_free",
+          "delta": 0.066212,
+          "ci": [
+            0.018492,
+            0.116944
+          ],
+          "half_width": 0.049226,
+          "n_jd": 55
+        },
+        {
+          "metric": "within_family_auc",
+          "scope": "total",
+          "subset": "llm_free",
+          "delta": -0.009052,
+          "ci": [
+            -0.105664,
+            0.094617
+          ],
+          "half_width": 0.10014,
+          "n_jd": 37
+        }
+      ],
+      "recall@50_deltas": [
+        {
+          "metric": "recall@50",
+          "scope": "generic",
+          "delta": 0.217928,
+          "ci": [
+            0.134235,
+            0.308224
+          ],
+          "half_width": 0.086995,
+          "n_jd": 39,
+          "subset": "all"
+        },
+        {
+          "metric": "recall@50",
+          "scope": "targeted",
+          "delta": 0.004702,
+          "ci": [
+            -0.08542,
+            0.09256
+          ],
+          "half_width": 0.08899,
+          "n_jd": 20,
+          "subset": "all"
+        },
+        {
+          "metric": "recall@50",
+          "scope": "total",
+          "delta": 0.145648,
+          "ci": [
+            0.078026,
+            0.218564
+          ],
+          "half_width": 0.070269,
+          "n_jd": 59,
+          "subset": "all"
+        },
+        {
+          "metric": "recall@50",
+          "scope": "total",
+          "delta": 0.144062,
+          "ci": [
+            0.070727,
+            0.220888
+          ],
+          "half_width": 0.075081,
+          "n_jd": 55,
+          "subset": "llm_free"
+        }
+      ]
+    },
+    {
+      "id": "M5",
+      "b": "Z1L",
+      "a": "metadata + TF-IDF",
+      "decides": "nothing",
+      "verdict_auc": "not resolved",
+      "verdict_recall@50": "harmful",
+      "auc_deltas": [
+        {
+          "metric": "auc",
+          "scope": "generic",
+          "subset": "all",
+          "delta": 0.014039,
+          "ci": [
+            -0.03877,
+            0.073359
+          ],
+          "half_width": 0.056065,
+          "n_jd": 39
+        },
+        {
+          "metric": "within_family_auc",
+          "scope": "generic",
+          "subset": "all",
+          "delta": 0.016468,
+          "ci": [
+            -0.10032,
+            0.132026
+          ],
+          "half_width": 0.116173,
+          "n_jd": 30
+        },
+        {
+          "metric": "auc",
+          "scope": "targeted",
+          "subset": "all",
+          "delta": -0.047917,
+          "ci": [
+            -0.097587,
+            -0.002137
+          ],
+          "half_width": 0.047725,
+          "n_jd": 20
+        },
+        {
+          "metric": "within_family_auc",
+          "scope": "targeted",
+          "subset": "all",
+          "delta": -0.081085,
+          "ci": [
+            -0.175267,
+            0.013262
+          ],
+          "half_width": 0.094265,
+          "n_jd": 18
+        },
+        {
+          "metric": "auc",
+          "scope": "total",
+          "subset": "all",
+          "delta": -0.006963,
+          "ci": [
+            -0.046724,
+            0.03749
+          ],
+          "half_width": 0.042107,
+          "n_jd": 59
+        },
+        {
+          "metric": "within_family_auc",
+          "scope": "total",
+          "subset": "all",
+          "delta": -0.020114,
+          "ci": [
+            -0.102545,
+            0.061968
+          ],
+          "half_width": 0.082256,
+          "n_jd": 48
+        },
+        {
+          "metric": "auc",
+          "scope": "generic",
+          "subset": "llm_free",
+          "delta": 0.009915,
+          "ci": [
+            -0.048091,
+            0.072009
+          ],
+          "half_width": 0.06005,
+          "n_jd": 38
+        },
+        {
+          "metric": "within_family_auc",
+          "scope": "generic",
+          "subset": "llm_free",
+          "delta": -0.01156,
+          "ci": [
+            -0.151697,
+            0.12502
+          ],
+          "half_width": 0.138358,
+          "n_jd": 23
+        },
+        {
+          "metric": "auc",
+          "scope": "targeted",
+          "subset": "llm_free",
+          "delta": 0.085714,
+          "ci": [
+            0.0176,
+            0.1627
+          ],
+          "half_width": 0.07255,
+          "n_jd": 17
+        },
+        {
+          "metric": "within_family_auc",
+          "scope": "targeted",
+          "subset": "llm_free",
+          "delta": 0.175,
+          "ci": [
+            0.021769,
+            0.35119
+          ],
+          "half_width": 0.164711,
+          "n_jd": 14
+        },
+        {
+          "metric": "auc",
+          "scope": "total",
+          "subset": "llm_free",
+          "delta": 0.033344,
+          "ci": [
+            -0.013554,
+            0.084051
+          ],
+          "half_width": 0.048802,
+          "n_jd": 55
+        },
+        {
+          "metric": "within_family_auc",
+          "scope": "total",
+          "subset": "llm_free",
+          "delta": 0.05903,
+          "ci": [
+            -0.053069,
+            0.173488
+          ],
+          "half_width": 0.113279,
+          "n_jd": 37
+        }
+      ],
+      "recall@50_deltas": [
+        {
+          "metric": "recall@50",
+          "scope": "generic",
+          "delta": -0.103073,
+          "ci": [
+            -0.21047,
+            0.000258
+          ],
+          "half_width": 0.105364,
+          "n_jd": 39,
+          "subset": "all"
+        },
+        {
+          "metric": "recall@50",
+          "scope": "targeted",
+          "delta": -0.238036,
+          "ci": [
+            -0.389286,
+            -0.104991
+          ],
+          "half_width": 0.142147,
+          "n_jd": 20,
+          "subset": "all"
+        },
+        {
+          "metric": "recall@50",
+          "scope": "total",
+          "delta": -0.148823,
+          "ci": [
+            -0.23749,
+            -0.065475
+          ],
+          "half_width": 0.086008,
+          "n_jd": 59,
+          "subset": "all"
+        },
+        {
+          "metric": "recall@50",
+          "scope": "total",
+          "delta": -0.099495,
+          "ci": [
+            -0.18507,
+            -0.021139
+          ],
+          "half_width": 0.081966,
+          "n_jd": 55,
+          "subset": "llm_free"
+        }
+      ]
+    }
+  ],
+  "s2_classical": {
+    "Z1": {
+      "bar": 0.8,
+      "value": 0.780623,
+      "ci": [
+        0.69969,
+        0.853183
+      ],
+      "verdict": "miss",
+      "ci_above_bar": false
+    },
+    "Z1L": {
+      "bar": 0.8,
+      "value": 0.78063,
+      "ci": [
+        0.701162,
+        0.853027
+      ],
+      "verdict": "miss",
+      "ci_above_bar": false
+    }
+  },
+  "selection": {
+    "rule": "03 \u00a72: among passing Z rungs, Z1 (cheaper) unless Z1L is justified over it on M3's AUC verdict; adopted post-hoc (Q-R1)",
+    "passing": [],
+    "selected": null
+  }
+}

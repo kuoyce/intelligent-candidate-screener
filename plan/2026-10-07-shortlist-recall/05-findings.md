@@ -10,7 +10,11 @@ Branch `feat/shortlist-recall`. Every figure below is read from a committed reco
 | Q1 development set | done | (this commit) | `output/matching/shortlist-dev-set.json` |
 | Q2 C1–C3 | code + tests; figures in the Q3 record | (this commit) | `output/matching/shortlist-dev.json` |
 | Q3 Y1, Y2, Y2t, Y4 on dev | done: **early stop** (no Y beats X2 on dev) | (this commit) | `output/matching/shortlist-dev.json` |
-| Q4–Q9 | waiting on the Q-R4 review (and now on Q-R6) | | |
+| Amendments Z, Z′ (dev) | done | `0aa8b79`, `80af60c`, `4a9a441`, `806a33f` | `shortlist-dev-variants.json` |
+| Q8 final-set scoring of Z1, Z1L | done: S2 miss, nothing adopted | (this commit) | `shortlist-recall.json` |
+
+Checks after Q8: `uv run pytest` 594 passed; `shortlist_final --check` PASS.
+| Q4–Q7 | not run (Q-R4 review; superseded by the Q8 result) | | |
 
 Checks at this commit: `uv run pytest` 588 passed; `dev_pools --check`, `shortlist_dev --check`, `stage1 --check` all PASS.
 
@@ -134,8 +138,8 @@ error, and the fallback errors are frequent.
 
 | ID | Question | Why it matters | Recommendation |
 |---|---|---|---|
-| Q-R6 | The early stop fired (Y2 0.664 < X2 0.727 on dev). Options: (a) **stop as planned**: freeze 03 §2 with the dev choices, score once on the final set at Q8, and report post-hoc Y beside the registered P7 miss; (b) **stop and skip Q8**: record the dev result only, keep X2 for P8.5 (Q-P7-2 (a)), return to P8; (c) **one new dev variant**, post-hoc and registered first, that follows the diagnosis: use the title family only on a **lookup hit**, else P3's JD text distribution, and keep the CV side soft (`Σ p_jd p_cv` with the JD side one-hot on a hit). Dev only; continue only if it beats X2 on dev-select | (a) spends a final-set look on rungs already known to be worse on dev. (c) is the one change the diagnosis points to, but it is a further post-hoc step | **(b)**, with (c) only if you want one more try. Q4/Q5 (main tech, learned combination) are not worth starting while the role term is the bottleneck |
-| Q-R7 | After amendment Z: Z1L (and Z1) beat X2 on dev, with the best weight at the grid's edge. Next? (a) extend the weight grid upward (32, 64, and the limit: order by role agreement, text only for ties) on dev, then freeze and score Z1L once on the final set at Q8, post-hoc beside the P7 miss; (b) freeze w = 16 as chosen and go to Q8; (c) stop here | Q-R6 is superseded if a Z rung goes forward. Scoring on the final set is the only test of fit | **(a)**: one more dev step costs ~5 min and avoids freezing a value chosen at a grid edge. Then Q8 with Z1L (classical) and its SBERT-weak twin for the advanced bar |
+| Q-R6 *(superseded by Q-R7)* | The early stop fired (Y2 0.664 < X2 0.727 on dev). Options: (a) **stop as planned**: freeze 03 §2 with the dev choices, score once on the final set at Q8, and report post-hoc Y beside the registered P7 miss; (b) **stop and skip Q8**: record the dev result only, keep X2 for P8.5 (Q-P7-2 (a)), return to P8; (c) **one new dev variant**, post-hoc and registered first, that follows the diagnosis: use the title family only on a **lookup hit**, else P3's JD text distribution, and keep the CV side soft (`Σ p_jd p_cv` with the JD side one-hot on a hit). Dev only; continue only if it beats X2 on dev-select | (a) spends a final-set look on rungs already known to be worse on dev. (c) is the one change the diagnosis points to, but it is a further post-hoc step | **(b)**, with (c) only if you want one more try. Q4/Q5 (main tech, learned combination) are not worth starting while the role term is the bottleneck |
+| Q-R7 *(answered: (a), 7 Oct)* | After amendment Z: Z1L (and Z1) beat X2 on dev, with the best weight at the grid's edge. Next? (a) extend the weight grid upward (32, 64, and the limit: order by role agreement, text only for ties) on dev, then freeze and score Z1L once on the final set at Q8, post-hoc beside the P7 miss; (b) freeze w = 16 as chosen and go to Q8; (c) stop here | Q-R6 is superseded if a Z rung goes forward. Scoring on the final set is the only test of fit | **(a)**: one more dev step costs ~5 min and avoids freezing a value chosen at a grid edge. Then Q8 with Z1L (classical) and its SBERT-weak twin for the advanced bar |
 
 ## Amendment Z: three explorations (user, 7 Oct), rules fixed before the run
 
@@ -216,3 +220,59 @@ title's net contribution on dev is about zero.
 
 **Q8 frozen** in 03 §2 (8 Oct) before any final-set score: Z1 and Z1L are scored, with
 comparisons M1–M5, S2 at 0.80, and selection "Z1 unless Z1L is justified over it on M3".
+
+## Q8: the frozen rungs on the final set (record `shortlist-recall.json`)
+
+**P7 registered: S2 miss (X2 0.779). Post-hoc Z1 and Z1L: S2 miss too (0.781 each).**
+One run, after the freeze commit `806a33f`. The references reproduce P7's scores exactly
+(`reproduces_p7: true` for TF-IDF, X2 and the oracle).
+
+| Rung | Status | AUC gen / tgt / **total** | Recall@10 | Recall@50 gen / tgt / **total** [CI] | R@50 `llm_free` | within-family AUC |
+|---|---|---|---|---|---|---|
+| TF-IDF | expl. | 0.780 / 0.807 / 0.789 | 0.244 | 0.588 / 0.726 / 0.635 | 0.690 | 0.714 |
+| X2 | P7 held-out | 0.863 / 0.826 / **0.850** | 0.300 | 0.795 / 0.749 / **0.779** | 0.851 | 0.745 |
+| **Z1** (w = 64) | post-hoc | 0.866 / 0.769 / 0.833 | 0.260 | 0.843 / 0.659 / **0.781** [0.700, 0.853] | 0.851 | 0.689 |
+| **Z1L** (w = 32) | post-hoc | 0.857 / 0.804 / 0.839 | 0.284 | 0.806 / 0.731 / **0.781** [0.701, 0.853] | 0.834 | 0.677 |
+| *oracle 1a+2* | oracle | 0.843 / 0.851 / 0.846 | 0.479 | 0.909 / 0.969 / 0.929 | 0.933 | 0.697 |
+
+Paired Δ (B − A), total [95% CI], with the strata:
+
+| # | B vs A | Δ R@50 total | gen / tgt | Verdict R@50 | Δ AUC total | Verdict AUC |
+|---|---|---|---|---|---|---|
+| M1 | Z1L vs X2 | +0.002 [−0.067, 0.074] | +0.011 / −0.018 | not resolved | −0.012 [−0.044, 0.019] | not resolved |
+| M2 | Z1 vs X2 | +0.002 [−0.047, 0.054] | **+0.048 / −0.090** | not resolved | −0.017 [−0.049, 0.014] | not resolved |
+| M3 | Z1L vs Z1 | +0.000 [−0.059, 0.064] | −0.037 / +0.072 | not resolved | +0.006 [−0.022, 0.031] | not resolved |
+| M4 | Z1L vs TF-IDF | +0.146 [0.078, 0.219] | +0.218 / +0.005 | justified | +0.050 [0.004, 0.097] | justified, one stratum |
+| M5 | Z1L vs oracle 1a+2 | −0.149 [−0.237, −0.065] | −0.103 / −0.238 | harmful (expected; decides nothing) | −0.007 | not resolved |
+
+**S2 (classical, 0.80):** Z1 miss, Z1L miss. **Selection: none.** Q-P7-2 stands.
+
+**Reading.**
+
+- **The dev gain did not transfer.** On dev, a larger role weight was +0.05 over X2
+  (paired CI above 0). On the final set it is +0.002, and not resolved.
+- **The strata pull in opposite directions.** A stronger role weight helps `generic`
+  (Z1 vs X2 +0.048 R@50, CI just above 0) and hurts `targeted` (−0.090, CI below 0).
+  Targeted JDs were chosen to be hard: P3's JD text classifier is right on only 50% of
+  them (P3 §4), so trusting its role more pushes the wrong role up. The dev set has no
+  `targeted`-like stratum (its pools follow the generic design), so dev could not show this.
+- **The title repairs targeted, at a cost to generic.** Z1L vs Z1 is +0.072 targeted and
+  −0.037 generic, net 0. That fits C1's final-set accuracy: on targeted JDs the title is
+  right 65% vs the text's 50%.
+- **Within-family AUC drops** (0.745 → 0.68–0.69). A heavy role weight lets the role
+  probability, not the text, order candidates inside a keyword.
+- **The proxy's limit.** Dev relevance = same role family, which a role weight optimises by
+  construction. Final-set fit is mostly same-role (96.5% share the keyword), but the
+  targeted JDs are where role extraction is weakest, and they are a third of the set.
+
+## Deviations (Q8)
+
+- Q8 scored Z1 and Z1L only (03 §2 explains why the Y rungs and the hard Z variants were
+  not scored). Plan comparisons L1–L5 are replaced by M1–M5, frozen in 03 §2 before scoring.
+- No advanced rung (SBERT weak twin) was scored: none was chosen on dev.
+
+## Open
+
+| ID | Question | Recommendation |
+|---|---|---|
+| Q-R8 | Stage 1 still has no rung that meets S2 text-only. Return to P8 with X2 as P8.5's retriever (Q-P7-2 (a)), or keep working on stage 1? | **Return to P8 with X2.** Z1/Z1L tie it at higher cost. The next stage-1 lever, decision 5 (a wider shortlist, then rerank), belongs with P8 anyway. A dev set with a targeted-like stratum would be needed before more role-weight tuning |

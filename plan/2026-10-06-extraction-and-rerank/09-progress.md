@@ -17,7 +17,7 @@ except the uncommitted LLM bank under `data/processed/rerank/` (git-ignored by d
 | P5.3 registration + amendments A1, A2 | `911a4b3`, `4ddbece` | [06](06-registration.md) |
 | P6 batch code + manifest | `204185a` | [15](15-p6-batch.md) |
 | P7 stage 1: X1–X4, K1–K5, S2 (text-only) | `799268f` | [16](16-p7-stage1.md) |
-| Shortlist recall (post-hoc, branch `feat/shortlist-recall`): Q0–Q3, early stop on dev | see its record | [shortlist-recall 05](../2026-10-07-shortlist-recall/05-findings.md) |
+| Shortlist recall (post-hoc, branch `feat/shortlist-recall`): hard filter early-stopped on dev; soft weight Z1/Z1L tie X2 on the final set (S2 miss) | see its record | [shortlist-recall 05](../2026-10-07-shortlist-recall/05-findings.md) |
 
 ## The LLM batch (run 11)
 
