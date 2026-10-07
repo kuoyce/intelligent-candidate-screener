@@ -10,6 +10,7 @@ from __future__ import annotations
 
 from functools import lru_cache
 
+import numpy as np
 import pandas as pd
 
 from candidate_screener.baselines import bm25, tfidf
@@ -103,8 +104,12 @@ class MetadataPlus(BaseSystem):
         lo = frame.groupby("jd").t.transform("min")
         span = frame.groupby("jd").t.transform("max") - lo
         scaled = ((frame.t - lo) / span.where(span > 0, 1)).clip(0, 1) * 0.999
-        meta = 2 * corpus.keyword_match(pairs).to_numpy() + corpus.experience_compatible(pairs).to_numpy()
-        return meta + scaled.to_numpy()
+        return self._level(pairs) + scaled.to_numpy()
+
+    def _level(self, pairs) -> np.ndarray:
+        """The rule the text orders within: 1a on the true fields. X2–X4 override it."""
+        return (2 * corpus.keyword_match(pairs).to_numpy()
+                + corpus.experience_compatible(pairs).to_numpy())
 
     def params(self):
         return self.text.params()

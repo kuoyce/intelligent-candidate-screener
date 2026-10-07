@@ -16,6 +16,7 @@ except the uncommitted LLM bank under `data/processed/rerank/` (git-ignored by d
 | P5 ordering module + records | `52a115e` | [14](14-p5-ordering.md) |
 | P5.3 registration + amendments A1, A2 | `911a4b3`, `4ddbece` | [06](06-registration.md) |
 | P6 batch code + manifest | `204185a` | [15](15-p6-batch.md) |
+| P7 stage 1: X1–X4, K1–K5, S2 (text-only) | see git log | [16](16-p7-stage1.md) |
 
 ## The LLM batch (run 11)
 
@@ -36,11 +37,9 @@ same command — it is idempotent). When coverage is full: `--collect`. The repl
 
 ## Next steps, in order
 
-1. **P7 (stage 1).** `Retriever` interface; X1–X4 per 02 §3.4 and registration §2 (X1 uses
-   amendment A1: unknown experience = compatible; `role_match` = P3's soft score). Score on
-   `text_v2` against K1–K5; retrieval pilot text-only for S2 and Recall@10. Record
-   `16-p7-stage1.md`. Needs no LLM data. Memory: SBERT needs ~6.5 GB; don't run it beside
-   another heavy job.
+1. ~~**P7 (stage 1).**~~ Done ([16](16-p7-stage1.md)): K1 justified (X2 > TF-IDF, +0.061);
+   K2–K5 not resolved; **S2 missed** for both groups (X2 R@50 0.779, X4 0.761); no stage-1
+   rung adopted. Q-P7-1, Q-P7-2 open.
 2. **Finish the batch**, `--collect` → `llm-train-scores.csv`.
 3. **P8 (stage 2).** R1/R2/R3 trained on the batch (train split), selected on its validation
    split; scored with `evaluation/ordering.py` against O1–O5 (full, `llm_free`, `fit_only`).
@@ -52,4 +51,4 @@ same command — it is idempotent). When coverage is full: `--collect`. The repl
 
 ## Open
 
-Q-A1b (replicate), Q-B2 (span hand-check), Q-D2, Q-D3 — see [05](05-open-questions.md).
+Q-A1b (replicate), Q-B2 (span hand-check), Q-D2, Q-D3, Q-P7-1, Q-P7-2 (P8.5 retriever) — see [05](05-open-questions.md).

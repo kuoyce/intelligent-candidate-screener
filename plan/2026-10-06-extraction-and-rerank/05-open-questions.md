@@ -10,6 +10,8 @@ discuss later).
 | Q-A1b | Include the ~100-call replicate (re-score 10% to measure the score's noise)? | Without it the score's run-to-run noise is unknown | Yes; ~7% more calls |
 | Q-B2 | Hand-check sample size for the title extractor, and who labels it | Gives a ground truth where the keyword is too coarse | ~100 strings per side; labelled by the user or a teammate (no LLM, D42) |
 | Q-D2 | The exact `llm_free` subset for ordering: reuse `final_set.LLM_FREE_TIERS` (pairs where no LLM label entered the final label) | The subset is the guard against the LLM scoring itself | Reuse unchanged |
+| Q-P7-1 | Confirm how registration §5 (stage-1 selection) was read: candidates = the four S2 rungs, each qualifies on its own Recall@50; beaten only via K1/K3/K4 (16 §5) | Fixed before scoring, but an interpretation. Changes nothing now: no rung qualified | Confirm |
+| Q-P7-2 | S2 missed for both groups (X2 0.779 < 0.80; X4 0.761 < 0.90). Which retriever does P8.5 (end-to-end) run on? | §5 has no rule for "none passes" | X2, labelled "below S2" (16 §7) |
 | Q-D3 | `text_v2` also needs the training texts re-cut (P1.3): are retrained TF-IDF and SBERT weak accepted as the `v2` baselines? | Otherwise the baselines saw `Position` in training | Yes |
 
 ## Answered

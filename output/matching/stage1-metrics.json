@@ -1,0 +1,3409 @@
+{
+  "text_variant": "v2",
+  "text_variant_definition": {
+    "cv_fields": [
+      "CV",
+      "Highlights",
+      "Moreinfo",
+      "Looking For"
+    ],
+    "jd_text": "Long Description",
+    "decision": "D53"
+  },
+  "residual_leak": {
+    "cv": {
+      "generic": {
+        "share": 0.2025,
+        "ci": [
+          0.1625,
+          0.2425
+        ],
+        "n": 400,
+        "resampled": "CVs",
+        "positives": 81,
+        "skipped_empty_title": 0,
+        "empty_v2_text": 0
+      },
+      "targeted": {
+        "share": 0.275,
+        "ci": [
+          0.215,
+          0.335
+        ],
+        "n": 200,
+        "resampled": "CVs",
+        "positives": 55,
+        "skipped_empty_title": 0,
+        "empty_v2_text": 0
+      },
+      "total": {
+        "share": 0.226667,
+        "ci": [
+          0.193333,
+          0.260042
+        ],
+        "n": 600,
+        "resampled": "CVs",
+        "positives": 136,
+        "skipped_empty_title": 0,
+        "empty_v2_text": 0
+      }
+    },
+    "cv_pairs_per_jd": {
+      "generic": {
+        "share": 0.2025,
+        "ci": [
+          0.165,
+          0.24
+        ],
+        "n": 40,
+        "resampled": "JDs",
+        "n_pairs": 400
+      },
+      "targeted": {
+        "share": 0.275,
+        "ci": [
+          0.215,
+          0.34
+        ],
+        "n": 20,
+        "resampled": "JDs",
+        "n_pairs": 200
+      },
+      "total": {
+        "share": 0.226667,
+        "ci": [
+          0.193333,
+          0.261667
+        ],
+        "n": 60,
+        "resampled": "JDs",
+        "n_pairs": 600
+      }
+    },
+    "jd": {
+      "generic": {
+        "share": 0.225,
+        "ci": [
+          0.1,
+          0.35
+        ],
+        "n": 40,
+        "resampled": "JDs",
+        "positives": 9,
+        "skipped_empty_title": 0
+      },
+      "targeted": {
+        "share": 0.4,
+        "ci": [
+          0.2,
+          0.6
+        ],
+        "n": 20,
+        "resampled": "JDs",
+        "positives": 8,
+        "skipped_empty_title": 0
+      },
+      "total": {
+        "share": 0.283333,
+        "ci": [
+          0.166667,
+          0.4
+        ],
+        "n": 60,
+        "resampled": "JDs",
+        "positives": 17,
+        "skipped_empty_title": 0
+      }
+    },
+    "method": {
+      "seniority_tokens_removed": [
+        "junior",
+        "jr",
+        "middle",
+        "mid",
+        "senior",
+        "sr",
+        "lead",
+        "head",
+        "trainee",
+        "intern"
+      ],
+      "match": "normalised title as a whole-word substring of the lower-cased, whitespace-collapsed text; no scrubbing applied (D53)",
+      "ci": "95% percentile bootstrap, 10,000 resamples of the unit named in `resampled`"
+    }
+  },
+  "seed": 0,
+  "registration": "plan/2026-10-06-extraction-and-rerank/06-registration.md (A1, A2)",
+  "reference": {
+    "file": "a2-final-labels.csv",
+    "rule_version": 1,
+    "sha256": "49a6a338cd1b0b6fee7d2a189f8794d97a23dc91873859e5caee22e090edf9bd",
+    "labels": "Fit = Good Fit or Potential Fit; No Fit (D47)"
+  },
+  "note": "Per-JD AUC over JDs with both a Fit and a No Fit candidate; CIs resample JDs (10,000). Within-family = candidates sharing the JD's true Primary Keyword (a measurement slice; no X rung reads it). `oracle` rows read the true fields: an upper bound, never a result. X1's role_match is soft, so X2-X4's text term can reorder candidates whose role agreement differs by under 0.5 (the registered 1a+2 sum, unchanged).",
+  "x1_profile": {
+    "n_pairs": 600,
+    "role_match_quantiles_10_50_90": [
+      0.00089,
+      0.126924,
+      0.899156
+    ],
+    "experience_compatible_rate": 0.953333,
+    "experience_unknown_either_side_rate": 0.708333
+  },
+  "systems": {
+    "random": {
+      "rung": "0",
+      "stage": "floor",
+      "status": "exploratory",
+      "trained_on": "nothing",
+      "params": 0,
+      "can_explain": false,
+      "deterministic": true,
+      "scores_sha256": "6deb6a06c2249b836376a80743bc3138512f844f385113e2f550d0f809938d24",
+      "pool_scores_sha256": "e13159dd19591cd577e53a2e3f570915ad93c556c3303f19d2eef71a44fb5343",
+      "figures": [
+        {
+          "system": "random",
+          "metric": "auc",
+          "scope": "generic",
+          "subset": "all",
+          "value": 0.55751,
+          "ci_low": 0.491525,
+          "ci_high": 0.622856,
+          "n_jd": 39,
+          "n_pairs": 390,
+          "rule_version": 1
+        },
+        {
+          "system": "random",
+          "metric": "auc",
+          "scope": "targeted",
+          "subset": "all",
+          "value": 0.552411,
+          "ci_low": 0.477993,
+          "ci_high": 0.627763,
+          "n_jd": 20,
+          "n_pairs": 200,
+          "rule_version": 1
+        },
+        {
+          "system": "random",
+          "metric": "auc",
+          "scope": "total",
+          "subset": "all",
+          "value": 0.555782,
+          "ci_low": 0.504692,
+          "ci_high": 0.606088,
+          "n_jd": 59,
+          "n_pairs": 590,
+          "rule_version": 1
+        },
+        {
+          "system": "random",
+          "metric": "within_family_auc",
+          "scope": "generic",
+          "subset": "all",
+          "value": 0.593611,
+          "ci_low": 0.499838,
+          "ci_high": 0.687858,
+          "n_jd": 30,
+          "n_pairs": 240,
+          "rule_version": 1
+        },
+        {
+          "system": "random",
+          "metric": "within_family_auc",
+          "scope": "targeted",
+          "subset": "all",
+          "value": 0.556052,
+          "ci_low": 0.466632,
+          "ci_high": 0.652448,
+          "n_jd": 18,
+          "n_pairs": 144,
+          "rule_version": 1
+        },
+        {
+          "system": "random",
+          "metric": "within_family_auc",
+          "scope": "total",
+          "subset": "all",
+          "value": 0.579526,
+          "ci_low": 0.510763,
+          "ci_high": 0.647969,
+          "n_jd": 48,
+          "n_pairs": 384,
+          "rule_version": 1
+        },
+        {
+          "system": "random",
+          "metric": "auc",
+          "scope": "generic",
+          "subset": "llm_free",
+          "value": 0.568719,
+          "ci_low": 0.49038,
+          "ci_high": 0.643991,
+          "n_jd": 38,
+          "n_pairs": 350,
+          "rule_version": 1
+        },
+        {
+          "system": "random",
+          "metric": "auc",
+          "scope": "targeted",
+          "subset": "llm_free",
+          "value": 0.628408,
+          "ci_low": 0.529855,
+          "ci_high": 0.730069,
+          "n_jd": 17,
+          "n_pairs": 110,
+          "rule_version": 1
+        },
+        {
+          "system": "random",
+          "metric": "auc",
+          "scope": "total",
+          "subset": "llm_free",
+          "value": 0.587168,
+          "ci_low": 0.526645,
+          "ci_high": 0.648394,
+          "n_jd": 55,
+          "n_pairs": 460,
+          "rule_version": 1
+        },
+        {
+          "system": "random",
+          "metric": "within_family_auc",
+          "scope": "generic",
+          "subset": "llm_free",
+          "value": 0.634507,
+          "ci_low": 0.525567,
+          "ci_high": 0.742927,
+          "n_jd": 23,
+          "n_pairs": 174,
+          "rule_version": 1
+        },
+        {
+          "system": "random",
+          "metric": "within_family_auc",
+          "scope": "targeted",
+          "subset": "llm_free",
+          "value": 0.623044,
+          "ci_low": 0.455948,
+          "ci_high": 0.782738,
+          "n_jd": 14,
+          "n_pairs": 69,
+          "rule_version": 1
+        },
+        {
+          "system": "random",
+          "metric": "within_family_auc",
+          "scope": "total",
+          "subset": "llm_free",
+          "value": 0.630169,
+          "ci_low": 0.53687,
+          "ci_high": 0.722438,
+          "n_jd": 37,
+          "n_pairs": 243,
+          "rule_version": 1
+        }
+      ]
+    },
+    "extracted rule": {
+      "rung": "X1",
+      "stage": "Stage 1 \u2014 extracted rules",
+      "status": "held-out",
+      "trained_on": "role-family classifier, A2 train region, text_v2 (P3); experience: rules, nothing fitted (P4); role model 44b7fff54614",
+      "params": 0,
+      "can_explain": true,
+      "deterministic": true,
+      "scores_sha256": "8dd4625587e1b4b72a75430fe3eaac40868938ef6bb98ceeda4470834b1a24af",
+      "pool_scores_sha256": "4717089cfa3b32e7f00b1e19786ed8468c17c489ed7003473dd667120ad27449",
+      "figures": [
+        {
+          "system": "extracted rule",
+          "metric": "auc",
+          "scope": "generic",
+          "subset": "all",
+          "value": 0.8507,
+          "ci_low": 0.786205,
+          "ci_high": 0.906623,
+          "n_jd": 39,
+          "n_pairs": 390,
+          "rule_version": 1
+        },
+        {
+          "system": "extracted rule",
+          "metric": "auc",
+          "scope": "targeted",
+          "subset": "all",
+          "value": 0.754875,
+          "ci_low": 0.664077,
+          "ci_high": 0.84095,
+          "n_jd": 20,
+          "n_pairs": 200,
+          "rule_version": 1
+        },
+        {
+          "system": "extracted rule",
+          "metric": "auc",
+          "scope": "total",
+          "subset": "all",
+          "value": 0.818217,
+          "ci_low": 0.765386,
+          "ci_high": 0.866742,
+          "n_jd": 59,
+          "n_pairs": 590,
+          "rule_version": 1
+        },
+        {
+          "system": "extracted rule",
+          "metric": "within_family_auc",
+          "scope": "generic",
+          "subset": "all",
+          "value": 0.692917,
+          "ci_low": 0.57728,
+          "ci_high": 0.80215,
+          "n_jd": 30,
+          "n_pairs": 240,
+          "rule_version": 1
+        },
+        {
+          "system": "extracted rule",
+          "metric": "within_family_auc",
+          "scope": "targeted",
+          "subset": "all",
+          "value": 0.652282,
+          "ci_low": 0.532636,
+          "ci_high": 0.767494,
+          "n_jd": 18,
+          "n_pairs": 144,
+          "rule_version": 1
+        },
+        {
+          "system": "extracted rule",
+          "metric": "within_family_auc",
+          "scope": "total",
+          "subset": "all",
+          "value": 0.677679,
+          "ci_low": 0.592123,
+          "ci_high": 0.758161,
+          "n_jd": 48,
+          "n_pairs": 384,
+          "rule_version": 1
+        },
+        {
+          "system": "extracted rule",
+          "metric": "auc",
+          "scope": "generic",
+          "subset": "llm_free",
+          "value": 0.875193,
+          "ci_low": 0.819548,
+          "ci_high": 0.924561,
+          "n_jd": 38,
+          "n_pairs": 350,
+          "rule_version": 1
+        },
+        {
+          "system": "extracted rule",
+          "metric": "auc",
+          "scope": "targeted",
+          "subset": "llm_free",
+          "value": 0.846872,
+          "ci_low": 0.685881,
+          "ci_high": 0.972689,
+          "n_jd": 17,
+          "n_pairs": 110,
+          "rule_version": 1
+        },
+        {
+          "system": "extracted rule",
+          "metric": "auc",
+          "scope": "total",
+          "subset": "llm_free",
+          "value": 0.866439,
+          "ci_low": 0.804916,
+          "ci_high": 0.920264,
+          "n_jd": 55,
+          "n_pairs": 460,
+          "rule_version": 1
+        },
+        {
+          "system": "extracted rule",
+          "metric": "within_family_auc",
+          "scope": "generic",
+          "subset": "llm_free",
+          "value": 0.67657,
+          "ci_low": 0.543538,
+          "ci_high": 0.801623,
+          "n_jd": 23,
+          "n_pairs": 174,
+          "rule_version": 1
+        },
+        {
+          "system": "extracted rule",
+          "metric": "within_family_auc",
+          "scope": "targeted",
+          "subset": "llm_free",
+          "value": 0.827891,
+          "ci_low": 0.642857,
+          "ci_high": 0.97551,
+          "n_jd": 14,
+          "n_pairs": 69,
+          "rule_version": 1
+        },
+        {
+          "system": "extracted rule",
+          "metric": "within_family_auc",
+          "scope": "total",
+          "subset": "llm_free",
+          "value": 0.733827,
+          "ci_low": 0.623486,
+          "ci_high": 0.838044,
+          "n_jd": 37,
+          "n_pairs": 243,
+          "rule_version": 1
+        }
+      ]
+    },
+    "extracted rule + skill overlap": {
+      "rung": "X3",
+      "stage": "Stage 1 \u2014 extracted rules + text",
+      "status": "held-out",
+      "trained_on": "role-family classifier, A2 train region, text_v2 (P3); experience: rules, nothing fitted (P4); role model 44b7fff54614; nothing",
+      "params": 0,
+      "can_explain": true,
+      "deterministic": true,
+      "scores_sha256": "701c7840f7f98979cf55c5e4d72166100a15807a9bb6a51bb5c18d08e7a03493",
+      "pool_scores_sha256": "0e93f10c288b510f2a604df58fbd4cc607e780a06145eb616cf78b0315fafa7a",
+      "figures": [
+        {
+          "system": "extracted rule + skill overlap",
+          "metric": "auc",
+          "scope": "generic",
+          "subset": "all",
+          "value": 0.851446,
+          "ci_low": 0.788387,
+          "ci_high": 0.907131,
+          "n_jd": 39,
+          "n_pairs": 390,
+          "rule_version": 1
+        },
+        {
+          "system": "extracted rule + skill overlap",
+          "metric": "auc",
+          "scope": "targeted",
+          "subset": "all",
+          "value": 0.760655,
+          "ci_low": 0.661804,
+          "ci_high": 0.84896,
+          "n_jd": 20,
+          "n_pairs": 200,
+          "rule_version": 1
+        },
+        {
+          "system": "extracted rule + skill overlap",
+          "metric": "auc",
+          "scope": "total",
+          "subset": "all",
+          "value": 0.820669,
+          "ci_low": 0.766895,
+          "ci_high": 0.869451,
+          "n_jd": 59,
+          "n_pairs": 590,
+          "rule_version": 1
+        },
+        {
+          "system": "extracted rule + skill overlap",
+          "metric": "within_family_auc",
+          "scope": "generic",
+          "subset": "all",
+          "value": 0.709563,
+          "ci_low": 0.600633,
+          "ci_high": 0.813575,
+          "n_jd": 30,
+          "n_pairs": 240,
+          "rule_version": 1
+        },
+        {
+          "system": "extracted rule + skill overlap",
+          "metric": "within_family_auc",
+          "scope": "targeted",
+          "subset": "all",
+          "value": 0.69418,
+          "ci_low": 0.5734,
+          "ci_high": 0.805988,
+          "n_jd": 18,
+          "n_pairs": 144,
+          "rule_version": 1
+        },
+        {
+          "system": "extracted rule + skill overlap",
+          "metric": "within_family_auc",
+          "scope": "total",
+          "subset": "all",
+          "value": 0.703795,
+          "ci_low": 0.622408,
+          "ci_high": 0.782022,
+          "n_jd": 48,
+          "n_pairs": 384,
+          "rule_version": 1
+        },
+        {
+          "system": "extracted rule + skill overlap",
+          "metric": "auc",
+          "scope": "generic",
+          "subset": "llm_free",
+          "value": 0.872844,
+          "ci_low": 0.811705,
+          "ci_high": 0.925762,
+          "n_jd": 38,
+          "n_pairs": 350,
+          "rule_version": 1
+        },
+        {
+          "system": "extracted rule + skill overlap",
+          "metric": "auc",
+          "scope": "targeted",
+          "subset": "llm_free",
+          "value": 0.84099,
+          "ci_low": 0.682444,
+          "ci_high": 0.965277,
+          "n_jd": 17,
+          "n_pairs": 110,
+          "rule_version": 1
+        },
+        {
+          "system": "extracted rule + skill overlap",
+          "metric": "auc",
+          "scope": "total",
+          "subset": "llm_free",
+          "value": 0.862998,
+          "ci_low": 0.797801,
+          "ci_high": 0.918469,
+          "n_jd": 55,
+          "n_pairs": 460,
+          "rule_version": 1
+        },
+        {
+          "system": "extracted rule + skill overlap",
+          "metric": "within_family_auc",
+          "scope": "generic",
+          "subset": "llm_free",
+          "value": 0.714838,
+          "ci_low": 0.589469,
+          "ci_high": 0.833577,
+          "n_jd": 23,
+          "n_pairs": 174,
+          "rule_version": 1
+        },
+        {
+          "system": "extracted rule + skill overlap",
+          "metric": "within_family_auc",
+          "scope": "targeted",
+          "subset": "llm_free",
+          "value": 0.828486,
+          "ci_low": 0.644558,
+          "ci_high": 0.970663,
+          "n_jd": 14,
+          "n_pairs": 69,
+          "rule_version": 1
+        },
+        {
+          "system": "extracted rule + skill overlap",
+          "metric": "within_family_auc",
+          "scope": "total",
+          "subset": "llm_free",
+          "value": 0.75784,
+          "ci_low": 0.654128,
+          "ci_high": 0.855687,
+          "n_jd": 37,
+          "n_pairs": 243,
+          "rule_version": 1
+        }
+      ]
+    },
+    "TF-IDF": {
+      "rung": "2",
+      "stage": "Stage 2 \u2014 lexical",
+      "status": "exploratory",
+      "trained_on": "IDF from 20k+20k A2 train-region documents (text_v2)",
+      "params": 5000,
+      "can_explain": true,
+      "deterministic": true,
+      "scores_sha256": "eeabdbde958e89e4015cc59bad63fd78543fdbfa76d0c635e54eef02f85dbec1",
+      "pool_scores_sha256": "076cef4e100c0ab060e28369d78d2f4f23b6ea99d7c5284e2ea06315a4d59bf3",
+      "figures": [
+        {
+          "system": "TF-IDF",
+          "metric": "auc",
+          "scope": "generic",
+          "subset": "all",
+          "value": 0.780441,
+          "ci_low": 0.714107,
+          "ci_high": 0.840762,
+          "n_jd": 39,
+          "n_pairs": 390,
+          "rule_version": 1
+        },
+        {
+          "system": "TF-IDF",
+          "metric": "auc",
+          "scope": "targeted",
+          "subset": "all",
+          "value": 0.806923,
+          "ci_low": 0.741625,
+          "ci_high": 0.870143,
+          "n_jd": 20,
+          "n_pairs": 200,
+          "rule_version": 1
+        },
+        {
+          "system": "TF-IDF",
+          "metric": "auc",
+          "scope": "total",
+          "subset": "all",
+          "value": 0.789418,
+          "ci_low": 0.741454,
+          "ci_high": 0.835029,
+          "n_jd": 59,
+          "n_pairs": 590,
+          "rule_version": 1
+        },
+        {
+          "system": "TF-IDF",
+          "metric": "within_family_auc",
+          "scope": "generic",
+          "subset": "all",
+          "value": 0.737063,
+          "ci_low": 0.631502,
+          "ci_high": 0.833018,
+          "n_jd": 30,
+          "n_pairs": 240,
+          "rule_version": 1
+        },
+        {
+          "system": "TF-IDF",
+          "metric": "within_family_auc",
+          "scope": "targeted",
+          "subset": "all",
+          "value": 0.675132,
+          "ci_low": 0.561507,
+          "ci_high": 0.782445,
+          "n_jd": 18,
+          "n_pairs": 144,
+          "rule_version": 1
+        },
+        {
+          "system": "TF-IDF",
+          "metric": "within_family_auc",
+          "scope": "total",
+          "subset": "all",
+          "value": 0.713839,
+          "ci_low": 0.637114,
+          "ci_high": 0.788221,
+          "n_jd": 48,
+          "n_pairs": 384,
+          "rule_version": 1
+        },
+        {
+          "system": "TF-IDF",
+          "metric": "auc",
+          "scope": "generic",
+          "subset": "llm_free",
+          "value": 0.810077,
+          "ci_low": 0.746261,
+          "ci_high": 0.87048,
+          "n_jd": 38,
+          "n_pairs": 350,
+          "rule_version": 1
+        },
+        {
+          "system": "TF-IDF",
+          "metric": "auc",
+          "scope": "targeted",
+          "subset": "llm_free",
+          "value": 0.860458,
+          "ci_low": 0.778701,
+          "ci_high": 0.932353,
+          "n_jd": 17,
+          "n_pairs": 110,
+          "rule_version": 1
+        },
+        {
+          "system": "TF-IDF",
+          "metric": "auc",
+          "scope": "total",
+          "subset": "llm_free",
+          "value": 0.825649,
+          "ci_low": 0.775244,
+          "ci_high": 0.872569,
+          "n_jd": 55,
+          "n_pairs": 460,
+          "rule_version": 1
+        },
+        {
+          "system": "TF-IDF",
+          "metric": "within_family_auc",
+          "scope": "generic",
+          "subset": "llm_free",
+          "value": 0.779469,
+          "ci_low": 0.653027,
+          "ci_high": 0.889823,
+          "n_jd": 23,
+          "n_pairs": 174,
+          "rule_version": 1
+        },
+        {
+          "system": "TF-IDF",
+          "metric": "within_family_auc",
+          "scope": "targeted",
+          "subset": "llm_free",
+          "value": 0.691156,
+          "ci_low": 0.529575,
+          "ci_high": 0.840153,
+          "n_jd": 14,
+          "n_pairs": 69,
+          "rule_version": 1
+        },
+        {
+          "system": "TF-IDF",
+          "metric": "within_family_auc",
+          "scope": "total",
+          "subset": "llm_free",
+          "value": 0.746053,
+          "ci_low": 0.646546,
+          "ci_high": 0.839511,
+          "n_jd": 37,
+          "n_pairs": 243,
+          "rule_version": 1
+        }
+      ]
+    },
+    "extracted rule + TF-IDF": {
+      "rung": "X2",
+      "stage": "Stage 1 \u2014 extracted rules + text",
+      "status": "held-out",
+      "trained_on": "role-family classifier, A2 train region, text_v2 (P3); experience: rules, nothing fitted (P4); role model 44b7fff54614; IDF from 20k+20k A2 train-region documents (text_v2)",
+      "params": 5000,
+      "can_explain": true,
+      "deterministic": true,
+      "scores_sha256": "c53c0b664321b50fa6ed0f1929b4dc0509a967d6e88b7849d002f2e72217ac4e",
+      "pool_scores_sha256": "6d4e516fadd1982a6b4a2ddeed200d75246334462234827f47897fdd01d6d2b1",
+      "figures": [
+        {
+          "system": "extracted rule + TF-IDF",
+          "metric": "auc",
+          "scope": "generic",
+          "subset": "all",
+          "value": 0.862799,
+          "ci_low": 0.810236,
+          "ci_high": 0.909038,
+          "n_jd": 39,
+          "n_pairs": 390,
+          "rule_version": 1
+        },
+        {
+          "system": "extracted rule + TF-IDF",
+          "metric": "auc",
+          "scope": "targeted",
+          "subset": "all",
+          "value": 0.826333,
+          "ci_low": 0.755581,
+          "ci_high": 0.895656,
+          "n_jd": 20,
+          "n_pairs": 200,
+          "rule_version": 1
+        },
+        {
+          "system": "extracted rule + TF-IDF",
+          "metric": "auc",
+          "scope": "total",
+          "subset": "all",
+          "value": 0.850438,
+          "ci_low": 0.809176,
+          "ci_high": 0.889067,
+          "n_jd": 59,
+          "n_pairs": 590,
+          "rule_version": 1
+        },
+        {
+          "system": "extracted rule + TF-IDF",
+          "metric": "within_family_auc",
+          "scope": "generic",
+          "subset": "all",
+          "value": 0.758115,
+          "ci_low": 0.658192,
+          "ci_high": 0.848651,
+          "n_jd": 30,
+          "n_pairs": 240,
+          "rule_version": 1
+        },
+        {
+          "system": "extracted rule + TF-IDF",
+          "metric": "within_family_auc",
+          "scope": "targeted",
+          "subset": "all",
+          "value": 0.722718,
+          "ci_low": 0.598807,
+          "ci_high": 0.839947,
+          "n_jd": 18,
+          "n_pairs": 144,
+          "rule_version": 1
+        },
+        {
+          "system": "extracted rule + TF-IDF",
+          "metric": "within_family_auc",
+          "scope": "total",
+          "subset": "all",
+          "value": 0.744841,
+          "ci_low": 0.669914,
+          "ci_high": 0.816669,
+          "n_jd": 48,
+          "n_pairs": 384,
+          "rule_version": 1
+        },
+        {
+          "system": "extracted rule + TF-IDF",
+          "metric": "auc",
+          "scope": "generic",
+          "subset": "llm_free",
+          "value": 0.892706,
+          "ci_low": 0.846723,
+          "ci_high": 0.933459,
+          "n_jd": 38,
+          "n_pairs": 350,
+          "rule_version": 1
+        },
+        {
+          "system": "extracted rule + TF-IDF",
+          "metric": "auc",
+          "scope": "targeted",
+          "subset": "llm_free",
+          "value": 0.916993,
+          "ci_low": 0.832026,
+          "ci_high": 0.987255,
+          "n_jd": 17,
+          "n_pairs": 110,
+          "rule_version": 1
+        },
+        {
+          "system": "extracted rule + TF-IDF",
+          "metric": "auc",
+          "scope": "total",
+          "subset": "llm_free",
+          "value": 0.900213,
+          "ci_low": 0.859959,
+          "ci_high": 0.936541,
+          "n_jd": 55,
+          "n_pairs": 460,
+          "rule_version": 1
+        },
+        {
+          "system": "extracted rule + TF-IDF",
+          "metric": "within_family_auc",
+          "scope": "generic",
+          "subset": "llm_free",
+          "value": 0.771532,
+          "ci_low": 0.651654,
+          "ci_high": 0.878163,
+          "n_jd": 23,
+          "n_pairs": 174,
+          "rule_version": 1
+        },
+        {
+          "system": "extracted rule + TF-IDF",
+          "metric": "within_family_auc",
+          "scope": "targeted",
+          "subset": "llm_free",
+          "value": 0.82619,
+          "ci_low": 0.654762,
+          "ci_high": 0.97381,
+          "n_jd": 14,
+          "n_pairs": 69,
+          "rule_version": 1
+        },
+        {
+          "system": "extracted rule + TF-IDF",
+          "metric": "within_family_auc",
+          "scope": "total",
+          "subset": "llm_free",
+          "value": 0.792214,
+          "ci_low": 0.69131,
+          "ci_high": 0.881987,
+          "n_jd": 37,
+          "n_pairs": 243,
+          "rule_version": 1
+        }
+      ]
+    },
+    "SBERT (zero-shot)": {
+      "rung": "3a",
+      "stage": "Stage 3 \u2014 semantic",
+      "status": "exploratory",
+      "trained_on": "nothing (pretrained MiniLM, cached)",
+      "params": 22713216,
+      "can_explain": false,
+      "deterministic": true,
+      "scores_sha256": "6960613a5f00b8d614dfb8e4e53eec1d3259136c7dffe8dd849bf0bc4f9a1520",
+      "pool_scores_sha256": "a3a00eb888c5a317d550b0cd48e4468cd039b7f13d1ddee4b61ee15771d633ad",
+      "figures": [
+        {
+          "system": "SBERT (zero-shot)",
+          "metric": "auc",
+          "scope": "generic",
+          "subset": "all",
+          "value": 0.739956,
+          "ci_low": 0.674956,
+          "ci_high": 0.798057,
+          "n_jd": 39,
+          "n_pairs": 390,
+          "rule_version": 1
+        },
+        {
+          "system": "SBERT (zero-shot)",
+          "metric": "auc",
+          "scope": "targeted",
+          "subset": "all",
+          "value": 0.730714,
+          "ci_low": 0.646115,
+          "ci_high": 0.8115,
+          "n_jd": 20,
+          "n_pairs": 200,
+          "rule_version": 1
+        },
+        {
+          "system": "SBERT (zero-shot)",
+          "metric": "auc",
+          "scope": "total",
+          "subset": "all",
+          "value": 0.736823,
+          "ci_low": 0.685611,
+          "ci_high": 0.78441,
+          "n_jd": 59,
+          "n_pairs": 590,
+          "rule_version": 1
+        },
+        {
+          "system": "SBERT (zero-shot)",
+          "metric": "within_family_auc",
+          "scope": "generic",
+          "subset": "all",
+          "value": 0.75123,
+          "ci_low": 0.662499,
+          "ci_high": 0.83373,
+          "n_jd": 30,
+          "n_pairs": 240,
+          "rule_version": 1
+        },
+        {
+          "system": "SBERT (zero-shot)",
+          "metric": "within_family_auc",
+          "scope": "targeted",
+          "subset": "all",
+          "value": 0.698181,
+          "ci_low": 0.611572,
+          "ci_high": 0.787502,
+          "n_jd": 18,
+          "n_pairs": 144,
+          "rule_version": 1
+        },
+        {
+          "system": "SBERT (zero-shot)",
+          "metric": "within_family_auc",
+          "scope": "total",
+          "subset": "all",
+          "value": 0.731337,
+          "ci_low": 0.668266,
+          "ci_high": 0.794867,
+          "n_jd": 48,
+          "n_pairs": 384,
+          "rule_version": 1
+        },
+        {
+          "system": "SBERT (zero-shot)",
+          "metric": "auc",
+          "scope": "generic",
+          "subset": "llm_free",
+          "value": 0.768264,
+          "ci_low": 0.699731,
+          "ci_high": 0.830907,
+          "n_jd": 38,
+          "n_pairs": 350,
+          "rule_version": 1
+        },
+        {
+          "system": "SBERT (zero-shot)",
+          "metric": "auc",
+          "scope": "targeted",
+          "subset": "llm_free",
+          "value": 0.785761,
+          "ci_low": 0.672736,
+          "ci_high": 0.885434,
+          "n_jd": 17,
+          "n_pairs": 110,
+          "rule_version": 1
+        },
+        {
+          "system": "SBERT (zero-shot)",
+          "metric": "auc",
+          "scope": "total",
+          "subset": "llm_free",
+          "value": 0.773672,
+          "ci_low": 0.716006,
+          "ci_high": 0.828626,
+          "n_jd": 55,
+          "n_pairs": 460,
+          "rule_version": 1
+        },
+        {
+          "system": "SBERT (zero-shot)",
+          "metric": "within_family_auc",
+          "scope": "generic",
+          "subset": "llm_free",
+          "value": 0.756142,
+          "ci_low": 0.64116,
+          "ci_high": 0.859009,
+          "n_jd": 23,
+          "n_pairs": 174,
+          "rule_version": 1
+        },
+        {
+          "system": "SBERT (zero-shot)",
+          "metric": "within_family_auc",
+          "scope": "targeted",
+          "subset": "llm_free",
+          "value": 0.728146,
+          "ci_low": 0.577211,
+          "ci_high": 0.862925,
+          "n_jd": 14,
+          "n_pairs": 69,
+          "rule_version": 1
+        },
+        {
+          "system": "SBERT (zero-shot)",
+          "metric": "within_family_auc",
+          "scope": "total",
+          "subset": "llm_free",
+          "value": 0.745549,
+          "ci_low": 0.655981,
+          "ci_high": 0.829826,
+          "n_jd": 37,
+          "n_pairs": 243,
+          "rule_version": 1
+        }
+      ]
+    },
+    "SBERT (weak fine-tuned)": {
+      "rung": "3b",
+      "stage": "Stage 3 \u2014 semantic",
+      "status": "exploratory",
+      "trained_on": "weak pairs, A2 train region (metadata labels), text_v2",
+      "params": 22713216,
+      "can_explain": false,
+      "deterministic": true,
+      "scores_sha256": "3842f984a7de5d1689affcacf7a7d70fa4171a02a8e011620a3828fdc1e16cc9",
+      "pool_scores_sha256": "4591bac0725ca8820c443ded07a28a252f3f0666912b34caaab6f9045428f595",
+      "figures": [
+        {
+          "system": "SBERT (weak fine-tuned)",
+          "metric": "auc",
+          "scope": "generic",
+          "subset": "all",
+          "value": 0.85349,
+          "ci_low": 0.811634,
+          "ci_high": 0.894268,
+          "n_jd": 39,
+          "n_pairs": 390,
+          "rule_version": 1
+        },
+        {
+          "system": "SBERT (weak fine-tuned)",
+          "metric": "auc",
+          "scope": "targeted",
+          "subset": "all",
+          "value": 0.79606,
+          "ci_low": 0.724744,
+          "ci_high": 0.861187,
+          "n_jd": 20,
+          "n_pairs": 200,
+          "rule_version": 1
+        },
+        {
+          "system": "SBERT (weak fine-tuned)",
+          "metric": "auc",
+          "scope": "total",
+          "subset": "all",
+          "value": 0.834022,
+          "ci_low": 0.796475,
+          "ci_high": 0.869836,
+          "n_jd": 59,
+          "n_pairs": 590,
+          "rule_version": 1
+        },
+        {
+          "system": "SBERT (weak fine-tuned)",
+          "metric": "within_family_auc",
+          "scope": "generic",
+          "subset": "all",
+          "value": 0.786706,
+          "ci_low": 0.709524,
+          "ci_high": 0.85754,
+          "n_jd": 30,
+          "n_pairs": 240,
+          "rule_version": 1
+        },
+        {
+          "system": "SBERT (weak fine-tuned)",
+          "metric": "within_family_auc",
+          "scope": "targeted",
+          "subset": "all",
+          "value": 0.692857,
+          "ci_low": 0.590079,
+          "ci_high": 0.796065,
+          "n_jd": 18,
+          "n_pairs": 144,
+          "rule_version": 1
+        },
+        {
+          "system": "SBERT (weak fine-tuned)",
+          "metric": "within_family_auc",
+          "scope": "total",
+          "subset": "all",
+          "value": 0.751513,
+          "ci_low": 0.68833,
+          "ci_high": 0.812874,
+          "n_jd": 48,
+          "n_pairs": 384,
+          "rule_version": 1
+        },
+        {
+          "system": "SBERT (weak fine-tuned)",
+          "metric": "auc",
+          "scope": "generic",
+          "subset": "llm_free",
+          "value": 0.880033,
+          "ci_low": 0.837487,
+          "ci_high": 0.921455,
+          "n_jd": 38,
+          "n_pairs": 350,
+          "rule_version": 1
+        },
+        {
+          "system": "SBERT (weak fine-tuned)",
+          "metric": "auc",
+          "scope": "targeted",
+          "subset": "llm_free",
+          "value": 0.788702,
+          "ci_low": 0.653116,
+          "ci_high": 0.903828,
+          "n_jd": 17,
+          "n_pairs": 110,
+          "rule_version": 1
+        },
+        {
+          "system": "SBERT (weak fine-tuned)",
+          "metric": "auc",
+          "scope": "total",
+          "subset": "llm_free",
+          "value": 0.851804,
+          "ci_low": 0.798087,
+          "ci_high": 0.900015,
+          "n_jd": 55,
+          "n_pairs": 460,
+          "rule_version": 1
+        },
+        {
+          "system": "SBERT (weak fine-tuned)",
+          "metric": "within_family_auc",
+          "scope": "generic",
+          "subset": "llm_free",
+          "value": 0.779814,
+          "ci_low": 0.684573,
+          "ci_high": 0.862526,
+          "n_jd": 23,
+          "n_pairs": 174,
+          "rule_version": 1
+        },
+        {
+          "system": "SBERT (weak fine-tuned)",
+          "metric": "within_family_auc",
+          "scope": "targeted",
+          "subset": "llm_free",
+          "value": 0.595408,
+          "ci_low": 0.398295,
+          "ci_high": 0.780102,
+          "n_jd": 14,
+          "n_pairs": 69,
+          "rule_version": 1
+        },
+        {
+          "system": "SBERT (weak fine-tuned)",
+          "metric": "within_family_auc",
+          "scope": "total",
+          "subset": "llm_free",
+          "value": 0.710039,
+          "ci_low": 0.610293,
+          "ci_high": 0.800454,
+          "n_jd": 37,
+          "n_pairs": 243,
+          "rule_version": 1
+        }
+      ]
+    },
+    "extracted rule + SBERT (weak fine-tuned)": {
+      "rung": "X4",
+      "stage": "Stage 1 \u2014 extracted rules + text",
+      "status": "held-out",
+      "trained_on": "role-family classifier, A2 train region, text_v2 (P3); experience: rules, nothing fitted (P4); role model 44b7fff54614; weak pairs, A2 train region (metadata labels), text_v2",
+      "params": 22713216,
+      "can_explain": true,
+      "deterministic": true,
+      "scores_sha256": "f06d2aa2a2ed73b0770b775748c3a1457d2379c7d1ef8920f876c7ae0199336b",
+      "pool_scores_sha256": "db2d40745e68844083ef44e0591ac2cc410b258df8a063d1cf6da4ffc780fbbb",
+      "figures": [
+        {
+          "system": "extracted rule + SBERT (weak fine-tuned)",
+          "metric": "auc",
+          "scope": "generic",
+          "subset": "all",
+          "value": 0.890518,
+          "ci_low": 0.853202,
+          "ci_high": 0.925393,
+          "n_jd": 39,
+          "n_pairs": 390,
+          "rule_version": 1
+        },
+        {
+          "system": "extracted rule + SBERT (weak fine-tuned)",
+          "metric": "auc",
+          "scope": "targeted",
+          "subset": "all",
+          "value": 0.785327,
+          "ci_low": 0.709647,
+          "ci_high": 0.859649,
+          "n_jd": 20,
+          "n_pairs": 200,
+          "rule_version": 1
+        },
+        {
+          "system": "extracted rule + SBERT (weak fine-tuned)",
+          "metric": "auc",
+          "scope": "total",
+          "subset": "all",
+          "value": 0.85486,
+          "ci_low": 0.817158,
+          "ci_high": 0.890364,
+          "n_jd": 59,
+          "n_pairs": 590,
+          "rule_version": 1
+        },
+        {
+          "system": "extracted rule + SBERT (weak fine-tuned)",
+          "metric": "within_family_auc",
+          "scope": "generic",
+          "subset": "all",
+          "value": 0.770833,
+          "ci_low": 0.68718,
+          "ci_high": 0.848136,
+          "n_jd": 30,
+          "n_pairs": 240,
+          "rule_version": 1
+        },
+        {
+          "system": "extracted rule + SBERT (weak fine-tuned)",
+          "metric": "within_family_auc",
+          "scope": "targeted",
+          "subset": "all",
+          "value": 0.675198,
+          "ci_low": 0.564152,
+          "ci_high": 0.784722,
+          "n_jd": 18,
+          "n_pairs": 144,
+          "rule_version": 1
+        },
+        {
+          "system": "extracted rule + SBERT (weak fine-tuned)",
+          "metric": "within_family_auc",
+          "scope": "total",
+          "subset": "all",
+          "value": 0.73497,
+          "ci_low": 0.668154,
+          "ci_high": 0.800076,
+          "n_jd": 48,
+          "n_pairs": 384,
+          "rule_version": 1
+        },
+        {
+          "system": "extracted rule + SBERT (weak fine-tuned)",
+          "metric": "auc",
+          "scope": "generic",
+          "subset": "llm_free",
+          "value": 0.912364,
+          "ci_low": 0.876898,
+          "ci_high": 0.944836,
+          "n_jd": 38,
+          "n_pairs": 350,
+          "rule_version": 1
+        },
+        {
+          "system": "extracted rule + SBERT (weak fine-tuned)",
+          "metric": "auc",
+          "scope": "targeted",
+          "subset": "llm_free",
+          "value": 0.844865,
+          "ci_low": 0.706209,
+          "ci_high": 0.952381,
+          "n_jd": 17,
+          "n_pairs": 110,
+          "rule_version": 1
+        },
+        {
+          "system": "extracted rule + SBERT (weak fine-tuned)",
+          "metric": "auc",
+          "scope": "total",
+          "subset": "llm_free",
+          "value": 0.891501,
+          "ci_low": 0.841398,
+          "ci_high": 0.933882,
+          "n_jd": 55,
+          "n_pairs": 460,
+          "rule_version": 1
+        },
+        {
+          "system": "extracted rule + SBERT (weak fine-tuned)",
+          "metric": "within_family_auc",
+          "scope": "generic",
+          "subset": "llm_free",
+          "value": 0.757039,
+          "ci_low": 0.655072,
+          "ci_high": 0.852174,
+          "n_jd": 23,
+          "n_pairs": 174,
+          "rule_version": 1
+        },
+        {
+          "system": "extracted rule + SBERT (weak fine-tuned)",
+          "metric": "within_family_auc",
+          "scope": "targeted",
+          "subset": "llm_free",
+          "value": 0.722449,
+          "ci_low": 0.520068,
+          "ci_high": 0.897287,
+          "n_jd": 14,
+          "n_pairs": 69,
+          "rule_version": 1
+        },
+        {
+          "system": "extracted rule + SBERT (weak fine-tuned)",
+          "metric": "within_family_auc",
+          "scope": "total",
+          "subset": "llm_free",
+          "value": 0.743951,
+          "ci_low": 0.646266,
+          "ci_high": 0.834879,
+          "n_jd": 37,
+          "n_pairs": 243,
+          "rule_version": 1
+        }
+      ]
+    },
+    "metadata rules": {
+      "rung": "1a",
+      "stage": "Stage 1 \u2014 rules",
+      "status": "oracle",
+      "trained_on": "nothing",
+      "params": 0,
+      "can_explain": true,
+      "deterministic": true,
+      "scores_sha256": "03c20be323134c0109b7bd1ae0b0d13649aa4af86e1721c925e559ff7180b182",
+      "pool_scores_sha256": "f2465d62631b0a12f229f5121902f82e771d44a948612d72e6ee13be4cb6a99d",
+      "figures": [
+        {
+          "system": "metadata rules",
+          "metric": "auc",
+          "scope": "generic",
+          "subset": "all",
+          "value": 0.775679,
+          "ci_low": 0.713617,
+          "ci_high": 0.829252,
+          "n_jd": 39,
+          "n_pairs": 390,
+          "rule_version": 1
+        },
+        {
+          "system": "metadata rules",
+          "metric": "auc",
+          "scope": "targeted",
+          "subset": "all",
+          "value": 0.783705,
+          "ci_low": 0.721124,
+          "ci_high": 0.844957,
+          "n_jd": 20,
+          "n_pairs": 200,
+          "rule_version": 1
+        },
+        {
+          "system": "metadata rules",
+          "metric": "auc",
+          "scope": "total",
+          "subset": "all",
+          "value": 0.7784,
+          "ci_low": 0.731969,
+          "ci_high": 0.819447,
+          "n_jd": 59,
+          "n_pairs": 590,
+          "rule_version": 1
+        },
+        {
+          "system": "metadata rules",
+          "metric": "within_family_auc",
+          "scope": "generic",
+          "subset": "all",
+          "value": 0.483333,
+          "ci_low": 0.420238,
+          "ci_high": 0.546429,
+          "n_jd": 30,
+          "n_pairs": 240,
+          "rule_version": 1
+        },
+        {
+          "system": "metadata rules",
+          "metric": "within_family_auc",
+          "scope": "targeted",
+          "subset": "all",
+          "value": 0.633267,
+          "ci_low": 0.564021,
+          "ci_high": 0.708998,
+          "n_jd": 18,
+          "n_pairs": 144,
+          "rule_version": 1
+        },
+        {
+          "system": "metadata rules",
+          "metric": "within_family_auc",
+          "scope": "total",
+          "subset": "all",
+          "value": 0.539559,
+          "ci_low": 0.488739,
+          "ci_high": 0.591197,
+          "n_jd": 48,
+          "n_pairs": 384,
+          "rule_version": 1
+        },
+        {
+          "system": "metadata rules",
+          "metric": "auc",
+          "scope": "generic",
+          "subset": "llm_free",
+          "value": 0.805347,
+          "ci_low": 0.73342,
+          "ci_high": 0.868422,
+          "n_jd": 38,
+          "n_pairs": 350,
+          "rule_version": 1
+        },
+        {
+          "system": "metadata rules",
+          "metric": "auc",
+          "scope": "targeted",
+          "subset": "llm_free",
+          "value": 0.784279,
+          "ci_low": 0.702203,
+          "ci_high": 0.856408,
+          "n_jd": 17,
+          "n_pairs": 110,
+          "rule_version": 1
+        },
+        {
+          "system": "metadata rules",
+          "metric": "auc",
+          "scope": "total",
+          "subset": "llm_free",
+          "value": 0.798835,
+          "ci_low": 0.742542,
+          "ci_high": 0.848889,
+          "n_jd": 55,
+          "n_pairs": 460,
+          "rule_version": 1
+        },
+        {
+          "system": "metadata rules",
+          "metric": "within_family_auc",
+          "scope": "generic",
+          "subset": "llm_free",
+          "value": 0.472981,
+          "ci_low": 0.395339,
+          "ci_high": 0.547412,
+          "n_jd": 23,
+          "n_pairs": 174,
+          "rule_version": 1
+        },
+        {
+          "system": "metadata rules",
+          "metric": "within_family_auc",
+          "scope": "targeted",
+          "subset": "llm_free",
+          "value": 0.554847,
+          "ci_low": 0.420918,
+          "ci_high": 0.683673,
+          "n_jd": 14,
+          "n_pairs": 69,
+          "rule_version": 1
+        },
+        {
+          "system": "metadata rules",
+          "metric": "within_family_auc",
+          "scope": "total",
+          "subset": "llm_free",
+          "value": 0.503958,
+          "ci_low": 0.434813,
+          "ci_high": 0.57288,
+          "n_jd": 37,
+          "n_pairs": 243,
+          "rule_version": 1
+        }
+      ]
+    },
+    "metadata + TF-IDF": {
+      "rung": "1a+2",
+      "stage": "hybrid",
+      "status": "oracle",
+      "trained_on": "IDF from 20k+20k A2 train-region documents (text_v2)",
+      "params": 5000,
+      "can_explain": true,
+      "deterministic": true,
+      "scores_sha256": "095b1a624f80445bfce3ed6cc40d496e03ef2bb449caa807a13edcd124930fd2",
+      "pool_scores_sha256": "d64cd1eaa1aae8a5a0a098057ad8baba2992640adc30d57c9904c07552736f15",
+      "figures": [
+        {
+          "system": "metadata + TF-IDF",
+          "metric": "auc",
+          "scope": "generic",
+          "subset": "all",
+          "value": 0.84302,
+          "ci_low": 0.776058,
+          "ci_high": 0.900027,
+          "n_jd": 39,
+          "n_pairs": 390,
+          "rule_version": 1
+        },
+        {
+          "system": "metadata + TF-IDF",
+          "metric": "auc",
+          "scope": "targeted",
+          "subset": "all",
+          "value": 0.851464,
+          "ci_low": 0.79701,
+          "ci_high": 0.904418,
+          "n_jd": 20,
+          "n_pairs": 200,
+          "rule_version": 1
+        },
+        {
+          "system": "metadata + TF-IDF",
+          "metric": "auc",
+          "scope": "total",
+          "subset": "all",
+          "value": 0.845882,
+          "ci_low": 0.799178,
+          "ci_high": 0.888099,
+          "n_jd": 59,
+          "n_pairs": 590,
+          "rule_version": 1
+        },
+        {
+          "system": "metadata + TF-IDF",
+          "metric": "within_family_auc",
+          "scope": "generic",
+          "subset": "all",
+          "value": 0.67619,
+          "ci_low": 0.570238,
+          "ci_high": 0.77619,
+          "n_jd": 30,
+          "n_pairs": 240,
+          "rule_version": 1
+        },
+        {
+          "system": "metadata + TF-IDF",
+          "metric": "within_family_auc",
+          "scope": "targeted",
+          "subset": "all",
+          "value": 0.732937,
+          "ci_low": 0.637532,
+          "ci_high": 0.823148,
+          "n_jd": 18,
+          "n_pairs": 144,
+          "rule_version": 1
+        },
+        {
+          "system": "metadata + TF-IDF",
+          "metric": "within_family_auc",
+          "scope": "total",
+          "subset": "all",
+          "value": 0.69747,
+          "ci_low": 0.620745,
+          "ci_high": 0.769544,
+          "n_jd": 48,
+          "n_pairs": 384,
+          "rule_version": 1
+        },
+        {
+          "system": "metadata + TF-IDF",
+          "metric": "auc",
+          "scope": "generic",
+          "subset": "llm_free",
+          "value": 0.87607,
+          "ci_low": 0.804979,
+          "ci_high": 0.937026,
+          "n_jd": 38,
+          "n_pairs": 350,
+          "rule_version": 1
+        },
+        {
+          "system": "metadata + TF-IDF",
+          "metric": "auc",
+          "scope": "targeted",
+          "subset": "llm_free",
+          "value": 0.819281,
+          "ci_low": 0.721287,
+          "ci_high": 0.904344,
+          "n_jd": 17,
+          "n_pairs": 110,
+          "rule_version": 1
+        },
+        {
+          "system": "metadata + TF-IDF",
+          "metric": "auc",
+          "scope": "total",
+          "subset": "llm_free",
+          "value": 0.858517,
+          "ci_low": 0.801669,
+          "ci_high": 0.909654,
+          "n_jd": 55,
+          "n_pairs": 460,
+          "rule_version": 1
+        },
+        {
+          "system": "metadata + TF-IDF",
+          "metric": "within_family_auc",
+          "scope": "generic",
+          "subset": "llm_free",
+          "value": 0.705659,
+          "ci_low": 0.574017,
+          "ci_high": 0.828847,
+          "n_jd": 23,
+          "n_pairs": 174,
+          "rule_version": 1
+        },
+        {
+          "system": "metadata + TF-IDF",
+          "metric": "within_family_auc",
+          "scope": "targeted",
+          "subset": "llm_free",
+          "value": 0.632483,
+          "ci_low": 0.456628,
+          "ci_high": 0.793197,
+          "n_jd": 14,
+          "n_pairs": 69,
+          "rule_version": 1
+        },
+        {
+          "system": "metadata + TF-IDF",
+          "metric": "within_family_auc",
+          "scope": "total",
+          "subset": "llm_free",
+          "value": 0.677971,
+          "ci_low": 0.56954,
+          "ci_high": 0.778679,
+          "n_jd": 37,
+          "n_pairs": 243,
+          "rule_version": 1
+        }
+      ]
+    }
+  },
+  "unscoreable": [],
+  "comparisons": [
+    {
+      "id": "K1",
+      "b": "extracted rule + TF-IDF",
+      "a": "TF-IDF",
+      "decides_selection": true,
+      "verdict_auc": "justified",
+      "deltas": [
+        {
+          "metric": "auc",
+          "scope": "generic",
+          "subset": "all",
+          "delta": 0.082359,
+          "ci": [
+            0.03981,
+            0.127968
+          ],
+          "half_width": 0.044079,
+          "n_jd": 39
+        },
+        {
+          "metric": "within_family_auc",
+          "scope": "generic",
+          "subset": "all",
+          "delta": 0.021052,
+          "ci": [
+            -0.057341,
+            0.105084
+          ],
+          "half_width": 0.081213,
+          "n_jd": 30
+        },
+        {
+          "metric": "auc",
+          "scope": "targeted",
+          "subset": "all",
+          "delta": 0.019411,
+          "ci": [
+            -0.022655,
+            0.064828
+          ],
+          "half_width": 0.043742,
+          "n_jd": 20
+        },
+        {
+          "metric": "within_family_auc",
+          "scope": "targeted",
+          "subset": "all",
+          "delta": 0.047586,
+          "ci": [
+            -0.036707,
+            0.145106
+          ],
+          "half_width": 0.090906,
+          "n_jd": 18
+        },
+        {
+          "metric": "auc",
+          "scope": "total",
+          "subset": "all",
+          "delta": 0.06102,
+          "ci": [
+            0.028595,
+            0.095748
+          ],
+          "half_width": 0.033576,
+          "n_jd": 59
+        },
+        {
+          "metric": "within_family_auc",
+          "scope": "total",
+          "subset": "all",
+          "delta": 0.031002,
+          "ci": [
+            -0.028435,
+            0.094064
+          ],
+          "half_width": 0.06125,
+          "n_jd": 48
+        },
+        {
+          "metric": "auc",
+          "scope": "generic",
+          "subset": "llm_free",
+          "delta": 0.082628,
+          "ci": [
+            0.038147,
+            0.12911
+          ],
+          "half_width": 0.045481,
+          "n_jd": 38
+        },
+        {
+          "metric": "within_family_auc",
+          "scope": "generic",
+          "subset": "llm_free",
+          "delta": -0.007937,
+          "ci": [
+            -0.095518,
+            0.080582
+          ],
+          "half_width": 0.08805,
+          "n_jd": 23
+        },
+        {
+          "metric": "auc",
+          "scope": "targeted",
+          "subset": "llm_free",
+          "delta": 0.056536,
+          "ci": [
+            0.018487,
+            0.100888
+          ],
+          "half_width": 0.0412,
+          "n_jd": 17
+        },
+        {
+          "metric": "within_family_auc",
+          "scope": "targeted",
+          "subset": "llm_free",
+          "delta": 0.135034,
+          "ci": [
+            0.038095,
+            0.246267
+          ],
+          "half_width": 0.104086,
+          "n_jd": 14
+        },
+        {
+          "metric": "auc",
+          "scope": "total",
+          "subset": "llm_free",
+          "delta": 0.074563,
+          "ci": [
+            0.041926,
+            0.109075
+          ],
+          "half_width": 0.033575,
+          "n_jd": 55
+        },
+        {
+          "metric": "within_family_auc",
+          "scope": "total",
+          "subset": "llm_free",
+          "delta": 0.04616,
+          "ci": [
+            -0.023879,
+            0.116867
+          ],
+          "half_width": 0.070373,
+          "n_jd": 37
+        }
+      ]
+    },
+    {
+      "id": "K2",
+      "b": "extracted rule + TF-IDF",
+      "a": "metadata + TF-IDF",
+      "decides_selection": false,
+      "verdict_auc": "not resolved",
+      "deltas": [
+        {
+          "metric": "auc",
+          "scope": "generic",
+          "subset": "all",
+          "delta": 0.019779,
+          "ci": [
+            -0.035282,
+            0.081963
+          ],
+          "half_width": 0.058623,
+          "n_jd": 39
+        },
+        {
+          "metric": "within_family_auc",
+          "scope": "generic",
+          "subset": "all",
+          "delta": 0.081925,
+          "ci": [
+            -0.024584,
+            0.186628
+          ],
+          "half_width": 0.105606,
+          "n_jd": 30
+        },
+        {
+          "metric": "auc",
+          "scope": "targeted",
+          "subset": "all",
+          "delta": -0.025131,
+          "ci": [
+            -0.06969,
+            0.014565
+          ],
+          "half_width": 0.042128,
+          "n_jd": 20
+        },
+        {
+          "metric": "within_family_auc",
+          "scope": "targeted",
+          "subset": "all",
+          "delta": -0.010218,
+          "ci": [
+            -0.095173,
+            0.076065
+          ],
+          "half_width": 0.085619,
+          "n_jd": 18
+        },
+        {
+          "metric": "auc",
+          "scope": "total",
+          "subset": "all",
+          "delta": 0.004555,
+          "ci": [
+            -0.034499,
+            0.049946
+          ],
+          "half_width": 0.042222,
+          "n_jd": 59
+        },
+        {
+          "metric": "within_family_auc",
+          "scope": "total",
+          "subset": "all",
+          "delta": 0.047371,
+          "ci": [
+            -0.027594,
+            0.121206
+          ],
+          "half_width": 0.0744,
+          "n_jd": 48
+        },
+        {
+          "metric": "auc",
+          "scope": "generic",
+          "subset": "llm_free",
+          "delta": 0.016635,
+          "ci": [
+            -0.049108,
+            0.087753
+          ],
+          "half_width": 0.06843,
+          "n_jd": 38
+        },
+        {
+          "metric": "within_family_auc",
+          "scope": "generic",
+          "subset": "llm_free",
+          "delta": 0.065873,
+          "ci": [
+            -0.070843,
+            0.199485
+          ],
+          "half_width": 0.135164,
+          "n_jd": 23
+        },
+        {
+          "metric": "auc",
+          "scope": "targeted",
+          "subset": "llm_free",
+          "delta": 0.097712,
+          "ci": [
+            0.047152,
+            0.154902
+          ],
+          "half_width": 0.053875,
+          "n_jd": 17
+        },
+        {
+          "metric": "within_family_auc",
+          "scope": "targeted",
+          "subset": "llm_free",
+          "delta": 0.193707,
+          "ci": [
+            0.069719,
+            0.352555
+          ],
+          "half_width": 0.141418,
+          "n_jd": 14
+        },
+        {
+          "metric": "auc",
+          "scope": "total",
+          "subset": "llm_free",
+          "delta": 0.041696,
+          "ci": [
+            -0.008135,
+            0.094458
+          ],
+          "half_width": 0.051297,
+          "n_jd": 55
+        },
+        {
+          "metric": "within_family_auc",
+          "scope": "total",
+          "subset": "llm_free",
+          "delta": 0.114243,
+          "ci": [
+            0.013341,
+            0.22201
+          ],
+          "half_width": 0.104334,
+          "n_jd": 37
+        }
+      ]
+    },
+    {
+      "id": "K3",
+      "b": "extracted rule + SBERT (weak fine-tuned)",
+      "a": "SBERT (weak fine-tuned)",
+      "decides_selection": true,
+      "verdict_auc": "not resolved",
+      "deltas": [
+        {
+          "metric": "auc",
+          "scope": "generic",
+          "subset": "all",
+          "delta": 0.037028,
+          "ci": [
+            0.000601,
+            0.074981
+          ],
+          "half_width": 0.03719,
+          "n_jd": 39
+        },
+        {
+          "metric": "within_family_auc",
+          "scope": "generic",
+          "subset": "all",
+          "delta": -0.015873,
+          "ci": [
+            -0.092063,
+            0.057542
+          ],
+          "half_width": 0.074803,
+          "n_jd": 30
+        },
+        {
+          "metric": "auc",
+          "scope": "targeted",
+          "subset": "all",
+          "delta": -0.010732,
+          "ci": [
+            -0.060006,
+            0.028239
+          ],
+          "half_width": 0.044123,
+          "n_jd": 20
+        },
+        {
+          "metric": "within_family_auc",
+          "scope": "targeted",
+          "subset": "all",
+          "delta": -0.017659,
+          "ci": [
+            -0.138498,
+            0.075565
+          ],
+          "half_width": 0.107032,
+          "n_jd": 18
+        },
+        {
+          "metric": "auc",
+          "scope": "total",
+          "subset": "all",
+          "delta": 0.020838,
+          "ci": [
+            -0.009384,
+            0.050484
+          ],
+          "half_width": 0.029934,
+          "n_jd": 59
+        },
+        {
+          "metric": "within_family_auc",
+          "scope": "total",
+          "subset": "all",
+          "delta": -0.016543,
+          "ci": [
+            -0.081364,
+            0.043081
+          ],
+          "half_width": 0.062222,
+          "n_jd": 48
+        },
+        {
+          "metric": "auc",
+          "scope": "generic",
+          "subset": "llm_free",
+          "delta": 0.032331,
+          "ci": [
+            -0.004659,
+            0.069769
+          ],
+          "half_width": 0.037214,
+          "n_jd": 38
+        },
+        {
+          "metric": "within_family_auc",
+          "scope": "generic",
+          "subset": "llm_free",
+          "delta": -0.022774,
+          "ci": [
+            -0.121843,
+            0.070186
+          ],
+          "half_width": 0.096014,
+          "n_jd": 23
+        },
+        {
+          "metric": "auc",
+          "scope": "targeted",
+          "subset": "llm_free",
+          "delta": 0.056162,
+          "ci": [
+            0.008824,
+            0.121849
+          ],
+          "half_width": 0.056513,
+          "n_jd": 17
+        },
+        {
+          "metric": "within_family_auc",
+          "scope": "targeted",
+          "subset": "llm_free",
+          "delta": 0.127041,
+          "ci": [
+            0.02449,
+            0.277551
+          ],
+          "half_width": 0.126531,
+          "n_jd": 14
+        },
+        {
+          "metric": "auc",
+          "scope": "total",
+          "subset": "llm_free",
+          "delta": 0.039697,
+          "ci": [
+            0.009369,
+            0.072609
+          ],
+          "half_width": 0.03162,
+          "n_jd": 55
+        },
+        {
+          "metric": "within_family_auc",
+          "scope": "total",
+          "subset": "llm_free",
+          "delta": 0.033912,
+          "ci": [
+            -0.046911,
+            0.118468
+          ],
+          "half_width": 0.08269,
+          "n_jd": 37
+        }
+      ]
+    },
+    {
+      "id": "K4",
+      "b": "extracted rule + TF-IDF",
+      "a": "SBERT (weak fine-tuned)",
+      "decides_selection": true,
+      "verdict_auc": "not resolved",
+      "deltas": [
+        {
+          "metric": "auc",
+          "scope": "generic",
+          "subset": "all",
+          "delta": 0.009309,
+          "ci": [
+            -0.040243,
+            0.060032
+          ],
+          "half_width": 0.050138,
+          "n_jd": 39
+        },
+        {
+          "metric": "within_family_auc",
+          "scope": "generic",
+          "subset": "all",
+          "delta": -0.028591,
+          "ci": [
+            -0.119625,
+            0.061832
+          ],
+          "half_width": 0.090728,
+          "n_jd": 30
+        },
+        {
+          "metric": "auc",
+          "scope": "targeted",
+          "subset": "all",
+          "delta": 0.030274,
+          "ci": [
+            -0.040953,
+            0.105345
+          ],
+          "half_width": 0.073149,
+          "n_jd": 20
+        },
+        {
+          "metric": "within_family_auc",
+          "scope": "targeted",
+          "subset": "all",
+          "delta": 0.029861,
+          "ci": [
+            -0.100432,
+            0.150631
+          ],
+          "half_width": 0.125532,
+          "n_jd": 18
+        },
+        {
+          "metric": "auc",
+          "scope": "total",
+          "subset": "all",
+          "delta": 0.016416,
+          "ci": [
+            -0.024938,
+            0.057645
+          ],
+          "half_width": 0.041292,
+          "n_jd": 59
+        },
+        {
+          "metric": "within_family_auc",
+          "scope": "total",
+          "subset": "all",
+          "delta": -0.006672,
+          "ci": [
+            -0.079565,
+            0.065789
+          ],
+          "half_width": 0.072677,
+          "n_jd": 48
+        },
+        {
+          "metric": "auc",
+          "scope": "generic",
+          "subset": "llm_free",
+          "delta": 0.012672,
+          "ci": [
+            -0.038404,
+            0.062877
+          ],
+          "half_width": 0.05064,
+          "n_jd": 38
+        },
+        {
+          "metric": "within_family_auc",
+          "scope": "generic",
+          "subset": "llm_free",
+          "delta": -0.008282,
+          "ci": [
+            -0.126403,
+            0.10404
+          ],
+          "half_width": 0.115221,
+          "n_jd": 23
+        },
+        {
+          "metric": "auc",
+          "scope": "targeted",
+          "subset": "llm_free",
+          "delta": 0.128291,
+          "ci": [
+            0.045095,
+            0.228582
+          ],
+          "half_width": 0.091744,
+          "n_jd": 17
+        },
+        {
+          "metric": "within_family_auc",
+          "scope": "targeted",
+          "subset": "llm_free",
+          "delta": 0.230782,
+          "ci": [
+            0.095404,
+            0.392857
+          ],
+          "half_width": 0.148727,
+          "n_jd": 14
+        },
+        {
+          "metric": "auc",
+          "scope": "total",
+          "subset": "llm_free",
+          "delta": 0.048409,
+          "ci": [
+            0.001099,
+            0.097346
+          ],
+          "half_width": 0.048123,
+          "n_jd": 55
+        },
+        {
+          "metric": "within_family_auc",
+          "scope": "total",
+          "subset": "llm_free",
+          "delta": 0.082175,
+          "ci": [
+            -0.015512,
+            0.182497
+          ],
+          "half_width": 0.099004,
+          "n_jd": 37
+        }
+      ]
+    },
+    {
+      "id": "K5",
+      "b": "extracted rule + skill overlap",
+      "a": "extracted rule",
+      "decides_selection": false,
+      "verdict_auc": "not resolved",
+      "deltas": [
+        {
+          "metric": "auc",
+          "scope": "generic",
+          "subset": "all",
+          "delta": 0.000746,
+          "ci": [
+            -0.018053,
+            0.01801
+          ],
+          "half_width": 0.018032,
+          "n_jd": 39
+        },
+        {
+          "metric": "within_family_auc",
+          "scope": "generic",
+          "subset": "all",
+          "delta": 0.016647,
+          "ci": [
+            -0.017956,
+            0.048098
+          ],
+          "half_width": 0.033027,
+          "n_jd": 30
+        },
+        {
+          "metric": "auc",
+          "scope": "targeted",
+          "subset": "all",
+          "delta": 0.00578,
+          "ci": [
+            -0.049388,
+            0.063042
+          ],
+          "half_width": 0.056215,
+          "n_jd": 20
+        },
+        {
+          "metric": "within_family_auc",
+          "scope": "targeted",
+          "subset": "all",
+          "delta": 0.041898,
+          "ci": [
+            -0.009954,
+            0.10162
+          ],
+          "half_width": 0.055787,
+          "n_jd": 18
+        },
+        {
+          "metric": "auc",
+          "scope": "total",
+          "subset": "all",
+          "delta": 0.002452,
+          "ci": [
+            -0.019664,
+            0.025885
+          ],
+          "half_width": 0.022774,
+          "n_jd": 59
+        },
+        {
+          "metric": "within_family_auc",
+          "scope": "total",
+          "subset": "all",
+          "delta": 0.026116,
+          "ci": [
+            -0.002493,
+            0.056004
+          ],
+          "half_width": 0.029249,
+          "n_jd": 48
+        },
+        {
+          "metric": "auc",
+          "scope": "generic",
+          "subset": "llm_free",
+          "delta": -0.00235,
+          "ci": [
+            -0.051896,
+            0.034995
+          ],
+          "half_width": 0.043446,
+          "n_jd": 38
+        },
+        {
+          "metric": "within_family_auc",
+          "scope": "generic",
+          "subset": "llm_free",
+          "delta": 0.038268,
+          "ci": [
+            -0.016357,
+            0.095136
+          ],
+          "half_width": 0.055747,
+          "n_jd": 23
+        },
+        {
+          "metric": "auc",
+          "scope": "targeted",
+          "subset": "llm_free",
+          "delta": -0.005882,
+          "ci": [
+            -0.06473,
+            0.062745
+          ],
+          "half_width": 0.063738,
+          "n_jd": 17
+        },
+        {
+          "metric": "within_family_auc",
+          "scope": "targeted",
+          "subset": "llm_free",
+          "delta": 0.000595,
+          "ci": [
+            -0.051786,
+            0.0625
+          ],
+          "half_width": 0.057143,
+          "n_jd": 14
+        },
+        {
+          "metric": "auc",
+          "scope": "total",
+          "subset": "llm_free",
+          "delta": -0.003442,
+          "ci": [
+            -0.042414,
+            0.030812
+          ],
+          "half_width": 0.036613,
+          "n_jd": 55
+        },
+        {
+          "metric": "within_family_auc",
+          "scope": "total",
+          "subset": "llm_free",
+          "delta": 0.024013,
+          "ci": [
+            -0.015895,
+            0.066377
+          ],
+          "half_width": 0.041136,
+          "n_jd": 37
+        }
+      ]
+    }
+  ],
+  "retrieval": {
+    "pool_size": 500,
+    "n_pools": 60,
+    "pool_sizes_all_equal": true,
+    "note": "Pools of retrieval_pilot.build_pools (unchanged members), CV text v2. Relevant = final-set Fit among the 10 judged CVs; the 490 distractors are unjudged and assumed not fits (upper-bound recall). Recall@10 has no bar.",
+    "figures": {
+      "random": [
+        {
+          "system": "random",
+          "metric": "recall@10",
+          "scope": "generic",
+          "value": 0.009717,
+          "ci_low": 0.0,
+          "ci_high": 0.021726,
+          "n_jd": 39
+        },
+        {
+          "system": "random",
+          "metric": "recall@50",
+          "scope": "generic",
+          "value": 0.107336,
+          "ci_low": 0.077532,
+          "ci_high": 0.137821,
+          "n_jd": 39
+        },
+        {
+          "system": "random",
+          "metric": "recall@100",
+          "scope": "generic",
+          "value": 0.210307,
+          "ci_low": 0.161894,
+          "ci_high": 0.262027,
+          "n_jd": 39
+        },
+        {
+          "system": "random",
+          "metric": "recall@10",
+          "scope": "targeted",
+          "value": 0.027143,
+          "ci_low": 0.0,
+          "ci_high": 0.057143,
+          "n_jd": 20
+        },
+        {
+          "system": "random",
+          "metric": "recall@50",
+          "scope": "targeted",
+          "value": 0.141012,
+          "ci_low": 0.074283,
+          "ci_high": 0.21506,
+          "n_jd": 20
+        },
+        {
+          "system": "random",
+          "metric": "recall@100",
+          "scope": "targeted",
+          "value": 0.24256,
+          "ci_low": 0.177497,
+          "ci_high": 0.3075,
+          "n_jd": 20
+        },
+        {
+          "system": "random",
+          "metric": "recall@10",
+          "scope": "total",
+          "value": 0.015624,
+          "ci_low": 0.00454,
+          "ci_high": 0.028753,
+          "n_jd": 59
+        },
+        {
+          "system": "random",
+          "metric": "recall@50",
+          "scope": "total",
+          "value": 0.118752,
+          "ci_low": 0.08794,
+          "ci_high": 0.151319,
+          "n_jd": 59
+        },
+        {
+          "system": "random",
+          "metric": "recall@100",
+          "scope": "total",
+          "value": 0.22124,
+          "ci_low": 0.182829,
+          "ci_high": 0.261976,
+          "n_jd": 59
+        }
+      ],
+      "extracted rule": [
+        {
+          "system": "extracted rule",
+          "metric": "recall@10",
+          "scope": "generic",
+          "value": 0.259341,
+          "ci_low": 0.188593,
+          "ci_high": 0.331901,
+          "n_jd": 39
+        },
+        {
+          "system": "extracted rule",
+          "metric": "recall@50",
+          "scope": "generic",
+          "value": 0.834605,
+          "ci_low": 0.752387,
+          "ci_high": 0.907103,
+          "n_jd": 39
+        },
+        {
+          "system": "extracted rule",
+          "metric": "recall@100",
+          "scope": "generic",
+          "value": 0.927808,
+          "ci_low": 0.865535,
+          "ci_high": 0.97095,
+          "n_jd": 39
+        },
+        {
+          "system": "extracted rule",
+          "metric": "recall@10",
+          "scope": "targeted",
+          "value": 0.24506,
+          "ci_low": 0.13333,
+          "ci_high": 0.363693,
+          "n_jd": 20
+        },
+        {
+          "system": "extracted rule",
+          "metric": "recall@50",
+          "scope": "targeted",
+          "value": 0.651845,
+          "ci_low": 0.479464,
+          "ci_high": 0.804707,
+          "n_jd": 20
+        },
+        {
+          "system": "extracted rule",
+          "metric": "recall@100",
+          "scope": "targeted",
+          "value": 0.752024,
+          "ci_low": 0.591183,
+          "ci_high": 0.888214,
+          "n_jd": 20
+        },
+        {
+          "system": "extracted rule",
+          "metric": "recall@10",
+          "scope": "total",
+          "value": 0.2545,
+          "ci_low": 0.195142,
+          "ci_high": 0.316816,
+          "n_jd": 59
+        },
+        {
+          "system": "extracted rule",
+          "metric": "recall@50",
+          "scope": "total",
+          "value": 0.772653,
+          "ci_low": 0.690795,
+          "ci_high": 0.846127,
+          "n_jd": 59
+        },
+        {
+          "system": "extracted rule",
+          "metric": "recall@100",
+          "scope": "total",
+          "value": 0.86822,
+          "ci_low": 0.797157,
+          "ci_high": 0.926924,
+          "n_jd": 59
+        }
+      ],
+      "extracted rule + skill overlap": [
+        {
+          "system": "extracted rule + skill overlap",
+          "metric": "recall@10",
+          "scope": "generic",
+          "value": 0.295106,
+          "ci_low": 0.221081,
+          "ci_high": 0.372662,
+          "n_jd": 39
+        },
+        {
+          "system": "extracted rule + skill overlap",
+          "metric": "recall@50",
+          "scope": "generic",
+          "value": 0.788512,
+          "ci_low": 0.709757,
+          "ci_high": 0.858974,
+          "n_jd": 39
+        },
+        {
+          "system": "extracted rule + skill overlap",
+          "metric": "recall@100",
+          "scope": "generic",
+          "value": 0.910002,
+          "ci_low": 0.846202,
+          "ci_high": 0.958384,
+          "n_jd": 39
+        },
+        {
+          "system": "extracted rule + skill overlap",
+          "metric": "recall@10",
+          "scope": "targeted",
+          "value": 0.284107,
+          "ci_low": 0.167076,
+          "ci_high": 0.4106,
+          "n_jd": 20
+        },
+        {
+          "system": "extracted rule + skill overlap",
+          "metric": "recall@50",
+          "scope": "targeted",
+          "value": 0.60494,
+          "ci_low": 0.451667,
+          "ci_high": 0.748333,
+          "n_jd": 20
+        },
+        {
+          "system": "extracted rule + skill overlap",
+          "metric": "recall@100",
+          "scope": "targeted",
+          "value": 0.735119,
+          "ci_low": 0.570818,
+          "ci_high": 0.880357,
+          "n_jd": 20
+        },
+        {
+          "system": "extracted rule + skill overlap",
+          "metric": "recall@10",
+          "scope": "total",
+          "value": 0.291377,
+          "ci_low": 0.227115,
+          "ci_high": 0.354817,
+          "n_jd": 59
+        },
+        {
+          "system": "extracted rule + skill overlap",
+          "metric": "recall@50",
+          "scope": "total",
+          "value": 0.726285,
+          "ci_low": 0.648719,
+          "ci_high": 0.798064,
+          "n_jd": 59
+        },
+        {
+          "system": "extracted rule + skill overlap",
+          "metric": "recall@100",
+          "scope": "total",
+          "value": 0.85072,
+          "ci_low": 0.778013,
+          "ci_high": 0.913944,
+          "n_jd": 59
+        }
+      ],
+      "TF-IDF": [
+        {
+          "system": "TF-IDF",
+          "metric": "recall@10",
+          "scope": "generic",
+          "value": 0.206349,
+          "ci_low": 0.142247,
+          "ci_high": 0.270555,
+          "n_jd": 39
+        },
+        {
+          "system": "TF-IDF",
+          "metric": "recall@50",
+          "scope": "generic",
+          "value": 0.588085,
+          "ci_low": 0.495696,
+          "ci_high": 0.675541,
+          "n_jd": 39
+        },
+        {
+          "system": "TF-IDF",
+          "metric": "recall@100",
+          "scope": "generic",
+          "value": 0.726302,
+          "ci_low": 0.638136,
+          "ci_high": 0.806808,
+          "n_jd": 39
+        },
+        {
+          "system": "TF-IDF",
+          "metric": "recall@10",
+          "scope": "targeted",
+          "value": 0.317679,
+          "ci_low": 0.22375,
+          "ci_high": 0.415183,
+          "n_jd": 20
+        },
+        {
+          "system": "TF-IDF",
+          "metric": "recall@50",
+          "scope": "targeted",
+          "value": 0.726429,
+          "ci_low": 0.62881,
+          "ci_high": 0.816964,
+          "n_jd": 20
+        },
+        {
+          "system": "TF-IDF",
+          "metric": "recall@100",
+          "scope": "targeted",
+          "value": 0.875536,
+          "ci_low": 0.806429,
+          "ci_high": 0.9375,
+          "n_jd": 20
+        },
+        {
+          "system": "TF-IDF",
+          "metric": "recall@10",
+          "scope": "total",
+          "value": 0.244088,
+          "ci_low": 0.189538,
+          "ci_high": 0.299209,
+          "n_jd": 59
+        },
+        {
+          "system": "TF-IDF",
+          "metric": "recall@50",
+          "scope": "total",
+          "value": 0.634981,
+          "ci_low": 0.562751,
+          "ci_high": 0.701959,
+          "n_jd": 59
+        },
+        {
+          "system": "TF-IDF",
+          "metric": "recall@100",
+          "scope": "total",
+          "value": 0.77689,
+          "ci_low": 0.711507,
+          "ci_high": 0.837941,
+          "n_jd": 59
+        }
+      ],
+      "extracted rule + TF-IDF": [
+        {
+          "system": "extracted rule + TF-IDF",
+          "metric": "recall@10",
+          "scope": "generic",
+          "value": 0.286396,
+          "ci_low": 0.215302,
+          "ci_high": 0.358029,
+          "n_jd": 39
+        },
+        {
+          "system": "extracted rule + TF-IDF",
+          "metric": "recall@50",
+          "scope": "generic",
+          "value": 0.794668,
+          "ci_low": 0.706244,
+          "ci_high": 0.873526,
+          "n_jd": 39
+        },
+        {
+          "system": "extracted rule + TF-IDF",
+          "metric": "recall@100",
+          "scope": "generic",
+          "value": 0.89998,
+          "ci_low": 0.833129,
+          "ci_high": 0.95177,
+          "n_jd": 39
+        },
+        {
+          "system": "extracted rule + TF-IDF",
+          "metric": "recall@10",
+          "scope": "targeted",
+          "value": 0.32631,
+          "ci_low": 0.206307,
+          "ci_high": 0.449821,
+          "n_jd": 20
+        },
+        {
+          "system": "extracted rule + TF-IDF",
+          "metric": "recall@50",
+          "scope": "targeted",
+          "value": 0.74875,
+          "ci_low": 0.617257,
+          "ci_high": 0.86006,
+          "n_jd": 20
+        },
+        {
+          "system": "extracted rule + TF-IDF",
+          "metric": "recall@100",
+          "scope": "targeted",
+          "value": 0.905179,
+          "ci_low": 0.839107,
+          "ci_high": 0.960714,
+          "n_jd": 20
+        },
+        {
+          "system": "extracted rule + TF-IDF",
+          "metric": "recall@10",
+          "scope": "total",
+          "value": 0.299926,
+          "ci_low": 0.237846,
+          "ci_high": 0.36292,
+          "n_jd": 59
+        },
+        {
+          "system": "extracted rule + TF-IDF",
+          "metric": "recall@50",
+          "scope": "total",
+          "value": 0.779103,
+          "ci_low": 0.705907,
+          "ci_high": 0.845117,
+          "n_jd": 59
+        },
+        {
+          "system": "extracted rule + TF-IDF",
+          "metric": "recall@100",
+          "scope": "total",
+          "value": 0.901742,
+          "ci_low": 0.853916,
+          "ci_high": 0.941357,
+          "n_jd": 59
+        }
+      ],
+      "SBERT (zero-shot)": [
+        {
+          "system": "SBERT (zero-shot)",
+          "metric": "recall@10",
+          "scope": "generic",
+          "value": 0.134819,
+          "ci_low": 0.082214,
+          "ci_high": 0.191648,
+          "n_jd": 39
+        },
+        {
+          "system": "SBERT (zero-shot)",
+          "metric": "recall@50",
+          "scope": "generic",
+          "value": 0.427442,
+          "ci_low": 0.339488,
+          "ci_high": 0.514633,
+          "n_jd": 39
+        },
+        {
+          "system": "SBERT (zero-shot)",
+          "metric": "recall@100",
+          "scope": "generic",
+          "value": 0.610877,
+          "ci_low": 0.534869,
+          "ci_high": 0.685289,
+          "n_jd": 39
+        },
+        {
+          "system": "SBERT (zero-shot)",
+          "metric": "recall@10",
+          "scope": "targeted",
+          "value": 0.2075,
+          "ci_low": 0.118927,
+          "ci_high": 0.302083,
+          "n_jd": 20
+        },
+        {
+          "system": "SBERT (zero-shot)",
+          "metric": "recall@50",
+          "scope": "targeted",
+          "value": 0.45881,
+          "ci_low": 0.366071,
+          "ci_high": 0.551435,
+          "n_jd": 20
+        },
+        {
+          "system": "SBERT (zero-shot)",
+          "metric": "recall@100",
+          "scope": "targeted",
+          "value": 0.677262,
+          "ci_low": 0.544881,
+          "ci_high": 0.799113,
+          "n_jd": 20
+        },
+        {
+          "system": "SBERT (zero-shot)",
+          "metric": "recall@10",
+          "scope": "total",
+          "value": 0.159457,
+          "ci_low": 0.112752,
+          "ci_high": 0.20902,
+          "n_jd": 59
+        },
+        {
+          "system": "SBERT (zero-shot)",
+          "metric": "recall@50",
+          "scope": "total",
+          "value": 0.438075,
+          "ci_low": 0.372632,
+          "ci_high": 0.504094,
+          "n_jd": 59
+        },
+        {
+          "system": "SBERT (zero-shot)",
+          "metric": "recall@100",
+          "scope": "total",
+          "value": 0.63338,
+          "ci_low": 0.566955,
+          "ci_high": 0.699099,
+          "n_jd": 59
+        }
+      ],
+      "SBERT (weak fine-tuned)": [
+        {
+          "system": "SBERT (weak fine-tuned)",
+          "metric": "recall@10",
+          "scope": "generic",
+          "value": 0.203246,
+          "ci_low": 0.135989,
+          "ci_high": 0.2759,
+          "n_jd": 39
+        },
+        {
+          "system": "SBERT (weak fine-tuned)",
+          "metric": "recall@50",
+          "scope": "generic",
+          "value": 0.602076,
+          "ci_low": 0.511874,
+          "ci_high": 0.689144,
+          "n_jd": 39
+        },
+        {
+          "system": "SBERT (weak fine-tuned)",
+          "metric": "recall@100",
+          "scope": "generic",
+          "value": 0.773321,
+          "ci_low": 0.705072,
+          "ci_high": 0.838678,
+          "n_jd": 39
+        },
+        {
+          "system": "SBERT (weak fine-tuned)",
+          "metric": "recall@10",
+          "scope": "targeted",
+          "value": 0.264405,
+          "ci_low": 0.17964,
+          "ci_high": 0.350954,
+          "n_jd": 20
+        },
+        {
+          "system": "SBERT (weak fine-tuned)",
+          "metric": "recall@50",
+          "scope": "targeted",
+          "value": 0.572857,
+          "ci_low": 0.450536,
+          "ci_high": 0.693338,
+          "n_jd": 20
+        },
+        {
+          "system": "SBERT (weak fine-tuned)",
+          "metric": "recall@100",
+          "scope": "targeted",
+          "value": 0.69494,
+          "ci_low": 0.567201,
+          "ci_high": 0.809762,
+          "n_jd": 20
+        },
+        {
+          "system": "SBERT (weak fine-tuned)",
+          "metric": "recall@10",
+          "scope": "total",
+          "value": 0.223978,
+          "ci_low": 0.170298,
+          "ci_high": 0.281827,
+          "n_jd": 59
+        },
+        {
+          "system": "SBERT (weak fine-tuned)",
+          "metric": "recall@50",
+          "scope": "total",
+          "value": 0.592171,
+          "ci_low": 0.520378,
+          "ci_high": 0.662761,
+          "n_jd": 59
+        },
+        {
+          "system": "SBERT (weak fine-tuned)",
+          "metric": "recall@100",
+          "scope": "total",
+          "value": 0.746751,
+          "ci_low": 0.684825,
+          "ci_high": 0.805731,
+          "n_jd": 59
+        }
+      ],
+      "extracted rule + SBERT (weak fine-tuned)": [
+        {
+          "system": "extracted rule + SBERT (weak fine-tuned)",
+          "metric": "recall@10",
+          "scope": "generic",
+          "value": 0.323494,
+          "ci_low": 0.248888,
+          "ci_high": 0.4023,
+          "n_jd": 39
+        },
+        {
+          "system": "extracted rule + SBERT (weak fine-tuned)",
+          "metric": "recall@50",
+          "scope": "generic",
+          "value": 0.8227,
+          "ci_low": 0.740028,
+          "ci_high": 0.894742,
+          "n_jd": 39
+        },
+        {
+          "system": "extracted rule + SBERT (weak fine-tuned)",
+          "metric": "recall@100",
+          "scope": "generic",
+          "value": 0.935897,
+          "ci_low": 0.895395,
+          "ci_high": 0.969424,
+          "n_jd": 39
+        },
+        {
+          "system": "extracted rule + SBERT (weak fine-tuned)",
+          "metric": "recall@10",
+          "scope": "targeted",
+          "value": 0.318869,
+          "ci_low": 0.187496,
+          "ci_high": 0.457981,
+          "n_jd": 20
+        },
+        {
+          "system": "extracted rule + SBERT (weak fine-tuned)",
+          "metric": "recall@50",
+          "scope": "targeted",
+          "value": 0.640179,
+          "ci_low": 0.491604,
+          "ci_high": 0.777323,
+          "n_jd": 20
+        },
+        {
+          "system": "extracted rule + SBERT (weak fine-tuned)",
+          "metric": "recall@100",
+          "scope": "targeted",
+          "value": 0.7825,
+          "ci_low": 0.659045,
+          "ci_high": 0.888335,
+          "n_jd": 20
+        },
+        {
+          "system": "extracted rule + SBERT (weak fine-tuned)",
+          "metric": "recall@10",
+          "scope": "total",
+          "value": 0.321926,
+          "ci_low": 0.252515,
+          "ci_high": 0.390962,
+          "n_jd": 59
+        },
+        {
+          "system": "extracted rule + SBERT (weak fine-tuned)",
+          "metric": "recall@50",
+          "scope": "total",
+          "value": 0.760829,
+          "ci_low": 0.68294,
+          "ci_high": 0.831719,
+          "n_jd": 59
+        },
+        {
+          "system": "extracted rule + SBERT (weak fine-tuned)",
+          "metric": "recall@100",
+          "scope": "total",
+          "value": 0.883898,
+          "ci_low": 0.831618,
+          "ci_high": 0.929998,
+          "n_jd": 59
+        }
+      ],
+      "metadata rules": [
+        {
+          "system": "metadata rules",
+          "metric": "recall@10",
+          "scope": "generic",
+          "value": 0.384717,
+          "ci_low": 0.300059,
+          "ci_high": 0.471104,
+          "n_jd": 39
+        },
+        {
+          "system": "metadata rules",
+          "metric": "recall@50",
+          "scope": "generic",
+          "value": 0.904202,
+          "ci_low": 0.83786,
+          "ci_high": 0.957723,
+          "n_jd": 39
+        },
+        {
+          "system": "metadata rules",
+          "metric": "recall@100",
+          "scope": "generic",
+          "value": 0.956197,
+          "ci_low": 0.899573,
+          "ci_high": 0.991097,
+          "n_jd": 39
+        },
+        {
+          "system": "metadata rules",
+          "metric": "recall@10",
+          "scope": "targeted",
+          "value": 0.507143,
+          "ci_low": 0.402022,
+          "ci_high": 0.616012,
+          "n_jd": 20
+        },
+        {
+          "system": "metadata rules",
+          "metric": "recall@50",
+          "scope": "targeted",
+          "value": 0.962024,
+          "ci_low": 0.930298,
+          "ci_high": 0.9875,
+          "n_jd": 20
+        },
+        {
+          "system": "metadata rules",
+          "metric": "recall@100",
+          "scope": "targeted",
+          "value": 0.976607,
+          "ci_low": 0.949464,
+          "ci_high": 1.0,
+          "n_jd": 20
+        },
+        {
+          "system": "metadata rules",
+          "metric": "recall@10",
+          "scope": "total",
+          "value": 0.426217,
+          "ci_low": 0.358427,
+          "ci_high": 0.49593,
+          "n_jd": 59
+        },
+        {
+          "system": "metadata rules",
+          "metric": "recall@50",
+          "scope": "total",
+          "value": 0.923803,
+          "ci_low": 0.876316,
+          "ci_high": 0.960924,
+          "n_jd": 59
+        },
+        {
+          "system": "metadata rules",
+          "metric": "recall@100",
+          "scope": "total",
+          "value": 0.963115,
+          "ci_low": 0.922859,
+          "ci_high": 0.988371,
+          "n_jd": 59
+        }
+      ],
+      "metadata + TF-IDF": [
+        {
+          "system": "metadata + TF-IDF",
+          "metric": "recall@10",
+          "scope": "generic",
+          "value": 0.424705,
+          "ci_low": 0.333483,
+          "ci_high": 0.518927,
+          "n_jd": 39
+        },
+        {
+          "system": "metadata + TF-IDF",
+          "metric": "recall@50",
+          "scope": "generic",
+          "value": 0.909086,
+          "ci_low": 0.844984,
+          "ci_high": 0.960979,
+          "n_jd": 39
+        },
+        {
+          "system": "metadata + TF-IDF",
+          "metric": "recall@100",
+          "scope": "generic",
+          "value": 0.981838,
+          "ci_low": 0.96688,
+          "ci_high": 0.993946,
+          "n_jd": 39
+        },
+        {
+          "system": "metadata + TF-IDF",
+          "metric": "recall@10",
+          "scope": "targeted",
+          "value": 0.584762,
+          "ci_low": 0.473155,
+          "ci_high": 0.696789,
+          "n_jd": 20
+        },
+        {
+          "system": "metadata + TF-IDF",
+          "metric": "recall@50",
+          "scope": "targeted",
+          "value": 0.969167,
+          "ci_low": 0.938333,
+          "ci_high": 0.99375,
+          "n_jd": 20
+        },
+        {
+          "system": "metadata + TF-IDF",
+          "metric": "recall@100",
+          "scope": "targeted",
+          "value": 0.99375,
+          "ci_low": 0.98125,
+          "ci_high": 1.0,
+          "n_jd": 20
+        },
+        {
+          "system": "metadata + TF-IDF",
+          "metric": "recall@10",
+          "scope": "total",
+          "value": 0.478962,
+          "ci_low": 0.403267,
+          "ci_high": 0.553168,
+          "n_jd": 59
+        },
+        {
+          "system": "metadata + TF-IDF",
+          "metric": "recall@50",
+          "scope": "total",
+          "value": 0.929453,
+          "ci_low": 0.882162,
+          "ci_high": 0.96627,
+          "n_jd": 59
+        },
+        {
+          "system": "metadata + TF-IDF",
+          "metric": "recall@100",
+          "scope": "total",
+          "value": 0.985876,
+          "ci_low": 0.975518,
+          "ci_high": 0.995763,
+          "n_jd": 59
+        }
+      ]
+    }
+  },
+  "s2": {
+    "classical": {
+      "bar": 0.8,
+      "members": {
+        "TF-IDF": {
+          "value": 0.634981,
+          "ci": [
+            0.562751,
+            0.701959
+          ],
+          "meets_bar": false
+        },
+        "extracted rule + TF-IDF": {
+          "value": 0.779103,
+          "ci": [
+            0.705907,
+            0.845117
+          ],
+          "meets_bar": false
+        }
+      },
+      "best": "extracted rule + TF-IDF",
+      "verdict": "miss",
+      "ci_above_bar": false
+    },
+    "advanced": {
+      "bar": 0.9,
+      "members": {
+        "SBERT (weak fine-tuned)": {
+          "value": 0.592171,
+          "ci": [
+            0.520378,
+            0.662761
+          ],
+          "meets_bar": false
+        },
+        "extracted rule + SBERT (weak fine-tuned)": {
+          "value": 0.760829,
+          "ci": [
+            0.68294,
+            0.831719
+          ],
+          "meets_bar": false
+        }
+      },
+      "best": "extracted rule + SBERT (weak fine-tuned)",
+      "verdict": "miss",
+      "ci_above_bar": false
+    }
+  },
+  "selection": {
+    "selected": null,
+    "trail": [
+      {
+        "rung": "TF-IDF",
+        "qualifies_s2": false,
+        "beaten_by": []
+      },
+      {
+        "rung": "extracted rule + TF-IDF",
+        "qualifies_s2": false,
+        "beaten_by": []
+      },
+      {
+        "rung": "SBERT (weak fine-tuned)",
+        "qualifies_s2": false,
+        "beaten_by": []
+      },
+      {
+        "rung": "extracted rule + SBERT (weak fine-tuned)",
+        "qualifies_s2": false,
+        "beaten_by": []
+      }
+    ],
+    "note": "Read before scoring (7 Oct 2026): candidates are the four rungs S2 names (TF-IDF, X2: bar 0.80; SBERT weak, X4: bar 0.90); a candidate qualifies if its own Recall@50 point estimate meets its group's bar. A qualifying candidate is beaten when a dearer qualifying candidate is 'justified' over it on a registered comparison (K1, K3, or K4 with B and A swapped, since SBERT weak is the dearer side). K2 and K5 decide nothing. The cheapest qualifying candidate not beaten is adopted."
+  }
+}

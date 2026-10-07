@@ -381,18 +381,25 @@ def _cv_band_of(text: str, reference: dt.date = REFERENCE_DATE) -> str | None:
 
 
 def experience_compatible_extracted(jd_texts: Sequence[str], cv_texts: Sequence[str],
-                                    reference: dt.date = REFERENCE_DATE) -> pd.Series:
+                                    reference: dt.date = REFERENCE_DATE,
+                                    unknown_compatible: bool = False) -> pd.Series:
     """The rung-1a `experience_compatible` rule on bands extracted from text.
 
-    Row-aligned pairs in, 0/1 out. Unknown on either side -> 0, exactly as the 1a rule
-    treats a missing field (it is the same function)."""
+    Row-aligned pairs in, 0/1 out. By default unknown on either side -> 0, exactly as the
+    1a rule treats a missing field (it is the same function). `unknown_compatible=True` is
+    X1's registered variant (amendment A1, 06-registration §7): an unknown band on either
+    side counts as compatible (1); a known pair is still the 1a comparison."""
     from candidate_screener.matching.corpus import experience_compatible
     if len(jd_texts) != len(cv_texts):
         raise ValueError("jd_texts and cv_texts must be row-aligned pairs")
     frame = pd.DataFrame({"jd_exp_band": [_jd_band_of(str(t or "")) for t in jd_texts],
                           "cv_exp_band": [_cv_band_of(str(t or ""), reference)
                                           for t in cv_texts]})
-    return experience_compatible(frame)
+    out = experience_compatible(frame)
+    if unknown_compatible:
+        unknown = frame.jd_exp_band.isna() | frame.cv_exp_band.isna()
+        out = out.where(~unknown.to_numpy(), 1)
+    return out
 
 
 # --- E4 seniority ----------------------------------------------------------------------

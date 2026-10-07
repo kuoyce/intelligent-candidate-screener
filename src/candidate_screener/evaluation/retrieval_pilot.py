@@ -33,15 +33,20 @@ COSTS = OUTPUT / "matching" / "retrieval-pilot-costs.json"
 CACHE = PROCESSED / "matching"
 
 
-def build_pools(seed: int = 0) -> pd.DataFrame:
-    """Pair frame for every (JD, candidate) in every pool, with text and metadata."""
-    path = CACHE / f"pilot-pools-{POOL_SIZE}-{seed}.parquet"
+def build_pools(seed: int = 0, text_variant: str = "v1") -> pd.DataFrame:
+    """Pair frame for every (JD, candidate) in every pool, with text and metadata.
+
+    `text_variant` (D53) changes the CV text only: the pools hold the same candidates
+    under every variant (the draw never reads text), and the `v1` cache name is unchanged."""
+    from candidate_screener.matching import corpus
+    path = CACHE / f"pilot-pools{corpus.variant_tag(text_variant)}-{POOL_SIZE}-{seed}.parquet"
     if path.exists():
         return pd.read_parquet(path)
     from candidate_screener.annotation.sample import load_english
-    from candidate_screener.matching import corpus
     labelled = corpus.a2_pairs()
     jd, cv = load_english()
+    if text_variant != "v1":
+        cv["cv_text"] = corpus.build_cv_text(cv, text_variant)
     jd, cv = jd.set_index("id"), cv.set_index("id")
     holdout = pd.read_csv(HOLDOUT)
     distractors = np.array(sorted(set(holdout[holdout.doc_type == "cv"].doc_id)

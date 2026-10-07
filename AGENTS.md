@@ -35,6 +35,7 @@ uv run python -m candidate_screener.data.verify --derived      # their acceptanc
 uv run python -m candidate_screener.baselines.run --check      # the frozen Phase 4 baseline
 uv run python -m candidate_screener.evaluation.final_set --check   # the reference (D41)
 uv run python -m candidate_screener.evaluation.indomain --check    # the ladder vs the reference
+uv run python -m candidate_screener.evaluation.stage1 --check      # X rungs, K1–K5, S2 (text_v2)
 uv run pytest                                                   # the suite (no data needed)
 uv run jupyter nbconvert --to notebook --execute --inplace notebooks/NN-*.ipynb
 ```
