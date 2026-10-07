@@ -16,11 +16,12 @@ except the uncommitted LLM bank under `data/processed/rerank/` (git-ignored by d
 | P5 ordering module + records | `52a115e` | [14](14-p5-ordering.md) |
 | P5.3 registration + amendments A1, A2 | `911a4b3`, `4ddbece` | [06](06-registration.md) |
 | P6 batch code + manifest | `204185a` | [15](15-p6-batch.md) |
-| P7 stage 1: X1–X4, K1–K5, S2 (text-only) | see git log | [16](16-p7-stage1.md) |
+| P7 stage 1: X1–X4, K1–K5, S2 (text-only) | `799268f` | [16](16-p7-stage1.md) |
 
 ## The LLM batch (run 11)
 
-**365 / 1,000 banked, 0 failures, 0 unparsed** (7 Oct, 07:41). 635 owed. Rate measured:
+**436 / 1,000 banked** (7 Oct, 16:20 SGT). 564 owed, 5 of them quarantined by a transient DNS
+error (`EAI_AGAIN`, exit 1); the 24 lost to the 11:44 session limit were retried and banked. Rate measured:
 50 pairs per ~6.5 min at concurrency 5. The user wants batches run **sequentially**, with a
 check between batches, and only when no sub-agents are running.
 
