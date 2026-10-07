@@ -55,3 +55,23 @@ def jds() -> list[str]:
 @pytest.fixture
 def held_out_resume() -> str:
     return HELD_OUT_RESUME
+
+
+def reads_final_labels(module) -> list[str]:
+    """What in `module`'s code (not its docstrings) could read the final labels or the
+    judgements (D46). Empty means clean. Shared by every module that fits or tunes."""
+    import ast
+    import inspect
+    tree = ast.parse(inspect.getsource(module))
+    docstrings = {id(n.body[0].value) for n in ast.walk(tree)
+                  if isinstance(n, (ast.Module, ast.FunctionDef, ast.ClassDef)) and n.body
+                  and isinstance(n.body[0], ast.Expr) and isinstance(n.body[0].value, ast.Constant)}
+    names = {n.id for n in ast.walk(tree) if isinstance(n, ast.Name)}
+    names |= {n.attr for n in ast.walk(tree) if isinstance(n, ast.Attribute)}
+    names |= {a.name for n in ast.walk(tree) if isinstance(n, ast.ImportFrom) for a in n.names}
+    strings = [n.value for n in ast.walk(tree) if isinstance(n, ast.Constant)
+               and isinstance(n.value, str) and id(n) not in docstrings]
+    hits = sorted(names & {"FINAL_CSV", "JUDGEMENTS_CSV", "load_inputs", "load_humans",
+                           "load_llm", "final_set"})
+    hits += [s for s in strings for b in ("a2-final-labels", "judgements.csv") if b in s]
+    return hits
