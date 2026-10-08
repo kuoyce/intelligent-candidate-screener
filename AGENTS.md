@@ -204,6 +204,25 @@ Know what a command costs before you start it (measured 8 Oct 2026, 22 cores, 15
 6. **RAM.** The runner defaults to `-j 2`. Checks peaking above 4.5 GB (`role_family`,
    `shortlist_dev`, `dev_pools`, `scoring_batch`) always run alone. Do not start other
    heavy jobs alongside it.
+7. **Long jobs (training, cold checks): start once in the background, then stop and wait.**
+   Anything longer than about 5 minutes runs as one background command, which writes its
+   own exit marker and peak RSS:
+
+   ```bash
+   /usr/bin/time -v uv run python -m candidate_screener.<module> > logs/<name>.log 2>&1; echo "exit $?" >> logs/<name>.log
+   ```
+
+   Then **end the turn**. The harness wakes the agent when the command exits. Never wait in
+   the foreground (`until …; do sleep …; done`, `timeout 590 …`, RSS-polling loops). Never
+   start a background waiter with a timeout either: one died at 10 minutes and turned into
+   foreground polling. Each wake-up re-reads the whole context once the prompt cache has
+   expired, so one 3.5-hour training run (P8, 8 Oct 2026) became about 25 full-price
+   wake-ups and hit the session limit with nothing new learned. Peak RSS comes from
+   `time -v` at the end of the log, not from polling. A sub-agent does not babysit a
+   multi-hour job: it starts the job, reports the log path, and returns.
+8. **Time one configuration before a grid.** Train the first grid point alone, record its
+   wall time, and multiply before launching the rest. If the total is more than about an
+   hour, say so before starting it.
 
 ## Agent Workflow Guidelines
 

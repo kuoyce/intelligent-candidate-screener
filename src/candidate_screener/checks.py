@@ -73,7 +73,8 @@ W = ("--warm",)
 #: Seconds: measured 8 Oct 2026 by `checks --cold --all` and `--warm --all` at -j 2 (two
 #: checks share 22 cores, so a parallel figure can exceed a serial one); the superseded warm
 #: figures by `checks --warm -j 1`. `run_alone` = measured peak RSS >= 4.5 GB in that cold run
-#: (role_family 4.9, shortlist_dev 6.2, dev_pools 4.8, scoring_batch 4.7; shortlist_dev
+#: (role_family 4.9, shortlist_dev 6.2, dev_pools 4.8, scoring_batch 4.7; stage2 5.3,
+#: its cold figure the 9 Oct training run, 12 grid points; shortlist_dev
 #: --variants peaked at 4.05 and so may share the machine).
 REGISTRY: tuple[Check, ...] = (
     Check("verify_derived", "data.verify", ("--derived",), cold_s=17.8),
@@ -105,6 +106,8 @@ REGISTRY: tuple[Check, ...] = (
     Check("shortlist_dev_variants", "evaluation.shortlist_dev", ("--variants", "--check"),
           cold_s=284.2),
     Check("shortlist_final", "evaluation.shortlist_final", ("--check",), cold_s=160.3),
+    Check("stage2", "evaluation.stage2", ("--check",), W, run_alone=True, cold_s=12609.0,
+          warm_s=251.5),
 )
 BY_NAME = {c.name: c for c in REGISTRY}
 
