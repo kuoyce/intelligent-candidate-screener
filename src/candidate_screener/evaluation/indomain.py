@@ -20,6 +20,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+from contextlib import contextmanager
 from dataclasses import asdict, dataclass
 
 import numpy as np
@@ -95,13 +96,51 @@ def per_jd_auc(y: pd.Series, s: pd.Series, jd: pd.Series) -> pd.Series:
                       if g.y.nunique() == 2}, dtype=float)
 
 
+#: Per-run memo of `per_jd_auc` (plan 2026-10-08, W3), active only inside `auc_memo()`.
+#: `paired_delta` recomputes a rung's per-JD AUCs for every comparison it enters; the memo
+#: computes them once per run. Keyed on a SHA-256 of `per_jd_auc`'s exact inputs (pair
+#: ids, y, JD, score), never on object identity, so two systems never share an entry.
+_AUC_MEMO: dict[str, pd.Series] | None = None
+
+
+@contextmanager
+def auc_memo():
+    """Enable a fresh `per_jd_auc` memo for one run; the previous state is restored after,
+    so nothing leaks between runs or tests. Usable as a decorator."""
+    global _AUC_MEMO
+    previous, _AUC_MEMO = _AUC_MEMO, {}
+    try:
+        yield _AUC_MEMO
+    finally:
+        _AUC_MEMO = previous
+
+
+def _auc_key(y: pd.Series, s: pd.Series, jd: pd.Series) -> str:
+    h = hashlib.sha256()
+    for part in (y.index, jd.index, s.index):
+        h.update("\x1f".join(map(str, part)).encode("utf-8") + b"\x1e")
+    h.update(np.asarray(y.to_numpy(), dtype=float).tobytes() + b"\x1e")
+    h.update("\x1f".join(map(str, jd.to_numpy())).encode("utf-8") + b"\x1e")
+    h.update(np.asarray(s.to_numpy(), dtype=float).tobytes())
+    return h.hexdigest()
+
+
+def _per_jd_auc_memo(y: pd.Series, s: pd.Series, jd: pd.Series) -> pd.Series:
+    if _AUC_MEMO is None:
+        return per_jd_auc(y, s, jd)
+    key = _auc_key(y, s, jd)
+    if key not in _AUC_MEMO:
+        _AUC_MEMO[key] = per_jd_auc(y, s, jd)
+    return _AUC_MEMO[key].copy()
+
+
 def _auc_values(scores: pd.Series, lab: pd.DataFrame, pairs: pd.DataFrame, metric: str
                 ) -> tuple[pd.Series, int]:
     sub = lab
     if metric == "within_family_auc":
         same = pairs.set_index("pair_id").keyword_match
         sub = lab[same.reindex(lab.index).fillna(0).astype(bool)]
-    values = per_jd_auc(sub.y, scores.reindex(sub.index), sub.jd_id)
+    values = _per_jd_auc_memo(sub.y, scores.reindex(sub.index), sub.jd_id)
     return values, int(sub[sub.jd_id.isin(values.index)].shape[0])
 
 
@@ -199,6 +238,7 @@ def assert_total_has_strata(figures: list[dict]) -> None:
             raise ValueError(f"{key} reports a total without both strata beside it")
 
 
+@auc_memo()
 def evaluate(rungs: list, classifiers: dict, comparisons: list[tuple[str, str]],
              seed: int = 0, text_variant: str = "v1") -> tuple[dict, dict]:
     """Score every rung on A2, compute every figure, return (record, costs).

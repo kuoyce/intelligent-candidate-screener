@@ -164,6 +164,7 @@ def x1_profile(rule, pairs: pd.DataFrame) -> dict:
                                                          DECIMALS)}
 
 
+@indomain.auc_memo()
 def evaluate(seed: int = 0, spec_list: list[Spec] | None = None) -> tuple[dict, dict]:
     from candidate_screener.evaluation import text_leak
     from candidate_screener.matching import corpus
