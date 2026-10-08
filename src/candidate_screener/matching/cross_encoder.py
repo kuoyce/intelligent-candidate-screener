@@ -11,6 +11,8 @@ epochs for a new head on little data. The first grid point with lr 2e-5 and 1 ep
 """
 from __future__ import annotations
 
+import hashlib
+
 import numpy as np
 import pandas as pd
 
@@ -23,6 +25,26 @@ CE_CONFIG = {"base": neural.MODEL_ID, "loss": "BinaryCrossEntropyLoss", "epochs"
              "lr": 2e-5, "batch": 16, "warmup_ratio": 0.1, "max_length": 384, "seed": 0}
 #: The selection grid. The first point is `CE_CONFIG` unchanged, so its cache is reused.
 CE_GRID = ({}, {"lr": 5e-5, "epochs": 3})
+PREDICT_BATCH = 32
+#: Call-level memo of `_predict` (plan 2026-10-08, W4), in process: `classify` re-predicts
+#: the pairs `score` already predicted. A hit needs the same weights, `max_seq_length`,
+#: batch size and the same ordered (JD, CV) texts, so it replays only an identical call
+#: (outputs can depend on batch padding, so a reordered or partial call is a new key).
+_PREDICTIONS: dict[str, np.ndarray] = {}
+
+
+def _text_digest(t: object) -> bytes:
+    raw = t if isinstance(t, str) else f"\x00{type(t).__name__}:{t!r}"
+    return hashlib.sha256(raw.encode("utf-8", "surrogatepass")).digest()
+
+
+def call_key(weights: str, max_seq_length: int, batch_size: int,
+             texts: list[tuple[object, object]]) -> str:
+    """SHA-256 over the weights path, `max_seq_length`, batch size and the ordered pairs."""
+    h = hashlib.sha256(f"{weights}\x1f{max_seq_length}\x1f{batch_size}\x1e".encode("utf-8"))
+    for jd, cv in texts:
+        h.update(_text_digest(jd) + _text_digest(cv))
+    return h.hexdigest()
 
 
 def best_threshold(y: np.ndarray, p: np.ndarray) -> float:
@@ -43,7 +65,6 @@ class _CrossEncoder(BaseSystem):
     def _fit(self, train):
         neural.require_torch()
         from sklearn.metrics import roc_auc_score
-        from sentence_transformers.cross_encoder import CrossEncoder
         fit_frame, val_frame, data_digest = self._training_data()
         self.selection = []
         best = None
@@ -52,8 +73,7 @@ class _CrossEncoder(BaseSystem):
             out = WEIGHTS / f"ce-{self.rung}-{neural.fingerprint(config)}"
             if not (out / "config.json").exists():
                 self._train(fit_frame, out, config)
-            self.model = CrossEncoder(str(out), device="cpu", local_files_only=True)
-            self.model.max_seq_length = CE_CONFIG["max_length"]
+            self._load(out)
             p = self._predict(val_frame)
             auc = float(roc_auc_score(val_frame.fit, p))
             self.selection.append({"lr": config["lr"], "epochs": config["epochs"],
@@ -62,9 +82,17 @@ class _CrossEncoder(BaseSystem):
             if best is None or auc > best[0]:
                 best = (auc, out, p)
         _, out, p = best
+        self._load(out)
+        self.threshold = best_threshold(val_frame.fit.to_numpy(), p)
+
+    def _load(self, out) -> None:
+        from sentence_transformers.cross_encoder import CrossEncoder
         self.model = CrossEncoder(str(out), device="cpu", local_files_only=True)
         self.model.max_seq_length = CE_CONFIG["max_length"]
-        self.threshold = best_threshold(val_frame.fit.to_numpy(), p)
+        self.weights_path = str(out)
+
+    def _call_key(self, texts: list[tuple[object, object]]) -> str:
+        return call_key(self.weights_path, self.model.max_seq_length, PREDICT_BATCH, texts)
 
     def _train(self, frame: pd.DataFrame, out, config: dict = CE_CONFIG) -> None:
         neural.set_determinism(config["seed"])
@@ -87,8 +115,12 @@ class _CrossEncoder(BaseSystem):
         model.save(str(out))
 
     def _predict(self, pairs: pd.DataFrame) -> np.ndarray:
-        return np.asarray(self.model.predict(list(zip(pairs.jd_text, pairs.cv_text)),
-                                             batch_size=32, show_progress_bar=False), dtype=float)
+        texts = list(zip(pairs.jd_text, pairs.cv_text))
+        key = self._call_key(texts)
+        if key not in _PREDICTIONS:
+            _PREDICTIONS[key] = np.asarray(self.model.predict(
+                texts, batch_size=PREDICT_BATCH, show_progress_bar=False), dtype=float)
+        return _PREDICTIONS[key].copy()
 
     def _score(self, pairs):
         return self._predict(pairs)

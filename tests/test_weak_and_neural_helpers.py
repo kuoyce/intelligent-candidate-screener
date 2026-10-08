@@ -55,3 +55,58 @@ def test_best_threshold_maximises_macro_f1():
     assert cross_encoder.best_threshold(y, p) in (0.35, 0.4, 0.8)
     t = cross_encoder.best_threshold(np.array([0, 1]), np.array([0.2, 0.7]))
     assert 0.2 < t <= 0.7
+
+
+class _FakeModel:
+    """Stands in for a loaded CrossEncoder: a deterministic score, and a call counter."""
+    max_seq_length = 384
+
+    def __init__(self, offset: float = 0.0):
+        self.calls, self.offset = 0, offset
+
+    def predict(self, texts, batch_size, show_progress_bar):
+        self.calls += 1
+        return [len(j) * 0.01 + len(c) * 0.001 + self.offset for j, c in texts]
+
+
+def _ce(model, weights):
+    ce = cross_encoder.CrossEncoderWeak()
+    ce.model, ce.weights_path = model, weights
+    return ce
+
+
+def test_cross_encoder_call_key_distinguishes_order_subset_weights_and_length():
+    """W4 (plan 2026-10-08): only an identical call shares a key."""
+    texts = [("jd a", "cv one"), ("jd b", "cv two"), ("jd a", "cv three")]
+    key = cross_encoder.call_key("w1", 384, 32, texts)
+    assert key == cross_encoder.call_key("w1", 384, 32, list(texts))
+    others = [cross_encoder.call_key("w1", 384, 32, texts[::-1]),       # reordered
+              cross_encoder.call_key("w1", 384, 32, texts[:2]),         # a subset
+              cross_encoder.call_key("w2", 384, 32, texts),             # other weights
+              cross_encoder.call_key("w1", 256, 32, texts),             # other length
+              cross_encoder.call_key("w1", 384, 16, texts),             # other batch
+              cross_encoder.call_key("w1", 384, 32, [("jd acv", " one"), *texts[1:]]),
+              cross_encoder.call_key("w1", 384, 32, [("jd a", None), *texts[1:]])]
+    assert len({key, *others}) == len(others) + 1
+
+
+def test_cross_encoder_predict_replays_only_identical_calls(monkeypatch):
+    monkeypatch.setattr(cross_encoder, "_PREDICTIONS", {})
+    frame = pd.DataFrame({"pair_id": ["p1", "p2", "p3"], "jd_text": ["jd a", "jd bb", "jd a"],
+                          "cv_text": ["cv one", "cv two", "cv three"]})
+    model = _FakeModel()
+    ce = _ce(model, "w1")
+    ce.threshold = 0.01
+    first = ce._predict(frame)
+    np.testing.assert_array_equal(first, model.predict(
+        list(zip(frame.jd_text, frame.cv_text)), 32, False))
+    model.calls = 0
+    first[:] = -1.0                                          # a caller mutating its copy
+    again = ce._predict(frame)
+    calls = ce.classify(frame)
+    assert model.calls == 0                                  # score then classify: one predict
+    assert (again > 0).all() and list(calls) == ["Fit", "Fit", "Fit"]
+    ce._predict(frame.iloc[::-1])                            # reordered: predicted anew
+    assert model.calls == 1
+    other = _ce(_FakeModel(offset=1.0), "w2")                # other weights: never shared
+    assert (other._predict(frame) > 1).all()
