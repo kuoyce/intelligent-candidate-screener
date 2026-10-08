@@ -114,7 +114,9 @@ def minilm_encoder(threads: int = 4):
     from sentence_transformers import SentenceTransformer
 
     from candidate_screener.extraction.ner import base_model_path
+    from candidate_screener.matching.neural import quiet_loading
     torch.set_num_threads(threads)
+    quiet_loading()
     model = SentenceTransformer(base_model_path(), device="cpu", local_files_only=True)
 
     def encode(texts: list[str]) -> np.ndarray:

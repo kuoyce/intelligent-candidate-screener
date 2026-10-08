@@ -27,6 +27,24 @@ def require_torch():
         raise ImportError("this rung needs the `ml` group: uv sync --all-groups") from exc
 
 
+def quiet_loading() -> None:
+    """Silence the HF hub / transformers progress bars before a model load (plan W9b).
+
+    transformers 5 draws a `Loading weights: 100%|…|` tqdm bar on every load through
+    `transformers.utils.logging.tqdm`, which `disable_progress_bar()` turns off; the hub's
+    own bars follow `HF_HUB_DISABLE_PROGRESS_BARS`. Output only: no numeric effect, and
+    training-loop bars stay as each trainer sets them (`disable_tqdm`).
+    """
+    os.environ.setdefault("HF_HUB_DISABLE_PROGRESS_BARS", "1")
+    try:
+        import huggingface_hub.utils
+        import transformers.utils.logging
+    except ImportError:                                          # pragma: no cover
+        return
+    huggingface_hub.utils.disable_progress_bars()
+    transformers.utils.logging.disable_progress_bar()
+
+
 def set_determinism(seed: int) -> None:
     import torch
     random.seed(seed)

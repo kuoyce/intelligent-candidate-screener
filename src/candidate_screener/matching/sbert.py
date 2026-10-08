@@ -40,6 +40,7 @@ class Encoder:
     def __init__(self, model_path: str, key: str) -> None:
         neural.require_torch()
         from sentence_transformers import SentenceTransformer
+        neural.quiet_loading()
         self.model = SentenceTransformer(model_path, device="cpu", local_files_only=True)
         self.path = EMBED_CACHE / f"{key}.npz"
         self.cache: dict[str, np.ndarray] = {}
@@ -154,6 +155,7 @@ class SbertWeak(_BiEncoder):
         from sentence_transformers import (SentenceTransformer, SentenceTransformerTrainer,
                                            SentenceTransformerTrainingArguments, losses)
         from sentence_transformers.sentence_transformer.training_args import BatchSamplers
+        neural.quiet_loading()
         model = SentenceTransformer(neural.MODEL_ID, device="cpu", local_files_only=True)
         model.max_seq_length = FT_CONFIG["max_seq_length"]
         data = Dataset.from_pandas(weak_triplets(frame), preserve_index=False)

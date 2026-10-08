@@ -87,6 +87,7 @@ class _CrossEncoder(BaseSystem):
 
     def _load(self, out) -> None:
         from sentence_transformers.cross_encoder import CrossEncoder
+        neural.quiet_loading()
         self.model = CrossEncoder(str(out), device="cpu", local_files_only=True)
         self.model.max_seq_length = CE_CONFIG["max_length"]
         self.weights_path = str(out)
@@ -99,6 +100,7 @@ class _CrossEncoder(BaseSystem):
         from datasets import Dataset
         from sentence_transformers.cross_encoder import (CrossEncoder, CrossEncoderTrainer,
                                                          CrossEncoderTrainingArguments, losses)
+        neural.quiet_loading()
         model = CrossEncoder(neural.MODEL_ID, device="cpu", local_files_only=True,
                              config_kwargs={"num_labels": 1})
         model.max_seq_length = CE_CONFIG["max_length"]
