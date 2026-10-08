@@ -244,8 +244,9 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--check", action="store_true",
                     help="rebuild (retraining the tagger into a scratch cache) and diff")
-    ap.add_argument("--reuse-weights", action="store_true",
-                    help="with --check: evaluate the cached tagger instead of retraining")
+    ap.add_argument("--reuse-weights", "--warm", dest="reuse_weights", action="store_true",
+                    help="with --check: evaluate the cached tagger instead of retraining "
+                         "(`--warm` is the D55 warm-tier alias)")
     ap.add_argument("--weights", type=Path, default=None,
                     help="with --check: evaluate an already-trained tagger directory")
     ap.add_argument("--retrain", action="store_true", help="force retraining on build")

@@ -1188,11 +1188,62 @@ def collect() -> dict:
 
 # --- agreement -------------------------------------------------------------
 
+#: sklearn's message when no element of `labels` occurs in `y1`, kept verbatim so a caller
+#: that matched on it still does.
+_NO_LABEL_IN_Y1 = ("At least one label in `labels` must be present in `y1` (even though "
+                   "`cohen_kappa_score` is otherwise agnostic to the order of `y1` and `y2`).")
+
+
+def _encode(values, labels: list[str]) -> np.ndarray:
+    """Each value's index in `labels`, -1 for a value outside them."""
+    pos = {label: i for i, label in enumerate(labels)}
+    return np.array([pos.get(x, -1) for x in values], dtype=np.int64)
+
+
+def _factorize(values) -> np.ndarray:
+    """A code per distinct value, labelled or not, with `set`'s notion of distinct."""
+    seen: dict = {}
+    return np.array([seen.setdefault(x, len(seen)) for x in values], dtype=np.int64)
+
+
+def _kappa_codes(ia: np.ndarray, ib: np.ndarray, k: int) -> float:
+    """Unweighted Cohen's kappa over label codes, bit-identical to sklearn's.
+
+    The arithmetic is `sklearn.metrics.cohen_kappa_score` step for step (confusion matrix
+    cast to float64, `outer(sum0, sum1) / total`, off-diagonal weights, `1 - k`), so every
+    published figure reproduces exactly; it exists because sklearn's input validation cost
+    ~1.5 ms a call and `kappa_ci` makes 2,000 calls per CI. Pairs where either value is
+    outside `labels` (code -1) are dropped, as `confusion_matrix` drops them; NaN where
+    sklearn returns `replace_undefined_by`.
+    """
+    if not (ia >= 0).any():
+        raise ValueError(_NO_LABEL_IN_Y1)
+    keep = (ia >= 0) & (ib >= 0)
+    cm = np.bincount(ia[keep] * k + ib[keep], minlength=k * k).reshape(k, k)
+    cm = cm.astype(np.float64)
+    sum0, sum1 = cm.sum(axis=0), cm.sum(axis=1)
+    total = np.sum(sum0)
+    if total == 0:
+        return float("nan")
+    expected = np.outer(sum0, sum1) / total
+    w = np.ones((k, k), dtype=np.float64)
+    np.fill_diagonal(w, 0)
+    denominator = np.sum(w * expected)
+    if denominator == 0:
+        return float("nan")
+    return float(1 - np.sum(w * cm) / denominator)
+
+
 def cohen_kappa(a: list[str], b: list[str],
                 labels: list[str] | None = None) -> float:
-    from sklearn.metrics import cohen_kappa_score
-    return float(cohen_kappa_score(a, b,
-                                   labels=labels or list(session.LABELS)))
+    labels = labels or list(session.LABELS)
+    a, b = list(a), list(b)
+    if len(a) != len(b):
+        raise ValueError(f"Found input variables with inconsistent numbers of samples: "
+                         f"[{len(a)}, {len(b)}]")
+    if not a:
+        raise ValueError("Found empty input array: a kappa needs at least one pair.")
+    return _kappa_codes(_encode(a, labels), _encode(b, labels), len(labels))
 
 
 #: `Good` u `Potential` against `No Fit` — the coarsest question the instrument asks, and the
@@ -1213,13 +1264,17 @@ def kappa_ci(a: list[str], b: list[str], n_boot: int = 2000,
     if len(a) < 2:
         return {"kappa": float("nan"), "lo": float("nan"), "hi": float("nan"),
                 "n": len(a), "agreement": float("nan")}
+    labels = labels or list(session.LABELS)
+    ia, ib = _encode(a, labels), _encode(b, labels)
+    # The draw filter is on the raw values, labelled or not, as it always was: a codes-only
+    # test would merge two distinct out-of-label values and change which draws count.
+    ra, rb = _factorize(a), _factorize(b)
     rng = np.random.default_rng(seed)
     draws = []
     for _ in range(n_boot):
         idx = rng.integers(0, len(a), len(a))
-        sa, sb = [a[i] for i in idx], [b[i] for i in idx]
-        if len(set(sa)) > 1 or len(set(sb)) > 1:
-            draws.append(cohen_kappa(sa, sb, labels))
+        if np.ptp(ra[idx]) > 0 or np.ptp(rb[idx]) > 0:
+            draws.append(_kappa_codes(ia[idx], ib[idx], len(labels)))
     lo, hi = (np.nanpercentile(draws, [2.5, 97.5]) if draws
               else (float("nan"), float("nan")))
     return {"kappa": cohen_kappa(a, b, labels), "lo": float(lo), "hi": float(hi),

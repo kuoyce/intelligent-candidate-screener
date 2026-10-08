@@ -409,6 +409,82 @@ def test_kappa_reports_its_n_and_its_agreement():
     assert out["lo"] <= out["kappa"] <= out["hi"]
 
 
+def _sklearn_kappa_ci(a, b, n_boot, seed, labels):
+    """The pre-W1 `kappa_ci`, verbatim but for calling sklearn directly: the reference."""
+    import numpy as np
+    from sklearn.metrics import cohen_kappa_score
+
+    def kappa(x, y):
+        return float(cohen_kappa_score(x, y, labels=labels))
+
+    rng = np.random.default_rng(seed)
+    draws = []
+    for _ in range(n_boot):
+        idx = rng.integers(0, len(a), len(a))
+        sa, sb = [a[i] for i in idx], [b[i] for i in idx]
+        if len(set(sa)) > 1 or len(set(sb)) > 1:
+            draws.append(kappa(sa, sb))
+    lo, hi = (np.nanpercentile(draws, [2.5, 97.5]) if draws
+              else (float("nan"), float("nan")))
+    return {"kappa": kappa(a, b), "lo": float(lo), "hi": float(hi), "n": len(a),
+            "agreement": float(np.mean([x == y for x, y in zip(a, b)]))}
+
+
+@pytest.mark.filterwarnings("ignore::sklearn.exceptions.UndefinedMetricWarning")
+def test_numpy_kappa_is_bit_identical_to_sklearn():
+    """Mutation: swap `sum0`/`sum1` in `np.outer`, or drop the out-of-label filter — fails.
+
+    W1 replaced sklearn's `cohen_kappa_score` with numpy for speed. Every published kappa
+    and CI must reproduce to the last bit, so this compares with `==`, not `approx`, over
+    three-class and binary labels, identical and one-class raters, values outside
+    `labels`, and n from 2 to 150. NaN equals NaN (an undefined kappa stays undefined).
+    """
+    import math
+
+    import numpy as np
+
+    def same(x, y):
+        return x == y or (math.isnan(x) and math.isnan(y))
+
+    three = list(session.LABELS)
+    rng = np.random.default_rng(20261008)
+    cases = 0
+    for trial in range(40):
+        n = int(rng.integers(2, 6)) if trial % 3 == 0 else int(rng.integers(6, 151))
+        a = [str(x) for x in rng.choice(three, n)]
+        b = [str(x) for x in rng.choice(three, n)]
+        if trial % 5 == 1:
+            b = list(a)                                   # identical raters
+        if trial % 7 == 2:
+            a = [three[0]] * n                            # one-class rater
+        if trial % 4 == 3:                                # values outside `labels`
+            for i in rng.choice(n, max(1, n // 5), replace=False):
+                (a if i % 2 else b)[i] = "unparsed" if i % 3 else "Strong Fit"
+            a[0] = three[1]                               # y1 keeps a label in `labels`
+        for x, y, labels in ((a, b, three),
+                             (llm.collapse(a), llm.collapse(b), llm.BINARY)):
+            assert same(llm.cohen_kappa(x, y, labels),
+                        _sklearn_kappa_ci(x, y, 0, 0, labels)["kappa"]), (trial, x, y)
+            got = llm.kappa_ci(x, y, n_boot=100, seed=trial, labels=labels)
+            want = _sklearn_kappa_ci(x, y, 100, trial, labels)
+            assert got.keys() == want.keys()
+            assert all(same(got[k], want[k]) for k in want), (trial, got, want)
+            cases += 1
+    assert cases == 80
+
+
+def test_numpy_kappa_keeps_sklearns_errors():
+    """Mutation: drop the no-label-in-`y1` check — `cohen_kappa` then returns NaN, fails.
+
+    sklearn raises when no element of `labels` occurs in `y1`; a silent NaN there would
+    let a series of unparsed labels pass as an undefined-but-valid kappa.
+    """
+    with pytest.raises(ValueError, match="must be present in `y1`"):
+        llm.cohen_kappa(["x", "y"], ["Good Fit", "No Fit"])
+    with pytest.raises(ValueError, match="inconsistent numbers of samples"):
+        llm.cohen_kappa(["Good Fit", "No Fit"], ["Good Fit"])
+
+
 def test_a_tied_majority_is_excluded_rather_than_broken():
     """Mutation: return `counts.index[0]` unconditionally — this fails.
 

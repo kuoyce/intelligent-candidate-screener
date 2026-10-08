@@ -8,8 +8,23 @@ Hyperparameters are chosen on that held-back split (plan 03 row 4.1), from a two
 grid, by validation AUC: the conventional setting, and a larger learning rate with more
 epochs for a new head on little data. The first grid point with lr 2e-5 and 1 epoch left
 4a's loss at ln 2 (it learned nothing). Nothing is fitted or chosen on the final set (D46).
+
+Persistent score store (plan 2026-10-08 W7, D55): every prediction made from weights loaded
+by `_load` is also written to `SCORE_STORE` (one `.npy` per call, git-ignored and
+reconstructible). It is **read** only after `set_persistent(True)`, which the `--warm` flag
+of a CE-using check sets; a cold run (the default) never reads it, so it re-infers and so
+primes the store for the next warm run. The on-disk key is `call_key` with the weights
+identified by **content** (SHA-256 of every file in the loaded directory) plus the torch,
+transformers and sentence-transformers versions, so retrained weights or a library upgrade
+miss rather than replay stale scores.
 """
 from __future__ import annotations
+
+import hashlib
+import os
+import tempfile
+from importlib import metadata
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
@@ -23,6 +38,76 @@ CE_CONFIG = {"base": neural.MODEL_ID, "loss": "BinaryCrossEntropyLoss", "epochs"
              "lr": 2e-5, "batch": 16, "warmup_ratio": 0.1, "max_length": 384, "seed": 0}
 #: The selection grid. The first point is `CE_CONFIG` unchanged, so its cache is reused.
 CE_GRID = ({}, {"lr": 5e-5, "epochs": 3})
+PREDICT_BATCH = 32
+#: Call-level memo of `_predict` (plan 2026-10-08, W4), in process: `classify` re-predicts
+#: the pairs `score` already predicted. A hit needs the same weights, `max_seq_length`,
+#: batch size and the same ordered (JD, CV) texts, so it replays only an identical call
+#: (outputs can depend on batch padding, so a reordered or partial call is a new key).
+_PREDICTIONS: dict[str, np.ndarray] = {}
+SCORE_STORE = WEIGHTS / "ce-scores"
+_PERSISTENT = False
+
+
+def set_persistent(on: bool) -> None:
+    """Read `SCORE_STORE` before predicting (warm tier). Off by default: cold never reads."""
+    global _PERSISTENT
+    _PERSISTENT = bool(on)
+
+
+def weights_digest(directory) -> str:
+    """SHA-256 over every file (relative path and bytes) under a saved model directory,
+    plus the versions of the libraries that turn those bytes into scores."""
+    h = hashlib.sha256()
+    root = Path(directory)
+    for f in sorted(p for p in root.rglob("*") if p.is_file()):
+        h.update(f"{f.relative_to(root).as_posix()}\x1f".encode("utf-8"))
+        with f.open("rb") as fh:
+            for block in iter(lambda: fh.read(1 << 20), b""):
+                h.update(block)
+        h.update(b"\x1e")
+    for lib in ("torch", "transformers", "sentence-transformers"):
+        try:
+            v = metadata.version(lib)
+        except metadata.PackageNotFoundError:                    # pragma: no cover
+            v = "absent"
+        h.update(f"{lib}={v}\x1e".encode("utf-8"))
+    return h.hexdigest()
+
+
+def _stored(key: str, n: int) -> np.ndarray | None:
+    path = SCORE_STORE / f"{key}.npy"
+    try:
+        scores = np.load(path, allow_pickle=False)
+    except (OSError, ValueError):
+        return None
+    return scores if scores.dtype == np.float64 and scores.shape == (n,) else None
+
+
+def _store(key: str, scores: np.ndarray) -> None:
+    """Atomic write (temp file + rename), so a concurrent reader never sees a partial file."""
+    SCORE_STORE.mkdir(parents=True, exist_ok=True)
+    fd, tmp = tempfile.mkstemp(dir=SCORE_STORE, suffix=".tmp")
+    try:
+        with os.fdopen(fd, "wb") as fh:
+            np.save(fh, scores, allow_pickle=False)
+        os.replace(tmp, SCORE_STORE / f"{key}.npy")
+    except BaseException:
+        Path(tmp).unlink(missing_ok=True)
+        raise
+
+
+def _text_digest(t: object) -> bytes:
+    raw = t if isinstance(t, str) else f"\x00{type(t).__name__}:{t!r}"
+    return hashlib.sha256(raw.encode("utf-8", "surrogatepass")).digest()
+
+
+def call_key(weights: str, max_seq_length: int, batch_size: int,
+             texts: list[tuple[object, object]]) -> str:
+    """SHA-256 over the weights path, `max_seq_length`, batch size and the ordered pairs."""
+    h = hashlib.sha256(f"{weights}\x1f{max_seq_length}\x1f{batch_size}\x1e".encode("utf-8"))
+    for jd, cv in texts:
+        h.update(_text_digest(jd) + _text_digest(cv))
+    return h.hexdigest()
 
 
 def best_threshold(y: np.ndarray, p: np.ndarray) -> float:
@@ -43,7 +128,6 @@ class _CrossEncoder(BaseSystem):
     def _fit(self, train):
         neural.require_torch()
         from sklearn.metrics import roc_auc_score
-        from sentence_transformers.cross_encoder import CrossEncoder
         fit_frame, val_frame, data_digest = self._training_data()
         self.selection = []
         best = None
@@ -52,8 +136,7 @@ class _CrossEncoder(BaseSystem):
             out = WEIGHTS / f"ce-{self.rung}-{neural.fingerprint(config)}"
             if not (out / "config.json").exists():
                 self._train(fit_frame, out, config)
-            self.model = CrossEncoder(str(out), device="cpu", local_files_only=True)
-            self.model.max_seq_length = CE_CONFIG["max_length"]
+            self._load(out)
             p = self._predict(val_frame)
             auc = float(roc_auc_score(val_frame.fit, p))
             self.selection.append({"lr": config["lr"], "epochs": config["epochs"],
@@ -62,15 +145,26 @@ class _CrossEncoder(BaseSystem):
             if best is None or auc > best[0]:
                 best = (auc, out, p)
         _, out, p = best
+        self._load(out)
+        self.threshold = best_threshold(val_frame.fit.to_numpy(), p)
+
+    def _load(self, out) -> None:
+        from sentence_transformers.cross_encoder import CrossEncoder
+        neural.quiet_loading()
         self.model = CrossEncoder(str(out), device="cpu", local_files_only=True)
         self.model.max_seq_length = CE_CONFIG["max_length"]
-        self.threshold = best_threshold(val_frame.fit.to_numpy(), p)
+        self.weights_path = str(out)
+        self.weights_digest = weights_digest(out)
+
+    def _call_key(self, texts: list[tuple[object, object]]) -> str:
+        return call_key(self.weights_path, self.model.max_seq_length, PREDICT_BATCH, texts)
 
     def _train(self, frame: pd.DataFrame, out, config: dict = CE_CONFIG) -> None:
         neural.set_determinism(config["seed"])
         from datasets import Dataset
         from sentence_transformers.cross_encoder import (CrossEncoder, CrossEncoderTrainer,
                                                          CrossEncoderTrainingArguments, losses)
+        neural.quiet_loading()
         model = CrossEncoder(neural.MODEL_ID, device="cpu", local_files_only=True,
                              config_kwargs={"num_labels": 1})
         model.max_seq_length = CE_CONFIG["max_length"]
@@ -87,8 +181,22 @@ class _CrossEncoder(BaseSystem):
         model.save(str(out))
 
     def _predict(self, pairs: pd.DataFrame) -> np.ndarray:
-        return np.asarray(self.model.predict(list(zip(pairs.jd_text, pairs.cv_text)),
-                                             batch_size=32, show_progress_bar=False), dtype=float)
+        texts = list(zip(pairs.jd_text, pairs.cv_text))
+        key = self._call_key(texts)
+        if key not in _PREDICTIONS:
+            # Only weights loaded by `_load` carry a content digest; anything else (a test
+            # double, say) is never read from or written to the disk store.
+            digest = getattr(self, "weights_digest", None)
+            disk_key = (call_key(digest, self.model.max_seq_length, PREDICT_BATCH, texts)
+                        if digest else None)
+            scores = _stored(disk_key, len(texts)) if disk_key and _PERSISTENT else None
+            if scores is None:
+                scores = np.asarray(self.model.predict(
+                    texts, batch_size=PREDICT_BATCH, show_progress_bar=False), dtype=float)
+                if disk_key:
+                    _store(disk_key, scores)
+            _PREDICTIONS[key] = scores
+        return _PREDICTIONS[key].copy()
 
     def _score(self, pairs):
         return self._predict(pairs)

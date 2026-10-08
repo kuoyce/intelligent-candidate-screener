@@ -272,6 +272,32 @@ def title_spans(text: object, aliases: Mapping[str, str] | None = None,
     if _missing(text):
         return []
     text = str(text)
+    memo = _span_memo(aliases)
+    key = (text, max_ngram)
+    if key not in memo:
+        if len(memo) >= SPAN_MEMO_MAX:
+            memo.clear()
+        memo[key] = tuple(_title_spans(text, aliases, max_ngram))
+    return list(memo[key])
+
+
+#: Per-text memo of `title_spans` (plan 2026-10-08, W5), one table per alias-table object
+#: (the object is held and compared by identity, so a new model never reads another
+#: model's spans). Spans are discrete (offsets, strings) and `TitleSpan` is frozen; callers
+#: get a fresh list. Bounded: a table is cleared when it reaches `SPAN_MEMO_MAX` texts.
+SPAN_MEMO_MAX = 200_000
+_SPANS: dict[int, tuple[Mapping[str, str], dict[tuple[str, int], tuple[TitleSpan, ...]]]] = {}
+
+
+def _span_memo(aliases: Mapping[str, str]) -> dict[tuple[str, int], tuple[TitleSpan, ...]]:
+    hit = _SPANS.get(id(aliases))
+    if hit is None or hit[0] is not aliases:
+        _SPANS[id(aliases)] = hit = (aliases, {})
+    return hit[1]
+
+
+def _title_spans(text: str, aliases: Mapping[str, str], max_ngram: int) -> list[TitleSpan]:
+    """`title_spans` without the memo: `text` is a string, `aliases` resolved."""
     toks = canonical_tokens(text)
     if not toks:
         return []
@@ -777,9 +803,31 @@ def predict_proba(texts: Sequence[str], side: str, model: RoleModel | None = Non
     uniq = sorted(set(texts))
     if not uniq:
         return np.zeros((0, len(model.labels)))
-    p = model.sides[side].proba(uniq, model.aliases, model.encoder())
+    p = _proba_memo(model, side, uniq)
     row = {t: i for i, t in enumerate(uniq)}
     return p[[row[t] for t in texts]]
+
+
+#: Call-level memo of the classifier's probabilities (plan 2026-10-08, W5): the X rungs
+#: call `role_match` on the same frame once per rung. A hit needs the same model object
+#: (held and compared by identity), the same side and the same sorted unique texts, so
+#: only an identical batch is replayed and no row is ever computed in another batch.
+PROBA_MEMO_MAX = 64
+_PROBA: dict[tuple[int, str, str], tuple[RoleModel, np.ndarray]] = {}
+
+
+def _proba_memo(model: RoleModel, side: str, uniq: list[str]) -> np.ndarray:
+    h = hashlib.sha256()
+    for t in uniq:
+        h.update(hashlib.sha256(t.encode("utf-8", "surrogatepass")).digest())
+    key = (id(model), side, h.hexdigest())
+    hit = _PROBA.get(key)
+    if hit is None or hit[0] is not model:
+        if len(_PROBA) >= PROBA_MEMO_MAX:
+            _PROBA.clear()
+        hit = _PROBA[key] = (model, model.sides[side].proba(uniq, model.aliases,
+                                                             model.encoder()))
+    return hit[1]
 
 
 def soft_agreement(p_jd: np.ndarray, p_cv: np.ndarray) -> np.ndarray:
@@ -1000,7 +1048,12 @@ def main(argv: list[str] | None = None) -> int:
     g.add_argument("--evaluate", action="store_true", help="record from the cached model")
     g.add_argument("--check", action="store_true", help="refit and diff the committed record")
     g.add_argument("--derive", action="store_true", help="print the derived label space")
+    ap.add_argument("--warm", action="store_true",
+                    help="with --check: diff the record built from the cached model and its "
+                         "cached training summary (D55 warm tier); refits and writes nothing")
     a = ap.parse_args(argv)
+    if a.warm and not a.check:
+        ap.error("--warm is only valid with --check")
     if a.derive:
         docs = load_train_documents()
         prep = prepare(docs)
@@ -1008,7 +1061,7 @@ def main(argv: list[str] | None = None) -> int:
                          indent=1, ensure_ascii=False))
         print("committed constants match:", committed_space_matches(prep["space"]))
         return 0
-    fresh = render(build(train=not a.evaluate))
+    fresh = render(build(train=not (a.evaluate or a.warm)))
     if a.check:
         ok = RECORD.exists() and RECORD.read_text(encoding="utf-8") == fresh
         print(f"role-family record {'OK' if ok else 'MISMATCH'} ({RECORD.name})")

@@ -182,6 +182,8 @@ def load_ner(path: Path = NER_DIR) -> NerTagger:
     meta = json.loads(cfg_file.read_text())
     config = NerConfig(**meta["config"])
     torch.set_num_threads(config.threads)
+    from candidate_screener.matching.neural import quiet_loading
+    quiet_loading()
     model = AutoModelForTokenClassification.from_pretrained(path, local_files_only=True)
     tok = AutoTokenizer.from_pretrained(path, local_files_only=True)
     return NerTagger(model, tok, config)
@@ -247,6 +249,8 @@ def train(config: NerConfig = NerConfig(), out_dir: Path = NER_DIR, verbose: boo
 
     set_determinism(config.seed, config.threads)
     base = base_model_path(config.base_model)
+    from candidate_screener.matching.neural import quiet_loading
+    quiet_loading()
     tok = AutoTokenizer.from_pretrained(base, local_files_only=True)
     model = AutoModelForTokenClassification.from_pretrained(
         base, num_labels=len(LABELS), id2label=dict(enumerate(LABELS)),

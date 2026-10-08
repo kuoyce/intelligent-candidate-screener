@@ -258,8 +258,13 @@ def main(argv: list[str] | None = None) -> int:
     g = ap.add_mutually_exclusive_group(required=True)
     g.add_argument("--build", action="store_true", help="build the cache, write the report")
     g.add_argument("--check", action="store_true", help="rebuild from scratch, diff the report")
+    ap.add_argument("--warm", action="store_true",
+                    help="with --check: diff the report of the cached pools instead of "
+                         "rebuilding them (D55 warm tier)")
     a = ap.parse_args(argv)
-    dev = build(force=a.check)
+    if a.warm and not a.check:
+        ap.error("--warm is only valid with --check")
+    dev = build(force=a.check and not a.warm)
     rep = report(dev)
     bad = [k for k, v in rep["checks"].items() if not v]
     for k, v in rep["checks"].items():

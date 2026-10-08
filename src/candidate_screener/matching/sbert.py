@@ -13,7 +13,10 @@ the pre-D53 ones unchanged, so the committed `v1` record still reproduces.
 from __future__ import annotations
 
 import hashlib
+import os
 import re
+import tempfile
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
@@ -40,6 +43,7 @@ class Encoder:
     def __init__(self, model_path: str, key: str) -> None:
         neural.require_torch()
         from sentence_transformers import SentenceTransformer
+        neural.quiet_loading()
         self.model = SentenceTransformer(model_path, device="cpu", local_files_only=True)
         self.path = EMBED_CACHE / f"{key}.npz"
         self.cache: dict[str, np.ndarray] = {}
@@ -67,7 +71,17 @@ class Encoder:
                 v = vectors[owner == i].mean(axis=0)
                 self.cache[self._key(t)] = (v / np.linalg.norm(v)).astype(np.float32)
             EMBED_CACHE.mkdir(parents=True, exist_ok=True)
-            np.savez(self.path, keys=np.array(list(self.cache)), vectors=np.stack(list(self.cache.values())))
+            # Atomic (temp + rename): `checks -j 2` can run two encoders at once, and a reader
+            # must never see a half-written file. A lost update is only a later cache miss.
+            fd, tmp = tempfile.mkstemp(dir=EMBED_CACHE, suffix=".npz")
+            try:
+                with os.fdopen(fd, "wb") as fh:
+                    np.savez(fh, keys=np.array(list(self.cache)),
+                             vectors=np.stack(list(self.cache.values())))
+                os.replace(tmp, self.path)
+            except BaseException:
+                Path(tmp).unlink(missing_ok=True)
+                raise
         return np.stack([self.cache[self._key(t)] for t in texts])
 
 
@@ -154,6 +168,7 @@ class SbertWeak(_BiEncoder):
         from sentence_transformers import (SentenceTransformer, SentenceTransformerTrainer,
                                            SentenceTransformerTrainingArguments, losses)
         from sentence_transformers.sentence_transformer.training_args import BatchSamplers
+        neural.quiet_loading()
         model = SentenceTransformer(neural.MODEL_ID, device="cpu", local_files_only=True)
         model.max_seq_length = FT_CONFIG["max_seq_length"]
         data = Dataset.from_pandas(weak_triplets(frame), preserve_index=False)
