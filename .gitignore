@@ -6,3 +6,6 @@ data/*
 __pycache__/
 *.part
 .ipynb_checkpoints/
+
+# Check-runner and ad-hoc logs (plan 2026-10-08-test-and-check-runtime, Q4)
+logs/
