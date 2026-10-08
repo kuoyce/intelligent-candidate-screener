@@ -44,7 +44,7 @@ testpaths = ["tests"]
 # Every test but `test_baseline_golden.py` runs on inline synthetic corpora. That is a
 # hard requirement, not a nicety: `data/` is git-ignored, and a suite that cannot run
 # on a fresh clone will not be run.
-addopts = "-q -ra"
+addopts = "-q -ra --tb=short"
 
 # Optional groups (plan/2026-09-26-top-down-reset, P0.6). The base suite must pass
 # without them: `uv sync` gives the classical stack, `uv sync --all-groups` adds these.

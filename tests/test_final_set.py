@@ -117,6 +117,9 @@ def test_an_unknown_annotator_is_a_new_rule_version():
         fs.load_humans(judgements)
 
 
+# By design: the fixture's strata are one or two JDs with a handful of both-annotated pairs, so
+# some agreement blocks are one-class in every JD-bootstrap draw and their kappa CI is NaN.
+@pytest.mark.filterwarnings("ignore:All-NaN slice encountered:RuntimeWarning")
 def test_the_report_carries_a_total_beside_both_strata():
     rep = fs.report(fs.build_frame(*_inputs()))
     assert list(rep["scopes"]) == ["generic", "targeted", "total"]

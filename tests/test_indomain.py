@@ -84,6 +84,9 @@ def test_binary_stats_match_sklearn():
     assert s["accuracy"] == pytest.approx(np.mean(y == p))
 
 
+# By design: `targeted` is one JD, so every JD-bootstrap draw is the same pairs; a one-class
+# subset there (humans_agree: y = [0, 0]) gives NaN kappa in every draw and a NaN CI.
+@pytest.mark.filterwarnings("ignore:All-NaN slice encountered:RuntimeWarning")
 def test_classifier_figures_cover_every_scope_and_metric():
     lab = _lab()
     preds = pd.Series(np.where(lab.y == 1, "Fit", "No Fit"), index=lab.index)
