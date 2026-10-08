@@ -354,9 +354,17 @@ def main(argv: list[str] | None = None) -> int:
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--check", action="store_true", help="rebuild and diff, write nothing")
+    ap.add_argument("--warm", action="store_true",
+                    help="with --check: replay cross-encoder scores from the persistent "
+                         "store (D55 warm tier); without it the check re-infers")
     ap.add_argument("--text-variant", choices=sorted(RECORDS), default="v1",
                     help="v1: CV text with Position (pre-D53); v2: without (D53)")
     args = ap.parse_args(argv)
+    if args.warm and not args.check:
+        ap.error("--warm is only valid with --check")
+    if args.warm:
+        from candidate_screener.matching import cross_encoder
+        cross_encoder.set_persistent(True)
     record_path, costs_path = RECORDS[args.text_variant]
     if args.text_variant == "v1":
         record, costs = evaluate(ladder.rungs(), ladder.classifiers(), ladder.comparisons(),

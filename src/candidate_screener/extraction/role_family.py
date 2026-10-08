@@ -1048,7 +1048,12 @@ def main(argv: list[str] | None = None) -> int:
     g.add_argument("--evaluate", action="store_true", help="record from the cached model")
     g.add_argument("--check", action="store_true", help="refit and diff the committed record")
     g.add_argument("--derive", action="store_true", help="print the derived label space")
+    ap.add_argument("--warm", action="store_true",
+                    help="with --check: diff the record built from the cached model and its "
+                         "cached training summary (D55 warm tier); refits and writes nothing")
     a = ap.parse_args(argv)
+    if a.warm and not a.check:
+        ap.error("--warm is only valid with --check")
     if a.derive:
         docs = load_train_documents()
         prep = prepare(docs)
@@ -1056,7 +1061,7 @@ def main(argv: list[str] | None = None) -> int:
                          indent=1, ensure_ascii=False))
         print("committed constants match:", committed_space_matches(prep["space"]))
         return 0
-    fresh = render(build(train=not a.evaluate))
+    fresh = render(build(train=not (a.evaluate or a.warm)))
     if a.check:
         ok = RECORD.exists() and RECORD.read_text(encoding="utf-8") == fresh
         print(f"role-family record {'OK' if ok else 'MISMATCH'} ({RECORD.name})")

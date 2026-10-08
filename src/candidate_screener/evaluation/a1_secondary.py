@@ -92,7 +92,15 @@ def main(argv: list[str] | None = None) -> int:
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--check", action="store_true")
+    ap.add_argument("--warm", action="store_true",
+                    help="with --check: replay cross-encoder scores from the persistent "
+                         "store (D55 warm tier); without it the check re-infers")
     args = ap.parse_args(argv)
+    if args.warm and not args.check:
+        ap.error("--warm is only valid with --check")
+    if args.warm:
+        from candidate_screener.matching import cross_encoder
+        cross_encoder.set_persistent(True)
     record = evaluate([rules.Random, *ladder.TEXT_RUNGS.values()], args.seed)
     if args.check:
         same = RECORD.exists() and RECORD.read_text(encoding="utf-8") == render(record)

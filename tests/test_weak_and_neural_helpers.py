@@ -110,3 +110,45 @@ def test_cross_encoder_predict_replays_only_identical_calls(monkeypatch):
     assert model.calls == 1
     other = _ce(_FakeModel(offset=1.0), "w2")                # other weights: never shared
     assert (other._predict(frame) > 1).all()
+
+
+def test_cross_encoder_store_is_written_cold_and_read_only_warm(monkeypatch, tmp_path):
+    """W7 (plan 2026-10-08, D55): cold re-infers and writes; warm replays the stored call."""
+    monkeypatch.setattr(cross_encoder, "SCORE_STORE", tmp_path / "ce-scores")
+    monkeypatch.setattr(cross_encoder, "_PERSISTENT", False)
+    frame = pd.DataFrame({"pair_id": ["p1", "p2"], "jd_text": ["jd a", "jd bb"],
+                          "cv_text": ["cv one", "cv two"]})
+
+    def fresh(model, digest):
+        monkeypatch.setattr(cross_encoder, "_PREDICTIONS", {})   # a new process
+        ce = _ce(model, "same/path")
+        ce.weights_digest = digest
+        return ce
+
+    cold = _FakeModel()
+    first = fresh(cold, "d1")._predict(frame)
+    assert cold.calls == 1 and len(list((tmp_path / "ce-scores").glob("*.npy"))) == 1
+    again = _FakeModel(offset=5.0)                               # cold never reads the store
+    assert (fresh(again, "d1")._predict(frame) > 5).all() and again.calls == 1
+    cross_encoder.set_persistent(True)
+    warm = _FakeModel(offset=9.0)
+    replay = fresh(warm, "d1")._predict(frame)
+    assert warm.calls == 0                                       # warm replays the last write
+    np.testing.assert_array_equal(replay, first + 5.0)
+    other = _FakeModel()                                         # other weight bytes: a miss
+    fresh(other, "d2")._predict(frame)
+    assert other.calls == 1
+    undigested = _FakeModel()                                    # no content digest: no disk
+    monkeypatch.setattr(cross_encoder, "_PREDICTIONS", {})
+    _ce(undigested, "same/path")._predict(frame)
+    assert undigested.calls == 1
+    assert len(list((tmp_path / "ce-scores").glob("*.npy"))) == 2
+
+
+def test_weights_digest_follows_file_content(tmp_path):
+    (tmp_path / "model.safetensors").write_bytes(b"abc")
+    (tmp_path / "config.json").write_text("{}")
+    d = cross_encoder.weights_digest(tmp_path)
+    assert d == cross_encoder.weights_digest(tmp_path)
+    (tmp_path / "model.safetensors").write_bytes(b"abd")
+    assert cross_encoder.weights_digest(tmp_path) != d
