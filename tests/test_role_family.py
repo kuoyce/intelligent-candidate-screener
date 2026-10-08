@@ -226,6 +226,42 @@ def test_role_match_is_soft_agreement_in_unit_interval(tiny_model):
         rf.role_match(jd, cv[:1], tiny_model)
 
 
+def test_span_memo_is_identical_and_keyed_on_the_alias_table():
+    """W5 (plan 2026-10-08): memoised spans equal the uncached ones, a caller cannot alter
+    the memo through the returned list, and another alias table never reads its entries."""
+    text = "We need a .NET developer and a Front End Developer, reporting to the CTO."
+    want = rf._title_spans(text, ALIASES, rf.MAX_NGRAM)
+    first = rf.title_spans(text, ALIASES)
+    assert first == want and rf.title_spans(text, ALIASES) == want
+    first.clear()                                       # a caller mutating its list
+    assert rf.title_spans(text, ALIASES) == want
+    other = {"cto": "Lead/cto"}
+    assert [s.title for s in rf.title_spans(text, other)] == ["cto"]
+    assert rf.title_spans(text, ALIASES) == want
+    assert rf.title_spans(text, ALIASES, max_ngram=1) == rf._title_spans(text, ALIASES, 1)
+
+
+def test_proba_memo_replays_only_identical_batches_of_the_same_model(tiny_model):
+    """W5: predict_proba through the memo equals the classifier's own batch, bit for bit;
+    a different text set or a different model object is computed afresh."""
+    texts = ["spring java backend", "django python", "cto roadmap"]
+    uniq = sorted(set(texts))
+    want = tiny_model.sides["jd"].proba(uniq, tiny_model.aliases)
+    row = {t: i for i, t in enumerate(uniq)}
+    for _ in range(2):                                  # cold, then from the memo
+        got = rf.predict_proba(texts, "jd", tiny_model)
+        np.testing.assert_array_equal(got, want[[row[t] for t in texts]])
+        got[:] = -1.0                                   # a caller mutating its copy
+    sub = rf.predict_proba(texts[:2], "jd", tiny_model)
+    np.testing.assert_array_equal(sub, tiny_model.sides["jd"].proba(sorted(texts[:2]),
+                                                                    tiny_model.aliases)[::-1])
+    cv = rf.predict_proba(texts, "cv", tiny_model)
+    assert cv[2, 1] == 0.0                              # the CV side, not the JD side's entry
+    twin = rf.RoleModel("tfidf", tiny_model.labels, tiny_model.aliases,
+                        {"jd": tiny_model.sides["cv"], "cv": tiny_model.sides["jd"]}, "test")
+    np.testing.assert_array_equal(rf.predict_proba(texts, "jd", twin), cv)
+
+
 def test_inference_api_takes_text_only():
     """D53: the inference functions accept texts, never a frame with metadata columns."""
     for fn in (rf.predict_proba, rf.role_match, rf.title_spans):
