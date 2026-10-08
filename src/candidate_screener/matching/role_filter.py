@@ -19,6 +19,7 @@ chosen on the development set (`evaluation.shortlist_dev`), never on the final s
 """
 from __future__ import annotations
 
+import functools
 import math
 from collections import Counter
 
@@ -44,11 +45,27 @@ def _grams(s: str, n: int = 3) -> Counter:
     return Counter(s[i:i + n] for i in range(max(len(s) - n + 1, 0)))
 
 
+#: Memo of `_grams(s)` (n = 3) for `trigram_cosine`. The Counters are read, never mutated.
+#: Bounded by the number of distinct title strings seen in a process (thousands).
+_TRIGRAMS: dict[str, Counter] = {}
+
+
+def _trigrams(s: str) -> Counter:
+    g = _TRIGRAMS.get(s)
+    if g is None:
+        g = _TRIGRAMS[s] = _grams(s)
+    return g
+
+
+@functools.lru_cache(maxsize=2 ** 20)
 def trigram_cosine(a: str, b: str) -> float:
-    """Character 3-gram cosine (Q-R5), on the strings padded by one space each side."""
+    """Character 3-gram cosine (Q-R5), on the strings padded by one space each side.
+
+    Memoised (plan 2026-10-08, W2): a pure function of two strings, so a cached value is
+    the same float the arithmetic below returns."""
     if not a or not b:
         return 0.0
-    ga, gb = _grams(a), _grams(b)
+    ga, gb = _trigrams(a), _trigrams(b)
     dot = sum(v * gb[g] for g, v in ga.items() if g in gb)
     return dot / math.sqrt(sum(v * v for v in ga.values()) * sum(v * v for v in gb.values()))
 

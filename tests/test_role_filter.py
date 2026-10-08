@@ -130,6 +130,32 @@ def test_trigram_cosine():
     assert 0 < b < a < 1
 
 
+def _cosine_uncached(a: str, b: str) -> float:
+    """The pre-W2 `trigram_cosine`, with no memo."""
+    import math
+    if not a or not b:
+        return 0.0
+    ga, gb = yf._grams(a), yf._grams(b)
+    dot = sum(v * gb[g] for g, v in ga.items() if g in gb)
+    return dot / math.sqrt(sum(v * v for v in ga.values()) * sum(v * v for v in gb.values()))
+
+
+def test_trigram_cosine_memo_is_bit_identical_and_keyed_on_both_strings():
+    """W2 (plan 2026-10-08): the memoised cosine returns exactly the uncached float, for
+    every ordered pair, and a pair never borrows another pair's entry."""
+    titles = ["python developer", "senior python developer", "java engineer", "qa",
+              "data scientist", "python developer ", "", "devops / sre"]
+    yf.trigram_cosine.cache_clear()
+    for _ in range(2):                                       # cold, then from the memo
+        for a in titles:
+            for b in titles:
+                assert yf.trigram_cosine(a, b) == _cosine_uncached(a, b)
+    assert yf.trigram_cosine("python developer", "java engineer") != \
+        yf.trigram_cosine("python developer", "python developer")
+    assert yf._trigrams("abc") == yf._grams("abc")
+    assert yf._trigrams("abc") != yf._trigrams("abd")
+
+
 def test_components_never_read_final_labels_or_judgements():
     for module in (jd_title, role_set, yf):
         assert reads_final_labels(module) == []
