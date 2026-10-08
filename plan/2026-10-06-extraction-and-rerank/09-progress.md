@@ -1,4 +1,4 @@
-# 09 — Progress and next steps (handoff, 7 Oct 2026)
+# 09 — Progress and next steps (handoff, 7 Oct 2026; batch status updated 8 Oct)
 
 Branch `feat/extraction-and-rerank`. Everything below is committed; the working tree is clean
 except the uncommitted LLM bank under `data/processed/rerank/` (git-ignored by design).
@@ -21,28 +21,17 @@ except the uncommitted LLM bank under `data/processed/rerank/` (git-ignored by d
 
 ## The LLM batch (run 11)
 
-**436 / 1,000 banked** (7 Oct, 16:20 SGT). 564 owed, 5 of them quarantined by a transient DNS
-error (`EAI_AGAIN`, exit 1); the 24 lost to the 11:44 session limit were retried and banked. Rate measured:
-50 pairs per ~6.5 min at concurrency 5. The user wants batches run **sequentially**, with a
-check between batches, and only when no sub-agents are running.
-
-One batch, then check:
-
-```bash
-uv run python -m candidate_screener.rerank.scoring_batch --judge --limit 50 --concurrency 5
-uv run python -m candidate_screener.rerank.scoring_batch --coverage
-```
-
-Stop at any non-zero exit (a quota exit lists `kinds`; wait for the reset, then re-run the
-same command — it is idempotent). When coverage is full: `--collect`. The replicate (run 12,
-`--replicate`) waits on Q-A1b.
+**Complete and collected** (8 Oct 2026). 1,000 / 1,000 answered, 0 quarantined, 0 missing; the last
+97 were judged in two sittings (70 + 27, no failures). `--collect` wrote
+`docs/data/manifests/llm-train-scores.csv`: 1,000 rows, `parsed_ok` 1,000, `all_parsed` and
+`scores_in_range` both true. The replicate (run 12, `--replicate`) still waits on Q-A1b.
 
 ## Next steps, in order
 
 1. ~~**P7 (stage 1).**~~ Done ([16](16-p7-stage1.md)): K1 justified (X2 > TF-IDF, +0.061);
    K2–K5 not resolved; **S2 missed** for both groups (X2 R@50 0.779, X4 0.761); no stage-1
    rung adopted. Q-P7-1, Q-P7-2 open.
-2. **Finish the batch**, `--collect` → `llm-train-scores.csv`.
+2. ~~**Finish the batch**~~ Done (8 Oct): `--collect` → `llm-train-scores.csv`, 1,000 rows, all parsed.
 3. **P8 (stage 2).** R1/R2/R3 trained on the batch (train split), selected on its validation
    split; scored with `evaluation/ordering.py` against O1–O5 (full, `llm_free`, `fit_only`).
    Watch the P5 finding: every system orders Fit CVs weakly (pairwise 0.67–0.72), and the LLM

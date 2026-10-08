@@ -118,7 +118,7 @@ The prompt is exactly what runs 9/10 sent, so the instrument is unchanged:
 form, not the matching rungs' `text_v2` (D53). The scores were therefore produced by a judge
 that saw the title, and a reranker trained on them inherits whatever that carries.
 
-## 5. Commands for the user (none has been run)
+## 5. Commands for the user
 
 ```bash
 # 0. what would happen (spawns nothing, writes nothing)
@@ -185,10 +185,18 @@ spawned 0, written 0
    The test now points the guard at a tmp stand-in, and a re-run of all 15 mutants left
    every `docs/data/manifests/*.csv` byte-identical (checked with sha256).
 
-## 8. Open items
+## 8. Execution record (8 Oct 2026)
+
+Run 11 dispatched and judged in full: 1,000 / 1,000 answered, 0 quarantined. The final 97 pairs
+went in two `--judge --limit 70` sittings (70, then 27), no failures. `--coverage` reported
+`complete: true`; `--collect` wrote `docs/data/manifests/llm-train-scores.csv` (1,000 rows,
+`parsed_ok` 1,000, `all_parsed` true, `scores_in_range` true). The run-12 replicate was not
+dispatched (Q-A1b open).
+
+## 9. Open items
 
 - **Q-A1b** (the replicate): still open. The code is ready behind `--replicate`.
-- **Unparsed returns** (deviation 4): drop them from training (default), or allow a scoped
+- **Unparsed returns** (deviation 4): moot for run 11 (0 unparsed). Otherwise drop them from training (default), or allow a scoped
   re-judge under a new run number? A re-judge needs the user's decision.
 - `rerank/__init__.py` was created here. If P8 puts the reranker elsewhere, this module
   can move with it.
