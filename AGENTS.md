@@ -41,8 +41,15 @@ uv run python -m candidate_screener.evaluation.shortlist_dev --check   # Y rungs
 uv run python -m candidate_screener.evaluation.shortlist_dev --variants --check  # amendment Z (Z1-Z3) on the dev set
 uv run python -m candidate_screener.evaluation.shortlist_final --check   # Q8: frozen Z1/Z1L on the final set
 uv run pytest                                                   # the suite (no data needed)
+uv run python -m candidate_screener.checks                      # warm checks your uncommitted changes affect
+uv run python -m candidate_screener.checks --warm --all         # every live record, warm (D55)
+uv run python -m candidate_screener.checks --cold --all         # every record from scratch (D55)
 uv run jupyter nbconvert --to notebook --execute --inplace notebooks/NN-*.ipynb
 ```
+
+Every `--check` above is registered in `candidate_screener.checks`, which runs them for you
+and prints one line each. `tests/test_checks.py` fails if a new `--check` module is left out
+of the registry.
 
 Torch comes from the PyTorch **CPU** index (`[tool.uv.sources]` in `pyproject.toml`). The
 base `uv run pytest` must pass without the `ml` and `app` groups: model-dependent tests
@@ -158,6 +165,46 @@ No runnable scripts under `plan/`; code that outlives a decision goes in the pac
 **There is no CI** *(Q22)*. "Caught" means caught by `uv run pytest` and the `--check`
 commands, run by the reviewer at workflow step 4.
 
+### Running tests and checks (plan 2026-10-08-test-and-check-runtime)
+
+Know what a command costs before you start it (measured 8 Oct 2026, 22 cores, 15 GB):
+
+| Command | Wall time |
+|---|---:|
+| `uv run pytest` | ~55 s |
+| `uv run pytest tests/test_x.py` | seconds |
+| `checks` (warm, affected only) | 0 s to a few min |
+| `checks --warm --all` | ~15 min |
+| `checks --cold --all` | ~50 min |
+
+1. **Run once, keep the log, read the log.** Redirect the full output to a file, then read
+   slices of that file. Never re-run a command to see a different part of its output.
+
+   ```bash
+   mkdir -p logs; uv run pytest > logs/pytest.log 2>&1; tail -3 logs/pytest.log
+   grep -n "FAILED\|Error" logs/pytest.log
+   ```
+
+   `logs/` is git-ignored. The runner already logs each check to
+   `logs/checks/<name>.log` and prints one line per check.
+2. **Iterate narrowly, verify broadly.** While working, run the test file you are touching,
+   or `pytest --lf`. Run the full suite once, before review.
+3. **Checks go through the runner.** The default, `checks`, is the warm tier for the checks
+   your uncommitted changes affect. Use `--affected REF` to compare against a commit, and
+   `--explain` to see why a check was selected.
+4. **Cold is mandatory (D55)** before:
+   - a commit that touches model or training code;
+   - marking a plan complete;
+   - any final-set score.
+
+   Warm proves that the code turning cached model outputs into a record is unchanged. It does
+   not prove that training reproduces.
+5. **Superseded records** (indomain v1, `retrieval`, `retrieval_pilot`, `a1_secondary`) run
+   only with `--cold`, or when `--affected` selects them.
+6. **RAM.** The runner defaults to `-j 2`. Checks peaking above 4.5 GB (`role_family`,
+   `shortlist_dev`, `dev_pools`, `scoring_batch`) always run alone. Do not start other
+   heavy jobs alongside it.
+
 ## Agent Workflow Guidelines
 
 ### 1. Planning Phase
@@ -184,9 +231,9 @@ Always begin by creating a detailed plan and corresponding design specifications
 - Conduct a thorough code review after implementation
 - Verify that the implementation aligns with the approved plan and design
 - Ensure correctness, completeness, and adherence to standards
-- **Run `uv run pytest` and, where a committed record exists, its `--check` command**
-  (`data.verify --derived`, `baselines.run --check`). With no CI in the repository, this step
-  is the only thing that runs them
+- **Run `uv run pytest` and the checks for the records the change can affect**
+  (`python -m candidate_screener.checks`; `--cold` where D55 requires it). With no CI in the
+  repository, this step is the only thing that runs them
 
 ### 5. Documentation Updates
 

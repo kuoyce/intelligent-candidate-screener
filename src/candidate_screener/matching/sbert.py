@@ -13,7 +13,10 @@ the pre-D53 ones unchanged, so the committed `v1` record still reproduces.
 from __future__ import annotations
 
 import hashlib
+import os
 import re
+import tempfile
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
@@ -68,7 +71,17 @@ class Encoder:
                 v = vectors[owner == i].mean(axis=0)
                 self.cache[self._key(t)] = (v / np.linalg.norm(v)).astype(np.float32)
             EMBED_CACHE.mkdir(parents=True, exist_ok=True)
-            np.savez(self.path, keys=np.array(list(self.cache)), vectors=np.stack(list(self.cache.values())))
+            # Atomic (temp + rename): `checks -j 2` can run two encoders at once, and a reader
+            # must never see a half-written file. A lost update is only a later cache miss.
+            fd, tmp = tempfile.mkstemp(dir=EMBED_CACHE, suffix=".npz")
+            try:
+                with os.fdopen(fd, "wb") as fh:
+                    np.savez(fh, keys=np.array(list(self.cache)),
+                             vectors=np.stack(list(self.cache.values())))
+                os.replace(tmp, self.path)
+            except BaseException:
+                Path(tmp).unlink(missing_ok=True)
+                raise
         return np.stack([self.cache[self._key(t)] for t in texts])
 
 

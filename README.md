@@ -76,6 +76,19 @@ uv run streamlit run src/candidate_screener/app/streamlit_app.py     # the recru
 ```
 
 Each record command takes `--check` to rebuild in memory and diff against the committed file.
+Checks come in two tiers (D55):
+- **cold** (`--check`) retrains and re-infers, and is the reproducibility proof;
+- **warm** (`--check --warm`, where a module supports it) reuses cached model outputs.
+
+One runner drives them all. It prints one line per check and keeps the full output in
+`logs/checks/`:
+
+```bash
+uv run python -m candidate_screener.checks                 # warm, only checks your uncommitted changes affect
+uv run python -m candidate_screener.checks --warm --all    # every live record (~15 min)
+uv run python -m candidate_screener.checks --cold --all    # every record from scratch (~50 min)
+uv run python -m candidate_screener.checks --list          # the registry, with measured times
+```
 
 ## Acquire the data (~676 MB)
 

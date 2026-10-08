@@ -1,6 +1,6 @@
 # Test and check runtime: faster kernels, tiered checks, quieter output
 
-**Status: approved (8 Oct 2026)**, with Q1–Q6 answered in [02](02-open-questions.md): W6
+**Status: implemented (8 Oct 2026)**, see [03](03-implementation.md); approved the same day, with Q1–Q6 answered in [02](02-open-questions.md): W6
 is dropped, logs go to `logs/`, and the runner defaults to `-j 2`. The branch
 `chore/test-check-runtime` is cut from `feat/shortlist-recall` and merged back into it.
 The measurements are in [01](01-measurements.md).
