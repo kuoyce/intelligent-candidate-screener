@@ -1,0 +1,241 @@
+{
+  "artifact_sha256": {
+    "entities.parquet": "a92448eb47721bf38ab25f4d581980f565a11667d598983b75a1221e18832f72",
+    "field-coverage.json": "f14fdd242fe2eb699328d32bad45fe3f3c8b4a88dbea63411f294bd2240c7542",
+    "sample-manifest.json": "2c591cc8bff7fc9e7189adac13cbcbff4c743aa645b71077b02d0b8809a679b1"
+  },
+  "availability": {
+    "data-jobs": {
+      "catalog_id": "D2",
+      "missing_artifacts": [
+        "*-train-*.parquet"
+      ],
+      "status": "missing"
+    },
+    "dataturks": {
+      "catalog_id": "B1",
+      "missing_artifacts": [
+        "traindata.json",
+        "testdata.json"
+      ],
+      "status": "missing"
+    },
+    "djinni-cv": {
+      "catalog_id": "A2",
+      "missing_artifacts": [],
+      "status": "present_unvalidated"
+    },
+    "djinni-jd": {
+      "catalog_id": "A2",
+      "missing_artifacts": [],
+      "status": "present_unvalidated"
+    },
+    "esco": {
+      "catalog_id": "D1",
+      "missing_artifacts": [
+        "skills_en.csv",
+        "occupations_en.csv",
+        "occupationSkillRelations_en.csv"
+      ],
+      "status": "missing"
+    },
+    "skillspan": {
+      "catalog_id": "B2",
+      "missing_artifacts": [
+        "*-train-*.parquet",
+        "*-validation-*.parquet",
+        "*-test-*.parquet"
+      ],
+      "status": "missing"
+    }
+  },
+  "provenance": {
+    "code_sha256": {
+      "inputs.py": "6e389914ea7bc64dfaaf1a119fe52c36282b47cb6025ffa0b0a074b80e707ebc",
+      "rules.py": "769081a3a69f52b955b5e9ac6c7d1926bd1544d25291d9072636c5f1bb19f907",
+      "runtime/transformer/pyproject.toml": "8a15163de2e2a91c1514840fdb267dcbec8f23907fb1079ca96cd72cc98fb7ba",
+      "runtime/transformer/uv.lock": "d8ed47fa3e125474742aa0176bf5d64e3a6ccfa22e24d6eb8de6a37d4726a8be",
+      "runtime_proxy.py": "bf45bc92b0bc7099f4fe89d9fe41b399ebc577c5fc035b7b99fd67be748ba47c",
+      "schema.py": "08e07188f0b83232a816caae3d1169dfac5ff1544aa453ee5e22e447dcc8d3f5",
+      "transformer.py": "c5006e51861cc7cd0862acba621fb90e9767b5f66665a6243dd8ad914ef5ac57",
+      "transformer_run.py": "f3b8fb7a8e26cbd1da0bf13d06131daf84a705b21e3e809aec19c7e86852f850",
+      "transformer_worker.py": "3638cf1dfca70c40d545b0016e81c2e21cc20c832da7037d52bac87bd9c198e9",
+      "vocabulary.py": "d70388e1d54f051542c8085331efe1e9d541e25dd789af918bb51284bfa2991f"
+    },
+    "context_version": "rules-v1-context",
+    "dependencies": {
+      "manifest": {
+        "gliner": "0.2.21",
+        "huggingface-hub": "0.36.2",
+        "numpy": "1.26.4",
+        "tokenizers": "0.21.4",
+        "torch": "2.2.2",
+        "transformers": "4.48.3"
+      },
+      "manifest_sha256": "4a2f1d916f90acab6e427259f8419321a44b56934ff43c1c97543cc34db08efb"
+    },
+    "device": "cpu",
+    "fields": {
+      "cv": [
+        "Position",
+        "Moreinfo",
+        "Looking For",
+        "Highlights"
+      ],
+      "jd": [
+        "Position",
+        "Long Description"
+      ]
+    },
+    "input_sha256": {
+      "djinni-cv/default-train-0000.parquet": "a7b1378e0b231507c377659bf2c80fa4ba60c4e31e1107b13425d103879ecc3b",
+      "djinni-jd/default-train-0000.parquet": "71dddaf0d9660f34ddf946953b67f54f1e7d60e22dcf9a4b8139b6378b18aab9"
+    },
+    "labels": {
+      "academic degree or qualification": "DEGREE",
+      "job title or occupation": "TITLE",
+      "professional skill or competency": "SKILL",
+      "technology, software tool or programming language": "KNOWLEDGE"
+    },
+    "max_seconds": 1800,
+    "model": {
+      "artifact_sha256": {
+        "encoder-assets/config.json": "b0bb1caf90a50aa67d1085130508dfbf8646ac5a11928305e280b07a36e100ae",
+        "encoder-assets/spm.model": "c679fbf93643d19aab7ee10c0b99e460bdbc02fedf34b92b05af343b4af586fd",
+        "encoder-assets/tokenizer_config.json": "3f3978e0c036f2c2588cac34a6047cbb0af0b0dc1814254e291028529805496d",
+        "gliner_config.json": "eb963bd7182a1eaed4d170a87348ab62de6fc4eb30cfa7130c80846fee43d0ac",
+        "pytorch_model.bin": "1d4e83e4e4ae4ae0a4fbc81a32ee6de480fb341650d73e808088bb2800312de4"
+      },
+      "encoder": {
+        "model_id": "microsoft/deberta-v3-small",
+        "revision": "a36c739020e01763fe789b4b85e2df55d6180012"
+      },
+      "model_id": "urchade/gliner_small-v2.1",
+      "revision": "4e091416cf7c3481db542c2a3d26156916f3a47f"
+    },
+    "overlap_tokens": 32,
+    "partition_sha256": "e8b7951db4ef346390e03166b356a10658beb4a65a720571b4360bf4c46c1b85",
+    "region": "train",
+    "sample_size": 100,
+    "sampling_rule": "sort IDs; Python Random(seed).sample; sort selected IDs",
+    "score_policy": "Raw uncalibrated model score; no probability-of-correctness claim",
+    "seed": 0,
+    "text_version": "raw-v1",
+    "threads": 4,
+    "threshold": 0.5,
+    "transformer_version": "gliner-adapter-v1"
+  },
+  "run_id": "2c591cc8bff7fc9e7189-20261005T164947399919Z",
+  "summary": {
+    "actual_chunk_parameters": {
+      "boundary_policy": "GLiNER words_splitter; exact prepared prompt subword budget",
+      "token_limit": 384,
+      "word_limit": 384
+    },
+    "actual_runtime_versions": {
+      "gliner": "0.2.21",
+      "huggingface-hub": "0.36.2",
+      "numpy": "1.26.4",
+      "sentencepiece": "0.2.2",
+      "tokenizers": "0.21.4",
+      "torch": "2.2.2",
+      "transformers": "4.48.3"
+    },
+    "completed_documents": 200,
+    "coverage": {
+      "cv": {
+        "by_label": {
+          "DEGREE": 19,
+          "KNOWLEDGE": 813,
+          "SKILL": 40,
+          "TITLE": 205
+        },
+        "completed_documents": 100,
+        "documents_with_entities": 100,
+        "documents_with_label": {
+          "DEGREE": 12,
+          "KNOWLEDGE": 79,
+          "SKILL": 21,
+          "TITLE": 94
+        },
+        "entities": 1077,
+        "fields_attempted": 400,
+        "fields_complete": 400,
+        "fields_incomplete": 0,
+        "fields_requested": 400,
+        "quarantined_predictions": 0,
+        "raw_uncalibrated_scores": {
+          "max": 0.9858959317207336,
+          "mean": 0.7269153478196515,
+          "min": 0.500027596950531
+        },
+        "requested_documents": 100
+      },
+      "jd": {
+        "by_label": {
+          "DEGREE": 23,
+          "KNOWLEDGE": 517,
+          "SKILL": 69,
+          "TITLE": 146
+        },
+        "completed_documents": 100,
+        "documents_with_entities": 99,
+        "documents_with_label": {
+          "DEGREE": 17,
+          "KNOWLEDGE": 82,
+          "SKILL": 42,
+          "TITLE": 87
+        },
+        "entities": 755,
+        "fields_attempted": 200,
+        "fields_complete": 200,
+        "fields_incomplete": 0,
+        "fields_requested": 200,
+        "quarantined_predictions": 0,
+        "raw_uncalibrated_scores": {
+          "max": 0.9687429666519165,
+          "mean": 0.6833218640049562,
+          "min": 0.5003635287284851
+        },
+        "requested_documents": 100
+      }
+    },
+    "gold_accuracy": {
+      "reason": "No validated local NER gold adapters",
+      "status": "blocked"
+    },
+    "integrity": {
+      "entities_checked": 1832,
+      "exact_field_offsets": true,
+      "training_only": true,
+      "unique_entity_ids": true
+    },
+    "memory_observation": {
+      "process_peak_ru_maxrss": 1371971584,
+      "scope": "parent process only; excludes isolated inference worker",
+      "units": "bytes on macOS; KiB on Linux"
+    },
+    "requested_documents": 200,
+    "rule_comparison": {
+      "completed_documents_compared": 200,
+      "cv": {
+        "exact_shared": 243,
+        "rule_entities": 404,
+        "rule_only": 161,
+        "transformer_entities": 1077,
+        "transformer_only": 834
+      },
+      "interpretation": "Exact span-label disagreement, not accuracy",
+      "jd": {
+        "exact_shared": 191,
+        "rule_entities": 327,
+        "rule_only": 136,
+        "transformer_entities": 755,
+        "transformer_only": 564
+      }
+    },
+    "runtime_seconds": 183.81117159899986,
+    "status": "complete",
+    "time_budget_seconds": 1800
+  }
+}

@@ -18,3 +18,18 @@ uv run python -m candidate_screener.extraction.run --sample-size 1000 --seed 0 -
 The check validates local inputs, code, artifact hashes and predictions. It does
 not refresh this record or treat coverage as accuracy. Notebooks 10–12 provide
 the executed input, extraction and evaluation-gate reports.
+
+`transformer-metrics.json` records the separate GLiNER zero-shot experiment on
+100 training CVs and 100 training JDs. It includes pinned checkpoint/encoder
+revisions, runtime configuration, coverage and exact-span disagreement with rules
+on the same completed documents. It contains no real spans or sampled document IDs.
+Neither higher mention counts nor model scores establish extraction accuracy.
+Validate local artifacts without repeating inference with:
+
+```bash
+uv run python -m candidate_screener.extraction.transformer_run --sample-size 100 --check
+```
+
+The existing rule record remains the historical 5 October delivery. Generalized
+schema validation changes its code provenance for new runs, but does not rewrite
+the historical record or its artifacts.

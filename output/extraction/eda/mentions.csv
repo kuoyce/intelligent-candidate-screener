@@ -1,0 +1,74 @@
+method,doc_type,label,mention_casefold,entities
+rules,cv,KNOWLEDGE,react,41
+GLiNER,cv,KNOWLEDGE,react,34
+rules,jd,KNOWLEDGE,.net,28
+rules,cv,KNOWLEDGE,.net,27
+rules,cv,KNOWLEDGE,javascript,26
+rules,jd,KNOWLEDGE,aws,26
+rules,cv,KNOWLEDGE,java,24
+GLiNER,cv,KNOWLEDGE,javascript,24
+rules,cv,KNOWLEDGE,python,23
+rules,jd,KNOWLEDGE,react,23
+rules,jd,KNOWLEDGE,javascript,23
+GLiNER,jd,KNOWLEDGE,javascript,22
+rules,jd,KNOWLEDGE,python,22
+GLiNER,cv,KNOWLEDGE,java,20
+GLiNER,cv,KNOWLEDGE,css,20
+GLiNER,cv,KNOWLEDGE,html,19
+GLiNER,jd,KNOWLEDGE,react,19
+GLiNER,jd,KNOWLEDGE,python,17
+GLiNER,jd,KNOWLEDGE,typescript,14
+GLiNER,jd,KNOWLEDGE,kubernetes,14
+rules,cv,TITLE,software engineer,14
+rules,cv,TITLE,project manager,12
+rules,cv,TITLE,front-end developer,12
+rules,cv,TITLE,data scientist,10
+rules,cv,TITLE,software developer,10
+GLiNER,cv,TITLE,project manager,9
+rules,jd,TITLE,devops engineer,8
+rules,cv,SKILL,project management,8
+GLiNER,cv,TITLE,software engineer,7
+GLiNER,cv,TITLE,front-end developer,7
+GLiNER,cv,TITLE,software developer,6
+rules,jd,TITLE,software engineer,6
+GLiNER,jd,TITLE,qa engineer,6
+GLiNER,jd,TITLE,devops engineer,5
+GLiNER,jd,TITLE,developer,5
+GLiNER,cv,TITLE,product manager,5
+rules,cv,SKILL,machine learning,5
+rules,jd,TITLE,frontend developer,4
+rules,jd,SKILL,software testing,4
+rules,jd,SKILL,machine learning,3
+rules,jd,SKILL,project management,3
+rules,cv,SKILL,software testing,3
+GLiNER,cv,SKILL,project management,3
+GLiNER,jd,TITLE,engineer,3
+GLiNER,jd,SKILL,excellent communication skills,3
+GLiNER,jd,SKILL,good communication skills,3
+GLiNER,jd,TITLE,lead devops engineer,3
+rules,cv,SKILL,data analysis,3
+GLiNER,jd,SKILL,intermediate english,2
+GLiNER,jd,SKILL,strong written and oral communication skills,2
+GLiNER,jd,SKILL,analytical thinking,2
+GLiNER,jd,DEGREE,upper intermediate,2
+rules,cv,SKILL,deep learning,2
+rules,cv,DEGREE,bachelor's degree,2
+rules,jd,TITLE,backend developer,2
+rules,jd,TITLE,front-end developer,2
+GLiNER,cv,DEGREE,diploma with honours,2
+GLiNER,cv,SKILL,front end developer,2
+GLiNER,cv,SKILL,back end developer,2
+GLiNER,cv,SKILL,performance testing,2
+rules,jd,DEGREE,bachelor's degree,2
+GLiNER,cv,SKILL,proven leadership and organization skills,1
+GLiNER,cv,DEGREE,exam 483,1
+GLiNER,cv,DEGREE,mcsa,1
+GLiNER,cv,DEGREE,master of the self-education,1
+GLiNER,cv,DEGREE,diploma,1
+GLiNER,jd,DEGREE,upper-intermediate+ level in english,1
+GLiNER,jd,DEGREE,bachelor's degree in computer science,1
+GLiNER,jd,DEGREE,sc. in computer science or software engineering,1
+GLiNER,jd,DEGREE,master’s degree,1
+rules,cv,DEGREE,ph.d.,1
+rules,jd,SKILL,data engineering,1
+rules,jd,DEGREE,b.sc.,1

@@ -104,6 +104,44 @@ for reproducible input preparation.
 
 ## Handling notes
 
+### Transformer extraction artifacts (6 Oct 2026)
+
+Install the isolated inference environment using `uv sync --project runtime/transformer`.
+Run `uv run python -m candidate_screener.extraction.model_assets` to download the
+pinned GLiNER small-v2.1 checkpoint plus DeBERTa tokenizer/config artifacts into
+`data/processed/extraction/models/gliner-small-v2.1/`. The download records both
+revisions and per-file SHA-256. Runtime dependency versions are recorded separately
+in `runtime-versions.json`; the inference worker checks them against its live versions.
+Recreate that file after syncing the runtime with:
+
+```bash
+uv run --project runtime/transformer --no-sync python -c 'import json; from pathlib import Path; from importlib.metadata import version; Path("data/processed/extraction/models/gliner-small-v2.1/runtime-versions.json").write_text(json.dumps({n:version(n) for n in ("torch","transformers","gliner","tokenizers","numpy","huggingface-hub")}, indent=2, sort_keys=True)+"\n")'
+```
+
+`uv run python -m candidate_screener.extraction.transformer_run --sample-size 100`
+performs local inference and saves spans, sampled IDs/provenance and field coverage
+in `data/processed/extraction/transformer-runs/`. Matching compatible reruns reload
+validated artifacts; they do not repeat inference or overwrite rule results.
+`--check` validates hashes, original field offsets and training membership without
+requiring bitwise score replay across devices. A timed-out run is explicitly partial.
+There is no remote document inference or labelled corpus accuracy in this phase.
+
+## Additional handling notes
+
+### Extraction EDA
+
+Analyze the generated transformer run with:
+
+```bash
+uv run jupyter nbconvert --to notebook --execute --inplace notebooks/14-entity-extraction-eda.ipynb
+```
+
+It reads `output/extraction/transformer-metrics.json`, validates the corresponding
+local artifacts, and reconstructs rules on precisely the same sampled training
+documents. No additional neural inference is performed. Figures and descriptive
+aggregate tables are exported under `output/extraction/eda/`. The notebook displays
+bounded real entity/context examples; it does not export complete source documents.
+
 - **DataTurks contains direct PII** (`Name`, `Email Address` are annotated classes, plus residual
   emails and phone numbers in the raw text). De-identify before use — see action plan §3.1.
 - **40 of the C1 resumes (6.2%) also appear in the A1 benchmark.** Exclude them from any NER

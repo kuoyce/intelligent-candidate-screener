@@ -18,7 +18,7 @@ src/candidate_screener/     project code
   baselines/                the Stage 1 classical baseline (TF-IDF, BM25) and its entrypoint
   evaluation/               retrieval and classification metrics, with their reporting guards
 tests/                      pytest — runs without data/ except the golden check
-notebooks/                  01-06 the acquisition EDA, 07 the baseline (executed, outputs committed)
+notebooks/                  01-06 acquisition EDA, 07 baseline, 08 extraction readiness
 output/baselines/           committed model record — figures and config, never bytes
 docs/
   data/                     data catalog, per-source dataset cards, manifests
@@ -49,6 +49,20 @@ Two sources need a human: the Kaggle PDF corpus (account + API token) and ESCO
 uv run jupyter lab notebooks/       # the EDA
 ```
 
+For preliminary entity-extraction work, start with
+[`08-entity-extraction-readiness.ipynb`](notebooks/08-entity-extraction-readiness.ipynb)
+and its [execution plan](plan/2026-09-13-entity-extraction/README.md).
+The notebook checks what is available in this checkout, reports metadata without displaying
+real resumes, and demonstrates the existing keyword helper on synthetic text. Missing NER
+sources are reported explicitly; the historical acquisition record does not imply that every
+source is installed locally. The plan covers skills, titles, qualifications and experience
+evidence, with supervised extraction and theme construction as subsequent work.
+
+Continue with [`09-resume-evidence-and-themes.ipynb`](notebooks/09-resume-evidence-and-themes.ipynb)
+and its [execution plan](plan/2026-09-19-resume-themes/README.md) to explore the proposed
+evidence records, activity-backed themes and requirement comparisons. Its worked examples
+are manually specified synthetic evidence, not extractor predictions or accuracy results.
+
 For executable extraction on local Djinni data, use these notebooks in reading order:
 
 - [`10-entity-extraction-inputs.ipynb`](notebooks/10-entity-extraction-inputs.ipynb): validate inputs and sample only the committed training region.
@@ -71,6 +85,40 @@ uv run python -m candidate_screener.extraction.run --sample-size 1000 --seed 0 -
 
 `--check` verifies source/code provenance, local artifact hashes, exact offsets and
 reproduced predictions; it does not measure extraction accuracy.
+
+Notebook 11 now includes a dictionary of the 15 stored entity fields and a five-row
+redacted preview of actual rule-extracted mentions. Continue with
+[`13-transformer-entity-extraction.ipynb`](notebooks/13-transformer-entity-extraction.ipynb)
+for locally run GLiNER predictions and a comparison with rules on the same training
+documents. The four entity types remain `KNOWLEDGE`, `SKILL`, `TITLE` and `DEGREE`.
+Neural scores are uncalibrated; context flags still use a separate heuristic, and
+unlabelled coverage/disagreement does not establish accuracy or superiority.
+
+The transformer stack uses a separately locked uv environment to support Intel macOS
+without downgrading the project's existing dependencies:
+
+```bash
+uv sync --project runtime/transformer
+uv run python -m candidate_screener.extraction.model_assets
+uv run python -m candidate_screener.extraction.transformer_run --sample-size 100
+uv run python -m candidate_screener.extraction.transformer_run --sample-size 100 --check
+```
+
+Inference is local, with five-per-type smoke testing followed by 100 CVs and 100 JDs
+and a 30-minute inference budget. Checkpoint and tokenizer revisions/hashes, runtime
+versions, original offsets and field completion are recorded. Real neural evidence
+stays in `data/processed/extraction/transformer-runs/<run_id>/entities.parquet`;
+notebook 13 prints the actual artifact directory and uses synthetic neural previews.
+See the [transformer plan](plan/2026-10-06-transformer-entity-extraction/README.md).
+
+For charts and real examples from the generated outputs, open
+[`14-entity-extraction-eda.ipynb`](notebooks/14-entity-extraction-eda.ipynb).
+It compares GLiNER and rules on the same 100 CVs and 100 JDs, explores mention
+frequencies, per-document counts, scores, field/context patterns and disagreements,
+and exports figures to `output/extraction/eda/`. Model scores and threshold-retention
+curves describe predictions, not extraction accuracy. This notebook uses existing
+artifacts and regenerates only the matching rule predictions; it performs no
+additional neural inference or training.
 
 ## Build the derived artefacts
 

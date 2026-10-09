@@ -1,0 +1,45 @@
+doc_type,field,context_status,label,entities,method
+cv,Highlights,learning,KNOWLEDGE,4,GLiNER
+cv,Highlights,learning,TITLE,2,GLiNER
+cv,Highlights,unqualified,DEGREE,16,GLiNER
+cv,Highlights,unqualified,KNOWLEDGE,67,GLiNER
+cv,Highlights,unqualified,SKILL,6,GLiNER
+cv,Highlights,unqualified,TITLE,15,GLiNER
+cv,Looking For,learning,KNOWLEDGE,40,GLiNER
+cv,Looking For,learning,SKILL,2,GLiNER
+cv,Looking For,learning,TITLE,9,GLiNER
+cv,Moreinfo,learning,KNOWLEDGE,9,GLiNER
+cv,Moreinfo,unqualified,DEGREE,3,GLiNER
+cv,Moreinfo,unqualified,KNOWLEDGE,668,GLiNER
+cv,Moreinfo,unqualified,SKILL,31,GLiNER
+cv,Moreinfo,unqualified,TITLE,77,GLiNER
+cv,Position,unqualified,KNOWLEDGE,25,GLiNER
+cv,Position,unqualified,SKILL,1,GLiNER
+cv,Position,unqualified,TITLE,102,GLiNER
+jd,Long Description,unqualified,DEGREE,23,GLiNER
+jd,Long Description,unqualified,KNOWLEDGE,482,GLiNER
+jd,Long Description,unqualified,SKILL,69,GLiNER
+jd,Long Description,unqualified,TITLE,56,GLiNER
+jd,Position,unqualified,KNOWLEDGE,35,GLiNER
+jd,Position,unqualified,TITLE,90,GLiNER
+cv,Highlights,learning,KNOWLEDGE,1,rules
+cv,Highlights,unqualified,DEGREE,2,rules
+cv,Highlights,unqualified,KNOWLEDGE,29,rules
+cv,Highlights,unqualified,SKILL,5,rules
+cv,Highlights,unqualified,TITLE,3,rules
+cv,Looking For,learning,KNOWLEDGE,8,rules
+cv,Looking For,learning,TITLE,1,rules
+cv,Moreinfo,learning,KNOWLEDGE,3,rules
+cv,Moreinfo,learning,TITLE,1,rules
+cv,Moreinfo,unqualified,DEGREE,1,rules
+cv,Moreinfo,unqualified,KNOWLEDGE,232,rules
+cv,Moreinfo,unqualified,SKILL,16,rules
+cv,Moreinfo,unqualified,TITLE,35,rules
+cv,Position,unqualified,KNOWLEDGE,28,rules
+cv,Position,unqualified,TITLE,39,rules
+jd,Long Description,unqualified,DEGREE,3,rules
+jd,Long Description,unqualified,KNOWLEDGE,261,rules
+jd,Long Description,unqualified,SKILL,11,rules
+jd,Long Description,unqualified,TITLE,12,rules
+jd,Position,unqualified,KNOWLEDGE,23,rules
+jd,Position,unqualified,TITLE,17,rules

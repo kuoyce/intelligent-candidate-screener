@@ -1,0 +1,17 @@
+method,doc_type,label,entities
+GLiNER,cv,KNOWLEDGE,813
+GLiNER,cv,SKILL,40
+GLiNER,cv,TITLE,205
+GLiNER,cv,DEGREE,19
+GLiNER,jd,KNOWLEDGE,517
+GLiNER,jd,SKILL,69
+GLiNER,jd,TITLE,146
+GLiNER,jd,DEGREE,23
+rules,cv,KNOWLEDGE,301
+rules,cv,SKILL,21
+rules,cv,TITLE,79
+rules,cv,DEGREE,3
+rules,jd,KNOWLEDGE,284
+rules,jd,SKILL,11
+rules,jd,TITLE,29
+rules,jd,DEGREE,3

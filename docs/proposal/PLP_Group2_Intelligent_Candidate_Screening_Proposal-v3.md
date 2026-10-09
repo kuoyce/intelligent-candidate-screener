@@ -114,7 +114,7 @@ Resume + JD
                      ↓                                   │
           Sentence-BERT retrieval                        │
                      ↓                                   │
-       Cross-encoder re-ranking                           │
+       Cross-encoder re-ranking                          │
                      │                                   │
                      └──────────┬────────────────────────┘
                                 ↓

@@ -28,6 +28,19 @@ matching labels, pools or the annotation campaign. See the
 [approved plan](../../plan/2026-10-05-entity-extraction-notebooks/README.md) and
 [A2 card](cards/A2-djinni.md).
 
+**Transformer experiment, 6 Oct 2026:** a pinned GLiNER model and DeBERTa
+tokenizer/config assets are now separate local extraction prerequisites. Notebook
+13 applies local zero-shot extraction to A2 training documents, with explicit
+field completion and rule disagreement on the same sample. These outputs are
+unlabelled predictions, never new gold/fit/human annotations. No historical source
+measurement above is superseded by this experiment. Model assets and real neural
+evidence remain git-ignored; only provenance/configuration and aggregates are committed.
+
+Notebook 14 provides descriptive EDA of the completed transformer predictions,
+including real mentions and charts. Both methods are compared on the same sampled
+training documents; no labels, source counts, split definitions or gold-evaluation
+status change. Standalone figures and aggregate tables live in `output/extraction/eda/`.
+
 Legend — **Tier 1** adopt, **Tier 2** adopt with stated caveats, **Tier 3** evaluated and rejected (recorded so the decision is traceable).
 
 ---

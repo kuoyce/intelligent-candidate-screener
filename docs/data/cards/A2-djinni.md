@@ -56,3 +56,16 @@ The seed vocabulary is limited and is not an ESCO mapping. A2 supplies descripti
 coverage and operational validation only; extraction accuracy needs separate labelled
 sources. Local evidence stays under git-ignored `data/processed/extraction/`.
 See the [implementation plan](../../../plan/2026-10-05-entity-extraction-notebooks/README.md).
+
+**Added 6 Oct 2026:** notebook 13 runs pinned GLiNER zero-shot inference on a
+separate training-only sample (100 CVs and 100 JDs), retaining original field spans.
+Custom model descriptions map to the same four project types. Neural scores are
+uncalibrated; context is still heuristic. Rule comparison uses exactly the same
+completed documents and measures disagreement, not accuracy. Local neural records
+are separate from rule artifacts and never enter fit or human annotation labels.
+See the [transformer plan](../../../plan/2026-10-06-transformer-entity-extraction/README.md).
+
+Notebook 14 explores these saved predictions with visualizations and bounded real
+entity/context examples. Its rule comparison is recomputed on exactly the neural
+run's training IDs. Frequency, score and disagreement analysis does not provide
+gold extraction accuracy or constitute another annotation campaign.

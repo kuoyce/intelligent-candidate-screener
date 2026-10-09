@@ -1,0 +1,17 @@
+method,doc_type,label,covered_documents,population_documents,descriptive_coverage
+GLiNER,cv,KNOWLEDGE,79,100,0.79
+GLiNER,cv,SKILL,21,100,0.21
+GLiNER,cv,TITLE,94,100,0.94
+GLiNER,cv,DEGREE,12,100,0.12
+GLiNER,jd,KNOWLEDGE,82,100,0.82
+GLiNER,jd,SKILL,42,100,0.42
+GLiNER,jd,TITLE,87,100,0.87
+GLiNER,jd,DEGREE,17,100,0.17
+rules,cv,KNOWLEDGE,60,100,0.6
+rules,cv,SKILL,13,100,0.13
+rules,cv,TITLE,46,100,0.46
+rules,cv,DEGREE,3,100,0.03
+rules,jd,KNOWLEDGE,64,100,0.64
+rules,jd,SKILL,10,100,0.1
+rules,jd,TITLE,21,100,0.21
+rules,jd,DEGREE,3,100,0.03

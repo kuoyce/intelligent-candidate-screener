@@ -1,6 +1,6 @@
 # Visible entity records and transformer extraction exploration
 
-6 October 2026. Status: proposed; awaiting approval before notebook/package changes.
+6 October 2026. Status: approved by the user; implemented. See the implementation record.
 
 ## User request and current state
 

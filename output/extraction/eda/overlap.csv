@@ -1,0 +1,7 @@
+doc_type,category,entities
+cv,shared,243
+jd,shared,191
+cv,neural_only,834
+jd,neural_only,564
+cv,rule_only,161
+jd,rule_only,136
