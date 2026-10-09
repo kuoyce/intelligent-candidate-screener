@@ -90,7 +90,13 @@ Notebook 11 now includes a dictionary of the 15 stored entity fields and a five-
 redacted preview of actual rule-extracted mentions. Continue with
 [`13-transformer-entity-extraction.ipynb`](notebooks/13-transformer-entity-extraction.ipynb)
 for locally run GLiNER predictions and a comparison with rules on the same training
-documents. The four entity types remain `KNOWLEDGE`, `SKILL`, `TITLE` and `DEGREE`.
+documents. GLiNER extracts `KNOWLEDGE`, `SKILL`, `TITLE`, `DEGREE` and
+`EXPERIENCE_YEARS`; the rules comparator supports the original four labels only.
+Experience spans preserve stated durations, ranges and minimums in CV claims or
+JD requirements. They do not infer tenure from dates or determine job fit.
+The saved five-label run has its own aggregate record at
+`output/extraction/transformer-experience-years-metrics.json`; the original
+four-label record and historical notebook 14 results are retained.
 Neural scores are uncalibrated; context flags still use a separate heuristic, and
 unlabelled coverage/disagreement does not establish accuracy or superiority.
 

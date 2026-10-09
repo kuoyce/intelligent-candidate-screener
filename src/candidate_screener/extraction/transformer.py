@@ -14,13 +14,14 @@ import time
 from .rules import _context
 from .schema import validate_entity
 
-TRANSFORMER_VERSION = "gliner-adapter-v1"
+TRANSFORMER_VERSION = "gliner-adapter-v2"
 CONTEXT_VERSION = "rules-v1-context"
 MODEL_LABELS = {
     "technology, software tool or programming language": "KNOWLEDGE",
     "professional skill or competency": "SKILL",
     "job title or occupation": "TITLE",
     "academic degree or qualification": "DEGREE",
+    "years of experience": "EXPERIENCE_YEARS",
 }
 
 

@@ -107,6 +107,10 @@ for reproducible input preparation.
 ### Transformer extraction artifacts (6 Oct 2026)
 
 Install the isolated inference environment using `uv sync --project runtime/transformer`.
+
+As of 9 Oct 2026, notebook 13 requests a fifth GLiNER label,
+`EXPERIENCE_YEARS`, for explicit professional durations. Changed labels and adapter
+version produce separate cached runs; historical four-label artifacts are retained.
 Run `uv run python -m candidate_screener.extraction.model_assets` to download the
 pinned GLiNER small-v2.1 checkpoint plus DeBERTa tokenizer/config artifacts into
 `data/processed/extraction/models/gliner-small-v2.1/`. The download records both

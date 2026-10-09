@@ -11,6 +11,12 @@ COLORS = ("#087f8c", "#7356a4")
 METHOD_COLORS = {"rules": COLORS[0], "GLiNER": COLORS[1]}
 
 
+def _labels(table, column="label"):
+    """Render only labels present in saved tables, retaining conventional order."""
+    observed = set(table[column])
+    return [label for label in LABELS if label in observed] + sorted(observed - set(LABELS))
+
+
 def _finish(fig, directory, name):
     directory = Path(directory)
     directory.mkdir(parents=True, exist_ok=True)
@@ -24,16 +30,18 @@ def _finish(fig, directory, name):
 def _paired_bars(table, value, title, ylabel, directory, name):
     fig, axes = plt.subplots(1, 2, figsize=(12, 4.3))
     methods = sorted(table["method"].unique())
+    labels = _labels(table)
     for ax, kind in zip(axes, ("cv", "jd")):
         subset = table[table["doc_type"] == kind]
-        x = np.arange(len(LABELS))
+        x = np.arange(len(labels))
         width = .36
         for i, method in enumerate(methods):
             rows = subset[subset["method"] == method].set_index("label")
-            values = rows[value].reindex(LABELS, fill_value=0).to_numpy()
+            # An absent method/label is unsupported, not a measured zero.
+            values = rows[value].reindex(labels).to_numpy()
             bars = ax.bar(x + (i - .5) * width, values, width, label=method, color=METHOD_COLORS[method])
             ax.bar_label(bars, fmt="%.0f" if value != "descriptive_coverage" else "%.2f", fontsize=8)
-        ax.set_xticks(x, LABELS, rotation=15)
+        ax.set_xticks(x, labels, rotation=15)
         ax.set_title(kind.upper())
         ax.set_ylabel(ylabel)
         ax.spines[["top", "right"]].set_visible(False)
@@ -77,16 +85,17 @@ def cooccurrence_plot(table, directory):
     for row, kind in enumerate(("cv", "jd")):
         for col, method in enumerate(methods):
             subset = table[(table["doc_type"] == kind) & (table["method"] == method)]
-            matrix = subset.pivot(index="label_a", columns="label_b", values="documents").reindex(index=LABELS, columns=LABELS).fillna(0)
+            labels = _labels(subset, "label_a")
+            matrix = subset.pivot(index="label_a", columns="label_b", values="documents").reindex(index=labels, columns=labels).fillna(0)
             ax = axes[row, col]
             maximum = max(1, int(table["documents"].max()))
             ax.imshow(matrix, cmap="Blues", vmin=0, vmax=maximum)
-            for i in range(4):
-                for j in range(4):
+            for i in range(len(labels)):
+                for j in range(len(labels)):
                     value = int(matrix.iloc[i,j])
                     ax.text(j, i, str(value), ha="center", va="center", color="white" if value > maximum * .55 else "black")
-            ax.set_xticks(range(4), LABELS, rotation=20)
-            ax.set_yticks(range(4), LABELS)
+            ax.set_xticks(range(len(labels)), labels, rotation=20)
+            ax.set_yticks(range(len(labels)), labels)
             ax.set_title(f"{kind.upper()} / {method}")
     fig.suptitle("Label co-occurrence: document counts (diagonal is label support)")
     return _finish(fig, directory, "label-cooccurrence")
@@ -95,9 +104,10 @@ def cooccurrence_plot(table, directory):
 def mentions_plot(table, directory):
     figures = {}
     for method in sorted(table["method"].unique()):
-        fig, axes = plt.subplots(2, 4, figsize=(17, 8), squeeze=False)
+        labels = _labels(table[table["method"] == method])
+        fig, axes = plt.subplots(2, len(labels), figsize=(4.25 * len(labels), 8), squeeze=False)
         for row, kind in enumerate(("cv", "jd")):
-            for col, label in enumerate(LABELS):
+            for col, label in enumerate(labels):
                 subset = table[(table["method"] == method) & (table["doc_type"] == kind) & (table["label"] == label)].nlargest(5, "entities").iloc[::-1]
                 ax = axes[row, col]
                 ax.barh(subset["mention_casefold"].str.slice(0, 45), subset["entities"], color=COLORS[1] if method != "rules" else COLORS[0])
@@ -113,7 +123,7 @@ def mentions_plot(table, directory):
 def score_plot(neural, directory):
     fig, axes = plt.subplots(1, 2, figsize=(12, 4.2))
     for ax, kind in zip(axes, ("cv", "jd")):
-        for label in LABELS:
+        for label in _labels(neural):
             scores = neural.loc[(neural["doc_type"] == kind) & (neural["label"] == label), "confidence"]
             ax.hist(scores, bins=np.linspace(.5, 1, 21), histtype="step", linewidth=1.8, label=label)
         ax.set_title(kind.upper())
@@ -128,7 +138,7 @@ def score_plot(neural, directory):
 def thresholds_plot(table, directory):
     fig, axes = plt.subplots(1, 2, figsize=(12, 4.2))
     for ax, kind in zip(axes, ("cv", "jd")):
-        for label in LABELS:
+        for label in _labels(table):
             rows = table[(table["doc_type"] == kind) & (table["label"] == label)].sort_values("threshold")
             ax.plot(rows["threshold"], rows["retained_entities"], marker="o", label=label)
         ax.set_title(kind.upper())

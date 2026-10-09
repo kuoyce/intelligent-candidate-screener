@@ -2,7 +2,7 @@
 import math
 from numbers import Real
 EXTRACTOR_VERSION = "rules-v1"
-LABELS = frozenset({"KNOWLEDGE", "SKILL", "TITLE", "DEGREE"})
+LABELS = frozenset({"KNOWLEDGE", "SKILL", "TITLE", "DEGREE", "EXPERIENCE_YEARS"})
 CONTEXT_STATUSES = frozenset({"negated", "learning", "unqualified"})
 
 

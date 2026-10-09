@@ -53,6 +53,34 @@ def doc(text):
     return {"doc_id": "synthetic", "source": "synthetic", "doc_type": "cv", "fields": {"Moreinfo": text}}
 
 
+@pytest.mark.parametrize("kind,surface", [("cv", "5 years of experience"), ("jd", "3–5 years"), ("jd", "at least 2 years")])
+def test_experience_years_preserve_source_evidence(kind, surface):
+    class ExperienceModel(ModelWithLargeWords):
+        data_processor = Processor()
+
+        def predict_entities(self, text, labels, threshold, flat_ner):
+            prompt = "years of experience"
+            assert prompt in labels
+            start = text.index(surface)
+            return [{"start": start, "end": start + len(surface), "text": surface,
+                     "label": prompt, "score": .83}]
+
+    model = ExperienceModel()
+    model.data_processor = Processor()
+    model.data_processor.transformer_tokenizer = Tokenizer()
+    model.data_processor.transformer_tokenizer.model_max_length = 512
+    text = "🙂 Required: " + surface + "."
+    document = {**doc(text), "doc_type": kind}
+    rows, coverage = extract_transformer_document(document, model)
+    assert len(rows) == 1
+    row = rows[0]
+    assert row["label"] == "EXPERIENCE_YEARS"
+    assert row["surface"] == text[row["start"]:row["end"]] == surface
+    assert row["doc_type"] == kind and row["field"] == "Moreinfo"
+    assert row["confidence"] == .83 and row["canonical_id"] is None
+    assert coverage["Moreinfo"]["complete"]
+
+
 def test_missing_checkpoint_fails_without_weights(tmp_path):
     with pytest.raises(FileNotFoundError, match="checkpoint"):
         load_model(tmp_path)

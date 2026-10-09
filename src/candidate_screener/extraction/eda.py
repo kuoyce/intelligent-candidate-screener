@@ -15,7 +15,15 @@ from candidate_screener.extraction.run import ENTITY_COLUMNS, _validate
 
 KEY = ["source", "doc_id", "field", "start", "end", "label"]
 DOC_KEY = ["source", "doc_id", "doc_type"]
+# Rules support four labels; historical transformer runs used this same scope.
 LABELS = ["KNOWLEDGE", "SKILL", "TITLE", "DEGREE"]
+
+
+def analysis_labels(entities: pd.DataFrame, provenance: dict | None = None) -> list[str]:
+    """Use the saved run's prompt scope, preserving historical four-label runs."""
+    saved = (provenance or {}).get("labels")
+    labels = list(dict.fromkeys(saved.values())) if saved else list(LABELS)
+    return labels + sorted(set(entities.label) - set(labels))
 
 
 def validate_population(documents: pd.DataFrame, entities: pd.DataFrame) -> None:
@@ -75,8 +83,9 @@ def per_document_counts(documents: pd.DataFrame, entities: pd.DataFrame) -> pd.D
 
 
 def threshold_counts(documents: pd.DataFrame, entities: pd.DataFrame,
-                     thresholds=(.5, .6, .7, .8, .9)) -> pd.DataFrame:
+                     thresholds=(.5, .6, .7, .8, .9), labels=None) -> pd.DataFrame:
     validate_population(documents, entities)
+    labels = analysis_labels(entities) if labels is None else labels
     rows = []
     for threshold in thresholds:
         if not math.isfinite(threshold) or not .5 <= threshold <= 1:
@@ -85,7 +94,7 @@ def threshold_counts(documents: pd.DataFrame, entities: pd.DataFrame,
         for kind in ("cv", "jd"):
             denominator = int((documents.doc_type == kind).sum())
             subset = retained.loc[retained.doc_type == kind]
-            for label in LABELS:
+            for label in labels:
                 spans = subset.loc[subset.label == label]
                 covered = spans.doc_id.nunique()
                 rows.append({"threshold": threshold, "doc_type": kind, "label": label,
@@ -111,11 +120,12 @@ def analyze(analysis: dict) -> dict[str, pd.DataFrame]:
     counts, per_docs, coverage, cooccurrence, mentions, contexts = [], [], [], [], [], []
     for method, frame in frames.items():
         validate_population(documents, frame)
+        labels = analysis_labels(frame, analysis.get("provenance")) if method == "GLiNER" else LABELS
         per_docs.append(per_document_counts(documents, frame).assign(method=method))
         for kind in ("cv", "jd"):
             total = int((documents.doc_type == kind).sum())
             subset = frame.loc[frame.doc_type == kind]
-            for label in LABELS:
+            for label in labels:
                 group = subset.loc[subset.label == label]
                 counts.append({"method": method, "doc_type": kind, "label": label, "entities": len(group)})
                 coverage.append({"method": method, "doc_type": kind, "label": label,
@@ -126,8 +136,8 @@ def analyze(analysis: dict) -> dict[str, pd.DataFrame]:
                     mentions.append({"method": method, "doc_type": kind, "label": label,
                                      "mention_casefold": redact_text(mention), "entities": int(count)})
             doc_labels = subset.groupby(["source", "doc_id"]).label.agg(set)
-            for left in LABELS:
-                for right in LABELS:
+            for left in labels:
+                for right in labels:
                     cooccurrence.append({"method": method, "doc_type": kind, "label_a": left, "label_b": right,
                                          "documents": sum(left in labels and right in labels for labels in doc_labels)})
         contexts.append(frame.groupby(["doc_type", "field", "context_status", "label"]).size().rename("entities").reset_index().assign(method=method))
@@ -136,7 +146,8 @@ def analyze(analysis: dict) -> dict[str, pd.DataFrame]:
                for category, frame in differences.items() for kind in ("cv", "jd")]
     return {"counts": pd.DataFrame(counts), "document_counts": pd.concat(per_docs, ignore_index=True),
             "label_coverage": pd.DataFrame(coverage), "cooccurrence": pd.DataFrame(cooccurrence),
-            "mentions": pd.DataFrame(mentions), "thresholds": threshold_counts(documents, analysis["neural"]),
+            "mentions": pd.DataFrame(mentions), "thresholds": threshold_counts(documents, analysis["neural"],
+                labels=analysis_labels(analysis["neural"], analysis.get("provenance"))),
             "overlap": pd.DataFrame(overlap), "field_context": pd.concat(contexts, ignore_index=True)}
 
 

@@ -36,6 +36,12 @@ unlabelled predictions, never new gold/fit/human annotations. No historical sour
 measurement above is superseded by this experiment. Model assets and real neural
 evidence remain git-ignored; only provenance/configuration and aggregates are committed.
 
+**Experience duration extension, 9 Oct 2026:** notebook 13 adds
+`EXPERIENCE_YEARS` for explicit professional duration mentions to GLiNER's original
+four labels. A new versioned run preserves the historical four-label artifacts.
+Ranges/minimums remain text evidence; no tenure calculation, fit classification
+or new gold annotation is introduced. The rule comparator remains four-label.
+
 Notebook 14 provides descriptive EDA of the completed transformer predictions,
 including real mentions and charts. Both methods are compared on the same sampled
 training documents; no labels, source counts, split definitions or gold-evaluation

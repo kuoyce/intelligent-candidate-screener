@@ -59,11 +59,18 @@ See the [implementation plan](../../../plan/2026-10-05-entity-extraction-noteboo
 
 **Added 6 Oct 2026:** notebook 13 runs pinned GLiNER zero-shot inference on a
 separate training-only sample (100 CVs and 100 JDs), retaining original field spans.
-Custom model descriptions map to the same four project types. Neural scores are
+Custom model descriptions map to the same four project types (*Superseded 9 Oct
+2026*: notebook 13 now adds `EXPERIENCE_YEARS` as a fifth neural label). Neural scores are
 uncalibrated; context is still heuristic. Rule comparison uses exactly the same
 completed documents and measures disagreement, not accuracy. Local neural records
 are separate from rule artifacts and never enter fit or human annotation labels.
 See the [transformer plan](../../../plan/2026-10-06-transformer-entity-extraction/README.md).
+
+**Added 9 Oct 2026:** explicit professional experience duration spans retain their
+original wording, including ranges and minimums. This does not infer tenure from
+employment dates or supply numeric fit features. Rules still support four labels;
+historical four-label predictions remain separate from the new five-label run.
+See the [experience-years plan](../../../plan/2026-10-09-experience-years/README.md).
 
 Notebook 14 explores these saved predictions with visualizations and bounded real
 entity/context examples. Its rule comparison is recomputed on exactly the neural

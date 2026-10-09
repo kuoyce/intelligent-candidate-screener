@@ -1,4 +1,6 @@
 """Equal-population and denominator guards using synthetic evidence only."""
+from pathlib import Path
+
 import pandas as pd
 import pytest
 
@@ -74,6 +76,31 @@ def test_analysis_includes_empty_classes_and_cooccurrence():
     assert len(tables["label_coverage"]) == 16
     assert len(tables["cooccurrence"]) == 64
     assert len(tables["document_counts"]) == 6
+
+
+def test_saved_prompt_scope_includes_years_even_without_predictions():
+    from candidate_screener.extraction.transformer import MODEL_LABELS
+    data = synthetic_analysis()
+    data["provenance"] = {"labels": MODEL_LABELS}
+    tables = analyze(data)
+    neural_counts = tables["counts"].query("method == 'GLiNER'")
+    assert set(neural_counts.label) == set(MODEL_LABELS.values())
+    assert neural_counts.query("label == 'EXPERIENCE_YEARS'").entities.sum() == 0
+    assert "EXPERIENCE_YEARS" not in set(tables["counts"].query("method == 'rules'").label)
+    assert "EXPERIENCE_YEARS" in set(tables["thresholds"].label)
+
+
+def test_years_spans_are_retained_in_analysis_and_plots(tmp_path):
+    from candidate_screener.extraction.eda_plots import save_charts
+    data = synthetic_analysis()
+    data["neural"].loc[0, "label"] = "EXPERIENCE_YEARS"
+    tables = analyze(data)
+    count = tables["counts"].query("method == 'GLiNER' and doc_type == 'cv' and label == 'EXPERIENCE_YEARS'").iloc[0]
+    assert count.entities == 1
+    assert "EXPERIENCE_YEARS" in set(tables["cooccurrence"].label_a)
+    assert "EXPERIENCE_YEARS" in set(tables["mentions"].label)
+    paths = save_charts(tables, data["neural"], tmp_path)
+    assert all(Path(path).is_file() for path in paths.values())
 
 
 def test_preview_redacts_contacts_and_caps_rows():

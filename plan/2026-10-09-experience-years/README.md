@@ -1,6 +1,7 @@
 # Years-of-experience extraction
 
-Status: proposed; awaiting approval before implementation.
+Status: approved by the user on 9 October 2026; implemented and validated.
+Branch: `feat/experience-years`; plan committed before implementation as `53e1ec9`.
 
 ## Requirement and scope
 
@@ -39,7 +40,7 @@ results and any deviations in an implementation record.
 
 ## Open questions and limitations
 
-- Approval requested: interpret "number of years" as explicit professional
+- Resolved by approval: interpret "number of years" as explicit professional
   experience duration, rather than inferred employment tenure.
 - Numerical normalization and CV/JD duration comparison are deferred. Extracted
   spans alone do not establish that a candidate meets a requirement.

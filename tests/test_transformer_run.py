@@ -8,6 +8,19 @@ import pytest
 from candidate_screener.extraction import transformer_run as tr
 
 
+def test_experience_years_summary_keeps_span_and_document_coverage():
+    entities = [{"doc_id": "cv-a", "doc_type": "cv", "label": "EXPERIENCE_YEARS", "confidence": .8},
+                {"doc_id": "cv-a", "doc_type": "cv", "label": "EXPERIENCE_YEARS", "confidence": .9}]
+    documents = [{"doc_id": "cv-a", "doc_type": "cv", "fields": {"Moreinfo": "5 years; 2 years"}},
+                 {"doc_id": "jd-a", "doc_type": "jd", "fields": {"Description": "No duration stated"}}]
+    fields = [{"doc_id": doc["doc_id"], "doc_type": doc["doc_type"], "complete": True} for doc in documents]
+    summary = tr._coverage_summary(entities, documents, fields)
+    assert summary["cv"]["by_label"]["EXPERIENCE_YEARS"] == 2
+    assert summary["cv"]["documents_with_label"]["EXPERIENCE_YEARS"] == 1
+    assert summary["jd"]["by_label"]["EXPERIENCE_YEARS"] == 0
+    assert summary["jd"]["documents_with_label"]["EXPERIENCE_YEARS"] == 0
+
+
 @pytest.fixture
 def mocked_run(tmp_path, monkeypatch):
     model_dir = tmp_path / "model"

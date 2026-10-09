@@ -70,19 +70,22 @@ def _code() -> dict:
 
 
 def _coverage_summary(entities: list[dict], documents: list[dict], field_records: list[dict]) -> dict:
+    from candidate_screener.extraction.transformer import MODEL_LABELS
+    labels = list(dict.fromkeys(MODEL_LABELS.values()))
     result = {}
     for kind in ("cv", "jd"):
         subset = [e for e in entities if e["doc_type"] == kind]
         docs = [d for d in documents if d["doc_type"] == kind]
         fields = [f for f in field_records if f["doc_type"] == kind]
         scores = sorted(e["confidence"] for e in subset)
+        label_counts = Counter(e["label"] for e in subset)
         result[kind] = {"requested_documents": len(docs),
                        "completed_documents": sum(all(f["complete"] for f in fields if f["doc_id"] == d["doc_id"])
                                                   and any(f["doc_id"] == d["doc_id"] for f in fields) for d in docs),
                        "documents_with_entities": len({e["doc_id"] for e in subset}),
-                       "entities": len(subset), "by_label": dict(sorted(Counter(e["label"] for e in subset).items())),
+                       "entities": len(subset), "by_label": {label: label_counts[label] for label in labels},
                        "documents_with_label": {label: len({e["doc_id"] for e in subset if e["label"] == label})
-                                                for label in ("KNOWLEDGE", "SKILL", "TITLE", "DEGREE")},
+                                                for label in labels},
                        "fields_requested": sum(len(d["fields"]) for d in docs),
                        "fields_attempted": len(fields), "fields_complete": sum(f["complete"] for f in fields),
                        "fields_incomplete": sum(not f["complete"] for f in fields),
