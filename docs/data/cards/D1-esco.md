@@ -8,7 +8,7 @@
 | On disk | `data/raw/esco_dataset-v1.2.1-classification/` — 40.3 MB (verified files: `skills_en.csv`, `occupations_en.csv`, `occupationSkillRelations_en.csv`) |
 | Licence | European Commission ESCO terms of use — **redistribution of derived extracts is open question Q11** |
 | PII | None |
-| Verified rows | 13,960 skills · 3,043 occupations · 126,051 occupation↔skill links |
+| Verified rows | 13,960 skills · 3,043 occupations · 126,051 occupation↔skill links. *Amended 27 Sep 2026:* the 13,960 are **rows**. They hold 13,939 distinct concepts: 21 concepts appear twice with differing fields (08-extraction.md §10) |
 
 ## Verified figures (19 Aug 2026)
 
@@ -19,6 +19,19 @@
   §4.5 normalisation needs.
 - `relationType`: **67,600 `essential` + 58,451 `optional`** — the **hard vs preferred
   requirement** distinction §4.5 calls for already exists here and does not need inventing.
+
+## Occupations as a title alias table — verified 6 Oct 2026 (P2)
+
+- `occupations_en.csv`: **3,043 rows, 3,039 distinct preferred labels, 30,417 alternative
+  labels**; every occupation has at least one. 31,116 distinct strings after the P2 title
+  normalisation (`extraction.title_profile.normalise_title`).
+- ICT occupations (ISCO 25, 35, 133): **110**, with only **749** alternative labels.
+- Exact-match coverage of normalised A2-train `Position`: **24.6% of JDs, 42.6% of CVs**
+  (2.6% / 4.0% of distinct strings). ICT subset alone: 12.7% / 17.9%.
+- The label field carries no PII (0 email- or phone-like values).
+
+Read: usable as part of an alias table, too thin on IT titles to be the role taxonomy. See
+[`11-p2-data-checks.md`](../../../plan/2026-10-06-extraction-and-rerank/11-p2-data-checks.md).
 
 ## Measured limitation — tech-tool coverage
 

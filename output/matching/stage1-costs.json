@@ -1,0 +1,52 @@
+{
+  "random": {
+    "fit_seconds": 0.0,
+    "ms_per_pair": 0.0023,
+    "ms_per_500_candidate_role": 1.2
+  },
+  "extracted rule": {
+    "fit_seconds": 0.294,
+    "ms_per_pair": 1.4764,
+    "ms_per_500_candidate_role": 738.2
+  },
+  "extracted rule + skill overlap": {
+    "fit_seconds": 0.0,
+    "ms_per_pair": 1.3379,
+    "ms_per_500_candidate_role": 669.0
+  },
+  "TF-IDF": {
+    "fit_seconds": 26.905,
+    "ms_per_pair": 1.0432,
+    "ms_per_500_candidate_role": 521.6
+  },
+  "extracted rule + TF-IDF": {
+    "fit_seconds": 0.0,
+    "ms_per_pair": 1.9497,
+    "ms_per_500_candidate_role": 974.8
+  },
+  "SBERT (zero-shot)": {
+    "fit_seconds": 10.144,
+    "ms_per_pair": 21.3841,
+    "ms_per_500_candidate_role": 10692.0
+  },
+  "SBERT (weak fine-tuned)": {
+    "fit_seconds": 0.207,
+    "ms_per_pair": 20.7618,
+    "ms_per_500_candidate_role": 10380.9
+  },
+  "extracted rule + SBERT (weak fine-tuned)": {
+    "fit_seconds": 0.173,
+    "ms_per_pair": 1.0038,
+    "ms_per_500_candidate_role": 501.9
+  },
+  "metadata rules": {
+    "fit_seconds": 0.0,
+    "ms_per_pair": 0.0006,
+    "ms_per_500_candidate_role": 0.3
+  },
+  "metadata + TF-IDF": {
+    "fit_seconds": 0.0,
+    "ms_per_pair": 1.1227,
+    "ms_per_500_candidate_role": 561.3
+  }
+}

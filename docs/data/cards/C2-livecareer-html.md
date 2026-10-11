@@ -20,6 +20,13 @@
 Median HTML 15,025 chars. Tag inventory of a representative record: ~129 `span`, 48 `div`,
 30 `li`, 11 `p` — nested layout `div`s with inline styles and **no semantic sectioning**.
 
+## Role field — verified 6 Oct 2026 (P2)
+
+`Category`: 100% filled, **24 values**, identical between C1's `Resume.csv` and C2 on all
+2,484 `ID`s. **One** IT value, `INFORMATION-TECHNOLOGY` (120 rows), so it cannot label IT
+role families. The field has no email- or phone-like values; the documents are real resumes
+and keep their PII. See [`11-p2-data-checks.md`](../../../plan/2026-10-06-extraction-and-rerank/11-p2-data-checks.md).
+
 ## How it is used
 
 Real markup for the ingestion component. A naive tag strip concatenates words across cells —

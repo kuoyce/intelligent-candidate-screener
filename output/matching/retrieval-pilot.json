@@ -1,0 +1,917 @@
+{
+  "seed": 0,
+  "pool_size": 500,
+  "shortlist": 50,
+  "reference": {
+    "file": "a2-final-labels.csv",
+    "rule_version": 1
+  },
+  "note": "Relevant = final-set Fit among the JD's 10 labelled candidates; the 490 distractors are unjudged and assumed not fits (upper-bound recall).",
+  "retrievers": {
+    "random": [
+      {
+        "system": "random",
+        "metric": "recall@10",
+        "scope": "generic",
+        "value": 0.009717,
+        "ci_low": 0.0,
+        "ci_high": 0.021726,
+        "n_jd": 39
+      },
+      {
+        "system": "random",
+        "metric": "recall@50",
+        "scope": "generic",
+        "value": 0.107336,
+        "ci_low": 0.077532,
+        "ci_high": 0.137821,
+        "n_jd": 39
+      },
+      {
+        "system": "random",
+        "metric": "recall@100",
+        "scope": "generic",
+        "value": 0.210307,
+        "ci_low": 0.161894,
+        "ci_high": 0.262027,
+        "n_jd": 39
+      },
+      {
+        "system": "random",
+        "metric": "recall@10",
+        "scope": "targeted",
+        "value": 0.027143,
+        "ci_low": 0.0,
+        "ci_high": 0.057143,
+        "n_jd": 20
+      },
+      {
+        "system": "random",
+        "metric": "recall@50",
+        "scope": "targeted",
+        "value": 0.141012,
+        "ci_low": 0.074283,
+        "ci_high": 0.21506,
+        "n_jd": 20
+      },
+      {
+        "system": "random",
+        "metric": "recall@100",
+        "scope": "targeted",
+        "value": 0.24256,
+        "ci_low": 0.177497,
+        "ci_high": 0.3075,
+        "n_jd": 20
+      },
+      {
+        "system": "random",
+        "metric": "recall@10",
+        "scope": "total",
+        "value": 0.015624,
+        "ci_low": 0.00454,
+        "ci_high": 0.028753,
+        "n_jd": 59
+      },
+      {
+        "system": "random",
+        "metric": "recall@50",
+        "scope": "total",
+        "value": 0.118752,
+        "ci_low": 0.08794,
+        "ci_high": 0.151319,
+        "n_jd": 59
+      },
+      {
+        "system": "random",
+        "metric": "recall@100",
+        "scope": "total",
+        "value": 0.22124,
+        "ci_low": 0.182829,
+        "ci_high": 0.261976,
+        "n_jd": 59
+      }
+    ],
+    "metadata rules": [
+      {
+        "system": "metadata rules",
+        "metric": "recall@10",
+        "scope": "generic",
+        "value": 0.384717,
+        "ci_low": 0.300059,
+        "ci_high": 0.471104,
+        "n_jd": 39
+      },
+      {
+        "system": "metadata rules",
+        "metric": "recall@50",
+        "scope": "generic",
+        "value": 0.904202,
+        "ci_low": 0.83786,
+        "ci_high": 0.957723,
+        "n_jd": 39
+      },
+      {
+        "system": "metadata rules",
+        "metric": "recall@100",
+        "scope": "generic",
+        "value": 0.956197,
+        "ci_low": 0.899573,
+        "ci_high": 0.991097,
+        "n_jd": 39
+      },
+      {
+        "system": "metadata rules",
+        "metric": "recall@10",
+        "scope": "targeted",
+        "value": 0.507143,
+        "ci_low": 0.402022,
+        "ci_high": 0.616012,
+        "n_jd": 20
+      },
+      {
+        "system": "metadata rules",
+        "metric": "recall@50",
+        "scope": "targeted",
+        "value": 0.962024,
+        "ci_low": 0.930298,
+        "ci_high": 0.9875,
+        "n_jd": 20
+      },
+      {
+        "system": "metadata rules",
+        "metric": "recall@100",
+        "scope": "targeted",
+        "value": 0.976607,
+        "ci_low": 0.949464,
+        "ci_high": 1.0,
+        "n_jd": 20
+      },
+      {
+        "system": "metadata rules",
+        "metric": "recall@10",
+        "scope": "total",
+        "value": 0.426217,
+        "ci_low": 0.358427,
+        "ci_high": 0.49593,
+        "n_jd": 59
+      },
+      {
+        "system": "metadata rules",
+        "metric": "recall@50",
+        "scope": "total",
+        "value": 0.923803,
+        "ci_low": 0.876316,
+        "ci_high": 0.960924,
+        "n_jd": 59
+      },
+      {
+        "system": "metadata rules",
+        "metric": "recall@100",
+        "scope": "total",
+        "value": 0.963115,
+        "ci_low": 0.922859,
+        "ci_high": 0.988371,
+        "n_jd": 59
+      }
+    ],
+    "TF-IDF": [
+      {
+        "system": "TF-IDF",
+        "metric": "recall@10",
+        "scope": "generic",
+        "value": 0.208282,
+        "ci_low": 0.144179,
+        "ci_high": 0.272692,
+        "n_jd": 39
+      },
+      {
+        "system": "TF-IDF",
+        "metric": "recall@50",
+        "scope": "generic",
+        "value": 0.624613,
+        "ci_low": 0.528468,
+        "ci_high": 0.713785,
+        "n_jd": 39
+      },
+      {
+        "system": "TF-IDF",
+        "metric": "recall@100",
+        "scope": "generic",
+        "value": 0.739683,
+        "ci_low": 0.651618,
+        "ci_high": 0.819548,
+        "n_jd": 39
+      },
+      {
+        "system": "TF-IDF",
+        "metric": "recall@10",
+        "scope": "targeted",
+        "value": 0.375714,
+        "ci_low": 0.273214,
+        "ci_high": 0.485719,
+        "n_jd": 20
+      },
+      {
+        "system": "TF-IDF",
+        "metric": "recall@50",
+        "scope": "targeted",
+        "value": 0.723571,
+        "ci_low": 0.632437,
+        "ci_high": 0.810597,
+        "n_jd": 20
+      },
+      {
+        "system": "TF-IDF",
+        "metric": "recall@100",
+        "scope": "targeted",
+        "value": 0.875536,
+        "ci_low": 0.806429,
+        "ci_high": 0.9375,
+        "n_jd": 20
+      },
+      {
+        "system": "TF-IDF",
+        "metric": "recall@10",
+        "scope": "total",
+        "value": 0.265039,
+        "ci_low": 0.205722,
+        "ci_high": 0.325074,
+        "n_jd": 59
+      },
+      {
+        "system": "TF-IDF",
+        "metric": "recall@50",
+        "scope": "total",
+        "value": 0.658158,
+        "ci_low": 0.586581,
+        "ci_high": 0.726426,
+        "n_jd": 59
+      },
+      {
+        "system": "TF-IDF",
+        "metric": "recall@100",
+        "scope": "total",
+        "value": 0.785734,
+        "ci_low": 0.720951,
+        "ci_high": 0.845892,
+        "n_jd": 59
+      }
+    ],
+    "BM25": [
+      {
+        "system": "BM25",
+        "metric": "recall@10",
+        "scope": "generic",
+        "value": 0.13894,
+        "ci_low": 0.097833,
+        "ci_high": 0.181675,
+        "n_jd": 39
+      },
+      {
+        "system": "BM25",
+        "metric": "recall@50",
+        "scope": "generic",
+        "value": 0.316382,
+        "ci_low": 0.252741,
+        "ci_high": 0.379824,
+        "n_jd": 39
+      },
+      {
+        "system": "BM25",
+        "metric": "recall@100",
+        "scope": "generic",
+        "value": 0.432428,
+        "ci_low": 0.358342,
+        "ci_high": 0.508498,
+        "n_jd": 39
+      },
+      {
+        "system": "BM25",
+        "metric": "recall@10",
+        "scope": "targeted",
+        "value": 0.17494,
+        "ci_low": 0.102082,
+        "ci_high": 0.25268,
+        "n_jd": 20
+      },
+      {
+        "system": "BM25",
+        "metric": "recall@50",
+        "scope": "targeted",
+        "value": 0.385179,
+        "ci_low": 0.298985,
+        "ci_high": 0.46643,
+        "n_jd": 20
+      },
+      {
+        "system": "BM25",
+        "metric": "recall@100",
+        "scope": "targeted",
+        "value": 0.51631,
+        "ci_low": 0.420592,
+        "ci_high": 0.606493,
+        "n_jd": 20
+      },
+      {
+        "system": "BM25",
+        "metric": "recall@10",
+        "scope": "total",
+        "value": 0.151143,
+        "ci_low": 0.112852,
+        "ci_high": 0.189879,
+        "n_jd": 59
+      },
+      {
+        "system": "BM25",
+        "metric": "recall@50",
+        "scope": "total",
+        "value": 0.339703,
+        "ci_low": 0.287348,
+        "ci_high": 0.390425,
+        "n_jd": 59
+      },
+      {
+        "system": "BM25",
+        "metric": "recall@100",
+        "scope": "total",
+        "value": 0.460862,
+        "ci_low": 0.401323,
+        "ci_high": 0.520328,
+        "n_jd": 59
+      }
+    ],
+    "SBERT (zero-shot)": [
+      {
+        "system": "SBERT (zero-shot)",
+        "metric": "recall@10",
+        "scope": "generic",
+        "value": 0.149166,
+        "ci_low": 0.096762,
+        "ci_high": 0.20518,
+        "n_jd": 39
+      },
+      {
+        "system": "SBERT (zero-shot)",
+        "metric": "recall@50",
+        "scope": "generic",
+        "value": 0.41279,
+        "ci_low": 0.33201,
+        "ci_high": 0.493122,
+        "n_jd": 39
+      },
+      {
+        "system": "SBERT (zero-shot)",
+        "metric": "recall@100",
+        "scope": "generic",
+        "value": 0.62442,
+        "ci_low": 0.543295,
+        "ci_high": 0.699839,
+        "n_jd": 39
+      },
+      {
+        "system": "SBERT (zero-shot)",
+        "metric": "recall@10",
+        "scope": "targeted",
+        "value": 0.218036,
+        "ci_low": 0.128393,
+        "ci_high": 0.312146,
+        "n_jd": 20
+      },
+      {
+        "system": "SBERT (zero-shot)",
+        "metric": "recall@50",
+        "scope": "targeted",
+        "value": 0.518929,
+        "ci_low": 0.405298,
+        "ci_high": 0.632859,
+        "n_jd": 20
+      },
+      {
+        "system": "SBERT (zero-shot)",
+        "metric": "recall@100",
+        "scope": "targeted",
+        "value": 0.668155,
+        "ci_low": 0.537262,
+        "ci_high": 0.787978,
+        "n_jd": 20
+      },
+      {
+        "system": "SBERT (zero-shot)",
+        "metric": "recall@10",
+        "scope": "total",
+        "value": 0.172511,
+        "ci_low": 0.125099,
+        "ci_high": 0.221788,
+        "n_jd": 59
+      },
+      {
+        "system": "SBERT (zero-shot)",
+        "metric": "recall@50",
+        "scope": "total",
+        "value": 0.448769,
+        "ci_low": 0.383191,
+        "ci_high": 0.515144,
+        "n_jd": 59
+      },
+      {
+        "system": "SBERT (zero-shot)",
+        "metric": "recall@100",
+        "scope": "total",
+        "value": 0.639245,
+        "ci_low": 0.569915,
+        "ci_high": 0.706162,
+        "n_jd": 59
+      }
+    ],
+    "SBERT (weak fine-tuned)": [
+      {
+        "system": "SBERT (weak fine-tuned)",
+        "metric": "recall@10",
+        "scope": "generic",
+        "value": 0.192104,
+        "ci_low": 0.131054,
+        "ci_high": 0.256518,
+        "n_jd": 39
+      },
+      {
+        "system": "SBERT (weak fine-tuned)",
+        "metric": "recall@50",
+        "scope": "generic",
+        "value": 0.616066,
+        "ci_low": 0.525944,
+        "ci_high": 0.703918,
+        "n_jd": 39
+      },
+      {
+        "system": "SBERT (weak fine-tuned)",
+        "metric": "recall@100",
+        "scope": "generic",
+        "value": 0.825112,
+        "ci_low": 0.762463,
+        "ci_high": 0.884209,
+        "n_jd": 39
+      },
+      {
+        "system": "SBERT (weak fine-tuned)",
+        "metric": "recall@10",
+        "scope": "targeted",
+        "value": 0.251012,
+        "ci_low": 0.166606,
+        "ci_high": 0.33869,
+        "n_jd": 20
+      },
+      {
+        "system": "SBERT (weak fine-tuned)",
+        "metric": "recall@50",
+        "scope": "targeted",
+        "value": 0.615179,
+        "ci_low": 0.483988,
+        "ci_high": 0.738101,
+        "n_jd": 20
+      },
+      {
+        "system": "SBERT (weak fine-tuned)",
+        "metric": "recall@100",
+        "scope": "targeted",
+        "value": 0.778571,
+        "ci_low": 0.648571,
+        "ci_high": 0.892504,
+        "n_jd": 20
+      },
+      {
+        "system": "SBERT (weak fine-tuned)",
+        "metric": "recall@10",
+        "scope": "total",
+        "value": 0.212073,
+        "ci_low": 0.16115,
+        "ci_high": 0.263217,
+        "n_jd": 59
+      },
+      {
+        "system": "SBERT (weak fine-tuned)",
+        "metric": "recall@50",
+        "scope": "total",
+        "value": 0.615765,
+        "ci_low": 0.542916,
+        "ci_high": 0.6863,
+        "n_jd": 59
+      },
+      {
+        "system": "SBERT (weak fine-tuned)",
+        "metric": "recall@100",
+        "scope": "total",
+        "value": 0.809335,
+        "ci_low": 0.749634,
+        "ci_high": 0.864831,
+        "n_jd": 59
+      }
+    ],
+    "metadata + TF-IDF": [
+      {
+        "system": "metadata + TF-IDF",
+        "metric": "recall@10",
+        "scope": "generic",
+        "value": 0.426842,
+        "ci_low": 0.334806,
+        "ci_high": 0.520503,
+        "n_jd": 39
+      },
+      {
+        "system": "metadata + TF-IDF",
+        "metric": "recall@50",
+        "scope": "generic",
+        "value": 0.909086,
+        "ci_low": 0.844984,
+        "ci_high": 0.960979,
+        "n_jd": 39
+      },
+      {
+        "system": "metadata + TF-IDF",
+        "metric": "recall@100",
+        "scope": "generic",
+        "value": 0.981838,
+        "ci_low": 0.96688,
+        "ci_high": 0.993946,
+        "n_jd": 39
+      },
+      {
+        "system": "metadata + TF-IDF",
+        "metric": "recall@10",
+        "scope": "targeted",
+        "value": 0.574762,
+        "ci_low": 0.464702,
+        "ci_high": 0.689585,
+        "n_jd": 20
+      },
+      {
+        "system": "metadata + TF-IDF",
+        "metric": "recall@50",
+        "scope": "targeted",
+        "value": 0.969167,
+        "ci_low": 0.938333,
+        "ci_high": 0.99375,
+        "n_jd": 20
+      },
+      {
+        "system": "metadata + TF-IDF",
+        "metric": "recall@100",
+        "scope": "targeted",
+        "value": 0.99375,
+        "ci_low": 0.98125,
+        "ci_high": 1.0,
+        "n_jd": 20
+      },
+      {
+        "system": "metadata + TF-IDF",
+        "metric": "recall@10",
+        "scope": "total",
+        "value": 0.476984,
+        "ci_low": 0.401148,
+        "ci_high": 0.551938,
+        "n_jd": 59
+      },
+      {
+        "system": "metadata + TF-IDF",
+        "metric": "recall@50",
+        "scope": "total",
+        "value": 0.929453,
+        "ci_low": 0.882162,
+        "ci_high": 0.96627,
+        "n_jd": 59
+      },
+      {
+        "system": "metadata + TF-IDF",
+        "metric": "recall@100",
+        "scope": "total",
+        "value": 0.985876,
+        "ci_low": 0.975518,
+        "ci_high": 0.995763,
+        "n_jd": 59
+      }
+    ],
+    "metadata + SBERT (zero-shot)": [
+      {
+        "system": "metadata + SBERT (zero-shot)",
+        "metric": "recall@10",
+        "scope": "generic",
+        "value": 0.413665,
+        "ci_low": 0.322343,
+        "ci_high": 0.510025,
+        "n_jd": 39
+      },
+      {
+        "system": "metadata + SBERT (zero-shot)",
+        "metric": "recall@50",
+        "scope": "generic",
+        "value": 0.904202,
+        "ci_low": 0.8345,
+        "ci_high": 0.961387,
+        "n_jd": 39
+      },
+      {
+        "system": "metadata + SBERT (zero-shot)",
+        "metric": "recall@100",
+        "scope": "generic",
+        "value": 0.985043,
+        "ci_low": 0.972222,
+        "ci_high": 0.996795,
+        "n_jd": 39
+      },
+      {
+        "system": "metadata + SBERT (zero-shot)",
+        "metric": "recall@10",
+        "scope": "targeted",
+        "value": 0.554405,
+        "ci_low": 0.449939,
+        "ci_high": 0.657862,
+        "n_jd": 20
+      },
+      {
+        "system": "metadata + SBERT (zero-shot)",
+        "metric": "recall@50",
+        "scope": "targeted",
+        "value": 0.962024,
+        "ci_low": 0.930298,
+        "ci_high": 0.9875,
+        "n_jd": 20
+      },
+      {
+        "system": "metadata + SBERT (zero-shot)",
+        "metric": "recall@100",
+        "scope": "targeted",
+        "value": 0.991667,
+        "ci_low": 0.975,
+        "ci_high": 1.0,
+        "n_jd": 20
+      },
+      {
+        "system": "metadata + SBERT (zero-shot)",
+        "metric": "recall@10",
+        "scope": "total",
+        "value": 0.461373,
+        "ci_low": 0.389143,
+        "ci_high": 0.535278,
+        "n_jd": 59
+      },
+      {
+        "system": "metadata + SBERT (zero-shot)",
+        "metric": "recall@50",
+        "scope": "total",
+        "value": 0.923803,
+        "ci_low": 0.873968,
+        "ci_high": 0.963318,
+        "n_jd": 59
+      },
+      {
+        "system": "metadata + SBERT (zero-shot)",
+        "metric": "recall@100",
+        "scope": "total",
+        "value": 0.987288,
+        "ci_low": 0.97646,
+        "ci_high": 0.995998,
+        "n_jd": 59
+      }
+    ],
+    "metadata + SBERT (weak fine-tuned)": [
+      {
+        "system": "metadata + SBERT (weak fine-tuned)",
+        "metric": "recall@10",
+        "scope": "generic",
+        "value": 0.36513,
+        "ci_low": 0.275641,
+        "ci_high": 0.457418,
+        "n_jd": 39
+      },
+      {
+        "system": "metadata + SBERT (weak fine-tuned)",
+        "metric": "recall@50",
+        "scope": "generic",
+        "value": 0.923128,
+        "ci_low": 0.876065,
+        "ci_high": 0.964592,
+        "n_jd": 39
+      },
+      {
+        "system": "metadata + SBERT (weak fine-tuned)",
+        "metric": "recall@100",
+        "scope": "generic",
+        "value": 0.984687,
+        "ci_low": 0.971866,
+        "ci_high": 0.996795,
+        "n_jd": 39
+      },
+      {
+        "system": "metadata + SBERT (weak fine-tuned)",
+        "metric": "recall@10",
+        "scope": "targeted",
+        "value": 0.563512,
+        "ci_low": 0.440298,
+        "ci_high": 0.683512,
+        "n_jd": 20
+      },
+      {
+        "system": "metadata + SBERT (weak fine-tuned)",
+        "metric": "recall@50",
+        "scope": "targeted",
+        "value": 0.962024,
+        "ci_low": 0.930298,
+        "ci_high": 0.9875,
+        "n_jd": 20
+      },
+      {
+        "system": "metadata + SBERT (weak fine-tuned)",
+        "metric": "recall@100",
+        "scope": "targeted",
+        "value": 0.991667,
+        "ci_low": 0.975,
+        "ci_high": 1.0,
+        "n_jd": 20
+      },
+      {
+        "system": "metadata + SBERT (weak fine-tuned)",
+        "metric": "recall@10",
+        "scope": "total",
+        "value": 0.432378,
+        "ci_low": 0.356262,
+        "ci_high": 0.509277,
+        "n_jd": 59
+      },
+      {
+        "system": "metadata + SBERT (weak fine-tuned)",
+        "metric": "recall@50",
+        "scope": "total",
+        "value": 0.936313,
+        "ci_low": 0.902757,
+        "ci_high": 0.96629,
+        "n_jd": 59
+      },
+      {
+        "system": "metadata + SBERT (weak fine-tuned)",
+        "metric": "recall@100",
+        "scope": "total",
+        "value": 0.987053,
+        "ci_low": 0.976224,
+        "ci_high": 0.995998,
+        "n_jd": 59
+      }
+    ]
+  },
+  "retrieve_then_rank": {
+    "metadata + TF-IDF \u2192 cross-encoder (A1) (top 50)": [
+      {
+        "system": "metadata + TF-IDF \u2192 cross-encoder (A1) (top 50)",
+        "metric": "recall@10",
+        "scope": "generic",
+        "value": 0.174044,
+        "ci_low": 0.127695,
+        "ci_high": 0.223801,
+        "n_jd": 39
+      },
+      {
+        "system": "metadata + TF-IDF \u2192 cross-encoder (A1) (top 50)",
+        "metric": "recall@10",
+        "scope": "targeted",
+        "value": 0.100655,
+        "ci_low": 0.058094,
+        "ci_high": 0.143811,
+        "n_jd": 20
+      },
+      {
+        "system": "metadata + TF-IDF \u2192 cross-encoder (A1) (top 50)",
+        "metric": "recall@10",
+        "scope": "total",
+        "value": 0.149166,
+        "ci_low": 0.114898,
+        "ci_high": 0.186636,
+        "n_jd": 59
+      },
+      {
+        "comparison": "recall@10 delta vs metadata + TF-IDF alone",
+        "scope": "total",
+        "delta": -0.327818,
+        "ci": [
+          -0.405549,
+          -0.250611
+        ],
+        "n_jd": 59
+      }
+    ],
+    "metadata + TF-IDF \u2192 cross-encoder (weak) (top 50)": [
+      {
+        "system": "metadata + TF-IDF \u2192 cross-encoder (weak) (top 50)",
+        "metric": "recall@10",
+        "scope": "generic",
+        "value": 0.225773,
+        "ci_low": 0.163654,
+        "ci_high": 0.297955,
+        "n_jd": 39
+      },
+      {
+        "system": "metadata + TF-IDF \u2192 cross-encoder (weak) (top 50)",
+        "metric": "recall@10",
+        "scope": "targeted",
+        "value": 0.217143,
+        "ci_low": 0.143153,
+        "ci_high": 0.293577,
+        "n_jd": 20
+      },
+      {
+        "system": "metadata + TF-IDF \u2192 cross-encoder (weak) (top 50)",
+        "metric": "recall@10",
+        "scope": "total",
+        "value": 0.222848,
+        "ci_low": 0.17504,
+        "ci_high": 0.275646,
+        "n_jd": 59
+      },
+      {
+        "comparison": "recall@10 delta vs metadata + TF-IDF alone",
+        "scope": "total",
+        "delta": -0.254136,
+        "ci": [
+          -0.333162,
+          -0.168367
+        ],
+        "n_jd": 59
+      }
+    ],
+    "TF-IDF \u2192 cross-encoder (A1) (top 50)": [
+      {
+        "system": "TF-IDF \u2192 cross-encoder (A1) (top 50)",
+        "metric": "recall@10",
+        "scope": "generic",
+        "value": 0.098901,
+        "ci_low": 0.062725,
+        "ci_high": 0.137515,
+        "n_jd": 39
+      },
+      {
+        "system": "TF-IDF \u2192 cross-encoder (A1) (top 50)",
+        "metric": "recall@10",
+        "scope": "targeted",
+        "value": 0.080119,
+        "ci_low": 0.034286,
+        "ci_high": 0.131369,
+        "n_jd": 20
+      },
+      {
+        "system": "TF-IDF \u2192 cross-encoder (A1) (top 50)",
+        "metric": "recall@10",
+        "scope": "total",
+        "value": 0.092534,
+        "ci_low": 0.063962,
+        "ci_high": 0.123245,
+        "n_jd": 59
+      },
+      {
+        "comparison": "recall@10 delta vs TF-IDF alone",
+        "scope": "total",
+        "delta": -0.172505,
+        "ci": [
+          -0.228513,
+          -0.118381
+        ],
+        "n_jd": 59
+      }
+    ],
+    "TF-IDF \u2192 cross-encoder (weak) (top 50)": [
+      {
+        "system": "TF-IDF \u2192 cross-encoder (weak) (top 50)",
+        "metric": "recall@10",
+        "scope": "generic",
+        "value": 0.17327,
+        "ci_low": 0.119036,
+        "ci_high": 0.237719,
+        "n_jd": 39
+      },
+      {
+        "system": "TF-IDF \u2192 cross-encoder (weak) (top 50)",
+        "metric": "recall@10",
+        "scope": "targeted",
+        "value": 0.156131,
+        "ci_low": 0.087857,
+        "ci_high": 0.229286,
+        "n_jd": 20
+      },
+      {
+        "system": "TF-IDF \u2192 cross-encoder (weak) (top 50)",
+        "metric": "recall@10",
+        "scope": "total",
+        "value": 0.16746,
+        "ci_low": 0.123923,
+        "ci_high": 0.216176,
+        "n_jd": 59
+      },
+      {
+        "comparison": "recall@10 delta vs TF-IDF alone",
+        "scope": "total",
+        "delta": -0.097579,
+        "ci": [
+          -0.166809,
+          -0.025877
+        ],
+        "n_jd": 59
+      }
+    ]
+  }
+}

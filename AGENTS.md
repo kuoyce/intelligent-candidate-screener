@@ -1,269 +1,126 @@
 # AGENTS.md
 
-Conventions an agent (or a new team member) needs before touching anything in this
-repository: what the project is, where code and data live, and how work is planned,
-implemented and recorded.
+Conventions an agent (or new team member) needs before touching anything in this
+repository. **Rules only.** Why each rule exists, and every superseded one, is in
+[`docs/decisions.md`](docs/decisions.md) and the plan records it links to (D45).
 
 ## Project Overview
 
-<!-- TODO: fill in. -->
+NUS ISS PLP Group 2: an intelligent candidate-screening system. It ranks resumes against a
+job description and shows the evidence. The research question (proposal v3,
+`docs/proposal/`): **does more sophisticated matching earn its complexity?** The ladder is
+rules → TF-IDF/BM25 → Sentence-BERT → cross-encoder. The current plan is
+`plan/2026-10-06-extraction-and-rerank/`.
 
 ## Data Structure
 
-<!-- TODO: fill in. -->
+| Corpus | Role |
+|---|---|
+| **A2**, Djinni (IT JDs and CVs) | **Primary benchmark.** 600 labelled pairs (60 JDs × 10 CVs) in two strata, `generic` (40 JDs) and `targeted` (20). One final label per pair in `docs/data/manifests/a2-final-labels.csv` (D41). The document-level `train` region may supervise models, the `eval` region never (D19) |
+| **A1**, `cnamuangtoun` fit pairs | Training resource and **secondary** benchmark. Its labels do not reproduce (A13), so every A1 figure carries that line (D40) |
+| DataTurks, SkillSpan, ESCO | Extraction and skill vocabulary |
 
 ## Tech Stack
 
-**Python** is the core language for data processing, analysis and machine learning.
-
-Package management is **`uv` only** — never `pip install` into the venv, never a bare
-`python`.
+**Python 3.12**, with **`uv` only** for packages. Never `pip install` into the venv, and
+never a bare `python`. The project is an installed package (`src/` layout), so `import
+candidate_screener` works everywhere, notebook kernels included.
 
 ```bash
-uv sync                                          # install
-uv run python -m candidate_screener.data.verify --all
-uv run python -m candidate_screener.baselines.run --seed 0    # fit + freeze the baseline
-uv run python -m candidate_screener.baselines.run --check     # assert it still reproduces
-uv run python -m candidate_screener.evaluation.retrieval --seed 0   # the same baseline, ranked
-uv run python -m candidate_screener.data.build --all --seed 0       # splits, pools, annotation queue
-uv run python -m candidate_screener.annotation.ui --annotator <name>   # the labelling UI
-uv run python -m candidate_screener.annotation.llm_recheck --agent      # render the LLM judge
-uv run python -m candidate_screener.annotation.llm_recheck --dispatch --run 1
-uv run python -m candidate_screener.annotation.llm_recheck --judge --run 1   # isolated subprocesses
-uv run python -m candidate_screener.annotation.llm_recheck --collect --report
-uv run pytest                                                 # unit + regression suite
-uv run jupyter nbconvert --to notebook --execute --inplace notebooks/0X-*.ipynb
+uv sync                          # classical stack + dev tools
+uv sync --all-groups             # + `ml` (torch CPU, sentence-transformers) + `app` (streamlit)
+uv run python -m candidate_screener.data.verify --all          # raw sources
+uv run python -m candidate_screener.data.build --all --seed 0  # derived artefacts
+uv run python -m candidate_screener.data.verify --derived      # their acceptance checks
+uv run python -m candidate_screener.baselines.run --check      # the frozen Phase 4 baseline
+uv run python -m candidate_screener.evaluation.final_set --check   # the reference (D41)
+uv run python -m candidate_screener.evaluation.indomain --check    # the ladder vs the reference
+uv run python -m candidate_screener.evaluation.stage1 --check      # X rungs, K1–K5, S2 (text_v2)
+uv run python -m candidate_screener.evaluation.dev_pools --check       # shortlist-recall dev set (A2 train)
+uv run python -m candidate_screener.evaluation.shortlist_dev --check   # Y rungs on the dev set (~12 min)
+uv run python -m candidate_screener.evaluation.shortlist_dev --variants --check  # amendment Z (Z1-Z3) on the dev set
+uv run python -m candidate_screener.evaluation.shortlist_final --check   # Q8: frozen Z1/Z1L on the final set
+uv run pytest                                                   # the suite (no data needed)
+uv run python -m candidate_screener.checks                      # warm checks your uncommitted changes affect
+uv run python -m candidate_screener.checks --warm --all         # every live record, warm (D55)
+uv run python -m candidate_screener.checks --cold --all         # every record from scratch (D55)
+uv run jupyter nbconvert --to notebook --execute --inplace notebooks/NN-*.ipynb
 ```
 
-The project is an installed package (`src/` layout), so `import candidate_screener` works
-everywhere, including in notebook kernels.
+Every `--check` above is registered in `candidate_screener.checks`, which runs them for you
+and prints one line each. `tests/test_checks.py` fails if a new `--check` module is left out
+of the registry.
 
-It supports:
-
-- Data ingestion and preprocessing of resumes and job descriptions (csv, pdf, html, …)
-- …
-
-Where appropriate, commonly used Python libraries (e.g. pandas, NumPy, scikit-learn) are
-leveraged to streamline development and ensure maintainability.
+Torch comes from the PyTorch **CPU** index (`[tool.uv.sources]` in `pyproject.toml`). The
+base `uv run pytest` must pass without the `ml` and `app` groups: model-dependent tests
+`importorskip`.
 
 ## Where code goes
 
 | Kind | Location |
 |---|---|
-| Reusable project code | `src/candidate_screener/…` — invoked as `python -m candidate_screener.<module>` |
-| Tests | `tests/` at the repository root, run as `uv run pytest` |
-| Committed model records | `output/…` — figures and config for things we *fit*, never bytes |
-| Exploration and visualisation | `notebooks/NN-topic.ipynb`, numbered in reading order |
+| Reusable project code | `src/candidate_screener/…`, invoked as `python -m candidate_screener.<module>` |
+| Data layer (sources, splits, pools, weak pairs) | `data/` |
+| The final annotation set and the evaluation protocol | `evaluation/final_set.py`, `evaluation/indomain.py` |
+| Matching systems (ladder rungs) | `matching/`: every rung implements `matching.base.System` |
+| Extraction (vocabulary, rules, NER) | `extraction/` |
+| Evidence layer and end-to-end pipeline | `evidence/`, `pipeline.py` |
+| Recruiter UI | `app/`: rules in `intents.py` (tested), Streamlit as thin transport |
+| Frozen annotation instrument | `annotation/`: read-only (D42) |
+| Tests | `tests/`, run as `uv run pytest` |
+| Committed records | `output/…`: config, digests and figures for things we fit, never bytes (D23 baseline) |
+| Exploration and reporting | `notebooks/NN-topic.ipynb`, numbered in reading order |
 | Plans and their implementation records | `plan/{date}-{plan_name}/` |
-| Data documentation | `docs/data/` — the catalog, and one card per adopted source |
-| The annotation instrument | `src/candidate_screener/annotation/` + `docs/annotation-guide.md` |
-| The labelling UI | `annotation/session.py` (rules, tested) + `annotation/ui.py` + `ui.html` (transport) |
-| The LLM judge | `annotation/llm_recheck.py` + `.claude/agents/a1-judge.md` (generated, committed) |
+| Decision log | `docs/decisions.md` |
 
-Do **not** put runnable scripts under `plan/`. A plan is a record of a decision; code that
-outlives the decision belongs in the package. (This was deviation V1 of the acquisition
-phase.)
+No runnable scripts under `plan/`; code that outlives a decision goes in the package.
 
-## Evaluation and annotation
+## Evaluation rules
 
-Two rules that were each bought with a phase of work.
+1. **Systems are scored against one reference: the final set** (D41). It is Fit / No Fit,
+   built from the humans with the LLM as a secondary annotator:
 
-**Every Precision@k figure travels with its ceiling** *(decision D26, closing Q18)*. The pools
-carry a judged-supply ceiling — many queries have fewer than *k* judged-relevant resumes, so a
-perfect ranker scores below 1.0 by construction. `metrics.attainable_ceiling` computes it; the
-ceiling is a property of the **split**, identical at N20/N100/Nfull, so it cannot be mitigated
-by choosing another variant. Precision@5 tops out at **0.7806** strict / **0.7188** graded. A
-system at 0.45 is at 58% of attainable, not 45%. **Recall@10 is the headline retrieval metric**
-— its ceiling is 0.983 and it is what the proposal's success measures name.
+   | Case | Final label |
+   |---|---|
+   | Both humans agree | theirs |
+   | Both humans, split | the LLM breaks the tie |
+   | One human | that human |
+   | No human | the LLM |
 
-Q18 is closed as a **standing limitation**, not by a judging wave. 83.2% of the baseline's
-top-5 slots are unjudged distractors, so the bias is large; what makes it tolerable is that the
-unjudged share *falls* with system quality (random 94.0%, BM25 86.6%, TF-IDF 83.2%), so the
-pools rank systems in the right order.
+   It is frozen. A changed rule is a new `rule_version` and a new file. Do not score systems
+   against one annotator.
+2. **Fit / No Fit for classification** (D47). `Fit` = `Good Fit` ∪ `Potential Fit`. The
+   only graded figure is ordering (nDCG, pairwise) on the human grades (D52).
+3. **Report `generic`, `targeted` and `total` together** (D29 amended). Never a total
+   without both strata beside it.
+4. **Every figure carries its *n* and a CI**, bootstrapped over **queries (JDs)**, never
+   over pairs. Rung comparisons use **paired** deltas.
+5. **Nothing is fitted or tuned on the final set** (D46): weights, thresholds and
+   hyperparameters included. Tune on A1's doubly-disjoint CV folds, on the weak-pair
+   validation split, or on a development set drawn from the A2 `train` region (D19). Code that fits a model never reads `a2-final-labels.csv` or
+   `judgements.csv`.
+6. **No metadata at inference** (D53): systems read `text_v2`; fields are labels or
+   oracles. The one exception is the JD title, `jd_title` = the A2 JD `Position` (D54).
+   CV `Position`, `Primary Keyword` and experience fields are never inputs. Report
+   within-family AUC beside the headline.
+7. **Inter-annotator agreement is reported, with no target** (D44): context, not a goal.
+8. **Decide before you look.** A rule or bar that decides between rungs is committed
+   in the plan before the held-out rungs are scored. Anything seen
+   earlier is labelled `exploratory`.
 
-**Manual annotation is capped at one session** *(decision D25)* — ~250 judgements, ~2.5
-team-days, out of a ~30 team-day project. Adding an annotation wave is a budget decision, not a
-methodological one, and it needs the same arithmetic doing again. The deferred wave's design is
-in `plan/2026-08-29-unified-judging-wave/`.
+## Annotation and the LLM
 
-Nothing reaches an annotator without passing `annotation.redact`, and nothing an annotator sees
-carries `selection_reason` — a reader who knows which pairs already have a label anchors on it.
-
-**The in-domain set is a frozen, append-only batch campaign** *(decision D28)*, configured by
-`docs/data/manifests/indomain-batches.json`. Grow it by appending a batch spec
-(`sample --add-batch`), never by re-running an existing batch with a larger `n_jds` — batch *N*
-draws from what 1..*N*-1 left, and that is the only thing keeping already-collected labels
-valid. `queue --build` is the resume command: it emits only pairs absent from `judgements.csv`.
-
-**Every figure is quoted per stratum, and there are exactly two** *(decision D29)*: `generic`
-(the unstratified draw, D14) and `targeted` (every keyword-scoped batch, pooled). A stratum is
-coarser than a batch on purpose — batches within one differ only in which titles they cover, so
-pooling them names a real population. Averaging the **two strata** does not, and is forbidden.
-`stratum` is stamped on the pair and on the judgement, never looked up from the spec, so editing
-a batch's title list cannot re-stratify collected labels.
-
-The session is two annotators, both covering every title, 30% double-labelled. Do not assign
-titles by expertise: it confounds annotator with title, and the confound reaches the pooled
-figure as well as the per-title ones.
-
-**The A1 recheck gets a third judge, and it is a third opinion** *(decision D33)*.
-kappa(A1, yc) = 0.010 with a **bidirectional** disagreement, so it is not a strictness shift
-and it does not preserve ranking. Either A1's labels are wrong — **A13 fails** and D26's
-ceilings are soft — or `yc` is miscalibrated. One annotator cannot separate the two, and the
-two have opposite consequences for every figure quoted against 0.7806. `annotation.llm_recheck`
-runs one tool-free `haiku` judge per pair, 10 concurrent (run 1 used `sonnet`).
-
-**It has run, and A13 fails** *(30 Aug 2026, `plan/2026-08-30-llm-recheck/01-findings.md`)*.
-kappa(A1, llm) = **0.125** [0.013, 0.241] n=100 and kappa(A1, yc) = **0.034** [-0.162,
-0.225] n=50, against kappa(yc, llm) = **0.275** [0.127, 0.457] n=50; under binary collapse
-0.113 and 0.031 against **0.425**. The judge's own test-retest reliability is 0.857-1.000
-over three runs, so its low agreement with A1 is not a noisy judge — the bound on the kappa
-it could have reached was ~0.86, not ~0.3. **All of A1-vs-llm's small positive kappa comes
-from one cell**: per class it agrees 0.90 on A1's `No Fit` (n=40), 0.27 on `Potential Fit`
-(n=30) and **0.067 on `Good Fit` (n=30)** — 26 of those 30 read as `No Fit`. **D26's
-0.7806 / 0.7188 ceilings are therefore soft**, and any figure quoted as a fraction of
-attainable inherits the doubt. Restating them is a separate change that supersedes in
-place; it has not been made.
-
-**The guide now defines `No Fit` positively, and it moved the judge** *(decision D34, 5 Sep
-2026, `plan/2026-09-05-prompt-calibration/02-calibration-run.md`)*. The old instrument's
-disagreement with `yc` was not strictness: it matched **57 of `yc`'s 58 `No Fit`s**, and of
-its own 82 only **8 cited a different profession** — the rest cited a missing named tool
-(20), a missing industry (9) or a years gap (14), all of which the guide's own examples
-called `Potential Fit`. The cause was the tie-break: "choose the lower one" reads to a model
-as *any doubt → down*, transitively, and nothing required `No Fit` to have a reason. The
-guide is now an **ordered decision** — profession, then career stage, then core activity —
-with `No Fit` reachable only from the first two steps, the tie-break scoped to the
-`Good`/`Potential` boundary and barred from reaching `No Fit`, a missing tool or industry or
-a year or two short of a minimum named as a screening question, and **all nine worked
-examples removed**. kappa(yc, llm) 0.287 → **0.352** and the binary collapse 0.421 →
-**0.614** [0.447, 0.760], n=100. kappa(A1, llm) fell to 0.085: **A13 still fails**. Two
-things this does not settle — run 1 was `sonnet` and run 4 `haiku` with no old-guide/haiku
-control (**Q32**), and the edit is retroactive against the 500 human labels collected under
-guide `842d7b0e`, which `judgements.csv` does not record (**Q33**).
-
-**An instrument is `agent_sha256`, and figures are never pooled across two.** A guide edit
-is a new judge. `judge_frames` returns `llm` for the **committed** agent alone, every
-instrument on file under `per_instrument`, and `self_consistency_kappa` only for runs that
-share one — a per-pair majority across all runs would blend two judges and attribute the
-blend to whichever is committed, with no exception and a plausible kappa. `report()` also
-quotes binary-collapse kappa beside every three-class figure, because D34 is a run where the
-two moved apart.
-
-**A draw is a population, one run holds one of them, and one file holds one of them**
-*(decision D35, 6 Sep 2026, `plan/2026-09-06-recheck-file-split/`)*. `agent_sha256` is not
-the only axis a figure must not be pooled across. This judge is pointed at two populations —
-the 100-pair stratified recheck it is validated on, and option D's sweep of all 659 pairs of
-`fit/test.parquet` — and until this change both landed in `llm-recheck.csv`. Option D was
-dispatched as **run 2**, which D33 had already used for a 20-pair self-consistency sitting;
-dedup keys on `(pair_id, run)`, so the 20 were skipped as "already dispatched" and absorbed.
-Nothing raised, no row count looked wrong, and `run1_vs_run2` in the committed report
-silently widened from n=20 to **n=100** — a self-consistency figure over 80 pairs that no
-two recheck runs had ever both judged. `draw` is now stamped at dispatch and routes the
-collected row (recheck → `llm-recheck.csv`, option D → `llm-recheck-full-a1.csv`);
-`judge_frames` reads the **recheck file alone**; `assert_run_holds_one_draw` refuses a run
-number the other draw already holds, in both directions, and refuses a pre-D35 run outright
-rather than guessing (`--backfill-draw` stamps those, deriving run 2's split from
-`subsample_ids` over the **50-pair** draw that was live on 30 Aug, checked against run 3's
-pair set). Run 2 is the only mixed run there will ever be; `LEGACY_MIXED_RUNS` declares it,
-and the guard has closed it to any further dispatch.
-
-**Option D is collected and not analysed** *(Q34)*. `llm-recheck-full-a1.csv` is 639 rows —
-the 20 pairs D33 subsampled onto run 2 stay in the recheck file, because that is the
-dispatch that sent them, and joining the two files to reach 659 is the pooling D35 forbids.
-Every row carries `agent_sha256 = 47fc2e48`, the **pre-D34 instrument**, whose tie-break
-D34 showed was driving `No Fit`; kappa(yc, llm) moved 0.287 → 0.352 when the guide was
-fixed. So a figure computed over these labels would describe a judge this repository no
-longer commits. Q34 stays deferred and unworked unless option D is revisited or a decision
-comes to rest on its output — and the first thing it reopens is whether the labels may be
-used at all or must be re-judged under the committed instrument (`--dispatch --all-a1
---run 6`, ~659 spawns).
-
-**Both legs are 100 pairs** *(deviation V6, updated 30 Aug 2026)*.
-`queue.RECHECK_STRATA` and `LLM_RECHECK_STRATA` are both (30/30/40). The human leg was 50
-(15/15/20) while the first sitting was live; raised to 100 after all 50 were labelled, so
-the existing labels are a prefix of the new draw and nothing is orphaned. The nesting
-assertion (`assert_recheck_nests`, `verify --derived`) is trivially satisfied. The two
-consumers must still be handed the *same* draw: units from `load_units(seed, strata)` and
-text from `corpus_text(tuple(sorted(strata.items())))`, or half the pairs arrive with no
-document.
-
-The raise is also **retroactive on anything seeded off the draw**. D33's `--subsample 20`
-was drawn while the machine leg was still 50, so `subsample_ids` over today's 100
-reproduces 7 of those 20, not 20 — which is why `backfill_draw` carries
-`LEGACY_SUBSAMPLE_STRATA` and checks its derivation against run 3's pair set instead of
-assuming the current strata. Measured on 6 Sep 2026, in the course of D35.
-
-**Tool-free is necessary and was not sufficient** *(deviation V4)*. The judge runs as a
-`claude -p --agent a1-judge` **subprocess whose cwd is a sandbox holding a copy of the
-committed judge and nothing else** — never the `Agent` tool and never inside the repository.
-Measured, not assumed: asked whether `AGENTS.md`, `CLAUDE.md` or `a1_label` was in its
-context, a judge launched at the repository root answers **YES**. `CLAUDE.md` here is
-`@AGENTS.md`, which names D33, quotes the kappa it is chasing and says where `a1_label`
-lives. Project memory is a second leak channel and `tools: []` does not close it;
-`llm_recheck.assert_isolated` does, by refusing any cwd or ancestor carrying `CLAUDE.md`,
-`AGENTS.md`, or a `.claude/` with anything but the judge. **Adding a `CLAUDE.md` above the
-sandbox, or judging from the repo, breaks the instrument silently** — which is why the
-repository root is a test case.
-
-**Tool-free is the control, not a preference.** The answer key is on disk:
-`data/processed/indomain/judging-queue-full.parquet` carries `a1_label` for all 50 recheck
-pairs. A judge holding `Read` or `Bash` reaches it in one command, and "we told it not to
-look" is not the standard this repo holds human blinding to — `serve_group` redacts its own
-output and `assert_clean`s it, with the rules in `session.py` rather than in the caller.
-`.claude/agents/a1-judge.md` is **generated** from `docs/annotation-guide.md` (verbatim, minus
-the four sections describing the human workflow) and `verify --derived` fails if the committed
-judge is not what the guide renders, or if its frontmatter is not `tools: []`.
-
-**Its labels never enter `judgements.csv`.** `annotator` is a free string, so an `llm` row
-there would pass every existing check and be silently pooled into the human kappa. They go to
-`docs/data/manifests/llm-recheck.csv` (the recheck draw, 240 rows) and
-`docs/data/manifests/llm-recheck-full-a1.csv` (option D, 639), quoted as
-`llm:{model}:run{N}` (runs 1-3: `claude-sonnet-5`, run 4+: `claude-haiku-4-5`). `collect()`
-preserves per-row model provenance from the dispatch record, and routes by `draw` (D35).
-
-**It is collected data, not derived** *(Q31)*. No seed reproduces a subagent run, so
-`check_llm_recheck` verifies **provenance** — `agent_sha256`, `prompt_sha256` against the
-dispatched prompt, and that every judged pair is one of the 50 — and never determinism, which
-would be red on every run.
-
-**Labelling happens in a local UI, both corpora** *(decisions D30, D32)*. `annotation.ui`
-serves one query with its candidates and appends straight to `judgements.csv`, which is already
-the resume mechanism. In-domain groups are 10 candidates; A1 recheck groups are 1-4, and the
-two interleave. D30 first kept the recheck on the flat file so group size could not betray it;
-D32 reversed that, because the corpora were **already** distinguishable by length (A1 median
-5,134 chars against Djinni's 1,525) and the guide names both. What blinding still protects is
-which pairs carry a label and what it says: no `a1_label` and no `selection_reason` reach the
-page, and a short group gets no banner. The residual — a reader may infer that short groups are
-the rechecks — is a stated limitation on the A13 figure.
-
-Rules about what an annotator may see live in `session.py`, never in the request handler:
-`serve_group` redacts its own output and `assert_clean`s it, and a group carries no
-`lexical_band`, `selection_reason` or existing label. The shortlist question is gated by
-`Group.asks_shortlist` — never asked on a partial re-serve of a double-labelled JD, nor on any
-A1 group.
-
-**Every JD gets 10 candidates and 8 of them share its `Primary Keyword`** *(decision D31)*.
-The first cut drew 5 per JD from one undifferentiated 200-CV pool, and it measured nothing: a
-random pool over 41 role families lands on-category **5.0%** of the time, and the pilot labelled
-**28 of its first 30 pairs `No Fit`**. A set of obvious negatives costs the same human hours as
-one that discriminates and separates no two systems. The realised rate is now 80.0%. The 2
-off-category candidates are taken from the *top* of their pool, not at random — a near miss from
-the wrong family is the mistake a real system makes; a random CV is a `No Fit` everything already
-ranks last. A thin family (Rust has 40 CVs) cannot fill the quota, so the shortfall is taken
-off-category, flagged `keyword_match=False`, and counted as `jds_short_of_quota`.
-
-**A rebuild that would orphan a collected judgement is refused** — `sample.assert_labels_survive`.
-Appending a batch cannot orphan anything by construction; *editing* one can, and D31 did exactly
-that to batch 1. It was safe only because nothing but the pilot had been labelled, which is the
-kind of precondition that stops being true later.
-
-A batch's job titles come from `sample.available_titles()` — **41 reachable, of 45 in the raw
-corpus**. The generic batch's 22 titles are what an unstratified draw of 40 JDs happened to
-land on (D14), never a designed scope, so `indomain-report.json`'s `titles` array is an
-observation. A title a report needs covered arrives as a targeted batch. `validate_keywords`
-refuses an unknown one: unmatched keywords scope a batch to zero JDs and append a spec that
-produces no pairs at all, with no exception and no warning.
+- **Collection is closed** (D42). No new labels, no new batches, and no Claude subprocess
+  is ever started from this repository: `llm_recheck --dispatch/--judge` and
+  `prompt_calibration` raise `DispatchClosed`. The one exception is the D50 scoring batch,
+  scoped in code. Reopening further needs a decision in the log.
+- **The LLM is a secondary annotator, not a system** (D43). Exactly one series enters the
+  final set: instrument `5d986c82`, `claude-haiku-4-5`, runs 9/10. Only a reranker may
+  train on LLM output, and only on the D50 batch (D51). Ordering figures and any LLM
+  scored as a system are reported on the `llm_free` subset.
+- **LLM labels never enter `judgements.csv`.** They live in `llm-*.csv`, keyed by
+  (`agent_sha256`, model, run, draw). Never pool across those axes.
+- Every document displayed to a person passes `annotation.redact`.
 
 ## Data rules
 
@@ -287,8 +144,7 @@ produces no pairs at all, with no exception and no warning.
 - Numbered, one topic each, executed before committing so the outputs are visible on GitHub.
 - Redact PII **inside the notebook** rather than relying on stripping outputs later.
 - Cite measured figures from `docs/data/profile-metrics.json` (corpus) and
-  `output/baselines/baseline-metrics.json` (models) instead of restating prose — numbers then
-  update when the profile or the baseline is re-run, and the notebook cannot drift from them.
+  `output/…` records (models) instead of restating prose, so a notebook cannot drift.
 - A notebook **reports** a model, it does not define one. `tests/test_notebook_is_thin.py`
   fails if a code cell constructs a vectoriser, a BM25 model or a classifier — that code
   belongs in the package, where it can be regression-tested.
@@ -302,15 +158,71 @@ produces no pairs at all, with no exception and no warning.
 1. **It must run on a fresh clone with no `data/`.** Every test but the end-to-end golden check
    uses inline synthetic corpora; the golden check is `skipif`-ed with an explicit reason. A
    suite that needs a 676 MB download will not be run.
-2. **A regression test must be shown to fail against the code it guards.** Three bugs shipped in
-   the classical baseline — two separately-fitted vectorisers, a `.split()` BM25 tokeniser, and a
-   BM25 corpus lookup — and each was invisible: no exception, no row-count change, a plausible
-   number. Each is now one named invariant test, not a golden number, so it survives a
-   legitimate change to the figures.
+2. **A regression test must be shown to fail against the code it guards.** The bugs this
+   repository has shipped were silent (no exception, a plausible number), so each is a named
+   invariant test, not a golden number.
 
-**There is no CI** *(Q22, deferred deliberately)*. "Automatically caught" therefore means
-"caught by `uv run pytest` and `run --check`, run by the reviewer at workflow step 4 below" —
-not "caught by a machine". Adding CI is one workflow file if it is ever wanted.
+**There is no CI** *(Q22)*. "Caught" means caught by `uv run pytest` and the `--check`
+commands, run by the reviewer at workflow step 4.
+
+### Running tests and checks (plan 2026-10-08-test-and-check-runtime)
+
+Know what a command costs before you start it (measured 8 Oct 2026, 22 cores, 15 GB):
+
+| Command | Wall time |
+|---|---:|
+| `uv run pytest` | ~55 s |
+| `uv run pytest tests/test_x.py` | seconds |
+| `checks` (warm, affected only) | 0 s to a few min |
+| `checks --warm --all` | ~15 min |
+| `checks --cold --all` | ~50 min |
+
+1. **Run once, keep the log, read the log.** Redirect the full output to a file, then read
+   slices of that file. Never re-run a command to see a different part of its output.
+
+   ```bash
+   mkdir -p logs; uv run pytest > logs/pytest.log 2>&1; tail -3 logs/pytest.log
+   grep -n "FAILED\|Error" logs/pytest.log
+   ```
+
+   `logs/` is git-ignored. The runner already logs each check to
+   `logs/checks/<name>.log` and prints one line per check.
+2. **Iterate narrowly, verify broadly.** While working, run the test file you are touching,
+   or `pytest --lf`. Run the full suite once, before review.
+3. **Checks go through the runner.** The default, `checks`, is the warm tier for the checks
+   your uncommitted changes affect. Use `--affected REF` to compare against a commit, and
+   `--explain` to see why a check was selected.
+4. **Cold is mandatory (D55)** before:
+   - a commit that touches model or training code;
+   - marking a plan complete;
+   - any final-set score.
+
+   Warm proves that the code turning cached model outputs into a record is unchanged. It does
+   not prove that training reproduces.
+5. **Superseded records** (indomain v1, `retrieval`, `retrieval_pilot`, `a1_secondary`) run
+   only with `--cold`, or when `--affected` selects them.
+6. **RAM.** The runner defaults to `-j 2`. Checks peaking above 4.5 GB (`role_family`,
+   `shortlist_dev`, `dev_pools`, `scoring_batch`) always run alone. Do not start other
+   heavy jobs alongside it.
+7. **Long jobs (training, cold checks): start once in the background, then stop and wait.**
+   Anything longer than about 5 minutes runs as one background command, which writes its
+   own exit marker and peak RSS:
+
+   ```bash
+   /usr/bin/time -v uv run python -m candidate_screener.<module> > logs/<name>.log 2>&1; echo "exit $?" >> logs/<name>.log
+   ```
+
+   Then **end the turn**. The harness wakes the agent when the command exits. Never wait in
+   the foreground (`until …; do sleep …; done`, `timeout 590 …`, RSS-polling loops). Never
+   start a background waiter with a timeout either: one died at 10 minutes and turned into
+   foreground polling. Each wake-up re-reads the whole context once the prompt cache has
+   expired, so one 3.5-hour training run (P8, 8 Oct 2026) became about 25 full-price
+   wake-ups and hit the session limit with nothing new learned. Peak RSS comes from
+   `time -v` at the end of the log, not from polling. A sub-agent does not babysit a
+   multi-hour job: it starts the job, reports the log path, and returns.
+8. **Time one configuration before a grid.** Train the first grid point alone, record its
+   wall time, and multiply before launching the rest. If the total is more than about an
+   hour, say so before starting it.
 
 ## Agent Workflow Guidelines
 
@@ -338,9 +250,9 @@ Always begin by creating a detailed plan and corresponding design specifications
 - Conduct a thorough code review after implementation
 - Verify that the implementation aligns with the approved plan and design
 - Ensure correctness, completeness, and adherence to standards
-- **Run `uv run pytest` and, where a committed record exists, its `--check` command**
-  (`data.verify --derived`, `baselines.run --check`). With no CI in the repository, this step
-  is the only thing that runs them
+- **Run `uv run pytest` and the checks for the records the change can affect**
+  (`python -m candidate_screener.checks`; `--cold` where D55 requires it). With no CI in the
+  repository, this step is the only thing that runs them
 
 ### 5. Documentation Updates
 

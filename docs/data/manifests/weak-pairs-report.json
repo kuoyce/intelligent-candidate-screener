@@ -1,0 +1,17 @@
+{
+  "n_pairs": 8388,
+  "by_split_and_kind": {
+    "train": {
+      "easy_negative": 2700,
+      "hard_negative": 2148,
+      "positive": 2700
+    },
+    "validation": {
+      "easy_negative": 300,
+      "hard_negative": 240,
+      "positive": 300
+    }
+  },
+  "positive_rate": 0.357654,
+  "note": "Labels come from metadata, not from people: positive = same keyword and experience meets the JD's band. Train and validation share no JD and no CV."
+}

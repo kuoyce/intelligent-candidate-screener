@@ -1,0 +1,78 @@
+{
+  "pipeline": "metadata + TF-IDF",
+  "reference_rule_version": 1,
+  "note": "No target (plan 04 \u00a72). No demographic fields exist in Djinni; groups are the JD's experience band and the stratum.",
+  "by": {
+    "jd_experience_band": {
+      "0-1": {
+        "auc": 0.867992,
+        "ci": [
+          0.795684,
+          0.929352
+        ],
+        "n_jd": 20
+      },
+      "2-3": {
+        "auc": 0.819747,
+        "ci": [
+          0.709166,
+          0.911379
+        ],
+        "n_jd": 19
+      },
+      "4-6": {
+        "auc": 0.856488,
+        "ci": [
+          0.794583,
+          0.913393
+        ],
+        "n_jd": 20
+      }
+    },
+    "stratum": {
+      "generic": {
+        "auc": 0.848133,
+        "ci": [
+          0.781712,
+          0.905165
+        ],
+        "n_jd": 39
+      },
+      "targeted": {
+        "auc": 0.849381,
+        "ci": [
+          0.790516,
+          0.904686
+        ],
+        "n_jd": 20
+      }
+    }
+  },
+  "role_family_counts": {
+    "Business Analyst": 7,
+    "Data Engineer": 6,
+    "JavaScript": 6,
+    "Data Science": 6,
+    "DevOps": 4,
+    "QA": 3,
+    "Python": 3,
+    "Marketing": 2,
+    "Node.js": 2,
+    "HR": 2,
+    "Data Analyst": 2,
+    "Other": 2,
+    "Sales": 2,
+    "Java": 2,
+    "SQL": 1,
+    "Ruby": 1,
+    "Golang": 1,
+    "Sysadmin": 1,
+    "Lead Generation": 1,
+    "PHP": 1,
+    "Design": 1,
+    "QA Automation": 1,
+    ".NET": 1,
+    "Project Manager": 1,
+    "Support": 1
+  }
+}

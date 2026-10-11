@@ -1,0 +1,2330 @@
+{
+  "text_variant": "v2",
+  "text_variant_definition": {
+    "cv_fields": [
+      "CV",
+      "Highlights",
+      "Moreinfo",
+      "Looking For"
+    ],
+    "jd_text": "Long Description",
+    "decision": "D53"
+  },
+  "residual_leak": {
+    "cv": {
+      "generic": {
+        "share": 0.2025,
+        "ci": [
+          0.1625,
+          0.2425
+        ],
+        "n": 400,
+        "resampled": "CVs",
+        "positives": 81,
+        "skipped_empty_title": 0,
+        "empty_v2_text": 0
+      },
+      "targeted": {
+        "share": 0.275,
+        "ci": [
+          0.215,
+          0.335
+        ],
+        "n": 200,
+        "resampled": "CVs",
+        "positives": 55,
+        "skipped_empty_title": 0,
+        "empty_v2_text": 0
+      },
+      "total": {
+        "share": 0.226667,
+        "ci": [
+          0.193333,
+          0.260042
+        ],
+        "n": 600,
+        "resampled": "CVs",
+        "positives": 136,
+        "skipped_empty_title": 0,
+        "empty_v2_text": 0
+      }
+    },
+    "cv_pairs_per_jd": {
+      "generic": {
+        "share": 0.2025,
+        "ci": [
+          0.165,
+          0.24
+        ],
+        "n": 40,
+        "resampled": "JDs",
+        "n_pairs": 400
+      },
+      "targeted": {
+        "share": 0.275,
+        "ci": [
+          0.215,
+          0.34
+        ],
+        "n": 20,
+        "resampled": "JDs",
+        "n_pairs": 200
+      },
+      "total": {
+        "share": 0.226667,
+        "ci": [
+          0.193333,
+          0.261667
+        ],
+        "n": 60,
+        "resampled": "JDs",
+        "n_pairs": 600
+      }
+    },
+    "jd": {
+      "generic": {
+        "share": 0.225,
+        "ci": [
+          0.1,
+          0.35
+        ],
+        "n": 40,
+        "resampled": "JDs",
+        "positives": 9,
+        "skipped_empty_title": 0
+      },
+      "targeted": {
+        "share": 0.4,
+        "ci": [
+          0.2,
+          0.6
+        ],
+        "n": 20,
+        "resampled": "JDs",
+        "positives": 8,
+        "skipped_empty_title": 0
+      },
+      "total": {
+        "share": 0.283333,
+        "ci": [
+          0.166667,
+          0.4
+        ],
+        "n": 60,
+        "resampled": "JDs",
+        "positives": 17,
+        "skipped_empty_title": 0
+      }
+    },
+    "method": {
+      "seniority_tokens_removed": [
+        "junior",
+        "jr",
+        "middle",
+        "mid",
+        "senior",
+        "sr",
+        "lead",
+        "head",
+        "trainee",
+        "intern"
+      ],
+      "match": "normalised title as a whole-word substring of the lower-cased, whitespace-collapsed text; no scrubbing applied (D53)",
+      "ci": "95% percentile bootstrap, 10,000 resamples of the unit named in `resampled`"
+    }
+  },
+  "seed": 0,
+  "reference": {
+    "file": "a2-final-labels.csv",
+    "rule_version": 1,
+    "sha256": "49a6a338cd1b0b6fee7d2a189f8794d97a23dc91873859e5caee22e090edf9bd",
+    "labels": "Fit = Good Fit or Potential Fit; No Fit (D47)"
+  },
+  "note": "Agreement with a documented panel rule, not correctness. Per-JD AUC over JDs with both a Fit and a No Fit candidate; CIs resample JDs (10,000). `llm_free` = pairs whose label needed no LLM tie-break.",
+  "classifier_floor_always_fit_accuracy": {
+    "generic": 0.625,
+    "targeted": 0.585,
+    "total": 0.611667
+  },
+  "systems": {
+    "random": {
+      "rung": "0",
+      "stage": "floor",
+      "status": "exploratory",
+      "trained_on": "nothing",
+      "params": 0,
+      "can_explain": false,
+      "deterministic": true,
+      "scores_sha256": "6deb6a06c2249b836376a80743bc3138512f844f385113e2f550d0f809938d24",
+      "figures": [
+        {
+          "system": "random",
+          "metric": "auc",
+          "scope": "generic",
+          "subset": "all",
+          "value": 0.55751,
+          "ci_low": 0.491525,
+          "ci_high": 0.622856,
+          "n_jd": 39,
+          "n_pairs": 390,
+          "rule_version": 1
+        },
+        {
+          "system": "random",
+          "metric": "auc",
+          "scope": "targeted",
+          "subset": "all",
+          "value": 0.552411,
+          "ci_low": 0.477993,
+          "ci_high": 0.627763,
+          "n_jd": 20,
+          "n_pairs": 200,
+          "rule_version": 1
+        },
+        {
+          "system": "random",
+          "metric": "auc",
+          "scope": "total",
+          "subset": "all",
+          "value": 0.555782,
+          "ci_low": 0.504692,
+          "ci_high": 0.606088,
+          "n_jd": 59,
+          "n_pairs": 590,
+          "rule_version": 1
+        },
+        {
+          "system": "random",
+          "metric": "within_family_auc",
+          "scope": "generic",
+          "subset": "all",
+          "value": 0.593611,
+          "ci_low": 0.499838,
+          "ci_high": 0.687858,
+          "n_jd": 30,
+          "n_pairs": 240,
+          "rule_version": 1
+        },
+        {
+          "system": "random",
+          "metric": "within_family_auc",
+          "scope": "targeted",
+          "subset": "all",
+          "value": 0.556052,
+          "ci_low": 0.466632,
+          "ci_high": 0.652448,
+          "n_jd": 18,
+          "n_pairs": 144,
+          "rule_version": 1
+        },
+        {
+          "system": "random",
+          "metric": "within_family_auc",
+          "scope": "total",
+          "subset": "all",
+          "value": 0.579526,
+          "ci_low": 0.510763,
+          "ci_high": 0.647969,
+          "n_jd": 48,
+          "n_pairs": 384,
+          "rule_version": 1
+        },
+        {
+          "system": "random",
+          "metric": "auc",
+          "scope": "generic",
+          "subset": "llm_free",
+          "value": 0.568719,
+          "ci_low": 0.49038,
+          "ci_high": 0.643991,
+          "n_jd": 38,
+          "n_pairs": 350,
+          "rule_version": 1
+        },
+        {
+          "system": "random",
+          "metric": "auc",
+          "scope": "targeted",
+          "subset": "llm_free",
+          "value": 0.628408,
+          "ci_low": 0.529855,
+          "ci_high": 0.730069,
+          "n_jd": 17,
+          "n_pairs": 110,
+          "rule_version": 1
+        },
+        {
+          "system": "random",
+          "metric": "auc",
+          "scope": "total",
+          "subset": "llm_free",
+          "value": 0.587168,
+          "ci_low": 0.526645,
+          "ci_high": 0.648394,
+          "n_jd": 55,
+          "n_pairs": 460,
+          "rule_version": 1
+        },
+        {
+          "system": "random",
+          "metric": "within_family_auc",
+          "scope": "generic",
+          "subset": "llm_free",
+          "value": 0.634507,
+          "ci_low": 0.525567,
+          "ci_high": 0.742927,
+          "n_jd": 23,
+          "n_pairs": 174,
+          "rule_version": 1
+        },
+        {
+          "system": "random",
+          "metric": "within_family_auc",
+          "scope": "targeted",
+          "subset": "llm_free",
+          "value": 0.623044,
+          "ci_low": 0.455948,
+          "ci_high": 0.782738,
+          "n_jd": 14,
+          "n_pairs": 69,
+          "rule_version": 1
+        },
+        {
+          "system": "random",
+          "metric": "within_family_auc",
+          "scope": "total",
+          "subset": "llm_free",
+          "value": 0.630169,
+          "ci_low": 0.53687,
+          "ci_high": 0.722438,
+          "n_jd": 37,
+          "n_pairs": 243,
+          "rule_version": 1
+        }
+      ]
+    },
+    "keyword match": {
+      "rung": "1a",
+      "stage": "Stage 1 \u2014 rules",
+      "status": "exploratory",
+      "trained_on": "nothing",
+      "params": 0,
+      "can_explain": true,
+      "deterministic": true,
+      "scores_sha256": "a5f192aa6b7d74d947663ef3be3b397a30448dce8a124d3b69a50e04c7c332b5",
+      "figures": [
+        {
+          "system": "keyword match",
+          "metric": "auc",
+          "scope": "generic",
+          "subset": "all",
+          "value": 0.786213,
+          "ci_low": 0.731934,
+          "ci_high": 0.832398,
+          "n_jd": 39,
+          "n_pairs": 390,
+          "rule_version": 1
+        },
+        {
+          "system": "keyword match",
+          "metric": "auc",
+          "scope": "targeted",
+          "subset": "all",
+          "value": 0.726429,
+          "ci_low": 0.670177,
+          "ci_high": 0.785388,
+          "n_jd": 20,
+          "n_pairs": 200,
+          "rule_version": 1
+        },
+        {
+          "system": "keyword match",
+          "metric": "auc",
+          "scope": "total",
+          "subset": "all",
+          "value": 0.765947,
+          "ci_low": 0.724259,
+          "ci_high": 0.803806,
+          "n_jd": 59,
+          "n_pairs": 590,
+          "rule_version": 1
+        },
+        {
+          "system": "keyword match",
+          "metric": "within_family_auc",
+          "scope": "generic",
+          "subset": "all",
+          "value": 0.5,
+          "ci_low": 0.5,
+          "ci_high": 0.5,
+          "n_jd": 30,
+          "n_pairs": 240,
+          "rule_version": 1
+        },
+        {
+          "system": "keyword match",
+          "metric": "within_family_auc",
+          "scope": "targeted",
+          "subset": "all",
+          "value": 0.5,
+          "ci_low": 0.5,
+          "ci_high": 0.5,
+          "n_jd": 18,
+          "n_pairs": 144,
+          "rule_version": 1
+        },
+        {
+          "system": "keyword match",
+          "metric": "within_family_auc",
+          "scope": "total",
+          "subset": "all",
+          "value": 0.5,
+          "ci_low": 0.5,
+          "ci_high": 0.5,
+          "n_jd": 48,
+          "n_pairs": 384,
+          "rule_version": 1
+        },
+        {
+          "system": "keyword match",
+          "metric": "auc",
+          "scope": "generic",
+          "subset": "llm_free",
+          "value": 0.819805,
+          "ci_low": 0.758985,
+          "ci_high": 0.873211,
+          "n_jd": 38,
+          "n_pairs": 350,
+          "rule_version": 1
+        },
+        {
+          "system": "keyword match",
+          "metric": "auc",
+          "scope": "targeted",
+          "subset": "llm_free",
+          "value": 0.750245,
+          "ci_low": 0.664951,
+          "ci_high": 0.828431,
+          "n_jd": 17,
+          "n_pairs": 110,
+          "rule_version": 1
+        },
+        {
+          "system": "keyword match",
+          "metric": "auc",
+          "scope": "total",
+          "subset": "llm_free",
+          "value": 0.798304,
+          "ci_low": 0.748358,
+          "ci_high": 0.844234,
+          "n_jd": 55,
+          "n_pairs": 460,
+          "rule_version": 1
+        },
+        {
+          "system": "keyword match",
+          "metric": "within_family_auc",
+          "scope": "generic",
+          "subset": "llm_free",
+          "value": 0.5,
+          "ci_low": 0.5,
+          "ci_high": 0.5,
+          "n_jd": 23,
+          "n_pairs": 174,
+          "rule_version": 1
+        },
+        {
+          "system": "keyword match",
+          "metric": "within_family_auc",
+          "scope": "targeted",
+          "subset": "llm_free",
+          "value": 0.5,
+          "ci_low": 0.5,
+          "ci_high": 0.5,
+          "n_jd": 14,
+          "n_pairs": 69,
+          "rule_version": 1
+        },
+        {
+          "system": "keyword match",
+          "metric": "within_family_auc",
+          "scope": "total",
+          "subset": "llm_free",
+          "value": 0.5,
+          "ci_low": 0.5,
+          "ci_high": 0.5,
+          "n_jd": 37,
+          "n_pairs": 243,
+          "rule_version": 1
+        }
+      ]
+    },
+    "metadata rules": {
+      "rung": "1a",
+      "stage": "Stage 1 \u2014 rules",
+      "status": "exploratory",
+      "trained_on": "nothing",
+      "params": 0,
+      "can_explain": true,
+      "deterministic": true,
+      "scores_sha256": "03c20be323134c0109b7bd1ae0b0d13649aa4af86e1721c925e559ff7180b182",
+      "figures": [
+        {
+          "system": "metadata rules",
+          "metric": "auc",
+          "scope": "generic",
+          "subset": "all",
+          "value": 0.775679,
+          "ci_low": 0.713617,
+          "ci_high": 0.829252,
+          "n_jd": 39,
+          "n_pairs": 390,
+          "rule_version": 1
+        },
+        {
+          "system": "metadata rules",
+          "metric": "auc",
+          "scope": "targeted",
+          "subset": "all",
+          "value": 0.783705,
+          "ci_low": 0.721124,
+          "ci_high": 0.844957,
+          "n_jd": 20,
+          "n_pairs": 200,
+          "rule_version": 1
+        },
+        {
+          "system": "metadata rules",
+          "metric": "auc",
+          "scope": "total",
+          "subset": "all",
+          "value": 0.7784,
+          "ci_low": 0.731969,
+          "ci_high": 0.819447,
+          "n_jd": 59,
+          "n_pairs": 590,
+          "rule_version": 1
+        },
+        {
+          "system": "metadata rules",
+          "metric": "within_family_auc",
+          "scope": "generic",
+          "subset": "all",
+          "value": 0.483333,
+          "ci_low": 0.420238,
+          "ci_high": 0.546429,
+          "n_jd": 30,
+          "n_pairs": 240,
+          "rule_version": 1
+        },
+        {
+          "system": "metadata rules",
+          "metric": "within_family_auc",
+          "scope": "targeted",
+          "subset": "all",
+          "value": 0.633267,
+          "ci_low": 0.564021,
+          "ci_high": 0.708998,
+          "n_jd": 18,
+          "n_pairs": 144,
+          "rule_version": 1
+        },
+        {
+          "system": "metadata rules",
+          "metric": "within_family_auc",
+          "scope": "total",
+          "subset": "all",
+          "value": 0.539559,
+          "ci_low": 0.488739,
+          "ci_high": 0.591197,
+          "n_jd": 48,
+          "n_pairs": 384,
+          "rule_version": 1
+        },
+        {
+          "system": "metadata rules",
+          "metric": "auc",
+          "scope": "generic",
+          "subset": "llm_free",
+          "value": 0.805347,
+          "ci_low": 0.73342,
+          "ci_high": 0.868422,
+          "n_jd": 38,
+          "n_pairs": 350,
+          "rule_version": 1
+        },
+        {
+          "system": "metadata rules",
+          "metric": "auc",
+          "scope": "targeted",
+          "subset": "llm_free",
+          "value": 0.784279,
+          "ci_low": 0.702203,
+          "ci_high": 0.856408,
+          "n_jd": 17,
+          "n_pairs": 110,
+          "rule_version": 1
+        },
+        {
+          "system": "metadata rules",
+          "metric": "auc",
+          "scope": "total",
+          "subset": "llm_free",
+          "value": 0.798835,
+          "ci_low": 0.742542,
+          "ci_high": 0.848889,
+          "n_jd": 55,
+          "n_pairs": 460,
+          "rule_version": 1
+        },
+        {
+          "system": "metadata rules",
+          "metric": "within_family_auc",
+          "scope": "generic",
+          "subset": "llm_free",
+          "value": 0.472981,
+          "ci_low": 0.395339,
+          "ci_high": 0.547412,
+          "n_jd": 23,
+          "n_pairs": 174,
+          "rule_version": 1
+        },
+        {
+          "system": "metadata rules",
+          "metric": "within_family_auc",
+          "scope": "targeted",
+          "subset": "llm_free",
+          "value": 0.554847,
+          "ci_low": 0.420918,
+          "ci_high": 0.683673,
+          "n_jd": 14,
+          "n_pairs": 69,
+          "rule_version": 1
+        },
+        {
+          "system": "metadata rules",
+          "metric": "within_family_auc",
+          "scope": "total",
+          "subset": "llm_free",
+          "value": 0.503958,
+          "ci_low": 0.434813,
+          "ci_high": 0.57288,
+          "n_jd": 37,
+          "n_pairs": 243,
+          "rule_version": 1
+        }
+      ]
+    },
+    "TF-IDF": {
+      "rung": "2",
+      "stage": "Stage 2 \u2014 lexical",
+      "status": "exploratory",
+      "trained_on": "IDF from 20k+20k A2 train-region documents (text_v2)",
+      "params": 5000,
+      "can_explain": true,
+      "deterministic": true,
+      "scores_sha256": "eeabdbde958e89e4015cc59bad63fd78543fdbfa76d0c635e54eef02f85dbec1",
+      "figures": [
+        {
+          "system": "TF-IDF",
+          "metric": "auc",
+          "scope": "generic",
+          "subset": "all",
+          "value": 0.780441,
+          "ci_low": 0.714107,
+          "ci_high": 0.840762,
+          "n_jd": 39,
+          "n_pairs": 390,
+          "rule_version": 1
+        },
+        {
+          "system": "TF-IDF",
+          "metric": "auc",
+          "scope": "targeted",
+          "subset": "all",
+          "value": 0.806923,
+          "ci_low": 0.741625,
+          "ci_high": 0.870143,
+          "n_jd": 20,
+          "n_pairs": 200,
+          "rule_version": 1
+        },
+        {
+          "system": "TF-IDF",
+          "metric": "auc",
+          "scope": "total",
+          "subset": "all",
+          "value": 0.789418,
+          "ci_low": 0.741454,
+          "ci_high": 0.835029,
+          "n_jd": 59,
+          "n_pairs": 590,
+          "rule_version": 1
+        },
+        {
+          "system": "TF-IDF",
+          "metric": "within_family_auc",
+          "scope": "generic",
+          "subset": "all",
+          "value": 0.737063,
+          "ci_low": 0.631502,
+          "ci_high": 0.833018,
+          "n_jd": 30,
+          "n_pairs": 240,
+          "rule_version": 1
+        },
+        {
+          "system": "TF-IDF",
+          "metric": "within_family_auc",
+          "scope": "targeted",
+          "subset": "all",
+          "value": 0.675132,
+          "ci_low": 0.561507,
+          "ci_high": 0.782445,
+          "n_jd": 18,
+          "n_pairs": 144,
+          "rule_version": 1
+        },
+        {
+          "system": "TF-IDF",
+          "metric": "within_family_auc",
+          "scope": "total",
+          "subset": "all",
+          "value": 0.713839,
+          "ci_low": 0.637114,
+          "ci_high": 0.788221,
+          "n_jd": 48,
+          "n_pairs": 384,
+          "rule_version": 1
+        },
+        {
+          "system": "TF-IDF",
+          "metric": "auc",
+          "scope": "generic",
+          "subset": "llm_free",
+          "value": 0.810077,
+          "ci_low": 0.746261,
+          "ci_high": 0.87048,
+          "n_jd": 38,
+          "n_pairs": 350,
+          "rule_version": 1
+        },
+        {
+          "system": "TF-IDF",
+          "metric": "auc",
+          "scope": "targeted",
+          "subset": "llm_free",
+          "value": 0.860458,
+          "ci_low": 0.778701,
+          "ci_high": 0.932353,
+          "n_jd": 17,
+          "n_pairs": 110,
+          "rule_version": 1
+        },
+        {
+          "system": "TF-IDF",
+          "metric": "auc",
+          "scope": "total",
+          "subset": "llm_free",
+          "value": 0.825649,
+          "ci_low": 0.775244,
+          "ci_high": 0.872569,
+          "n_jd": 55,
+          "n_pairs": 460,
+          "rule_version": 1
+        },
+        {
+          "system": "TF-IDF",
+          "metric": "within_family_auc",
+          "scope": "generic",
+          "subset": "llm_free",
+          "value": 0.779469,
+          "ci_low": 0.653027,
+          "ci_high": 0.889823,
+          "n_jd": 23,
+          "n_pairs": 174,
+          "rule_version": 1
+        },
+        {
+          "system": "TF-IDF",
+          "metric": "within_family_auc",
+          "scope": "targeted",
+          "subset": "llm_free",
+          "value": 0.691156,
+          "ci_low": 0.529575,
+          "ci_high": 0.840153,
+          "n_jd": 14,
+          "n_pairs": 69,
+          "rule_version": 1
+        },
+        {
+          "system": "TF-IDF",
+          "metric": "within_family_auc",
+          "scope": "total",
+          "subset": "llm_free",
+          "value": 0.746053,
+          "ci_low": 0.646546,
+          "ci_high": 0.839511,
+          "n_jd": 37,
+          "n_pairs": 243,
+          "rule_version": 1
+        }
+      ]
+    },
+    "BM25": {
+      "rung": "2",
+      "stage": "Stage 2 \u2014 lexical",
+      "status": "exploratory",
+      "trained_on": "IDF/avgdl from 20k A2 train-region CVs (text_v2)",
+      "params": 45524,
+      "can_explain": true,
+      "deterministic": true,
+      "scores_sha256": "d7ba64a1f0d2b75769f4a74d4acca7c2ec59dd0a594d2e6892f522a839f00659",
+      "figures": [
+        {
+          "system": "BM25",
+          "metric": "auc",
+          "scope": "generic",
+          "subset": "all",
+          "value": 0.610327,
+          "ci_low": 0.544341,
+          "ci_high": 0.675981,
+          "n_jd": 39,
+          "n_pairs": 390,
+          "rule_version": 1
+        },
+        {
+          "system": "BM25",
+          "metric": "auc",
+          "scope": "targeted",
+          "subset": "all",
+          "value": 0.67325,
+          "ci_low": 0.586832,
+          "ci_high": 0.746734,
+          "n_jd": 20,
+          "n_pairs": 200,
+          "rule_version": 1
+        },
+        {
+          "system": "BM25",
+          "metric": "auc",
+          "scope": "total",
+          "subset": "all",
+          "value": 0.631657,
+          "ci_low": 0.57878,
+          "ci_high": 0.682284,
+          "n_jd": 59,
+          "n_pairs": 590,
+          "rule_version": 1
+        },
+        {
+          "system": "BM25",
+          "metric": "within_family_auc",
+          "scope": "generic",
+          "subset": "all",
+          "value": 0.605397,
+          "ci_low": 0.510631,
+          "ci_high": 0.698496,
+          "n_jd": 30,
+          "n_pairs": 240,
+          "rule_version": 1
+        },
+        {
+          "system": "BM25",
+          "metric": "within_family_auc",
+          "scope": "targeted",
+          "subset": "all",
+          "value": 0.632606,
+          "ci_low": 0.530617,
+          "ci_high": 0.730193,
+          "n_jd": 18,
+          "n_pairs": 144,
+          "rule_version": 1
+        },
+        {
+          "system": "BM25",
+          "metric": "within_family_auc",
+          "scope": "total",
+          "subset": "all",
+          "value": 0.6156,
+          "ci_low": 0.545957,
+          "ci_high": 0.684276,
+          "n_jd": 48,
+          "n_pairs": 384,
+          "rule_version": 1
+        },
+        {
+          "system": "BM25",
+          "metric": "auc",
+          "scope": "generic",
+          "subset": "llm_free",
+          "value": 0.636095,
+          "ci_low": 0.567705,
+          "ci_high": 0.702261,
+          "n_jd": 38,
+          "n_pairs": 350,
+          "rule_version": 1
+        },
+        {
+          "system": "BM25",
+          "metric": "auc",
+          "scope": "targeted",
+          "subset": "llm_free",
+          "value": 0.71634,
+          "ci_low": 0.589823,
+          "ci_high": 0.824,
+          "n_jd": 17,
+          "n_pairs": 110,
+          "rule_version": 1
+        },
+        {
+          "system": "BM25",
+          "metric": "auc",
+          "scope": "total",
+          "subset": "llm_free",
+          "value": 0.660898,
+          "ci_low": 0.600481,
+          "ci_high": 0.718969,
+          "n_jd": 55,
+          "n_pairs": 460,
+          "rule_version": 1
+        },
+        {
+          "system": "BM25",
+          "metric": "within_family_auc",
+          "scope": "generic",
+          "subset": "llm_free",
+          "value": 0.682367,
+          "ci_low": 0.585883,
+          "ci_high": 0.773709,
+          "n_jd": 23,
+          "n_pairs": 174,
+          "rule_version": 1
+        },
+        {
+          "system": "BM25",
+          "metric": "within_family_auc",
+          "scope": "targeted",
+          "subset": "llm_free",
+          "value": 0.721429,
+          "ci_low": 0.552721,
+          "ci_high": 0.87585,
+          "n_jd": 14,
+          "n_pairs": 69,
+          "rule_version": 1
+        },
+        {
+          "system": "BM25",
+          "metric": "within_family_auc",
+          "scope": "total",
+          "subset": "llm_free",
+          "value": 0.697147,
+          "ci_low": 0.60937,
+          "ci_high": 0.780417,
+          "n_jd": 37,
+          "n_pairs": 243,
+          "rule_version": 1
+        }
+      ]
+    },
+    "SBERT (zero-shot)": {
+      "rung": "3a",
+      "stage": "Stage 3 \u2014 semantic",
+      "status": "exploratory",
+      "trained_on": "nothing (pretrained MiniLM, cached)",
+      "params": 22713216,
+      "can_explain": false,
+      "deterministic": true,
+      "scores_sha256": "6960613a5f00b8d614dfb8e4e53eec1d3259136c7dffe8dd849bf0bc4f9a1520",
+      "figures": [
+        {
+          "system": "SBERT (zero-shot)",
+          "metric": "auc",
+          "scope": "generic",
+          "subset": "all",
+          "value": 0.739956,
+          "ci_low": 0.674956,
+          "ci_high": 0.798057,
+          "n_jd": 39,
+          "n_pairs": 390,
+          "rule_version": 1
+        },
+        {
+          "system": "SBERT (zero-shot)",
+          "metric": "auc",
+          "scope": "targeted",
+          "subset": "all",
+          "value": 0.730714,
+          "ci_low": 0.646115,
+          "ci_high": 0.8115,
+          "n_jd": 20,
+          "n_pairs": 200,
+          "rule_version": 1
+        },
+        {
+          "system": "SBERT (zero-shot)",
+          "metric": "auc",
+          "scope": "total",
+          "subset": "all",
+          "value": 0.736823,
+          "ci_low": 0.685611,
+          "ci_high": 0.78441,
+          "n_jd": 59,
+          "n_pairs": 590,
+          "rule_version": 1
+        },
+        {
+          "system": "SBERT (zero-shot)",
+          "metric": "within_family_auc",
+          "scope": "generic",
+          "subset": "all",
+          "value": 0.75123,
+          "ci_low": 0.662499,
+          "ci_high": 0.83373,
+          "n_jd": 30,
+          "n_pairs": 240,
+          "rule_version": 1
+        },
+        {
+          "system": "SBERT (zero-shot)",
+          "metric": "within_family_auc",
+          "scope": "targeted",
+          "subset": "all",
+          "value": 0.698181,
+          "ci_low": 0.611572,
+          "ci_high": 0.787502,
+          "n_jd": 18,
+          "n_pairs": 144,
+          "rule_version": 1
+        },
+        {
+          "system": "SBERT (zero-shot)",
+          "metric": "within_family_auc",
+          "scope": "total",
+          "subset": "all",
+          "value": 0.731337,
+          "ci_low": 0.668266,
+          "ci_high": 0.794867,
+          "n_jd": 48,
+          "n_pairs": 384,
+          "rule_version": 1
+        },
+        {
+          "system": "SBERT (zero-shot)",
+          "metric": "auc",
+          "scope": "generic",
+          "subset": "llm_free",
+          "value": 0.768264,
+          "ci_low": 0.699731,
+          "ci_high": 0.830907,
+          "n_jd": 38,
+          "n_pairs": 350,
+          "rule_version": 1
+        },
+        {
+          "system": "SBERT (zero-shot)",
+          "metric": "auc",
+          "scope": "targeted",
+          "subset": "llm_free",
+          "value": 0.785761,
+          "ci_low": 0.672736,
+          "ci_high": 0.885434,
+          "n_jd": 17,
+          "n_pairs": 110,
+          "rule_version": 1
+        },
+        {
+          "system": "SBERT (zero-shot)",
+          "metric": "auc",
+          "scope": "total",
+          "subset": "llm_free",
+          "value": 0.773672,
+          "ci_low": 0.716006,
+          "ci_high": 0.828626,
+          "n_jd": 55,
+          "n_pairs": 460,
+          "rule_version": 1
+        },
+        {
+          "system": "SBERT (zero-shot)",
+          "metric": "within_family_auc",
+          "scope": "generic",
+          "subset": "llm_free",
+          "value": 0.756142,
+          "ci_low": 0.64116,
+          "ci_high": 0.859009,
+          "n_jd": 23,
+          "n_pairs": 174,
+          "rule_version": 1
+        },
+        {
+          "system": "SBERT (zero-shot)",
+          "metric": "within_family_auc",
+          "scope": "targeted",
+          "subset": "llm_free",
+          "value": 0.728146,
+          "ci_low": 0.577211,
+          "ci_high": 0.862925,
+          "n_jd": 14,
+          "n_pairs": 69,
+          "rule_version": 1
+        },
+        {
+          "system": "SBERT (zero-shot)",
+          "metric": "within_family_auc",
+          "scope": "total",
+          "subset": "llm_free",
+          "value": 0.745549,
+          "ci_low": 0.655981,
+          "ci_high": 0.829826,
+          "n_jd": 37,
+          "n_pairs": 243,
+          "rule_version": 1
+        }
+      ]
+    },
+    "SBERT (weak fine-tuned)": {
+      "rung": "3b",
+      "stage": "Stage 3 \u2014 semantic",
+      "status": "exploratory",
+      "trained_on": "weak pairs, A2 train region (metadata labels), text_v2",
+      "params": 22713216,
+      "can_explain": false,
+      "deterministic": true,
+      "scores_sha256": "3842f984a7de5d1689affcacf7a7d70fa4171a02a8e011620a3828fdc1e16cc9",
+      "figures": [
+        {
+          "system": "SBERT (weak fine-tuned)",
+          "metric": "auc",
+          "scope": "generic",
+          "subset": "all",
+          "value": 0.85349,
+          "ci_low": 0.811634,
+          "ci_high": 0.894268,
+          "n_jd": 39,
+          "n_pairs": 390,
+          "rule_version": 1
+        },
+        {
+          "system": "SBERT (weak fine-tuned)",
+          "metric": "auc",
+          "scope": "targeted",
+          "subset": "all",
+          "value": 0.79606,
+          "ci_low": 0.724744,
+          "ci_high": 0.861187,
+          "n_jd": 20,
+          "n_pairs": 200,
+          "rule_version": 1
+        },
+        {
+          "system": "SBERT (weak fine-tuned)",
+          "metric": "auc",
+          "scope": "total",
+          "subset": "all",
+          "value": 0.834022,
+          "ci_low": 0.796475,
+          "ci_high": 0.869836,
+          "n_jd": 59,
+          "n_pairs": 590,
+          "rule_version": 1
+        },
+        {
+          "system": "SBERT (weak fine-tuned)",
+          "metric": "within_family_auc",
+          "scope": "generic",
+          "subset": "all",
+          "value": 0.786706,
+          "ci_low": 0.709524,
+          "ci_high": 0.85754,
+          "n_jd": 30,
+          "n_pairs": 240,
+          "rule_version": 1
+        },
+        {
+          "system": "SBERT (weak fine-tuned)",
+          "metric": "within_family_auc",
+          "scope": "targeted",
+          "subset": "all",
+          "value": 0.692857,
+          "ci_low": 0.590079,
+          "ci_high": 0.796065,
+          "n_jd": 18,
+          "n_pairs": 144,
+          "rule_version": 1
+        },
+        {
+          "system": "SBERT (weak fine-tuned)",
+          "metric": "within_family_auc",
+          "scope": "total",
+          "subset": "all",
+          "value": 0.751513,
+          "ci_low": 0.68833,
+          "ci_high": 0.812874,
+          "n_jd": 48,
+          "n_pairs": 384,
+          "rule_version": 1
+        },
+        {
+          "system": "SBERT (weak fine-tuned)",
+          "metric": "auc",
+          "scope": "generic",
+          "subset": "llm_free",
+          "value": 0.880033,
+          "ci_low": 0.837487,
+          "ci_high": 0.921455,
+          "n_jd": 38,
+          "n_pairs": 350,
+          "rule_version": 1
+        },
+        {
+          "system": "SBERT (weak fine-tuned)",
+          "metric": "auc",
+          "scope": "targeted",
+          "subset": "llm_free",
+          "value": 0.788702,
+          "ci_low": 0.653116,
+          "ci_high": 0.903828,
+          "n_jd": 17,
+          "n_pairs": 110,
+          "rule_version": 1
+        },
+        {
+          "system": "SBERT (weak fine-tuned)",
+          "metric": "auc",
+          "scope": "total",
+          "subset": "llm_free",
+          "value": 0.851804,
+          "ci_low": 0.798087,
+          "ci_high": 0.900015,
+          "n_jd": 55,
+          "n_pairs": 460,
+          "rule_version": 1
+        },
+        {
+          "system": "SBERT (weak fine-tuned)",
+          "metric": "within_family_auc",
+          "scope": "generic",
+          "subset": "llm_free",
+          "value": 0.779814,
+          "ci_low": 0.684573,
+          "ci_high": 0.862526,
+          "n_jd": 23,
+          "n_pairs": 174,
+          "rule_version": 1
+        },
+        {
+          "system": "SBERT (weak fine-tuned)",
+          "metric": "within_family_auc",
+          "scope": "targeted",
+          "subset": "llm_free",
+          "value": 0.595408,
+          "ci_low": 0.398295,
+          "ci_high": 0.780102,
+          "n_jd": 14,
+          "n_pairs": 69,
+          "rule_version": 1
+        },
+        {
+          "system": "SBERT (weak fine-tuned)",
+          "metric": "within_family_auc",
+          "scope": "total",
+          "subset": "llm_free",
+          "value": 0.710039,
+          "ci_low": 0.610293,
+          "ci_high": 0.800454,
+          "n_jd": 37,
+          "n_pairs": 243,
+          "rule_version": 1
+        }
+      ]
+    }
+  },
+  "classifiers": {},
+  "deltas": [
+    {
+      "id": "C3",
+      "b": "SBERT (zero-shot)",
+      "a": "TF-IDF",
+      "metric": "auc",
+      "scope": "generic",
+      "subset": "all",
+      "delta": -0.040484,
+      "ci": [
+        -0.120117,
+        0.033718
+      ],
+      "half_width": 0.076918,
+      "n_jd": 39
+    },
+    {
+      "id": "C3",
+      "b": "SBERT (zero-shot)",
+      "a": "TF-IDF",
+      "metric": "within_family_auc",
+      "scope": "generic",
+      "subset": "all",
+      "delta": 0.014167,
+      "ci": [
+        -0.081825,
+        0.114603
+      ],
+      "half_width": 0.098214,
+      "n_jd": 30
+    },
+    {
+      "id": "C3",
+      "b": "SBERT (zero-shot)",
+      "a": "TF-IDF",
+      "metric": "auc",
+      "scope": "targeted",
+      "subset": "all",
+      "delta": -0.076208,
+      "ci": [
+        -0.159117,
+        0.006368
+      ],
+      "half_width": 0.082742,
+      "n_jd": 20
+    },
+    {
+      "id": "C3",
+      "b": "SBERT (zero-shot)",
+      "a": "TF-IDF",
+      "metric": "within_family_auc",
+      "scope": "targeted",
+      "subset": "all",
+      "delta": 0.023049,
+      "ci": [
+        -0.101259,
+        0.149173
+      ],
+      "half_width": 0.125216,
+      "n_jd": 18
+    },
+    {
+      "id": "C3",
+      "b": "SBERT (zero-shot)",
+      "a": "TF-IDF",
+      "metric": "auc",
+      "scope": "total",
+      "subset": "all",
+      "delta": -0.052594,
+      "ci": [
+        -0.110871,
+        0.003619
+      ],
+      "half_width": 0.057245,
+      "n_jd": 59
+    },
+    {
+      "id": "C3",
+      "b": "SBERT (zero-shot)",
+      "a": "TF-IDF",
+      "metric": "within_family_auc",
+      "scope": "total",
+      "subset": "all",
+      "delta": 0.017498,
+      "ci": [
+        -0.057344,
+        0.094471
+      ],
+      "half_width": 0.075908,
+      "n_jd": 48
+    },
+    {
+      "id": "C3",
+      "b": "SBERT (zero-shot)",
+      "a": "TF-IDF",
+      "metric": "auc",
+      "scope": "generic",
+      "subset": "llm_free",
+      "delta": -0.041813,
+      "ci": [
+        -0.124003,
+        0.036759
+      ],
+      "half_width": 0.080381,
+      "n_jd": 38
+    },
+    {
+      "id": "C3",
+      "b": "SBERT (zero-shot)",
+      "a": "TF-IDF",
+      "metric": "within_family_auc",
+      "scope": "generic",
+      "subset": "llm_free",
+      "delta": -0.023326,
+      "ci": [
+        -0.147246,
+        0.107316
+      ],
+      "half_width": 0.127281,
+      "n_jd": 23
+    },
+    {
+      "id": "C3",
+      "b": "SBERT (zero-shot)",
+      "a": "TF-IDF",
+      "metric": "auc",
+      "scope": "targeted",
+      "subset": "llm_free",
+      "delta": -0.074697,
+      "ci": [
+        -0.210084,
+        0.05112
+      ],
+      "half_width": 0.130602,
+      "n_jd": 17
+    },
+    {
+      "id": "C3",
+      "b": "SBERT (zero-shot)",
+      "a": "TF-IDF",
+      "metric": "within_family_auc",
+      "scope": "targeted",
+      "subset": "llm_free",
+      "delta": 0.03699,
+      "ci": [
+        -0.140317,
+        0.23767
+      ],
+      "half_width": 0.188993,
+      "n_jd": 14
+    },
+    {
+      "id": "C3",
+      "b": "SBERT (zero-shot)",
+      "a": "TF-IDF",
+      "metric": "auc",
+      "scope": "total",
+      "subset": "llm_free",
+      "delta": -0.051977,
+      "ci": [
+        -0.121271,
+        0.014218
+      ],
+      "half_width": 0.067745,
+      "n_jd": 55
+    },
+    {
+      "id": "C3",
+      "b": "SBERT (zero-shot)",
+      "a": "TF-IDF",
+      "metric": "within_family_auc",
+      "scope": "total",
+      "subset": "llm_free",
+      "delta": -0.000504,
+      "ci": [
+        -0.10352,
+        0.107894
+      ],
+      "half_width": 0.105707,
+      "n_jd": 37
+    },
+    {
+      "id": "C5",
+      "b": "SBERT (weak fine-tuned)",
+      "a": "TF-IDF",
+      "metric": "auc",
+      "scope": "generic",
+      "subset": "all",
+      "delta": 0.073049,
+      "ci": [
+        0.010407,
+        0.137518
+      ],
+      "half_width": 0.063555,
+      "n_jd": 39
+    },
+    {
+      "id": "C5",
+      "b": "SBERT (weak fine-tuned)",
+      "a": "TF-IDF",
+      "metric": "within_family_auc",
+      "scope": "generic",
+      "subset": "all",
+      "delta": 0.049643,
+      "ci": [
+        -0.0427,
+        0.144449
+      ],
+      "half_width": 0.093575,
+      "n_jd": 30
+    },
+    {
+      "id": "C5",
+      "b": "SBERT (weak fine-tuned)",
+      "a": "TF-IDF",
+      "metric": "auc",
+      "scope": "targeted",
+      "subset": "all",
+      "delta": -0.010863,
+      "ci": [
+        -0.090608,
+        0.063709
+      ],
+      "half_width": 0.077158,
+      "n_jd": 20
+    },
+    {
+      "id": "C5",
+      "b": "SBERT (weak fine-tuned)",
+      "a": "TF-IDF",
+      "metric": "within_family_auc",
+      "scope": "targeted",
+      "subset": "all",
+      "delta": 0.017725,
+      "ci": [
+        -0.094841,
+        0.13674
+      ],
+      "half_width": 0.115791,
+      "n_jd": 18
+    },
+    {
+      "id": "C5",
+      "b": "SBERT (weak fine-tuned)",
+      "a": "TF-IDF",
+      "metric": "auc",
+      "scope": "total",
+      "subset": "all",
+      "delta": 0.044605,
+      "ci": [
+        -0.005782,
+        0.095078
+      ],
+      "half_width": 0.05043,
+      "n_jd": 59
+    },
+    {
+      "id": "C5",
+      "b": "SBERT (weak fine-tuned)",
+      "a": "TF-IDF",
+      "metric": "within_family_auc",
+      "scope": "total",
+      "subset": "all",
+      "delta": 0.037674,
+      "ci": [
+        -0.034102,
+        0.109103
+      ],
+      "half_width": 0.071603,
+      "n_jd": 48
+    },
+    {
+      "id": "C5",
+      "b": "SBERT (weak fine-tuned)",
+      "a": "TF-IDF",
+      "metric": "auc",
+      "scope": "generic",
+      "subset": "llm_free",
+      "delta": 0.069956,
+      "ci": [
+        0.004116,
+        0.139171
+      ],
+      "half_width": 0.067527,
+      "n_jd": 38
+    },
+    {
+      "id": "C5",
+      "b": "SBERT (weak fine-tuned)",
+      "a": "TF-IDF",
+      "metric": "within_family_auc",
+      "scope": "generic",
+      "subset": "llm_free",
+      "delta": 0.000345,
+      "ci": [
+        -0.104834,
+        0.107665
+      ],
+      "half_width": 0.10625,
+      "n_jd": 23
+    },
+    {
+      "id": "C5",
+      "b": "SBERT (weak fine-tuned)",
+      "a": "TF-IDF",
+      "metric": "auc",
+      "scope": "targeted",
+      "subset": "llm_free",
+      "delta": -0.071755,
+      "ci": [
+        -0.178338,
+        0.013166
+      ],
+      "half_width": 0.095752,
+      "n_jd": 17
+    },
+    {
+      "id": "C5",
+      "b": "SBERT (weak fine-tuned)",
+      "a": "TF-IDF",
+      "metric": "within_family_auc",
+      "scope": "targeted",
+      "subset": "llm_free",
+      "delta": -0.095748,
+      "ci": [
+        -0.232997,
+        0.035204
+      ],
+      "half_width": 0.134101,
+      "n_jd": 14
+    },
+    {
+      "id": "C5",
+      "b": "SBERT (weak fine-tuned)",
+      "a": "TF-IDF",
+      "metric": "auc",
+      "scope": "total",
+      "subset": "llm_free",
+      "delta": 0.026154,
+      "ci": [
+        -0.032006,
+        0.08455
+      ],
+      "half_width": 0.058278,
+      "n_jd": 55
+    },
+    {
+      "id": "C5",
+      "b": "SBERT (weak fine-tuned)",
+      "a": "TF-IDF",
+      "metric": "within_family_auc",
+      "scope": "total",
+      "subset": "llm_free",
+      "delta": -0.036015,
+      "ci": [
+        -0.119284,
+        0.049579
+      ],
+      "half_width": 0.084431,
+      "n_jd": 37
+    },
+    {
+      "id": "E1",
+      "b": "metadata rules",
+      "a": "random",
+      "metric": "auc",
+      "scope": "generic",
+      "subset": "all",
+      "delta": 0.218169,
+      "ci": [
+        0.129423,
+        0.301804
+      ],
+      "half_width": 0.086191,
+      "n_jd": 39
+    },
+    {
+      "id": "E1",
+      "b": "metadata rules",
+      "a": "random",
+      "metric": "within_family_auc",
+      "scope": "generic",
+      "subset": "all",
+      "delta": -0.110278,
+      "ci": [
+        -0.2454,
+        0.026791
+      ],
+      "half_width": 0.136095,
+      "n_jd": 30
+    },
+    {
+      "id": "E1",
+      "b": "metadata rules",
+      "a": "random",
+      "metric": "auc",
+      "scope": "targeted",
+      "subset": "all",
+      "delta": 0.231295,
+      "ci": [
+        0.151228,
+        0.320593
+      ],
+      "half_width": 0.084682,
+      "n_jd": 20
+    },
+    {
+      "id": "E1",
+      "b": "metadata rules",
+      "a": "random",
+      "metric": "within_family_auc",
+      "scope": "targeted",
+      "subset": "all",
+      "delta": 0.077216,
+      "ci": [
+        -0.050232,
+        0.210551
+      ],
+      "half_width": 0.130392,
+      "n_jd": 18
+    },
+    {
+      "id": "E1",
+      "b": "metadata rules",
+      "a": "random",
+      "metric": "auc",
+      "scope": "total",
+      "subset": "all",
+      "delta": 0.222618,
+      "ci": [
+        0.156892,
+        0.285146
+      ],
+      "half_width": 0.064127,
+      "n_jd": 59
+    },
+    {
+      "id": "E1",
+      "b": "metadata rules",
+      "a": "random",
+      "metric": "within_family_auc",
+      "scope": "total",
+      "subset": "all",
+      "delta": -0.039968,
+      "ci": [
+        -0.14017,
+        0.05981
+      ],
+      "half_width": 0.09999,
+      "n_jd": 48
+    },
+    {
+      "id": "E1",
+      "b": "metadata rules",
+      "a": "random",
+      "metric": "auc",
+      "scope": "generic",
+      "subset": "llm_free",
+      "delta": 0.236628,
+      "ci": [
+        0.130513,
+        0.340461
+      ],
+      "half_width": 0.104974,
+      "n_jd": 38
+    },
+    {
+      "id": "E1",
+      "b": "metadata rules",
+      "a": "random",
+      "metric": "within_family_auc",
+      "scope": "generic",
+      "subset": "llm_free",
+      "delta": -0.161525,
+      "ci": [
+        -0.310499,
+        -0.009338
+      ],
+      "half_width": 0.15058,
+      "n_jd": 23
+    },
+    {
+      "id": "E1",
+      "b": "metadata rules",
+      "a": "random",
+      "metric": "auc",
+      "scope": "targeted",
+      "subset": "llm_free",
+      "delta": 0.155871,
+      "ci": [
+        0.039623,
+        0.273462
+      ],
+      "half_width": 0.11692,
+      "n_jd": 17
+    },
+    {
+      "id": "E1",
+      "b": "metadata rules",
+      "a": "random",
+      "metric": "within_family_auc",
+      "scope": "targeted",
+      "subset": "llm_free",
+      "delta": -0.068197,
+      "ci": [
+        -0.330357,
+        0.187842
+      ],
+      "half_width": 0.2591,
+      "n_jd": 14
+    },
+    {
+      "id": "E1",
+      "b": "metadata rules",
+      "a": "random",
+      "metric": "auc",
+      "scope": "total",
+      "subset": "llm_free",
+      "delta": 0.211667,
+      "ci": [
+        0.12851,
+        0.291858
+      ],
+      "half_width": 0.081674,
+      "n_jd": 55
+    },
+    {
+      "id": "E1",
+      "b": "metadata rules",
+      "a": "random",
+      "metric": "within_family_auc",
+      "scope": "total",
+      "subset": "llm_free",
+      "delta": -0.126212,
+      "ci": [
+        -0.262538,
+        0.011103
+      ],
+      "half_width": 0.13682,
+      "n_jd": 37
+    },
+    {
+      "id": "E2",
+      "b": "TF-IDF",
+      "a": "metadata rules",
+      "metric": "auc",
+      "scope": "generic",
+      "subset": "all",
+      "delta": 0.004761,
+      "ci": [
+        -0.081922,
+        0.093648
+      ],
+      "half_width": 0.087785,
+      "n_jd": 39
+    },
+    {
+      "id": "E2",
+      "b": "TF-IDF",
+      "a": "metadata rules",
+      "metric": "within_family_auc",
+      "scope": "generic",
+      "subset": "all",
+      "delta": 0.25373,
+      "ci": [
+        0.125556,
+        0.3777
+      ],
+      "half_width": 0.126072,
+      "n_jd": 30
+    },
+    {
+      "id": "E2",
+      "b": "TF-IDF",
+      "a": "metadata rules",
+      "metric": "auc",
+      "scope": "targeted",
+      "subset": "all",
+      "delta": 0.023217,
+      "ci": [
+        -0.056055,
+        0.10278
+      ],
+      "half_width": 0.079418,
+      "n_jd": 20
+    },
+    {
+      "id": "E2",
+      "b": "TF-IDF",
+      "a": "metadata rules",
+      "metric": "within_family_auc",
+      "scope": "targeted",
+      "subset": "all",
+      "delta": 0.041865,
+      "ci": [
+        -0.081319,
+        0.15807
+      ],
+      "half_width": 0.119695,
+      "n_jd": 18
+    },
+    {
+      "id": "E2",
+      "b": "TF-IDF",
+      "a": "metadata rules",
+      "metric": "auc",
+      "scope": "total",
+      "subset": "all",
+      "delta": 0.011018,
+      "ci": [
+        -0.051657,
+        0.077225
+      ],
+      "half_width": 0.064441,
+      "n_jd": 59
+    },
+    {
+      "id": "E2",
+      "b": "TF-IDF",
+      "a": "metadata rules",
+      "metric": "within_family_auc",
+      "scope": "total",
+      "subset": "all",
+      "delta": 0.174281,
+      "ci": [
+        0.080791,
+        0.268914
+      ],
+      "half_width": 0.094062,
+      "n_jd": 48
+    },
+    {
+      "id": "E2",
+      "b": "TF-IDF",
+      "a": "metadata rules",
+      "metric": "auc",
+      "scope": "generic",
+      "subset": "llm_free",
+      "delta": 0.004731,
+      "ci": [
+        -0.09148,
+        0.104402
+      ],
+      "half_width": 0.097941,
+      "n_jd": 38
+    },
+    {
+      "id": "E2",
+      "b": "TF-IDF",
+      "a": "metadata rules",
+      "metric": "within_family_auc",
+      "scope": "generic",
+      "subset": "llm_free",
+      "delta": 0.306487,
+      "ci": [
+        0.157063,
+        0.445207
+      ],
+      "half_width": 0.144072,
+      "n_jd": 23
+    },
+    {
+      "id": "E2",
+      "b": "TF-IDF",
+      "a": "metadata rules",
+      "metric": "auc",
+      "scope": "targeted",
+      "subset": "llm_free",
+      "delta": 0.076179,
+      "ci": [
+        -0.011439,
+        0.164836
+      ],
+      "half_width": 0.088138,
+      "n_jd": 17
+    },
+    {
+      "id": "E2",
+      "b": "TF-IDF",
+      "a": "metadata rules",
+      "metric": "within_family_auc",
+      "scope": "targeted",
+      "subset": "llm_free",
+      "delta": 0.13631,
+      "ci": [
+        -0.057143,
+        0.32466
+      ],
+      "half_width": 0.190901,
+      "n_jd": 14
+    },
+    {
+      "id": "E2",
+      "b": "TF-IDF",
+      "a": "metadata rules",
+      "metric": "auc",
+      "scope": "total",
+      "subset": "llm_free",
+      "delta": 0.026815,
+      "ci": [
+        -0.044059,
+        0.100993
+      ],
+      "half_width": 0.072526,
+      "n_jd": 55
+    },
+    {
+      "id": "E2",
+      "b": "TF-IDF",
+      "a": "metadata rules",
+      "metric": "within_family_auc",
+      "scope": "total",
+      "subset": "llm_free",
+      "delta": 0.242096,
+      "ci": [
+        0.119927,
+        0.357478
+      ],
+      "half_width": 0.118775,
+      "n_jd": 37
+    },
+    {
+      "id": "E3",
+      "b": "BM25",
+      "a": "TF-IDF",
+      "metric": "auc",
+      "scope": "generic",
+      "subset": "all",
+      "delta": -0.170114,
+      "ci": [
+        -0.240615,
+        -0.10021
+      ],
+      "half_width": 0.070203,
+      "n_jd": 39
+    },
+    {
+      "id": "E3",
+      "b": "BM25",
+      "a": "TF-IDF",
+      "metric": "within_family_auc",
+      "scope": "generic",
+      "subset": "all",
+      "delta": -0.131667,
+      "ci": [
+        -0.239365,
+        -0.025317
+      ],
+      "half_width": 0.107024,
+      "n_jd": 30
+    },
+    {
+      "id": "E3",
+      "b": "BM25",
+      "a": "TF-IDF",
+      "metric": "auc",
+      "scope": "targeted",
+      "subset": "all",
+      "delta": -0.133673,
+      "ci": [
+        -0.207586,
+        -0.061351
+      ],
+      "half_width": 0.073118,
+      "n_jd": 20
+    },
+    {
+      "id": "E3",
+      "b": "BM25",
+      "a": "TF-IDF",
+      "metric": "within_family_auc",
+      "scope": "targeted",
+      "subset": "all",
+      "delta": -0.042526,
+      "ci": [
+        -0.143321,
+        0.061252
+      ],
+      "half_width": 0.102287,
+      "n_jd": 18
+    },
+    {
+      "id": "E3",
+      "b": "BM25",
+      "a": "TF-IDF",
+      "metric": "auc",
+      "scope": "total",
+      "subset": "all",
+      "delta": -0.157761,
+      "ci": [
+        -0.211104,
+        -0.104866
+      ],
+      "half_width": 0.053119,
+      "n_jd": 59
+    },
+    {
+      "id": "E3",
+      "b": "BM25",
+      "a": "TF-IDF",
+      "metric": "within_family_auc",
+      "scope": "total",
+      "subset": "all",
+      "delta": -0.098239,
+      "ci": [
+        -0.177231,
+        -0.020944
+      ],
+      "half_width": 0.078143,
+      "n_jd": 48
+    },
+    {
+      "id": "E3",
+      "b": "BM25",
+      "a": "TF-IDF",
+      "metric": "auc",
+      "scope": "generic",
+      "subset": "llm_free",
+      "delta": -0.173982,
+      "ci": [
+        -0.252759,
+        -0.096694
+      ],
+      "half_width": 0.078032,
+      "n_jd": 38
+    },
+    {
+      "id": "E3",
+      "b": "BM25",
+      "a": "TF-IDF",
+      "metric": "within_family_auc",
+      "scope": "generic",
+      "subset": "llm_free",
+      "delta": -0.097101,
+      "ci": [
+        -0.212632,
+        0.025883
+      ],
+      "half_width": 0.119257,
+      "n_jd": 23
+    },
+    {
+      "id": "E3",
+      "b": "BM25",
+      "a": "TF-IDF",
+      "metric": "auc",
+      "scope": "targeted",
+      "subset": "llm_free",
+      "delta": -0.144118,
+      "ci": [
+        -0.231793,
+        -0.064426
+      ],
+      "half_width": 0.083683,
+      "n_jd": 17
+    },
+    {
+      "id": "E3",
+      "b": "BM25",
+      "a": "TF-IDF",
+      "metric": "within_family_auc",
+      "scope": "targeted",
+      "subset": "llm_free",
+      "delta": 0.030272,
+      "ci": [
+        -0.071429,
+        0.137415
+      ],
+      "half_width": 0.104422,
+      "n_jd": 14
+    },
+    {
+      "id": "E3",
+      "b": "BM25",
+      "a": "TF-IDF",
+      "metric": "auc",
+      "scope": "total",
+      "subset": "llm_free",
+      "delta": -0.164751,
+      "ci": [
+        -0.224974,
+        -0.106006
+      ],
+      "half_width": 0.059484,
+      "n_jd": 55
+    },
+    {
+      "id": "E3",
+      "b": "BM25",
+      "a": "TF-IDF",
+      "metric": "within_family_auc",
+      "scope": "total",
+      "subset": "llm_free",
+      "delta": -0.048906,
+      "ci": [
+        -0.135458,
+        0.038618
+      ],
+      "half_width": 0.087038,
+      "n_jd": 37
+    },
+    {
+      "id": "E6",
+      "b": "SBERT (weak fine-tuned)",
+      "a": "SBERT (zero-shot)",
+      "metric": "auc",
+      "scope": "generic",
+      "subset": "all",
+      "delta": 0.113534,
+      "ci": [
+        0.073056,
+        0.158478
+      ],
+      "half_width": 0.042711,
+      "n_jd": 39
+    },
+    {
+      "id": "E6",
+      "b": "SBERT (weak fine-tuned)",
+      "a": "SBERT (zero-shot)",
+      "metric": "within_family_auc",
+      "scope": "generic",
+      "subset": "all",
+      "delta": 0.035476,
+      "ci": [
+        -0.011907,
+        0.080877
+      ],
+      "half_width": 0.046392,
+      "n_jd": 30
+    },
+    {
+      "id": "E6",
+      "b": "SBERT (weak fine-tuned)",
+      "a": "SBERT (zero-shot)",
+      "metric": "auc",
+      "scope": "targeted",
+      "subset": "all",
+      "delta": 0.065345,
+      "ci": [
+        0.011457,
+        0.124192
+      ],
+      "half_width": 0.056367,
+      "n_jd": 20
+    },
+    {
+      "id": "E6",
+      "b": "SBERT (weak fine-tuned)",
+      "a": "SBERT (zero-shot)",
+      "metric": "within_family_auc",
+      "scope": "targeted",
+      "subset": "all",
+      "delta": -0.005324,
+      "ci": [
+        -0.068651,
+        0.05453
+      ],
+      "half_width": 0.061591,
+      "n_jd": 18
+    },
+    {
+      "id": "E6",
+      "b": "SBERT (weak fine-tuned)",
+      "a": "SBERT (zero-shot)",
+      "metric": "auc",
+      "scope": "total",
+      "subset": "all",
+      "delta": 0.097199,
+      "ci": [
+        0.064395,
+        0.133223
+      ],
+      "half_width": 0.034414,
+      "n_jd": 59
+    },
+    {
+      "id": "E6",
+      "b": "SBERT (weak fine-tuned)",
+      "a": "SBERT (zero-shot)",
+      "metric": "within_family_auc",
+      "scope": "total",
+      "subset": "all",
+      "delta": 0.020176,
+      "ci": [
+        -0.018206,
+        0.05764
+      ],
+      "half_width": 0.037923,
+      "n_jd": 48
+    },
+    {
+      "id": "E6",
+      "b": "SBERT (weak fine-tuned)",
+      "a": "SBERT (zero-shot)",
+      "metric": "auc",
+      "scope": "generic",
+      "subset": "llm_free",
+      "delta": 0.111769,
+      "ci": [
+        0.066755,
+        0.160432
+      ],
+      "half_width": 0.046839,
+      "n_jd": 38
+    },
+    {
+      "id": "E6",
+      "b": "SBERT (weak fine-tuned)",
+      "a": "SBERT (zero-shot)",
+      "metric": "within_family_auc",
+      "scope": "generic",
+      "subset": "llm_free",
+      "delta": 0.023671,
+      "ci": [
+        -0.032403,
+        0.080124
+      ],
+      "half_width": 0.056263,
+      "n_jd": 23
+    },
+    {
+      "id": "E6",
+      "b": "SBERT (weak fine-tuned)",
+      "a": "SBERT (zero-shot)",
+      "metric": "auc",
+      "scope": "targeted",
+      "subset": "llm_free",
+      "delta": 0.002941,
+      "ci": [
+        -0.134314,
+        0.140539
+      ],
+      "half_width": 0.137426,
+      "n_jd": 17
+    },
+    {
+      "id": "E6",
+      "b": "SBERT (weak fine-tuned)",
+      "a": "SBERT (zero-shot)",
+      "metric": "within_family_auc",
+      "scope": "targeted",
+      "subset": "llm_free",
+      "delta": -0.132738,
+      "ci": [
+        -0.295238,
+        -0.003571
+      ],
+      "half_width": 0.145833,
+      "n_jd": 14
+    },
+    {
+      "id": "E6",
+      "b": "SBERT (weak fine-tuned)",
+      "a": "SBERT (zero-shot)",
+      "metric": "auc",
+      "scope": "total",
+      "subset": "llm_free",
+      "delta": 0.078131,
+      "ci": [
+        0.023964,
+        0.132981
+      ],
+      "half_width": 0.054509,
+      "n_jd": 55
+    },
+    {
+      "id": "E6",
+      "b": "SBERT (weak fine-tuned)",
+      "a": "SBERT (zero-shot)",
+      "metric": "within_family_auc",
+      "scope": "total",
+      "subset": "llm_free",
+      "delta": -0.035511,
+      "ci": [
+        -0.112745,
+        0.028274
+      ],
+      "half_width": 0.070509,
+      "n_jd": 37
+    }
+  ],
+  "unscoreable": [],
+  "selection": {
+    "not_run": "every text_v2 rung here is exploratory (plan 2026-10-06 02 \u00a72); selection under D53 waits for the registered rungs"
+  }
+}

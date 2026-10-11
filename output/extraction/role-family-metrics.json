@@ -1,0 +1,907 @@
+{
+  "plan": "plan/2026-10-06-extraction-and-rerank (P3, E2)",
+  "region": "A2 train region only for fitting (D19); final-set documents for measurement only (D46)",
+  "fingerprint": "44b7fff54614",
+  "config": {
+    "label": {
+      "generic": [
+        "Data Science",
+        "Lead",
+        "Other"
+      ],
+      "fold_into": "Other",
+      "m": 20,
+      "merge_purity": 0.5,
+      "residual": "other",
+      "normaliser": "extraction.title_profile.normalise_title"
+    },
+    "text": {
+      "jd": [
+        "Long Description"
+      ],
+      "cv": [
+        "CV",
+        "Highlights",
+        "Moreinfo",
+        "Looking For"
+      ],
+      "variant": "v2 (D53)"
+    },
+    "aliases": {
+      "source": "normalised A2-train Position (fit part)",
+      "m": 20,
+      "purity": 0.5,
+      "single_token_purity": 0.8,
+      "max_ngram": 6
+    },
+    "split": {
+      "seed": 0,
+      "val_share": 0.1,
+      "group": "sha256 of whitespace-normalised text",
+      "n_select": 2500,
+      "n_calib": 1000
+    },
+    "tfidf": {
+      "vectoriser": "HashingVectorizer word 1-2 grams, alternate_sign=False",
+      "n_features": 262144,
+      "idf": "TfidfTransformer sublinear_tf, fit part",
+      "span_features": true,
+      "lr": {
+        "C": 10.0,
+        "solver": "saga",
+        "max_iter": 30,
+        "random_state": 0
+      }
+    },
+    "minilm": {
+      "model": "sentence-transformers/all-MiniLM-L6-v2",
+      "pooling": "sbert.Encoder chunk mean (800 chars)",
+      "train_n": 6000,
+      "class_floor": 15,
+      "span_features": true,
+      "lr": {
+        "C": 10.0,
+        "solver": "lbfgs",
+        "max_iter": 1000
+      }
+    },
+    "calibration": "temperature on the calibration draw, NLL",
+    "selection": "higher mean of the JD and CV validation macro-F1"
+  },
+  "label_space": {
+    "labels": [
+      ".NET",
+      "Android",
+      "Artist",
+      "Business Analyst",
+      "C++",
+      "Data Analyst",
+      "Data Engineer",
+      "Data Science/computer vision engineer",
+      "Data Science/data scientist",
+      "Data Science/ml engineer",
+      "Data Science/other",
+      "Design",
+      "DevOps",
+      "Flutter",
+      "Golang",
+      "HR",
+      "Java",
+      "JavaScript",
+      "Lead Generation",
+      "Lead/architect",
+      "Lead/cto",
+      "Lead/engineering manager",
+      "Lead/other",
+      "Lead/software architect",
+      "Lead/solution architect",
+      "Marketing",
+      "Node.js",
+      "Other/account manager",
+      "Other/content manager",
+      "Other/content writer",
+      "Other/copywriter",
+      "Other/finance manager",
+      "Other/financial analyst",
+      "Other/financial manager",
+      "Other/lawyer",
+      "Other/legal counsel",
+      "Other/operations manager",
+      "Other/other",
+      "Other/software developer",
+      "PHP",
+      "Product Manager",
+      "Project Manager",
+      "Python",
+      "QA",
+      "QA Automation",
+      "Recruiter",
+      "Ruby",
+      "Rust",
+      "SEO",
+      "SQL",
+      "Sales",
+      "Salesforce",
+      "Scala",
+      "Scrum Master",
+      "Security",
+      "Support",
+      "Sysadmin",
+      "Technical Writing",
+      "Unity",
+      "iOS"
+    ],
+    "n_labels": 60,
+    "keyword_classes": [
+      ".NET",
+      "Android",
+      "Artist",
+      "Business Analyst",
+      "C++",
+      "Data Analyst",
+      "Data Engineer",
+      "Design",
+      "DevOps",
+      "Flutter",
+      "Golang",
+      "HR",
+      "Java",
+      "JavaScript",
+      "Lead Generation",
+      "Marketing",
+      "Node.js",
+      "PHP",
+      "Product Manager",
+      "Project Manager",
+      "Python",
+      "QA",
+      "QA Automation",
+      "Recruiter",
+      "Ruby",
+      "Rust",
+      "SEO",
+      "SQL",
+      "Sales",
+      "Salesforce",
+      "Scala",
+      "Scrum Master",
+      "Security",
+      "Support",
+      "Sysadmin",
+      "Technical Writing",
+      "Unity",
+      "iOS"
+    ],
+    "folded_into_other": [
+      "Block-chain",
+      "Product Owner",
+      "React",
+      "SAP"
+    ],
+    "split_families": {
+      "Data Science": {
+        "computer vision engineer": "Data Science/computer vision engineer",
+        "data analyst": "Data Analyst",
+        "data engineer": "Data Engineer",
+        "data scientist": "Data Science/data scientist",
+        "ml engineer": "Data Science/ml engineer"
+      },
+      "Lead": {
+        "architect": "Lead/architect",
+        "cto": "Lead/cto",
+        "engineering manager": "Lead/engineering manager",
+        "software architect": "Lead/software architect",
+        "solution architect": "Lead/solution architect"
+      },
+      "Other": {
+        "account manager": "Other/account manager",
+        "content manager": "Other/content manager",
+        "content writer": "Other/content writer",
+        "copywriter": "Other/copywriter",
+        "data analyst": "Data Analyst",
+        "finance manager": "Other/finance manager",
+        "financial analyst": "Other/financial analyst",
+        "financial manager": "Other/financial manager",
+        "frontend developer": "JavaScript",
+        "lawyer": "Other/lawyer",
+        "legal counsel": "Other/legal counsel",
+        "operations manager": "Other/operations manager",
+        "software developer": "Other/software developer",
+        "technical writer": "Technical Writing"
+      }
+    },
+    "merges": {
+      "Data Science/data analyst": {
+        "into": "Data Analyst",
+        "share": 0.8404,
+        "n_specific": 1454
+      },
+      "Data Science/data engineer": {
+        "into": "Data Engineer",
+        "share": 0.7648,
+        "n_specific": 1029
+      },
+      "Other/data analyst": {
+        "into": "Data Analyst",
+        "share": 0.8404,
+        "n_specific": 1454
+      },
+      "Other/frontend developer": {
+        "into": "JavaScript",
+        "share": 0.9889,
+        "n_specific": 16368
+      },
+      "Other/technical writer": {
+        "into": "Technical Writing",
+        "share": 0.8018,
+        "n_specific": 328
+      }
+    },
+    "committed_constants_match": true
+  },
+  "class_profile_train_region": {
+    "jd": {
+      "documents": 106423,
+      "labelled": 106423,
+      "classes_present": 60,
+      "min": 24,
+      "median": 680.5,
+      "max": 13423,
+      "fit_part": 95781,
+      "sizes": {
+        ".NET": 5806,
+        "Android": 1976,
+        "Artist": 431,
+        "Business Analyst": 2769,
+        "C++": 2775,
+        "Data Analyst": 728,
+        "Data Engineer": 1323,
+        "Data Science/computer vision engineer": 24,
+        "Data Science/data scientist": 406,
+        "Data Science/ml engineer": 129,
+        "Data Science/other": 814,
+        "Design": 3028,
+        "DevOps": 5956,
+        "Flutter": 301,
+        "Golang": 1292,
+        "HR": 3029,
+        "Java": 6568,
+        "JavaScript": 13423,
+        "Lead Generation": 633,
+        "Lead/architect": 37,
+        "Lead/cto": 50,
+        "Lead/engineering manager": 38,
+        "Lead/other": 1137,
+        "Lead/software architect": 34,
+        "Lead/solution architect": 90,
+        "Marketing": 5242,
+        "Node.js": 4768,
+        "Other/account manager": 64,
+        "Other/content manager": 31,
+        "Other/content writer": 32,
+        "Other/copywriter": 62,
+        "Other/finance manager": 36,
+        "Other/financial analyst": 42,
+        "Other/financial manager": 45,
+        "Other/lawyer": 35,
+        "Other/legal counsel": 46,
+        "Other/operations manager": 28,
+        "Other/other": 4987,
+        "Other/software developer": 29,
+        "PHP": 4366,
+        "Product Manager": 1462,
+        "Project Manager": 3454,
+        "Python": 4232,
+        "QA": 5126,
+        "QA Automation": 5268,
+        "Recruiter": 466,
+        "Ruby": 1395,
+        "Rust": 109,
+        "SEO": 304,
+        "SQL": 1116,
+        "Sales": 3017,
+        "Salesforce": 127,
+        "Scala": 368,
+        "Scrum Master": 167,
+        "Security": 625,
+        "Support": 2155,
+        "Sysadmin": 1303,
+        "Technical Writing": 461,
+        "Unity": 884,
+        "iOS": 1774
+      }
+    },
+    "cv": {
+      "documents": 157688,
+      "labelled": 157658,
+      "classes_present": 60,
+      "min": 27,
+      "median": 921.5,
+      "max": 25474,
+      "fit_part": 141894,
+      "sizes": {
+        ".NET": 7054,
+        "Android": 2321,
+        "Artist": 1932,
+        "Business Analyst": 3315,
+        "C++": 2258,
+        "Data Analyst": 1858,
+        "Data Engineer": 627,
+        "Data Science/computer vision engineer": 27,
+        "Data Science/data scientist": 1077,
+        "Data Science/ml engineer": 206,
+        "Data Science/other": 478,
+        "Design": 11171,
+        "DevOps": 3094,
+        "Flutter": 831,
+        "Golang": 1001,
+        "HR": 3612,
+        "Java": 8634,
+        "JavaScript": 25474,
+        "Lead Generation": 608,
+        "Lead/architect": 64,
+        "Lead/cto": 259,
+        "Lead/engineering manager": 64,
+        "Lead/other": 1299,
+        "Lead/software architect": 48,
+        "Lead/solution architect": 74,
+        "Marketing": 6790,
+        "Node.js": 3649,
+        "Other/account manager": 56,
+        "Other/content manager": 46,
+        "Other/content writer": 34,
+        "Other/copywriter": 56,
+        "Other/finance manager": 67,
+        "Other/financial analyst": 42,
+        "Other/financial manager": 51,
+        "Other/lawyer": 65,
+        "Other/legal counsel": 39,
+        "Other/operations manager": 37,
+        "Other/other": 3364,
+        "Other/software developer": 28,
+        "PHP": 5275,
+        "Product Manager": 3038,
+        "Project Manager": 9349,
+        "Python": 5703,
+        "QA": 18843,
+        "QA Automation": 4276,
+        "Recruiter": 3685,
+        "Ruby": 1031,
+        "Rust": 120,
+        "SEO": 649,
+        "SQL": 842,
+        "Sales": 2843,
+        "Salesforce": 262,
+        "Scala": 273,
+        "Scrum Master": 275,
+        "Security": 576,
+        "Support": 3431,
+        "Sysadmin": 1125,
+        "Technical Writing": 575,
+        "Unity": 1357,
+        "iOS": 2420
+      }
+    }
+  },
+  "alias_table": {
+    "entries": 518,
+    "multi_token": 460,
+    "digest": "81b68c96bd94",
+    "jd_validation_part": {
+      "position_nonempty": 10560,
+      "covered": 0.6111,
+      "alias_family_equals_label": 0.8962
+    },
+    "cv_validation_part": {
+      "position_nonempty": 15480,
+      "covered": 0.7909,
+      "alias_family_equals_label": 0.9387
+    }
+  },
+  "spans_on_validation": {
+    "jd": {
+      "n": 2500,
+      "any_span": 0.9756,
+      "label_family_named": 0.7836,
+      "first_span_is_label": 0.4772,
+      "first_span_is_label_given_any": 0.4891
+    },
+    "cv": {
+      "n": 2500,
+      "any_span": 0.93,
+      "label_family_named": 0.7308,
+      "first_span_is_label": 0.5156,
+      "first_span_is_label_given_any": 0.5544
+    }
+  },
+  "split": {
+    "jd": {
+      "fit": 95781,
+      "val": 10642,
+      "select": 2500,
+      "calib": 1000,
+      "minilm_train": 6249,
+      "unlabelled": 0
+    },
+    "cv": {
+      "fit": 141894,
+      "val": 15764,
+      "select": 2500,
+      "calib": 1000,
+      "minilm_train": 6241,
+      "unlabelled": 30
+    }
+  },
+  "validation": {
+    "tfidf": {
+      "jd": {
+        "n": 2500,
+        "n_classes_present": 54,
+        "accuracy": {
+          "value": 0.7844,
+          "ci95": [
+            0.7684,
+            0.7996
+          ]
+        },
+        "macro_f1": {
+          "value": 0.5395,
+          "ci95": [
+            0.5139,
+            0.6017
+          ]
+        },
+        "top3_accuracy": {
+          "value": 0.924,
+          "ci95": [
+            0.9132,
+            0.9344
+          ]
+        },
+        "n_train": 95781
+      },
+      "cv": {
+        "n": 2500,
+        "n_classes_present": 54,
+        "accuracy": {
+          "value": 0.7852,
+          "ci95": [
+            0.7688,
+            0.8016
+          ]
+        },
+        "macro_f1": {
+          "value": 0.5202,
+          "ci95": [
+            0.5065,
+            0.597
+          ]
+        },
+        "top3_accuracy": {
+          "value": 0.9308,
+          "ci95": [
+            0.9212,
+            0.9408
+          ]
+        },
+        "n_train": 141894
+      }
+    },
+    "minilm": {
+      "jd": {
+        "n": 2500,
+        "n_classes_present": 54,
+        "accuracy": {
+          "value": 0.6944,
+          "ci95": [
+            0.6764,
+            0.7116
+          ]
+        },
+        "macro_f1": {
+          "value": 0.4673,
+          "ci95": [
+            0.4405,
+            0.5207
+          ]
+        },
+        "top3_accuracy": {
+          "value": 0.8764,
+          "ci95": [
+            0.8628,
+            0.8888
+          ]
+        },
+        "n_train": 6249
+      },
+      "cv": {
+        "n": 2500,
+        "n_classes_present": 54,
+        "accuracy": {
+          "value": 0.7192,
+          "ci95": [
+            0.7012,
+            0.738
+          ]
+        },
+        "macro_f1": {
+          "value": 0.4771,
+          "ci95": [
+            0.4579,
+            0.5456
+          ]
+        },
+        "top3_accuracy": {
+          "value": 0.8776,
+          "ci95": [
+            0.8652,
+            0.8908
+          ]
+        },
+        "n_train": 6241
+      }
+    }
+  },
+  "selection": {
+    "rule": "higher mean of the JD and CV validation macro-F1",
+    "score": {
+      "tfidf": 0.5298,
+      "minilm": 0.4722
+    },
+    "chosen": "tfidf"
+  },
+  "calibration": {
+    "jd": {
+      "temperature": 0.914,
+      "n_calib": 1000,
+      "select_ece_before": 0.0322,
+      "select_ece_after": 0.0327
+    },
+    "cv": {
+      "temperature": 0.9327,
+      "n_calib": 1000,
+      "select_ece_before": 0.0377,
+      "select_ece_after": 0.0307
+    }
+  },
+  "final_set": {
+    "text_variant": "v2 (D53)",
+    "documents": {
+      "generic": {
+        "jd": {
+          "n": 40,
+          "n_classes_present": 22,
+          "accuracy": {
+            "value": 0.775,
+            "ci95": [
+              0.6494,
+              0.9
+            ]
+          },
+          "macro_f1": {
+            "value": 0.7621,
+            "ci95": [
+              0.6291,
+              0.8751
+            ]
+          },
+          "top3_accuracy": {
+            "value": 0.95,
+            "ci95": [
+              0.875,
+              1.0
+            ]
+          },
+          "unique_documents": 40,
+          "no_label": 0
+        },
+        "cv": {
+          "n": 400,
+          "n_classes_present": 31,
+          "n_groups": 40,
+          "accuracy": {
+            "value": 0.74,
+            "ci95": [
+              0.6725,
+              0.8025
+            ]
+          },
+          "macro_f1": {
+            "value": 0.6167,
+            "ci95": [
+              0.5666,
+              0.7
+            ]
+          },
+          "top3_accuracy": {
+            "value": 0.8925,
+            "ci95": [
+              0.85,
+              0.9325
+            ]
+          },
+          "unique_documents": 400,
+          "no_label": 0
+        }
+      },
+      "targeted": {
+        "jd": {
+          "n": 20,
+          "n_classes_present": 5,
+          "accuracy": {
+            "value": 0.5,
+            "ci95": [
+              0.3,
+              0.75
+            ]
+          },
+          "macro_f1": {
+            "value": 0.6091,
+            "ci95": [
+              0.2916,
+              0.7583
+            ]
+          },
+          "top3_accuracy": {
+            "value": 0.65,
+            "ci95": [
+              0.45,
+              0.85
+            ]
+          },
+          "unique_documents": 20,
+          "no_label": 0
+        },
+        "cv": {
+          "n": 200,
+          "n_classes_present": 24,
+          "n_groups": 20,
+          "accuracy": {
+            "value": 0.62,
+            "ci95": [
+              0.5299,
+              0.715
+            ]
+          },
+          "macro_f1": {
+            "value": 0.536,
+            "ci95": [
+              0.469,
+              0.6902
+            ]
+          },
+          "top3_accuracy": {
+            "value": 0.845,
+            "ci95": [
+              0.79,
+              0.895
+            ]
+          },
+          "unique_documents": 200,
+          "no_label": 0
+        }
+      },
+      "total": {
+        "jd": {
+          "n": 60,
+          "n_classes_present": 26,
+          "accuracy": {
+            "value": 0.6833,
+            "ci95": [
+              0.5667,
+              0.8
+            ]
+          },
+          "macro_f1": {
+            "value": 0.7053,
+            "ci95": [
+              0.5668,
+              0.7998
+            ]
+          },
+          "top3_accuracy": {
+            "value": 0.85,
+            "ci95": [
+              0.75,
+              0.9333
+            ]
+          },
+          "unique_documents": 60,
+          "no_label": 0
+        },
+        "cv": {
+          "n": 600,
+          "n_classes_present": 37,
+          "n_groups": 60,
+          "accuracy": {
+            "value": 0.7,
+            "ci95": [
+              0.6467,
+              0.7533
+            ]
+          },
+          "macro_f1": {
+            "value": 0.5646,
+            "ci95": [
+              0.5128,
+              0.637
+            ]
+          },
+          "top3_accuracy": {
+            "value": 0.8767,
+            "ci95": [
+              0.8417,
+              0.9084
+            ]
+          },
+          "unique_documents": 600,
+          "no_label": 0
+        }
+      }
+    },
+    "pairs": {
+      "generic": {
+        "n_pairs": 400,
+        "n_jds": 40,
+        "oracle_same_share": {
+          "value": 0.7975,
+          "ci95": [
+            0.7925,
+            0.8
+          ]
+        },
+        "predicted_same_share": {
+          "value": 0.485,
+          "ci95": [
+            0.3975,
+            0.565
+          ]
+        },
+        "agreement": {
+          "value": 0.6825,
+          "ci95": [
+            0.5975,
+            0.7625
+          ]
+        },
+        "kappa": {
+          "value": 0.3761,
+          "ci95": [
+            0.278,
+            0.4852
+          ]
+        },
+        "soft_auc_vs_oracle_same": {
+          "value": 0.9603,
+          "ci95": [
+            0.9296,
+            0.9821
+          ]
+        },
+        "soft_mean_oracle_same": {
+          "value": 0.4823,
+          "ci95": [
+            0.4035,
+            0.5603
+          ]
+        },
+        "soft_mean_oracle_differ": {
+          "value": 0.0164,
+          "ci95": [
+            0.0065,
+            0.0292
+          ]
+        }
+      },
+      "targeted": {
+        "n_pairs": 200,
+        "n_jds": 20,
+        "oracle_same_share": {
+          "value": 0.63,
+          "ci95": [
+            0.495,
+            0.745
+          ]
+        },
+        "predicted_same_share": {
+          "value": 0.295,
+          "ci95": [
+            0.165,
+            0.435
+          ]
+        },
+        "agreement": {
+          "value": 0.625,
+          "ci95": [
+            0.49,
+            0.75
+          ]
+        },
+        "kappa": {
+          "value": 0.3222,
+          "ci95": [
+            0.1397,
+            0.5172
+          ]
+        },
+        "soft_auc_vs_oracle_same": {
+          "value": 0.7608,
+          "ci95": [
+            0.6303,
+            0.8821
+          ]
+        },
+        "soft_mean_oracle_same": {
+          "value": 0.3036,
+          "ci95": [
+            0.1703,
+            0.4359
+          ]
+        },
+        "soft_mean_oracle_differ": {
+          "value": 0.0542,
+          "ci95": [
+            0.0199,
+            0.0924
+          ]
+        }
+      },
+      "total": {
+        "n_pairs": 600,
+        "n_jds": 60,
+        "oracle_same_share": {
+          "value": 0.7417,
+          "ci95": [
+            0.695,
+            0.7817
+          ]
+        },
+        "predicted_same_share": {
+          "value": 0.4217,
+          "ci95": [
+            0.3467,
+            0.495
+          ]
+        },
+        "agreement": {
+          "value": 0.6633,
+          "ci95": [
+            0.5917,
+            0.7317
+          ]
+        },
+        "kappa": {
+          "value": 0.3741,
+          "ci95": [
+            0.2849,
+            0.475
+          ]
+        },
+        "soft_auc_vs_oracle_same": {
+          "value": 0.9013,
+          "ci95": [
+            0.8518,
+            0.943
+          ]
+        },
+        "soft_mean_oracle_same": {
+          "value": 0.4317,
+          "ci95": [
+            0.3615,
+            0.5027
+          ]
+        },
+        "soft_mean_oracle_differ": {
+          "value": 0.0344,
+          "ci95": [
+            0.0164,
+            0.0547
+          ]
+        }
+      }
+    },
+    "oracle_jd_classes": 26,
+    "oracle_cv_classes": 37,
+    "note": "Measurement only (D46): no figure here chose anything. Oracle = role_family(Primary Keyword, Position) of the final-set document. CIs resample JDs; CV figures are over the 600 pair rows (CVs nested in JDs)."
+  }
+}

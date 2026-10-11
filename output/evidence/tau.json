@@ -1,0 +1,9 @@
+{
+  "tau": 0.28,
+  "f1_at_tau": 0.9139,
+  "n_positive": 1496,
+  "n_negative": 1496,
+  "source": "SkillSpan validation: skill phrase vs its own sentence / a random other",
+  "model": "sentence-transformers/all-MiniLM-L6-v2",
+  "seed": 0
+}

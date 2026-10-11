@@ -1,0 +1,37 @@
+{
+  "random": {
+    "fit_seconds": 0.0,
+    "ms_per_pair": 0.0043,
+    "ms_per_500_candidate_role": 2.2
+  },
+  "keyword match": {
+    "fit_seconds": 0.0,
+    "ms_per_pair": 0.0015,
+    "ms_per_500_candidate_role": 0.8
+  },
+  "metadata rules": {
+    "fit_seconds": 0.0,
+    "ms_per_pair": 0.0046,
+    "ms_per_500_candidate_role": 2.3
+  },
+  "TF-IDF": {
+    "fit_seconds": 27.277,
+    "ms_per_pair": 1.3961,
+    "ms_per_500_candidate_role": 698.1
+  },
+  "BM25": {
+    "fit_seconds": 2.685,
+    "ms_per_pair": 0.1496,
+    "ms_per_500_candidate_role": 74.8
+  },
+  "SBERT (zero-shot)": {
+    "fit_seconds": 5.259,
+    "ms_per_pair": 0.0208,
+    "ms_per_500_candidate_role": 10.4
+  },
+  "SBERT (weak fine-tuned)": {
+    "fit_seconds": 0.155,
+    "ms_per_pair": 0.0187,
+    "ms_per_500_candidate_role": 9.4
+  }
+}

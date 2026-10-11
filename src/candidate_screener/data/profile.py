@@ -384,6 +384,23 @@ def profile_data_jobs() -> dict:
     return out
 
 
+# --- title / role fields (plan 2026-10-06, P2.1) ---------------------------
+
+def profile_titles() -> dict:
+    """Title and role-category fields of D1, D2, C1/C2 and C3: the E2 alias sources."""
+    from candidate_screener.extraction import title_profile as tp
+    print("\n=== title / role fields (ESCO occupations, data_jobs, livecareer, resume-atlas)")
+    out = tp.profile_sources(*tp.load_sources())
+    e, d = out["esco_occupations"], out["data_jobs"]
+    print(f"  ESCO occupations={e['preferredLabel']['rows']} altLabels={e['altLabels_total']} "
+          f"ICT (ISCO {'/'.join(e['ict_isco_prefixes'])})={e['ict_occupations']}")
+    print(f"  data_jobs job_title_short distinct={d['job_title_short']['distinct']}  "
+          f"job_title distinct={d['job_title']['distinct']}")
+    print(f"  livecareer Category={out['livecareer']['Category']['distinct']}  "
+          f"resume-atlas Category={out['resume_atlas']['Category']['distinct']}")
+    return out
+
+
 # --- A4 (rejected) --------------------------------------------------------
 
 def recover_ats_boundary() -> dict:
@@ -414,6 +431,7 @@ CHECKS = {
     "resume-atlas": profile_resume_atlas,
     "esco": profile_esco,
     "data-jobs": profile_data_jobs,
+    "titles": profile_titles,
 }
 
 
@@ -442,10 +460,19 @@ def main() -> int:
             print(f"\n=== ats: SKIPPED — {exc}")
 
     if metrics:
+        # Merge, so `--check X` updates X without discarding the other sources' figures;
+        # `generated` dates a full run, `updated` the checks re-run since.
+        old = (json.loads(args.metrics.read_text(encoding="utf-8"))
+               if args.metrics.exists() else {})
+        now = dt.datetime.now(dt.UTC).isoformat(timespec="seconds")
+        full = set(CHECKS) <= set(metrics)
+        record = {"generated": now if full else old.get("generated", now)}
+        updated = {} if full else {**old.get("updated", {}), **{k: now for k in metrics}}
+        if updated:
+            record["updated"] = updated
+        record["checks"] = {**old.get("checks", {}), **metrics}
         args.metrics.parent.mkdir(parents=True, exist_ok=True)
-        args.metrics.write_text(json.dumps(
-            {"generated": dt.datetime.now(dt.UTC).isoformat(timespec="seconds"),
-             "checks": metrics}, indent=2) + "\n", encoding="utf-8")
+        args.metrics.write_text(json.dumps(record, indent=2) + "\n", encoding="utf-8")
         print(f"\nmetrics -> {args.metrics}")
     if skipped:
         print(f"skipped (not downloaded): {', '.join(skipped)}")

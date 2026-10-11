@@ -1,0 +1,15 @@
+{
+  "pipeline": "metadata + TF-IDF",
+  "candidates_per_role": 500,
+  "roles_timed": 5,
+  "fit_seconds_once": 16.59,
+  "median_seconds_per_role": 0.84,
+  "median_ms_per_candidate": 1.68,
+  "proposal_budget_seconds_per_candidate": 120.0,
+  "machine": {
+    "platform": "Linux-5.15.167.4-microsoft-standard-WSL2-x86_64-with-glibc2.39",
+    "cpus": 22,
+    "python": "3.12.3"
+  },
+  "note": "System time only (ranking + evidence, no semantic support encoder). Recruiter time saved is not measured: that needs a user study (S4)."
+}

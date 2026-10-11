@@ -1,0 +1,29 @@
+{
+  "random": {
+    "ms_per_500_candidate_role": 0.8
+  },
+  "metadata rules": {
+    "ms_per_500_candidate_role": 0.1
+  },
+  "TF-IDF": {
+    "ms_per_500_candidate_role": 374.0
+  },
+  "BM25": {
+    "ms_per_500_candidate_role": 49.7
+  },
+  "SBERT (zero-shot)": {
+    "ms_per_500_candidate_role": 10.5
+  },
+  "SBERT (weak fine-tuned)": {
+    "ms_per_500_candidate_role": 8.5
+  },
+  "metadata + TF-IDF": {
+    "ms_per_500_candidate_role": 369.1
+  },
+  "metadata + SBERT (zero-shot)": {
+    "ms_per_500_candidate_role": 9.2
+  },
+  "metadata + SBERT (weak fine-tuned)": {
+    "ms_per_500_candidate_role": 9.2
+  }
+}

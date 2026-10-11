@@ -1,0 +1,71 @@
+{
+  "plan": "plan/2026-10-07-shortlist-recall (Q1, 01 \u00a71)",
+  "config": {
+    "seed": 0,
+    "n_jds": 400,
+    "n_dev_train": 250,
+    "pool_size": 500,
+    "same_keyword": 8,
+    "other_keyword": 2,
+    "documents": "P3 validation part - calibration draw - weak-pair documents - eval region",
+    "jd_requires": "non-empty Position (jd_title, D54)",
+    "relevance": "oracle role family equal (Q-R3)"
+  },
+  "role_model": "44b7fff54614",
+  "documents_available": {
+    "jd": 9380,
+    "cv": 14170
+  },
+  "documents_in_pools": {
+    "jd": 400,
+    "cv": 14170
+  },
+  "pools": {
+    "dev-train": 250,
+    "dev-select": 150
+  },
+  "pairs": {
+    "dev-train": 125000,
+    "dev-select": 75000
+  },
+  "jd_oracle_families": 38,
+  "relevant_per_pool_quantiles_0_25_50_75_100": {
+    "dev-train": [
+      0,
+      15,
+      21,
+      36,
+      105
+    ],
+    "dev-select": [
+      1,
+      15,
+      21,
+      34,
+      101
+    ]
+  },
+  "pools_with_no_relevant": {
+    "dev-train": 1,
+    "dev-select": 0
+  },
+  "relevant_share_by_slot": {
+    "same_keyword": 0.97,
+    "other_keyword": 0.0,
+    "random": 0.0487
+  },
+  "pools_sha256": "ef6afca62b9d6b25af3a6d76acd6e7e7ded03b21b51c3515c1aa875164dd29ea",
+  "checks": {
+    "jd_disjoint_from_role_classifier_fit_part": true,
+    "jd_disjoint_from_calibration_draw": true,
+    "jd_disjoint_from_weak_pairs": true,
+    "jd_disjoint_from_eval_region": true,
+    "cv_disjoint_from_role_classifier_fit_part": true,
+    "cv_disjoint_from_calibration_draw": true,
+    "cv_disjoint_from_weak_pairs": true,
+    "cv_disjoint_from_eval_region": true,
+    "every_pool_has_pool_size_distinct_cvs": true,
+    "dev_train_and_dev_select_share_no_jd": true
+  },
+  "note": "Relevance is a proxy (same oracle role family), not fit; the final set is the only test of fit. Nothing in this set comes from the eval region."
+}

@@ -1,0 +1,342 @@
+{
+  "rule_version": 1,
+  "rule": [
+    "both humans agree -> their label",
+    "both humans split -> the LLM's label",
+    "one human -> that human's label",
+    "no human -> the LLM's label"
+  ],
+  "labels": {
+    "Fit": [
+      "Good Fit",
+      "Potential Fit"
+    ],
+    "No Fit": [
+      "No Fit"
+    ]
+  },
+  "llm_series": {
+    "agent_sha256": "5d986c8232ea3c985ebf8e3044049d3dd7ba709ad7037043d726aa9590bc77a3",
+    "model": "claude-haiku-4-5",
+    "runs": [
+      9,
+      10
+    ]
+  },
+  "note_inter_annotator": "Reported with no target (D44). CIs resample JDs.",
+  "note_final_vs_annotator": "Descriptive only. Each annotator contributed to the final set, so its agreement with it is inflated by construction and is not a human ceiling.",
+  "scopes": {
+    "generic": {
+      "n_pairs": 400,
+      "n_jds": 40,
+      "tiers": {
+        "humans_agree": 93,
+        "llm_breaks_tie": 33,
+        "single_human": 274,
+        "llm_only": 0
+      },
+      "fit_rate": {
+        "final_label": 0.625,
+        "yc": 0.5975,
+        "van": 0.809524,
+        "llm": 0.6175
+      },
+      "inter_annotator": {
+        "yc_vs_van": {
+          "n_pairs": 126,
+          "n_jds": 39,
+          "agreement": 0.738095,
+          "agreement_ci": [
+            0.637931,
+            0.830769
+          ],
+          "kappa": 0.419111,
+          "kappa_ci": [
+            0.2653,
+            0.582185
+          ]
+        },
+        "yc_vs_llm": {
+          "n_pairs": 400,
+          "n_jds": 40,
+          "agreement": 0.8,
+          "agreement_ci": [
+            0.75,
+            0.85
+          ],
+          "kappa": 0.58079,
+          "kappa_ci": [
+            0.478459,
+            0.677002
+          ]
+        },
+        "van_vs_llm": {
+          "n_pairs": 126,
+          "n_jds": 39,
+          "agreement": 0.746032,
+          "agreement_ci": [
+            0.661417,
+            0.821705
+          ],
+          "kappa": 0.430508,
+          "kappa_ci": [
+            0.293613,
+            0.567903
+          ]
+        }
+      },
+      "final_vs_annotator": {
+        "yc": {
+          "n_pairs": 400,
+          "n_jds": 40,
+          "agreement": 0.9675,
+          "agreement_ci": [
+            0.9425,
+            0.9875
+          ],
+          "kappa": 0.931669,
+          "kappa_ci": [
+            0.880915,
+            0.973078
+          ]
+        },
+        "van": {
+          "n_pairs": 126,
+          "n_jds": 39,
+          "agreement": 0.84127,
+          "agreement_ci": [
+            0.769231,
+            0.903704
+          ],
+          "kappa": 0.6,
+          "kappa_ci": [
+            0.453549,
+            0.736813
+          ]
+        },
+        "llm": {
+          "n_pairs": 400,
+          "n_jds": 40,
+          "agreement": 0.8325,
+          "agreement_ci": [
+            0.785,
+            0.88
+          ],
+          "kappa": 0.64409,
+          "kappa_ci": [
+            0.545688,
+            0.736783
+          ]
+        }
+      }
+    },
+    "targeted": {
+      "n_pairs": 200,
+      "n_jds": 20,
+      "tiers": {
+        "humans_agree": 126,
+        "llm_breaks_tie": 74,
+        "single_human": 0,
+        "llm_only": 0
+      },
+      "fit_rate": {
+        "final_label": 0.585,
+        "yc": 0.42,
+        "van": 0.64,
+        "llm": 0.61
+      },
+      "inter_annotator": {
+        "yc_vs_van": {
+          "n_pairs": 200,
+          "n_jds": 20,
+          "agreement": 0.63,
+          "agreement_ci": [
+            0.55,
+            0.715
+          ],
+          "kappa": 0.29173,
+          "kappa_ci": [
+            0.1481,
+            0.430541
+          ]
+        },
+        "yc_vs_llm": {
+          "n_pairs": 200,
+          "n_jds": 20,
+          "agreement": 0.67,
+          "agreement_ci": [
+            0.57,
+            0.77
+          ],
+          "kappa": 0.362442,
+          "kappa_ci": [
+            0.183518,
+            0.536948
+          ]
+        },
+        "van_vs_llm": {
+          "n_pairs": 200,
+          "n_jds": 20,
+          "agreement": 0.69,
+          "agreement_ci": [
+            0.605,
+            0.765
+          ],
+          "kappa": 0.339301,
+          "kappa_ci": [
+            0.173126,
+            0.479056
+          ]
+        }
+      },
+      "final_vs_annotator": {
+        "yc": {
+          "n_pairs": 200,
+          "n_jds": 20,
+          "agreement": 0.805,
+          "agreement_ci": [
+            0.725,
+            0.88
+          ],
+          "kappa": 0.620327,
+          "kappa_ci": [
+            0.477087,
+            0.753111
+          ]
+        },
+        "van": {
+          "n_pairs": 200,
+          "n_jds": 20,
+          "agreement": 0.825,
+          "agreement_ci": [
+            0.755,
+            0.885
+          ],
+          "kappa": 0.632507,
+          "kappa_ci": [
+            0.49404,
+            0.754011
+          ]
+        },
+        "llm": {
+          "n_pairs": 200,
+          "n_jds": 20,
+          "agreement": 0.865,
+          "agreement_ci": [
+            0.81,
+            0.915
+          ],
+          "kappa": 0.71951,
+          "kappa_ci": [
+            0.605645,
+            0.823509
+          ]
+        }
+      }
+    },
+    "total": {
+      "n_pairs": 600,
+      "n_jds": 60,
+      "tiers": {
+        "humans_agree": 219,
+        "llm_breaks_tie": 107,
+        "single_human": 274,
+        "llm_only": 0
+      },
+      "fit_rate": {
+        "final_label": 0.611667,
+        "yc": 0.538333,
+        "van": 0.705521,
+        "llm": 0.615
+      },
+      "inter_annotator": {
+        "yc_vs_van": {
+          "n_pairs": 326,
+          "n_jds": 59,
+          "agreement": 0.671779,
+          "agreement_ci": [
+            0.606916,
+            0.737013
+          ],
+          "kappa": 0.353342,
+          "kappa_ci": [
+            0.249425,
+            0.456756
+          ]
+        },
+        "yc_vs_llm": {
+          "n_pairs": 600,
+          "n_jds": 60,
+          "agreement": 0.756667,
+          "agreement_ci": [
+            0.706667,
+            0.806667
+          ],
+          "kappa": 0.504598,
+          "kappa_ci": [
+            0.411215,
+            0.597003
+          ]
+        },
+        "van_vs_llm": {
+          "n_pairs": 326,
+          "n_jds": 59,
+          "agreement": 0.711656,
+          "agreement_ci": [
+            0.649679,
+            0.768075
+          ],
+          "kappa": 0.370966,
+          "kappa_ci": [
+            0.25039,
+            0.477441
+          ]
+        }
+      },
+      "final_vs_annotator": {
+        "yc": {
+          "n_pairs": 600,
+          "n_jds": 60,
+          "agreement": 0.913333,
+          "agreement_ci": [
+            0.876667,
+            0.946667
+          ],
+          "kappa": 0.823647,
+          "kappa_ci": [
+            0.750697,
+            0.88941
+          ]
+        },
+        "van": {
+          "n_pairs": 326,
+          "n_jds": 59,
+          "agreement": 0.831288,
+          "agreement_ci": [
+            0.781513,
+            0.877778
+          ],
+          "kappa": 0.626816,
+          "kappa_ci": [
+            0.524793,
+            0.721588
+          ]
+        },
+        "llm": {
+          "n_pairs": 600,
+          "n_jds": 60,
+          "agreement": 0.843333,
+          "agreement_ci": [
+            0.805,
+            0.878333
+          ],
+          "kappa": 0.6697,
+          "kappa_ci": [
+            0.593441,
+            0.741614
+          ]
+        }
+      }
+    }
+  }
+}

@@ -81,6 +81,28 @@ Good Fit resumes per test JD: min 1, Q1 3, **median 18**, Q3 24, max 48.
    they carry the **pre-D34 instrument** (`47fc2e48`), so they describe a judge the guide
    no longer renders (**Q34**, deferred). Evidence:
    `plan/2026-09-06-recheck-file-split/`.
+
+   *Amended 8 Sep 2026 (move 3).* **No figure above moves and no A1 label changes.** Both
+   manifests gain an empty `score` column: the committed judge is now the graded
+   instrument `5d986c82`, which returns a 0-100 score beside the class, and runs 1-4 were
+   dispatched under the label-only scheme and are not failed for withholding it. **The A1
+   recheck has not been re-judged under the graded instrument**, so every kappa on this
+   card is still the pre-move-3 judge's, and the guide edit does not touch them. Evidence:
+   `plan/2026-09-08-judge-calibration/06-graded-registration.md`.
+
+   *Amended 10 Sep 2026 (move 3 complete, outcome B).* Still **no figure above moves**:
+   move 3 dispatched the graded instrument over the **A2** corpus (runs 9 and 10), not
+   this one, and the A1 recheck remains un-re-judged under it. Two consequences for this
+   card. First, `llm-recheck-report.json` now reads `status: no overlap` at section level,
+   because `judge_frames` returns `llm` for the committed instrument alone and no recheck
+   run used `5d986c82`; **the kappas quoted above are unwithdrawn and live under
+   `per_instrument`** (`47fc2e48` 0.142/0.287 over runs 1-3; `75e00ea3` **0.085/0.352**
+   over run 4). Before fix M3 they regenerated as `kappa: NaN, n: 0`, which read as a
+   measurement that came out empty rather than one never made. Second, move 3 returned
+   **outcome B** on A2 — a guide edit did not move the `Good Fit` boundary — so **A13
+   stays failed and D26's ceilings stay soft**; nothing here is rehabilitated. Re-judging
+   this recheck under `5d986c82` is ~100 spawns and is not scheduled. Evidence:
+   `plan/2026-09-08-judge-calibration/07-graded-instrument-findings.md`.
 6. **Label provenance is unrecorded** *(Q28)*. The publisher does not say how the labels
    were produced. It no longer blocks reading defect 5 — shared machine bias would have
    *inflated* kappa(A1, llm), and the observed value is at chance — but it is still unknown.
@@ -92,6 +114,8 @@ Good Fit resumes per test JD: min 1, Q1 3, **median 18**, Q3 24, max 48.
   computed against pools whose A1 leg carries labels that do not reproduce. The figures have
   not been restated — that is a separate change, superseding in place — but every use of
   them now travels with the finding, not only with the ceiling.
+
+  *Superseded 26 Sep 2026 (D40).* The attainable ceilings (0.7806 / 0.7188 / 0.983) are **retired, not restated**. They are computed from A1 labels that do not reproduce (A13), and A1 is now a secondary benchmark. A1 figures are quoted with *n*, CI and the A13 line, with no "% of attainable". The primary benchmark is the A2 final set (D41). See `plan/2026-09-26-top-down-reset/`.
 - Do **not** report on the shipped split. Use the doubly-disjoint re-split — **built, at a
   30% hold-out, seed 0**: [`docs/data/manifests/fit-split.csv`](../manifests/fit-split.csv),
   rebuilt with `python -m candidate_screener.data.build --task fit-split`.

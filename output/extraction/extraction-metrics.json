@@ -1,169 +1,1024 @@
 {
-  "artifact_sha256": {
-    "entities.parquet": "8ad1de2255d310ca9b014e287895f8deb8424ce65d18d9f420f01d4e64ac22cd",
-    "sample-manifest.json": "13dc70f74d5f872c8e30713a88c9091de1741b67d210af01837fad4766cf99b4"
-  },
-  "availability": {
-    "data-jobs": {
-      "catalog_id": "D2",
-      "missing_artifacts": [
-        "*-train-*.parquet"
+  "schema": 1,
+  "seed": 0,
+  "plan": "plan/2026-09-26-top-down-reset: tasks 2.1, 2.2, 5.1-5.5; record 08-extraction.md",
+  "vocab": {
+    "path": "data/vocab/skills.csv",
+    "sha256": "63d781ee8ed0a84cf50a68de9d377b37ee2d64a8281e0b1d27b694ef2d287c3d",
+    "rows": 9124,
+    "canonicals": 1691,
+    "aliases_by_source": {
+      "esco": 8927,
+      "data_jobs": 251,
+      "regex": 44
+    },
+    "esco_concepts": 1488,
+    "esco_scope": "ESCO v1.2.1 skills in the digital skills collection, or below skill group S5 'working with computers', or below knowledge field 06 'information and communication technologies'",
+    "esco_scope_concepts": 1489,
+    "filters": {
+      "min_chars": 1,
+      "max_tokens": null,
+      "stopwords": true,
+      "blacklist_rule": [
+        "partial",
+        10,
+        0.25
       ],
-      "status": "missing"
-    },
-    "dataturks": {
-      "catalog_id": "B1",
-      "missing_artifacts": [
-        "traindata.json",
-        "testdata.json"
-      ],
-      "status": "missing"
-    },
-    "djinni-cv": {
-      "catalog_id": "A2",
-      "missing_artifacts": [],
-      "status": "present_unvalidated"
-    },
-    "djinni-jd": {
-      "catalog_id": "A2",
-      "missing_artifacts": [],
-      "status": "present_unvalidated"
-    },
-    "esco": {
-      "catalog_id": "D1",
-      "missing_artifacts": [
-        "skills_en.csv",
-        "occupations_en.csv",
-        "occupationSkillRelations_en.csv"
-      ],
-      "status": "missing"
-    },
-    "skillspan": {
-      "catalog_id": "B2",
-      "missing_artifacts": [
-        "*-train-*.parquet",
-        "*-validation-*.parquet",
-        "*-test-*.parquet"
-      ],
-      "status": "missing"
-    }
-  },
-  "configuration": {
-    "code_sha256": {
-      "inputs.py": "6e389914ea7bc64dfaaf1a119fe52c36282b47cb6025ffa0b0a074b80e707ebc",
-      "rules.py": "769081a3a69f52b955b5e9ac6c7d1926bd1544d25291d9072636c5f1bb19f907",
-      "run.py": "8bdfd38663856c4c85c39f3af1057abda41dd5c34f90f692bdb14dd1615679bc",
-      "schema.py": "025665eb365b8e51780e0c68059a498f5572e952d6881be0ed7b1fe9306686b0",
-      "vocabulary.py": "d70388e1d54f051542c8085331efe1e9d541e25dd789af918bb51284bfa2991f"
-    },
-    "extractor_version": "rules-v1",
-    "fields": {
-      "cv": [
-        "Position",
-        "Moreinfo",
-        "Looking For",
-        "Highlights"
-      ],
-      "jd": [
-        "Position",
-        "Long Description"
+      "blacklist": [
+        "email",
+        "it"
       ]
     },
-    "input_sha256": {
-      "djinni-cv/default-train-0000.parquet": "a7b1378e0b231507c377659bf2c80fa4ba60c4e31e1107b13425d103879ecc3b",
-      "djinni-jd/default-train-0000.parquet": "71dddaf0d9660f34ddf946953b67f54f1e7d60e22dcf9a4b8139b6378b18aab9"
-    },
-    "package_version": "0.1.0",
-    "partition_sha256": "e8b7951db4ef346390e03166b356a10658beb4a65a720571b4360bf4c46c1b85",
-    "region": "train",
-    "sample_size": 1000,
-    "sampling_rule": "sort IDs; Python Random(seed).sample; sort selected IDs",
-    "seed": 0,
-    "text_version": "raw-v1",
-    "vocabulary_sha256": "6215cdad81fc92d55f8e0b8e1add5802130c92a5cb0f0b52584d0aa80e87ca8b",
-    "vocabulary_version": "seed-v1"
+    "esco_homonyms_withheld": [
+      "spark"
+    ]
   },
-  "run_id": "13dc70f74d5f872c8e30",
-  "summary": {
-    "coverage": {
-      "cv": {
-        "by_context_status": {
-          "learning": 148,
-          "negated": 1,
-          "unqualified": 2845
+  "vocab_tuning": {
+    "objective": "validation strict f1 (SKILL union)",
+    "statistics_split": "train",
+    "selection_split": "validation",
+    "grid": {
+      "min_chars": [
+        1,
+        2,
+        3
+      ],
+      "max_tokens": [
+        null,
+        6,
+        4,
+        3,
+        2
+      ],
+      "stopwords": [
+        false,
+        true
+      ],
+      "blacklist_rule": [
+        null,
+        [
+          "strict",
+          3,
+          0.1
+        ],
+        [
+          "strict",
+          3,
+          0.25
+        ],
+        [
+          "strict",
+          3,
+          0.5
+        ],
+        [
+          "strict",
+          5,
+          0.1
+        ],
+        [
+          "strict",
+          5,
+          0.25
+        ],
+        [
+          "strict",
+          10,
+          0.25
+        ],
+        [
+          "partial",
+          3,
+          0.1
+        ],
+        [
+          "partial",
+          3,
+          0.25
+        ],
+        [
+          "partial",
+          3,
+          0.5
+        ],
+        [
+          "partial",
+          5,
+          0.1
+        ],
+        [
+          "partial",
+          5,
+          0.25
+        ],
+        [
+          "partial",
+          10,
+          0.25
+        ]
+      ]
+    },
+    "chosen": {
+      "min_chars": 1,
+      "max_tokens": null,
+      "stopwords": true,
+      "blacklist_rule": [
+        "partial",
+        10,
+        0.25
+      ],
+      "blacklist_size": 2,
+      "validation_partial_f1": 0.3061,
+      "validation_strict_f1": 0.2207
+    },
+    "blacklist": [
+      "email",
+      "it"
+    ],
+    "baseline_no_filters": {
+      "min_chars": 1,
+      "max_tokens": null,
+      "stopwords": false,
+      "blacklist_rule": null,
+      "blacklist_size": 0,
+      "aliases": 9129,
+      "strict_precision": 0.4036,
+      "strict_recall": 0.1433,
+      "strict_f1": 0.2115,
+      "partial_f1": 0.3074,
+      "partial_precision": 0.5846,
+      "partial_recall": 0.2085
+    },
+    "committed_matches": true
+  },
+  "skillspan": {
+    "note": "Token-level: predictions are snapped to SkillSpan tokens. SKILL = skill ∪ knowledge; union gold keeps both layers, which overlap in ~2% of spans, so a non-overlapping system's strict recall ceiling is slightly below 1. Neither system types its spans, so in the per-layer blocks (`skill`, `knowledge`) the other layer's correct spans count as false positives: read per-layer recall, not per-layer precision. The `validation` block was seen during selection (filter tuning, early stopping) and is not a held-out figure.",
+    "test": {
+      "n_sentences": 3569,
+      "rules": {
+        "union": {
+          "n_units": 3569,
+          "n_pred": 600,
+          "n_gold": 2265,
+          "strict": {
+            "precision": 0.5667,
+            "precision_ci": [
+              0.512,
+              0.6192
+            ],
+            "recall": 0.1501,
+            "recall_ci": [
+              0.1288,
+              0.1727
+            ],
+            "f1": 0.2373,
+            "f1_ci": [
+              0.207,
+              0.2686
+            ]
+          },
+          "partial": {
+            "precision": 0.7317,
+            "precision_ci": [
+              0.6828,
+              0.7775
+            ],
+            "recall": 0.1925,
+            "recall_ci": [
+              0.169,
+              0.2171
+            ],
+            "f1": 0.3048,
+            "f1_ci": [
+              0.2722,
+              0.3373
+            ]
+          }
         },
-        "by_label": {
-          "DEGREE": 32,
-          "KNOWLEDGE": 2214,
-          "SKILL": 199,
-          "TITLE": 549
+        "skill": {
+          "n_units": 3569,
+          "n_pred": 600,
+          "n_gold": 1091,
+          "strict": {
+            "precision": 0.0067,
+            "precision_ci": [
+              0.0015,
+              0.0139
+            ],
+            "recall": 0.0037,
+            "recall_ci": [
+              0.0009,
+              0.0075
+            ],
+            "f1": 0.0047,
+            "f1_ci": [
+              0.0011,
+              0.0097
+            ]
+          },
+          "partial": {
+            "precision": 0.055,
+            "precision_ci": [
+              0.0358,
+              0.0764
+            ],
+            "recall": 0.0284,
+            "recall_ci": [
+              0.0186,
+              0.0394
+            ],
+            "f1": 0.0375,
+            "f1_ci": [
+              0.0246,
+              0.0516
+            ]
+          }
         },
-        "descriptive_coverage": 0.68,
-        "documents": 1000,
-        "documents_with_entities": 680,
-        "documents_with_label": {
-          "DEGREE": 30,
-          "KNOWLEDGE": 521,
-          "SKILL": 123,
-          "TITLE": 338
-        },
-        "entities": 2994
+        "knowledge": {
+          "n_units": 3569,
+          "n_pred": 600,
+          "n_gold": 1174,
+          "strict": {
+            "precision": 0.56,
+            "precision_ci": [
+              0.5048,
+              0.6125
+            ],
+            "recall": 0.2862,
+            "recall_ci": [
+              0.2514,
+              0.3218
+            ],
+            "f1": 0.3788,
+            "f1_ci": [
+              0.3383,
+              0.4187
+            ]
+          },
+          "partial": {
+            "precision": 0.6867,
+            "precision_ci": [
+              0.6355,
+              0.7346
+            ],
+            "recall": 0.345,
+            "recall_ci": [
+              0.3084,
+              0.3815
+            ],
+            "f1": 0.4592,
+            "f1_ci": [
+              0.4194,
+              0.4973
+            ]
+          }
+        }
       },
-      "jd": {
-        "by_context_status": {
-          "learning": 9,
-          "negated": 4,
-          "unqualified": 3591
+      "ner": {
+        "union": {
+          "n_units": 3569,
+          "n_pred": 2447,
+          "n_gold": 2265,
+          "strict": {
+            "precision": 0.5039,
+            "precision_ci": [
+              0.4781,
+              0.5299
+            ],
+            "recall": 0.5444,
+            "recall_ci": [
+              0.5177,
+              0.5715
+            ],
+            "f1": 0.5233,
+            "f1_ci": [
+              0.4987,
+              0.5482
+            ]
+          },
+          "partial": {
+            "precision": 0.8108,
+            "precision_ci": [
+              0.7891,
+              0.8317
+            ],
+            "recall": 0.8645,
+            "recall_ci": [
+              0.8447,
+              0.8833
+            ],
+            "f1": 0.8368,
+            "f1_ci": [
+              0.8205,
+              0.8518
+            ]
+          }
         },
-        "by_label": {
-          "DEGREE": 41,
-          "KNOWLEDGE": 3023,
-          "SKILL": 205,
-          "TITLE": 335
+        "skill": {
+          "n_units": 3569,
+          "n_pred": 2447,
+          "n_gold": 1091,
+          "strict": {
+            "precision": 0.1998,
+            "precision_ci": [
+              0.1795,
+              0.2211
+            ],
+            "recall": 0.4482,
+            "recall_ci": [
+              0.4145,
+              0.4826
+            ],
+            "f1": 0.2764,
+            "f1_ci": [
+              0.2522,
+              0.3009
+            ]
+          },
+          "partial": {
+            "precision": 0.3968,
+            "precision_ci": [
+              0.367,
+              0.427
+            ],
+            "recall": 0.8396,
+            "recall_ci": [
+              0.8122,
+              0.8665
+            ],
+            "f1": 0.5389,
+            "f1_ci": [
+              0.5092,
+              0.568
+            ]
+          }
         },
-        "descriptive_coverage": 0.754,
-        "documents": 1000,
-        "documents_with_entities": 754,
-        "documents_with_label": {
-          "DEGREE": 36,
-          "KNOWLEDGE": 662,
-          "SKILL": 137,
-          "TITLE": 229
+        "knowledge": {
+          "n_units": 3569,
+          "n_pred": 2447,
+          "n_gold": 1174,
+          "strict": {
+            "precision": 0.304,
+            "precision_ci": [
+              0.2756,
+              0.3324
+            ],
+            "recall": 0.6337,
+            "recall_ci": [
+              0.5959,
+              0.6708
+            ],
+            "f1": 0.4109,
+            "f1_ci": [
+              0.3792,
+              0.4417
+            ]
+          },
+          "partial": {
+            "precision": 0.4238,
+            "precision_ci": [
+              0.3911,
+              0.4568
+            ],
+            "recall": 0.8876,
+            "recall_ci": [
+              0.8612,
+              0.9121
+            ],
+            "f1": 0.5737,
+            "f1_ci": [
+              0.541,
+              0.6049
+            ]
+          }
+        }
+      },
+      "ner_minus_rules": {
+        "union": {
+          "n_units": 3569,
+          "strict": {
+            "f1_delta": 0.286,
+            "f1_delta_ci": [
+              0.2563,
+              0.3157
+            ]
+          },
+          "partial": {
+            "f1_delta": 0.532,
+            "f1_delta_ci": [
+              0.4987,
+              0.5644
+            ]
+          }
         },
-        "entities": 3604
+        "skill": {
+          "n_units": 3569,
+          "strict": {
+            "f1_delta": 0.2717,
+            "f1_delta_ci": [
+              0.247,
+              0.2967
+            ]
+          },
+          "partial": {
+            "f1_delta": 0.5014,
+            "f1_delta_ci": [
+              0.4691,
+              0.5319
+            ]
+          }
+        },
+        "knowledge": {
+          "n_units": 3569,
+          "strict": {
+            "f1_delta": 0.0321,
+            "f1_delta_ci": [
+              -0.0057,
+              0.0694
+            ]
+          },
+          "partial": {
+            "f1_delta": 0.1144,
+            "f1_delta_ci": [
+              0.074,
+              0.1555
+            ]
+          }
+        }
       }
     },
-    "gold_accuracy": {
-      "reason": "Gold adapters pending; unlabelled A2 measures descriptive coverage only",
-      "status": "blocked"
-    },
-    "input_counts": {
-      "cv": {
-        "eligible_documents": 157688,
-        "fields": [
-          "Position",
-          "Moreinfo",
-          "Looking For",
-          "Highlights"
-        ],
-        "raw_documents": 210250,
-        "sampled_documents": 1000
+    "validation": {
+      "n_sentences": 3174,
+      "rules": {
+        "union": {
+          "n_units": 3174,
+          "n_pred": 637,
+          "n_gold": 2163,
+          "strict": {
+            "precision": 0.4851,
+            "precision_ci": [
+              0.4272,
+              0.5415
+            ],
+            "recall": 0.1429,
+            "recall_ci": [
+              0.1218,
+              0.1642
+            ],
+            "f1": 0.2207,
+            "f1_ci": [
+              0.1911,
+              0.2501
+            ]
+          },
+          "partial": {
+            "precision": 0.6703,
+            "precision_ci": [
+              0.6115,
+              0.726
+            ],
+            "recall": 0.1983,
+            "recall_ci": [
+              0.1757,
+              0.2211
+            ],
+            "f1": 0.3061,
+            "f1_ci": [
+              0.2756,
+              0.3356
+            ]
+          }
+        }
       },
-      "jd": {
-        "eligible_documents": 106423,
-        "fields": [
-          "Position",
-          "Long Description"
-        ],
-        "raw_documents": 141897,
-        "sampled_documents": 1000
+      "ner": {
+        "union": {
+          "n_units": 3174,
+          "n_pred": 2525,
+          "n_gold": 2163,
+          "strict": {
+            "precision": 0.4697,
+            "precision_ci": [
+              0.4424,
+              0.4971
+            ],
+            "recall": 0.5483,
+            "recall_ci": [
+              0.5214,
+              0.5748
+            ],
+            "f1": 0.506,
+            "f1_ci": [
+              0.4808,
+              0.5308
+            ]
+          },
+          "partial": {
+            "precision": 0.7806,
+            "precision_ci": [
+              0.7543,
+              0.8059
+            ],
+            "recall": 0.8706,
+            "recall_ci": [
+              0.8517,
+              0.8886
+            ],
+            "f1": 0.8231,
+            "f1_ci": [
+              0.8049,
+              0.8405
+            ]
+          }
+        }
+      },
+      "ner_minus_rules": {
+        "union": {
+          "n_units": 3174,
+          "strict": {
+            "f1_delta": 0.2853,
+            "f1_delta_ci": [
+              0.2564,
+              0.3151
+            ]
+          },
+          "partial": {
+            "f1_delta": 0.517,
+            "f1_delta_ci": [
+              0.4863,
+              0.5484
+            ]
+          }
+        }
       }
     },
-    "integrity": {
-      "entities_checked": 6598,
-      "exact_field_offsets": true,
-      "training_only": true,
-      "unique_entity_ids": true
+    "s3_reference_bar": {
+      "strict_f1_union": 0.85,
+      "status": "S3 open (04-success-measures.md §3)",
+      "rules_meets": false,
+      "ner_meets": false,
+      "published_reference": "to be verified against Zhang et al., NAACL 2022 (not quoted from memory; no network access in this phase)"
     }
+  },
+  "dataturks": {
+    "note": "20 test documents decide nothing: the `test` block is the planned figure and is reported for completeness; `all` (220 documents) is the one with power. Gold `Skills` spans are often whole skills sections, so strict F1 is bounded far below 1 for any skill-level extractor, and skills named outside an annotated span count as false positives.",
+    "repair": {
+      "spans_total": 3556,
+      "intact": 3334,
+      "unescape": 222,
+      "search": 0,
+      "dropped_unrepairable": 0,
+      "dropped_pii": 476,
+      "dropped_unlabelled": 2,
+      "malformed_lines": 0
+    },
+    "test": {
+      "n_docs": 20,
+      "n_gold_skills_spans": 55,
+      "rules": {
+        "n_units": 20,
+        "n_pred": 619,
+        "n_gold": 55,
+        "strict": {
+          "precision": 0.0145,
+          "precision_ci": [
+            0.0,
+            0.0428
+          ],
+          "recall": 0.1636,
+          "recall_ci": [
+            0.0,
+            0.2561
+          ],
+          "f1": 0.0267,
+          "f1_ci": [
+            0.0,
+            0.0727
+          ]
+        },
+        "partial": {
+          "precision": 0.2359,
+          "precision_ci": [
+            0.149,
+            0.3644
+          ],
+          "recall": 0.5273,
+          "recall_ci": [
+            0.3919,
+            0.75
+          ],
+          "f1": 0.3259,
+          "f1_ci": [
+            0.2264,
+            0.4484
+          ]
+        }
+      },
+      "ner": {
+        "n_units": 20,
+        "n_pred": 1598,
+        "n_gold": 55,
+        "strict": {
+          "precision": 0.0044,
+          "precision_ci": [
+            0.0,
+            0.0135
+          ],
+          "recall": 0.1273,
+          "recall_ci": [
+            0.0,
+            0.25
+          ],
+          "f1": 0.0085,
+          "f1_ci": [
+            0.0,
+            0.0254
+          ]
+        },
+        "partial": {
+          "precision": 0.137,
+          "precision_ci": [
+            0.0809,
+            0.2167
+          ],
+          "recall": 0.5818,
+          "recall_ci": [
+            0.4478,
+            0.8158
+          ],
+          "f1": 0.2218,
+          "f1_ci": [
+            0.1406,
+            0.3235
+          ]
+        }
+      },
+      "ner_minus_rules": {
+        "n_units": 20,
+        "strict": {
+          "f1_delta": -0.0182,
+          "f1_delta_ci": [
+            -0.0564,
+            0.0037
+          ]
+        },
+        "partial": {
+          "f1_delta": -0.1041,
+          "f1_delta_ci": [
+            -0.1684,
+            -0.0483
+          ]
+        }
+      }
+    },
+    "all": {
+      "n_docs": 220,
+      "n_gold_skills_spans": 468,
+      "rules": {
+        "n_units": 220,
+        "n_pred": 4990,
+        "n_gold": 468,
+        "strict": {
+          "precision": 0.022,
+          "precision_ci": [
+            0.0059,
+            0.0431
+          ],
+          "recall": 0.235,
+          "recall_ci": [
+            0.0829,
+            0.3553
+          ],
+          "f1": 0.0403,
+          "f1_ci": [
+            0.011,
+            0.0765
+          ]
+        },
+        "partial": {
+          "precision": 0.2651,
+          "precision_ci": [
+            0.2253,
+            0.3065
+          ],
+          "recall": 0.6731,
+          "recall_ci": [
+            0.5903,
+            0.7507
+          ],
+          "f1": 0.3804,
+          "f1_ci": [
+            0.3337,
+            0.4252
+          ]
+        }
+      },
+      "ner": {
+        "n_units": 220,
+        "n_pred": 16854,
+        "n_gold": 468,
+        "strict": {
+          "precision": 0.0058,
+          "precision_ci": [
+            0.0014,
+            0.0113
+          ],
+          "recall": 0.2073,
+          "recall_ci": [
+            0.0665,
+            0.3139
+          ],
+          "f1": 0.0112,
+          "f1_ci": [
+            0.0028,
+            0.0218
+          ]
+        },
+        "partial": {
+          "precision": 0.1336,
+          "precision_ci": [
+            0.1104,
+            0.1589
+          ],
+          "recall": 0.6966,
+          "recall_ci": [
+            0.6329,
+            0.7529
+          ],
+          "f1": 0.2241,
+          "f1_ci": [
+            0.1901,
+            0.2595
+          ]
+        }
+      },
+      "ner_minus_rules": {
+        "n_units": 220,
+        "strict": {
+          "f1_delta": -0.0291,
+          "f1_delta_ci": [
+            -0.0556,
+            -0.0075
+          ]
+        },
+        "partial": {
+          "f1_delta": -0.1563,
+          "f1_delta_ci": [
+            -0.1895,
+            -0.1237
+          ]
+        }
+      }
+    }
+  },
+  "ner": {
+    "config": {
+      "base_model": "sentence-transformers/all-MiniLM-L6-v2",
+      "max_subwords": 128,
+      "batch_size": 32,
+      "lr": 0.0001,
+      "weight_decay": 0.01,
+      "warmup_ratio": 0.1,
+      "max_epochs": 6,
+      "patience": 2,
+      "seed": 0,
+      "threads": 4,
+      "selection": "SkillSpan validation strict span F1, SKILL union"
+    },
+    "best_epoch": 6,
+    "history": [
+      {
+        "epoch": 1,
+        "train_loss": 0.4618,
+        "val_strict_f1": 0.3492,
+        "val_partial_f1": 0.7685
+      },
+      {
+        "epoch": 2,
+        "train_loss": 0.1793,
+        "val_strict_f1": 0.454,
+        "val_partial_f1": 0.8028
+      },
+      {
+        "epoch": 3,
+        "train_loss": 0.1119,
+        "val_strict_f1": 0.4726,
+        "val_partial_f1": 0.8048
+      },
+      {
+        "epoch": 4,
+        "train_loss": 0.0758,
+        "val_strict_f1": 0.4954,
+        "val_partial_f1": 0.8156
+      },
+      {
+        "epoch": 5,
+        "train_loss": 0.054,
+        "val_strict_f1": 0.5009,
+        "val_partial_f1": 0.8249
+      },
+      {
+        "epoch": 6,
+        "train_loss": 0.0442,
+        "val_strict_f1": 0.506,
+        "val_partial_f1": 0.8231
+      }
+    ],
+    "train_pieces": 4915,
+    "weights_sha256": "4977c40864fb555d40e83b264b33f84154c91c223a29e708750b3ce4bafbef1d",
+    "base_model_snapshot": "c9745ed1d9f207416be6d2e6f8de32d1f16199bf"
+  },
+  "normalisation": {
+    "gold": "seeded sample of ESCO alternative labels owned by exactly one concept and not equal (normalised) to any preferred label; each is mapped back to its concept; held-out labels are removed from every index",
+    "headline": "ict_preferred",
+    "ict_preferred": {
+      "n_queries": 1000,
+      "n_concepts": 1489,
+      "n_index_labels": 1489,
+      "n_candidates": 7383,
+      "methods": {
+        "exact": {
+          "n": 1000,
+          "top1": 0.0,
+          "top1_ci": [
+            0.0,
+            0.0
+          ],
+          "coverage": 0.0
+        },
+        "normalised": {
+          "n": 1000,
+          "top1": 0.0,
+          "top1_ci": [
+            0.0,
+            0.0
+          ],
+          "coverage": 0.0
+        },
+        "token_overlap": {
+          "n": 1000,
+          "top1": 0.602,
+          "top1_ci": [
+            0.571,
+            0.631
+          ],
+          "coverage": 0.943
+        },
+        "string": {
+          "n": 1000,
+          "top1": 0.602,
+          "top1_ci": [
+            0.571,
+            0.631
+          ],
+          "coverage": 0.943
+        },
+        "sbert": {
+          "n": 1000,
+          "top1": 0.766,
+          "top1_ci": [
+            0.74,
+            0.792
+          ],
+          "coverage": 1.0
+        }
+      },
+      "sbert_minus_string": {
+        "n": 1000,
+        "delta": 0.164,
+        "delta_ci": [
+          0.138,
+          0.191
+        ]
+      }
+    },
+    "ict_aliases": {
+      "n_queries": 1000,
+      "n_concepts": 1489,
+      "n_index_labels": 8007,
+      "n_candidates": 7383,
+      "methods": {
+        "exact": {
+          "n": 1000,
+          "top1": 0.0,
+          "top1_ci": [
+            0.0,
+            0.0
+          ],
+          "coverage": 0.0
+        },
+        "normalised": {
+          "n": 1000,
+          "top1": 0.0,
+          "top1_ci": [
+            0.0,
+            0.0
+          ],
+          "coverage": 0.0
+        },
+        "token_overlap": {
+          "n": 1000,
+          "top1": 0.734,
+          "top1_ci": [
+            0.706,
+            0.762
+          ],
+          "coverage": 0.956
+        },
+        "string": {
+          "n": 1000,
+          "top1": 0.734,
+          "top1_ci": [
+            0.706,
+            0.762
+          ],
+          "coverage": 0.956
+        },
+        "sbert": {
+          "n": 1000,
+          "top1": 0.864,
+          "top1_ci": [
+            0.842,
+            0.885
+          ],
+          "coverage": 1.0
+        }
+      },
+      "sbert_minus_string": {
+        "n": 1000,
+        "delta": 0.13,
+        "delta_ci": [
+          0.105,
+          0.155
+        ]
+      }
+    },
+    "all_esco_preferred": {
+      "n_queries": 1000,
+      "n_concepts": 13939,
+      "n_index_labels": 13939,
+      "n_candidates": 84966,
+      "methods": {
+        "exact": {
+          "n": 1000,
+          "top1": 0.0,
+          "top1_ci": [
+            0.0,
+            0.0
+          ],
+          "coverage": 0.0
+        },
+        "normalised": {
+          "n": 1000,
+          "top1": 0.0,
+          "top1_ci": [
+            0.0,
+            0.0
+          ],
+          "coverage": 0.0
+        },
+        "token_overlap": {
+          "n": 1000,
+          "top1": 0.582,
+          "top1_ci": [
+            0.551,
+            0.612
+          ],
+          "coverage": 0.987
+        },
+        "string": {
+          "n": 1000,
+          "top1": 0.582,
+          "top1_ci": [
+            0.551,
+            0.612
+          ],
+          "coverage": 0.987
+        },
+        "sbert": {
+          "n": 1000,
+          "top1": 0.782,
+          "top1_ci": [
+            0.756,
+            0.808
+          ],
+          "coverage": 1.0
+        }
+      },
+      "sbert_minus_string": {
+        "n": 1000,
+        "delta": 0.2,
+        "delta_ci": [
+          0.17,
+          0.231
+        ]
+      }
+    }
+  },
+  "determinism": {
+    "tolerance_abs": 0.0,
+    "applies_to": "figures under a path containing 'ner', 'sbert' or 'ner_minus_rules'",
+    "measured": "two full trainings (seed 0, 4 threads) produced bit-identical weights; tagger inference at 1, 4 and 8 threads produced identical tags on all SkillSpan test sentences",
+    "training_threads_pinned": 4,
+    "not_covered": "a different CPU or torch build; bit-identity is only measured on one machine"
   }
 }

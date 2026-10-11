@@ -1,6 +1,11 @@
 data/*
 !data/README.md
+# D15: derived ESCO/skill vocabulary extracts are committed
+!data/vocab/
 .venv/
 __pycache__/
 *.part
 .ipynb_checkpoints/
+
+# Check-runner and ad-hoc logs (plan 2026-10-08-test-and-check-runtime, Q4)
+logs/
