@@ -1,0 +1,139 @@
+{
+  "status": "prototype_complete",
+  "applicant_review_required": true,
+  "screening_integration": "not_enabled",
+  "media_sha256": "5896fa7a0093e90d4ac242bf1ecfeb24fc829fe5258e3deaaabb37c44b3c351f",
+  "excluded_features": [
+    "video_pixels",
+    "gender",
+    "voice_quality",
+    "accent"
+  ],
+  "media_bytes": 852197,
+  "duration_seconds": 45.0026875,
+  "audio": {
+    "sample_rate": 16000,
+    "channels": 1
+  },
+  "asr": {
+    "model": "tiny",
+    "language": "fr",
+    "task": "transcribe",
+    "weights_sha256": "65147644a518d12f04e32d6f3b26facc3f8dd46e5390956a9424a650c0ce22b9",
+    "seconds": 4.534655014002055,
+    "segment_count": 7
+  },
+  "translation": {
+    "model": "Helsinki-NLP/opus-mt-fr-en",
+    "revision": "c4aed37b318c763fd177aa449b44e3b783cc6c02",
+    "artifact_sha256": {
+      "model.safetensors": "6e3837f34b903802c3d0d670362b997cee6e87584a1108eb3fa89e4625e4424a",
+      "target.spm": "173e9f493a668fe396d599e28d414a201193094e6ffd7a4678e5aab0f6d3d838",
+      "tokenizer_config.json": "47de9ce87378593016432f8dc657202c03913ab3ce0c15d7f78d51edfc3ff9a3",
+      "config.json": "b3be13d046d9899d7aab8cf4ed624d9a79f5776038ba793f6b4d2ce3e02192f7",
+      "generation_config.json": "4956fb9a7caaad7579cf8bb789c1e578b8a1cf48a0a8b779fda2f95dd10bbaa5",
+      "source.spm": "78d0e717c77053f1c4b856d8661d9cb87c64f083a35418c087b9146300e4f585",
+      "vocab.json": "945c604346ce15ce4aff9001001e7f925e336d942c4087017f191871162cbdc4"
+    },
+    "selected_segments": 5,
+    "complete": true,
+    "translated_segments": 7,
+    "chunk_count": 7,
+    "comparison_chunk_count": 5,
+    "beams": [
+      1,
+      4
+    ],
+    "full_beam4_seconds": 11.684054514000309,
+    "comparison_greedy_seconds": 2.0409802669964847,
+    "token_budget": 480,
+    "output_characters": {
+      "1": 554,
+      "4": 560
+    },
+    "differing_chunks": 1,
+    "full_output_characters": 689,
+    "comparison_scope": "First five ASR segments; full transcript translated with beam 4"
+  },
+  "setup_seconds": {
+    "asr_load_download": 13.885632457997417,
+    "marian_load_download": 56.029738923003606
+  },
+  "duration_audit": {
+    "source_numeric_duration_mentions": 1,
+    "translated_numeric_duration_mentions": 1,
+    "same_numeric_duration_multiset": true,
+    "human_review_required": true,
+    "limitations": "Numeric year expressions only; not total experience or semantic equivalence"
+  },
+  "entity_audit": {
+    "status": "complete",
+    "extractor": "GLiNER",
+    "counts": {
+      "DEGREE": 0,
+      "EXPERIENCE_YEARS": 1,
+      "KNOWLEDGE": 3,
+      "SKILL": 0,
+      "TITLE": 0
+    },
+    "seconds": 2.7435934269960853,
+    "complete_field_coverage": true,
+    "threshold": 0.5,
+    "overlap_tokens": 32,
+    "labels": {
+      "technology, software tool or programming language": "KNOWLEDGE",
+      "professional skill or competency": "SKILL",
+      "job title or occupation": "TITLE",
+      "academic degree or qualification": "DEGREE",
+      "years of experience": "EXPERIENCE_YEARS"
+    },
+    "adapter_version": "gliner-adapter-v2",
+    "model": {
+      "artifact_sha256": {
+        "encoder-assets/config.json": "b0bb1caf90a50aa67d1085130508dfbf8646ac5a11928305e280b07a36e100ae",
+        "encoder-assets/spm.model": "c679fbf93643d19aab7ee10c0b99e460bdbc02fedf34b92b05af343b4af586fd",
+        "encoder-assets/tokenizer_config.json": "3f3978e0c036f2c2588cac34a6047cbb0af0b0dc1814254e291028529805496d",
+        "gliner_config.json": "eb963bd7182a1eaed4d170a87348ab62de6fc4eb30cfa7130c80846fee43d0ac",
+        "pytorch_model.bin": "1d4e83e4e4ae4ae0a4fbc81a32ee6de480fb341650d73e808088bb2800312de4"
+      },
+      "encoder": {
+        "model_id": "microsoft/deberta-v3-small",
+        "revision": "a36c739020e01763fe789b4b85e2df55d6180012"
+      },
+      "model_id": "urchade/gliner_small-v2.1",
+      "revision": "4e091416cf7c3481db542c2a3d26156916f3a47f"
+    },
+    "runtime": {
+      "manifest": {
+        "gliner": "0.2.21",
+        "huggingface-hub": "0.36.2",
+        "numpy": "1.26.4",
+        "tokenizers": "0.21.4",
+        "torch": "2.2.2",
+        "transformers": "4.48.3"
+      },
+      "manifest_sha256": "4a2f1d916f90acab6e427259f8419321a44b56934ff43c1c97543cc34db08efb"
+    },
+    "transcript_sha256": "1652430e46fb10f72c89b8a17fec147f9f595932f1bbdaa947be4dcc279bbd18",
+    "code_sha256": {
+      "interview_entities.py": "93103240958f4d669fe33221d30fcdaedfcf3b6841811be1cd50d8f0b574af23",
+      "entity_bridge.py": "c8ee09dd3ace8bcafe74e5848c34f6acecfc820c883a847fcec86f1b00e2fd11"
+    },
+    "input": "Unreviewed beam-4 English translation; source contains ASR/MT errors",
+    "applicant_review_required": true,
+    "screening_ready": false,
+    "interpretation": "Predicted mentions, not verified qualifications or fit"
+  },
+  "versions": {
+    "torch": "2.2.2",
+    "transformers": "4.48.3",
+    "openai-whisper": "20250625",
+    "imageio-ffmpeg": "0.6.0",
+    "sentencepiece": "0.2.2"
+  },
+  "evaluation": "One clip; no reference transcript or translation; no quality or fit claim",
+  "derived_report": {
+    "full_output_characters": "Computed from saved private full_beam4_translation; no inference rerun",
+    "original_inference_code_sha256": "Not captured during original inference; current source hash would not identify producing code"
+  }
+}

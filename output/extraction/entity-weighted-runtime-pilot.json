@@ -1,0 +1,10 @@
+{
+  "run_id": "221a773317b7ab8f052f-20261011T045828300384Z",
+  "status": "complete",
+  "requested_documents": 10,
+  "completed_documents": 10,
+  "runtime_seconds": 24.923339805001888,
+  "scope": "5 CVs and 5 JDs, raw-field extraction runtime only; not matching text_v2 or retrieval evaluation",
+  "linear_seconds_per_document": 2.492333980500189,
+  "includes_startup": true
+}

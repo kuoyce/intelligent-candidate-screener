@@ -191,6 +191,9 @@ def _in_context(text: str, men: Mention, side: str) -> bool:
     s, e = men.span.start, men.span.end
     ls, le = _line_bounds(text, s)
     before, after = text[max(ls, s - 40):s], text[e:min(le, e + 60)]
+    if re.search(r"\b(?:company|organisation|organization|business)\s+(?:has|with|of|celebrates)\s*$", before, re.I) \
+            and re.match(r"\s*(?:of\s+)?(?:history|existence|operation|anniversary)\b", after, re.I):
+        return False
     if side == "cv":
         if _CV_REJECT_AFTER.match(after):
             return False

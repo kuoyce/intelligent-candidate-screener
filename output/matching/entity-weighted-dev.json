@@ -1,0 +1,35 @@
+{
+  "adopted": false,
+  "config": {
+    "adoption": "never from four-query pilot",
+    "alphas": [
+      0.0,
+      0.25,
+      0.5,
+      0.75,
+      1.0
+    ],
+    "idf_cap": 5,
+    "idf_population": "first 2000 sorted train CV ids excluding all dev CVs",
+    "pool_size": 500,
+    "queries_per_split": 2,
+    "relevance": "same oracle role family, not human fit",
+    "seed": 0,
+    "selection": "dev-select Recall@50; earlier alpha wins six-decimal tie",
+    "stage2": "same baseline top 50; denominator full pool",
+    "version": "entity-weighted-pilot-v1"
+  },
+  "dependency_sha256": {
+    "matching_code": "eb8bdcbc4d5b8ab449efb25c4855b4131df59308d026244ec16304659c4e8ce3",
+    "runner_code": "71c84bc162f3d46c7b7eec6a197e51266e4e7abc19bb31271de42e868b7fd66e",
+    "vocabulary": "63d781ee8ed0a84cf50a68de9d377b37ee2d64a8281e0b1d27b694ef2d287c3d",
+    "weak_pairs": "5fdd661bb75dc2d4c62840458994c0521940e3edf8a00180a143add497518e98"
+  },
+  "metrics": {},
+  "missing_prerequisites": [
+    "role_latest"
+  ],
+  "reason": "Inherited role model and keyed dev-pool prerequisite restoration pending",
+  "resume": "uv run python -m candidate_screener.evaluation.entity_weighted",
+  "status": "blocked"
+}

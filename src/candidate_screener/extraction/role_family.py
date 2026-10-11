@@ -207,18 +207,16 @@ def labels_for(df: pd.DataFrame, space: Mapping | None = None) -> pd.Series:
 # --- text (text_v2, D53) -----------------------------------------------------------------
 
 #: `annotation/sample.py` CV_FIELDS minus `Position` (the annotation module is frozen,
-#: D42). P1's `matching.corpus.CV_FIELDS_BY_VARIANT["v2"]` is the same list; unify later.
-CV_FIELDS_V2 = ("CV", "Highlights", "Moreinfo", "Looking For")
+#: D42). Share P1's builder and its field definition; the annotation module stays frozen.
+from candidate_screener.matching.corpus import CV_FIELDS_BY_VARIANT
+CV_FIELDS_V2 = CV_FIELDS_BY_VARIANT["v2"]
 JD_FIELD = "Long Description"
 
 
 def cv_text_v2(cv: pd.DataFrame) -> pd.Series:
     """CV text without `Position`, joined exactly as `annotation.sample.cv_text` joins."""
-    parts = [cv[f].fillna("").astype(str).str.strip() for f in CV_FIELDS_V2]
-    joined = parts[0]
-    for p in parts[1:]:
-        joined = joined.str.cat(p, sep="\n\n").str.strip()
-    return joined.str.replace(r"\n{3,}", "\n\n", regex=True)
+    from candidate_screener.matching.corpus import build_cv_text
+    return build_cv_text(cv, "v2")
 
 
 def jd_text(jd: pd.DataFrame) -> pd.Series:
@@ -751,6 +749,66 @@ def config_fingerprint(prep: dict) -> str:
                          "partition": hashlib.sha256(PARTITION_MANIFEST.read_bytes()).hexdigest()})
 
 
+def restore_selected() -> dict:
+    """Reproduce only the already-selected classical weights, without final measurement.
+
+    The committed record is a reproduction target, never a selection opportunity.
+    No cache pointer is published until validation and calibration reproduce it.
+    """
+    record = json.loads(RECORD.read_text(encoding="utf-8"))
+    if record["selection"]["chosen"] != "tfidf" or record["config"] != CONFIG:
+        raise ValueError("selected classical model/config does not match the committed record")
+    docs = load_train_documents()
+    prep = prepare(docs)
+    fp = config_fingerprint(prep)
+    if fp != record["fingerprint"] or list(prep["labels"]) != record["label_space"]["labels"]:
+        raise ValueError("training partition/config/label space does not reproduce the record")
+    labels, aliases = prep["labels"], prep["aliases"]
+    lab_index = {lab: i for i, lab in enumerate(labels)}
+    models, validation, calibration, timing = {}, {}, {}, {}
+    for side in SIDES:
+        p = prep["parts"][side]
+        texts = docs[side].text.to_numpy()
+        ys = prep["y"][side].to_numpy()
+        started = time.time()
+        _log(f"restore {side}: selected tfidf on {len(p['fit'])} documents")
+        model = fit_tfidf(list(texts[p["fit"]]), ys[p["fit"]], aliases, labels)
+        timing[f"tfidf_{side}_fit_s"] = round(time.time() - started)
+        logits = model.logits(list(texts[p["select"]]), aliases)
+        ysel = np.array([lab_index[v] for v in ys[p["select"]]])
+        validation[side] = {**classification_block(softmax(logits), ysel),
+                            "n_train": int(len(p["fit"]))}
+        calib_logits = model.logits(list(texts[p["calib"]]), aliases)
+        yc = np.array([lab_index[v] for v in ys[p["calib"]]])
+        temperature = fit_temperature(np.where(np.isfinite(calib_logits), calib_logits, -1e9), yc)
+        model.temperature = temperature
+        calibration[side] = {"temperature": temperature, "n_calib": int(len(yc)),
+                             "select_ece_before": round(ece(softmax(logits), ysel), 4),
+                             "select_ece_after": round(ece(softmax(logits, temperature), ysel), 4)}
+        models[side] = model
+    if validation != record["validation"]["tfidf"]:
+        raise ValueError("selected tfidf validation does not reproduce; cache was not published")
+    # Floating-point optimiser output may differ below numerical precision.
+    for side in SIDES:
+        expected = record["calibration"][side]
+        actual = calibration[side]
+        if (any(actual[key] != expected[key] for key in actual if key != "temperature")
+                or not math.isclose(actual["temperature"], expected["temperature"],
+                                    rel_tol=1e-6, abs_tol=1e-8)):
+            raise ValueError("selected tfidf calibration does not reproduce; cache was not published")
+    selected_score = round(float(np.mean([validation[s]["macro_f1"]["value"] for s in SIDES])), 4)
+    if selected_score != record["selection"]["score"]["tfidf"]:
+        raise ValueError("selected tfidf score does not reproduce; cache was not published")
+    save_model(RoleModel("tfidf", labels, aliases, models, fp))
+    summary = {"validation": record["validation"],
+               "selection_score": record["selection"]["score"], "chosen": "tfidf",
+               "calibration": calibration, "timing": timing,
+               "restoration": "tfidf refitted; other candidate figures retained from committed record"}
+    (CACHE / f"training-{fp}.json").write_text(render(summary), encoding="utf-8")
+    return {"fingerprint": fp, "chosen": "tfidf", "timing": timing,
+            "validation_reproduced": True, "calibration_reproduced": True}
+
+
 #: The importable module the pickled classes must belong to.
 MODULE = "candidate_screener.extraction.role_family"
 
@@ -1048,12 +1106,17 @@ def main(argv: list[str] | None = None) -> int:
     g.add_argument("--evaluate", action="store_true", help="record from the cached model")
     g.add_argument("--check", action="store_true", help="refit and diff the committed record")
     g.add_argument("--derive", action="store_true", help="print the derived label space")
+    g.add_argument("--restore-selected", action="store_true",
+                   help="restore committed selected tfidf weights; no neural fit or final scoring")
     ap.add_argument("--warm", action="store_true",
                     help="with --check: diff the record built from the cached model and its "
                          "cached training summary (D55 warm tier); refits and writes nothing")
     a = ap.parse_args(argv)
     if a.warm and not a.check:
         ap.error("--warm is only valid with --check")
+    if a.restore_selected:
+        print(render(restore_selected()), end="")
+        return 0
     if a.derive:
         docs = load_train_documents()
         prep = prepare(docs)

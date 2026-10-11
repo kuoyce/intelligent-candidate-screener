@@ -1,0 +1,169 @@
+{
+  "charts": {
+    "document-label-heatmaps": "document-label-heatmaps.png",
+    "label-count-boxplots": "label-count-boxplots.png",
+    "label-count-histograms": "label-count-histograms.png",
+    "length-and-mention-counts": "length-and-mention-counts.png",
+    "string-document-support": "string-document-support.png"
+  },
+  "interpretation": "Descriptive frozen prediction counts, not recall or extraction accuracy",
+  "labelled_overlap": {
+    "interpretation": "No grade-based evidence plots when campaign has no independently labelled pairs",
+    "labelled_pairs_in_campaign": 0,
+    "reference_pairs": 600,
+    "status": "no_overlap"
+  },
+  "producing_adapter_version": "gliner-adapter-v2",
+  "producing_code_sha256": {
+    "inputs.py": "6e389914ea7bc64dfaaf1a119fe52c36282b47cb6025ffa0b0a074b80e707ebc",
+    "rules.py": "769081a3a69f52b955b5e9ac6c7d1926bd1544d25291d9072636c5f1bb19f907",
+    "runtime/transformer/pyproject.toml": "8a15163de2e2a91c1514840fdb267dcbec8f23907fb1079ca96cd72cc98fb7ba",
+    "runtime/transformer/uv.lock": "d8ed47fa3e125474742aa0176bf5d64e3a6ccfa22e24d6eb8de6a37d4726a8be",
+    "runtime_proxy.py": "bf45bc92b0bc7099f4fe89d9fe41b399ebc577c5fc035b7b99fd67be748ba47c",
+    "schema.py": "f0fd14833a65c8d1959f11833fb6d370b5356af1dc8578d012d45ed111e4f9b4",
+    "transformer.py": "926a6c2511c4051cd4756d4f0e7f5be81d4546a0d4d0122de4b07aa4cf29d758",
+    "transformer_run.py": "53b03dedd2d82db3119dca89fc2a0687172f98ab9e8f08871c7d0347598932fd",
+    "transformer_worker.py": "3638cf1dfca70c40d545b0016e81c2e21cc20c832da7037d52bac87bd9c198e9",
+    "vocabulary.py": "d70388e1d54f051542c8085331efe1e9d541e25dd789af918bb51284bfa2991f"
+  },
+  "producing_labels": {
+    "academic degree or qualification": "DEGREE",
+    "job title or occupation": "TITLE",
+    "professional skill or competency": "SKILL",
+    "technology, software tool or programming language": "KNOWLEDGE",
+    "years of experience": "EXPERIENCE_YEARS"
+  },
+  "run_id": "4fde336ec50802f910d2-20261009T161236977778Z",
+  "summary": [
+    {
+      "descriptive_coverage": 0.8,
+      "doc_type": "cv",
+      "documents": 100,
+      "documents_with_mentions": 80,
+      "label": "KNOWLEDGE",
+      "median_mentions": 4.0,
+      "total_mentions": 828,
+      "total_repeated_mentions": 205,
+      "total_unique_mentions": 623,
+      "zero_mention_documents": 20
+    },
+    {
+      "descriptive_coverage": 0.16,
+      "doc_type": "cv",
+      "documents": 100,
+      "documents_with_mentions": 16,
+      "label": "SKILL",
+      "median_mentions": 0.0,
+      "total_mentions": 30,
+      "total_repeated_mentions": 3,
+      "total_unique_mentions": 27,
+      "zero_mention_documents": 84
+    },
+    {
+      "descriptive_coverage": 0.92,
+      "doc_type": "cv",
+      "documents": 100,
+      "documents_with_mentions": 92,
+      "label": "TITLE",
+      "median_mentions": 2.0,
+      "total_mentions": 204,
+      "total_repeated_mentions": 16,
+      "total_unique_mentions": 188,
+      "zero_mention_documents": 8
+    },
+    {
+      "descriptive_coverage": 0.12,
+      "doc_type": "cv",
+      "documents": 100,
+      "documents_with_mentions": 12,
+      "label": "DEGREE",
+      "median_mentions": 0.0,
+      "total_mentions": 20,
+      "total_repeated_mentions": 1,
+      "total_unique_mentions": 19,
+      "zero_mention_documents": 88
+    },
+    {
+      "descriptive_coverage": 0.09,
+      "doc_type": "cv",
+      "documents": 100,
+      "documents_with_mentions": 9,
+      "label": "EXPERIENCE_YEARS",
+      "median_mentions": 0.0,
+      "total_mentions": 11,
+      "total_repeated_mentions": 0,
+      "total_unique_mentions": 11,
+      "zero_mention_documents": 91
+    },
+    {
+      "descriptive_coverage": 0.82,
+      "doc_type": "jd",
+      "documents": 100,
+      "documents_with_mentions": 82,
+      "label": "KNOWLEDGE",
+      "median_mentions": 3.5,
+      "total_mentions": 510,
+      "total_repeated_mentions": 95,
+      "total_unique_mentions": 415,
+      "zero_mention_documents": 18
+    },
+    {
+      "descriptive_coverage": 0.43,
+      "doc_type": "jd",
+      "documents": 100,
+      "documents_with_mentions": 43,
+      "label": "SKILL",
+      "median_mentions": 0.0,
+      "total_mentions": 71,
+      "total_repeated_mentions": 0,
+      "total_unique_mentions": 71,
+      "zero_mention_documents": 57
+    },
+    {
+      "descriptive_coverage": 0.88,
+      "doc_type": "jd",
+      "documents": 100,
+      "documents_with_mentions": 88,
+      "label": "TITLE",
+      "median_mentions": 1.0,
+      "total_mentions": 145,
+      "total_repeated_mentions": 11,
+      "total_unique_mentions": 134,
+      "zero_mention_documents": 12
+    },
+    {
+      "descriptive_coverage": 0.17,
+      "doc_type": "jd",
+      "documents": 100,
+      "documents_with_mentions": 17,
+      "label": "DEGREE",
+      "median_mentions": 0.0,
+      "total_mentions": 23,
+      "total_repeated_mentions": 0,
+      "total_unique_mentions": 23,
+      "zero_mention_documents": 83
+    },
+    {
+      "descriptive_coverage": 0.05,
+      "doc_type": "jd",
+      "documents": 100,
+      "documents_with_mentions": 5,
+      "label": "EXPERIENCE_YEARS",
+      "median_mentions": 0.0,
+      "total_mentions": 5,
+      "total_repeated_mentions": 0,
+      "total_unique_mentions": 5,
+      "zero_mention_documents": 95
+    }
+  ],
+  "uniqueness": "label plus casefolded whitespace-normalized source string; not ontology concepts",
+  "validation": {
+    "artifact_hashes": true,
+    "complete_field_coverage": true,
+    "current_code_replay": false,
+    "interpretation": "Historical saved predictions; no reinference or accuracy claim",
+    "original_spans": true,
+    "sample_membership": true,
+    "source_provenance": true
+  }
+}

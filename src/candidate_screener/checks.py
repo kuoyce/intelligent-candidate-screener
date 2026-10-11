@@ -98,6 +98,8 @@ REGISTRY: tuple[Check, ...] = (
     Check("transformer_inspection", "extraction.transformer_run", ("--check",),
           run_alone=True, cold_s=210.0),
     Check("experience_eval", "extraction.experience_eval", ("--check",), cold_s=8.8),
+    Check("entity_weighted", "evaluation.entity_weighted", ("--check",),
+          cold_s=1.0),
     Check("title_profile", "extraction.title_profile", ("--check",), cold_s=56.6),
     Check("role_family", "extraction.role_family", ("--check",), W, run_alone=True,
           cold_s=745.1, warm_s=44.4),

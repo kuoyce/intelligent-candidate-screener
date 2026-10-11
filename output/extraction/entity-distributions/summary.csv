@@ -1,0 +1,11 @@
+doc_type,label,documents,total_mentions,median_mentions,documents_with_mentions,zero_mention_documents,descriptive_coverage,total_unique_mentions,total_repeated_mentions
+cv,KNOWLEDGE,100,828,4.0,80,20,0.8,623,205
+cv,SKILL,100,30,0.0,16,84,0.16,27,3
+cv,TITLE,100,204,2.0,92,8,0.92,188,16
+cv,DEGREE,100,20,0.0,12,88,0.12,19,1
+cv,EXPERIENCE_YEARS,100,11,0.0,9,91,0.09,11,0
+jd,KNOWLEDGE,100,510,3.5,82,18,0.82,415,95
+jd,SKILL,100,71,0.0,43,57,0.43,71,0
+jd,TITLE,100,145,1.0,88,12,0.88,134,11
+jd,DEGREE,100,23,0.0,17,83,0.17,23,0
+jd,EXPERIENCE_YEARS,100,5,0.0,5,95,0.05,5,0

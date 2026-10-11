@@ -55,14 +55,25 @@ def tau() -> float:
 
 
 def gather(requirements: list[Requirement], cv_text: str, matcher, encoder=None,
-           threshold: float | None = None) -> list[Evidence]:
+           threshold: float | None = None, entity_matches=()) -> list[Evidence]:
     """Evidence for every requirement. Without an encoder, only exact/alias matches count."""
     by_canonical: dict[str, tuple[int, int, str]] = {}
+    from candidate_screener.extraction.rules import _context
+    def affirmative(start, end):
+        before = re.split(r"[;.!?\n]|\b(?:but|however)\b", cv_text[:start], flags=re.I)[-1]
+        # A list inherits the denial/learning cue preceding its first skill.
+        denied_list = re.search(r"\b(?:no|without|lack(?:ing|s)?)\s+(?:experience|knowledge|skills?|proficiency)\b", before, re.I)
+        return not denied_list and _context(cv_text, start, end, "text") == "unqualified"
     for m in matcher.find(cv_text):
-        by_canonical.setdefault(m.canonical, (m.start, m.end, m.text))
+        if affirmative(m.start, m.end):
+            by_canonical.setdefault(m.canonical, (m.start, m.end, m.text))
+    for canonical, entity in entity_matches:
+        if affirmative(entity["start"], entity["end"]):
+            by_canonical.setdefault(canonical, (entity["start"], entity["end"], entity["surface"]))
     unmatched = [r for r in requirements if r.canonical not in by_canonical]
     support: dict[str, tuple[float, tuple[int, int, str]]] = {}
-    spans = sentences(cv_text)
+    spans = [(s, e, t) for s, e, t in sentences(cv_text)
+             if not re.search(r"\b(?:no|not|without|never|lack(?:ing|s)?|learn(?:ing)?|studying|aspiring)\b", t, re.I)]
     if encoder is not None and unmatched and spans:
         req_vecs = encoder.encode([r.text for r in unmatched])
         sent_vecs = encoder.encode([s[2] for s in spans])

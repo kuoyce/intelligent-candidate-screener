@@ -30,8 +30,10 @@ class Requirement:
 def skill_requirements(jd_text: str, matcher) -> list[Requirement]:
     """One requirement per distinct canonical skill, keeping the first mention's span."""
     seen: dict[str, Requirement] = {}
+    from candidate_screener.extraction.rules import _context
     for m in matcher.find(jd_text):
-        seen.setdefault(m.canonical, Requirement(m.canonical, m.text, m.start, m.end))
+        if _context(jd_text, m.start, m.end, "text") == "unqualified":
+            seen.setdefault(m.canonical, Requirement(m.canonical, m.text, m.start, m.end))
     return list(seen.values())
 
 

@@ -105,17 +105,33 @@ class _Len(BaseSystem):
         return pairs.cv_text.str.len().to_numpy()
 
 
-def test_screen_ranks_quotes_and_calls_fit_from_metadata():
+def test_screen_ranks_quotes_and_ignores_metadata_fit_calls():
     cvs = pd.DataFrame({"cv_id": ["a", "b"], "cv_text": [CV, "Excel only."],
                         "cv_keyword": ["Data Engineer", "Marketing"]})
     out = pipeline.screen(JD, cvs, jd_meta={"keyword": "Data Engineer"}, ranker=_Len(),
                           matcher=StubMatcher())
     assert [r.cv_id for r in out] == ["a", "b"] and [r.rank for r in out] == [1, 2]
-    assert out[0].fit_call == "Fit" and out[1].fit_call == "No Fit"
-    assert out[0].years_stated == 5 and out[0].coverage == pytest.approx(1 / 3)
+    assert out[0].fit_call is None and out[1].fit_call is None
+    assert out[0].years_stated is None and out[0].coverage == pytest.approx(1 / 3)
 
 
 def test_screen_without_metadata_makes_no_fit_call():
     cvs = pd.DataFrame({"cv_id": ["a"], "cv_text": [CV]})
     out = pipeline.screen(JD, cvs, ranker=_Len(), matcher=StubMatcher())
     assert out[0].fit_call is None
+
+
+@pytest.mark.parametrize("text", ["No experience with Python", "Learning Python", "Never used Python"])
+def test_negative_and_learning_mentions_are_not_positive_evidence(text):
+    found = ev.gather(req.skill_requirements("Python", StubMatcher()), text, StubMatcher(),
+                      encoder=StubEncoder(), threshold=0)
+    assert found[0].status == "missing"
+
+
+def test_denial_applies_to_whole_skill_list_but_not_following_clause():
+    found = ev.gather(req.skill_requirements("Python SQL", StubMatcher()),
+                      "No experience with Python and SQL", StubMatcher())
+    assert all(e.status == "missing" for e in found)
+    found = ev.gather(req.skill_requirements("SQL", StubMatcher()),
+                      "No experience with Python, but SQL in production", StubMatcher())
+    assert found[0].status == "matched"

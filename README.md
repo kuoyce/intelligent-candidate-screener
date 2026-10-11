@@ -193,6 +193,17 @@ curves describe predictions, not extraction accuracy. This notebook uses existin
 artifacts and regenerates only the matching rule predictions; it performs no
 additional neural inference or training.
 
+The [French interview prototype](notebooks/16-french-interview-translation.ipynb)
+demonstrates audio decoding, French speech transcription and Marian French-to-English
+text translation. Full transcripts and media remain local; the notebook reports
+aggregate results and separately reviewed safe excerpts. This is an ingestion
+experiment, not an adopted ranking model or a three-class fit classifier. The
+[implementation plan](plan/2026-10-11-multimodal-entity-pipeline/README.md) describes
+text-only pipeline changes, five-label GLiNER evidence, applicant transcript review
+and the proposed chat upload flow. Live pipeline/UI integration awaits that plan's
+approval. Launch notebooks from the installed project environment with
+`uv run jupyter lab` after `uv sync`.
+
 ## Build the derived artefacts
 
 ```bash

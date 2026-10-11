@@ -50,7 +50,8 @@ def test_years_filter_reports_unknowns():
 
 def test_compare_and_why_name_what_separates_them():
     out = intents.answer(intents.parse("why is 1 above 2"), _results())
-    assert "Only #1 (aaaa1111) shows: Python" in out and "role-family" in out
+    assert "Only #1 (aaaa1111) shows: Python" in out
+    assert "Primary Keyword" not in out
     out = intents.answer(intents.parse("why is 2 above 1"), _results())
     assert "in fact ranked below" in out
 

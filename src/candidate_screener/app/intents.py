@@ -18,10 +18,12 @@ import re
 from dataclasses import dataclass
 
 HELP = ("Try: `top 5` · `with python` · `at least 3 years` · `compare 1 and 3` · "
-        "`why is 1 above 3` · `what is 2 missing` · `explain 2`")
+        "`why is 1 above 3` · `what is 2 missing` · `explain 2` · `entities 1` · `source 1`")
 
 REF = r"(?:#|candidate\s+|cv\s+)?([\w-]+)"
 PATTERNS = [
+    ("entities", re.compile(rf"^(?:entities|extracted entities|qualifications)\s+{REF}", re.I)),
+    ("source", re.compile(rf"^(?:source|provenance|transcript)\s+{REF}", re.I)),
     ("top", re.compile(r"^(?:show\s+)?(?:the\s+)?(?:top|best)(?:\s+(\d+))?", re.I)),
     ("why", re.compile(rf"^why\s+(?:is\s+)?{REF}\s+(?:ranked\s+)?(?:above|over|ahead of|higher than)\s+{REF}", re.I)),
     ("compare", re.compile(rf"^compare\s+{REF}\s+(?:and|with|vs\.?|to)\s+{REF}", re.I)),
@@ -58,7 +60,12 @@ def find(results: list, ref: str):
 
 
 def _label(r) -> str:
-    return f"#{r.rank} ({str(r.cv_id)[:8]})"
+    return f"#{r.rank} ({_identifier(r)})"
+
+
+def _identifier(r) -> str:
+    value = str(r.cv_id)
+    return value if value.startswith("Applicant-") else value[:8]
 
 
 def _by_status(r, status: str) -> list[dict]:
@@ -73,12 +80,37 @@ def answer(intent: Intent, results: list) -> str:
     if not results:
         return "No candidates are loaded yet."
     k = intent.kind
+    if k in ("entities", "source"):
+        r = find(results, intent.args[0])
+        if r is None:
+            return "Use an applicant rank, e.g. `entities 1`."
+        if k == "source":
+            translated = bool(getattr(r, "translation_provenance", {}))
+            return (f"{_label(r)} source: {getattr(r, 'source_kind', 'written CV')}. "
+                    + ("Interview evidence is reviewed English translation, not a verbatim French audio quote. " if translated else "")
+                    + "Ranking uses text; filenames, voice and video appearance are not scoring features.")
+        status = getattr(r, "entity_status", "unavailable")
+        lines = [f"{_label(r)} · GLiNER extraction: {status}."]
+        for label in ("KNOWLEDGE", "SKILL", "TITLE", "DEGREE", "EXPERIENCE_YEARS"):
+            spans = [e for e in getattr(r, "entities", []) if e.get("label") == label]
+            values = [str(e.get("text", e.get("surface", ""))) for e in spans]
+            for i, entity in enumerate(spans[:10]):
+                if entity.get("context_status", "unqualified") != "unqualified":
+                    values[i] += f" ({entity['context_status']}; contextual mention)"
+                segments = entity.get("audio_segments", [])
+                if segments:
+                    values[i] += " (reviewed English; " + ", ".join(
+                        f"{s['audio_start']:.1f}–{s['audio_end']:.1f}s" for s in segments) + ")"
+            empty = "no returned spans" if status in {"complete", "completed_zero"} else "unavailable / incomplete"
+            lines.append(f"- **{label}**: " + (", ".join(values[:10]) if values else empty))
+        lines.append("Missing spans do not establish missing qualifications; duration mentions are not summed.")
+        return "\n".join(lines)
     if k == "top":
         n = int(intent.args[0]) if intent.args else 5
         lines = [f"| rank | candidate | fit call | requirement coverage | relative strength |",
                  "|---|---|---|---|---|"]
         for r in results[:n]:
-            lines.append(f"| {r.rank} | {str(r.cv_id)[:8]} | {r.fit_call or 'not assessed'} | "
+            lines.append(f"| {r.rank} | {_identifier(r)} | {r.fit_call or 'not assessed'} | "
                          f"{_cov(r)} | {r.confidence:.0%} |")
         return "\n".join(lines)
     if k == "skill":
@@ -113,8 +145,6 @@ def answer(intent: Intent, results: list) -> str:
             parts.append(f"Only {_label(b)} shows: " + ", ".join(only_b) + ".")
         if k == "why" and a.rank > b.rank:
             parts.append(f"Note: {_label(a)} is in fact ranked below {_label(b)}.")
-        if a.fit_call != b.fit_call and a.fit_call and b.fit_call:
-            parts.append("The fit calls differ because the role-family (Primary Keyword) match differs.")
         return " ".join(parts)
     if k == "missing":
         r = find(results, intent.args[0])
@@ -130,8 +160,8 @@ def answer(intent: Intent, results: list) -> str:
         lines = [f"**{_label(r)}** — fit call: {r.fit_call or 'not assessed'}, requirement "
                  f"coverage {_cov(r)}, relative strength {r.confidence:.0%}."]
         if r.years_required is not None or r.years_stated is not None:
-            lines.append(f"Experience: JD asks {r.years_required or '—'} years; CV states "
-                         f"{r.years_stated or '—'}.")
+            lines.append(f"Experience: JD asks {r.years_required if r.years_required is not None else '—'} years; CV states "
+                         f"{r.years_stated if r.years_stated is not None else '—'}.")
         for e in r.evidence:
             if e["status"] == "matched":
                 lines.append(f"- ✔ **{e['requirement']}** — “{e['quote']}”")

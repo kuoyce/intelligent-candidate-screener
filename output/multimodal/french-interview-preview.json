@@ -1,0 +1,28 @@
+{
+  "status": "manually_reviewed_display_excerpts_only",
+  "media_sha256": "5896fa7a0093e90d4ac242bf1ecfeb24fc829fe5258e3deaaabb37c44b3c351f",
+  "does_not_confirm_applicant_submission": true,
+  "segments": [
+    {
+      "start": 6.0,
+      "end": 12.5,
+      "french": "Je suis titulaire d'un bâche-là en informatique qui m'a apporté de solid-bâs en programmation et en analyse de données.",
+      "english": "I have a computer tarpaulin that brought me solid-bass in programming and data analysis.",
+      "note": "Incoherent education wording: applicant must correct the French transcript and English translation before use."
+    },
+    {
+      "start": 12.5,
+      "end": 22.5,
+      "french": "Ces dernières années, j'ai développé des applications web et des services back-end avec Python, Java et SQL, en collaborant avec des équipes produits pour fournir des solutions.",
+      "english": "In recent years, I have developed web applications and back-end services with Python, Java and SQL, working with product teams to deliver solutions.",
+      "note": "Technical stack wording retained in this example; correctness is not independently verified."
+    },
+    {
+      "start": 29.5,
+      "end": 35.5,
+      "french": "J'aime découvrir de nouvelles technologies et expliquer des concepts techniques à des collègues de différents horizons.",
+      "english": "I like to discover new technologies and explain technical concepts to colleagues from different backgrounds.",
+      "note": "Interest in learning is not evidence of existing proficiency."
+    }
+  ]
+}
