@@ -21,8 +21,9 @@ from candidate_screener.evaluation import resample
 
 RECORD = OUTPUT / "extraction" / "coverage-variants.json"
 VARIANTS = {"W0": {}, "W1": {"unknown": "idf"}, "W2": {"unknown": "idf", "top_k": 10},
-            "W3": {"unknown": "idf", "min_df": 5}}
-SIMPLICITY = ("W0", "W1", "W3", "W2")
+            "W3": {"unknown": "idf", "min_df": 5},
+            "W2b": {"unknown": "idf", "top_k": 10, "mention_ties": True}}   # amendment 1
+SIMPLICITY = ("W0", "W1", "W3", "W2", "W2b")
 MIN_GAIN, TIE = 0.005, 0.002
 ARMS = ("R", "R+N")
 
@@ -38,7 +39,8 @@ def split_jds(jd_ids, n_select: int = 70, seed: int = 0) -> tuple[list[str], lis
 def coverage_scores(freq, pairs: pd.DataFrame, extractor) -> pd.Series:
     jd = {t: extractor.concepts(t, "jd") for t in pairs.jd_text.unique()}
     cv = {t: extractor.concepts(t, "cv") for t in pairs.cv_text.unique()}
-    return pd.Series([freq.coverage(jd[j], cv[c], True) for j, c in zip(pairs.jd_text, pairs.cv_text)],
+    jm = {t: extractor.mentions(t, "jd") for t in pairs.jd_text.unique()} if freq.mention_ties else {}
+    return pd.Series([freq.coverage(jd[j], cv[c], True, jm.get(j)) for j, c in zip(pairs.jd_text, pairs.cv_text)],
                      index=pairs.pair_id.to_numpy())
 
 
@@ -80,12 +82,39 @@ def idf_frame() -> pd.DataFrame:
     return pd.DataFrame({"id": d.cv_id, "text": d.cv_text, "region": "train", "doc_type": "cv"})
 
 
+def in_score_check(arm_freqs: dict, extractor, sets: dict, base_features: dict, seed: int = 0) -> dict:
+    """Amendment 1: base-4 logistic fitted on D50 selection pairs with coverage replaced per variant.
+
+    `arm_freqs` maps variant -> DocumentFrequency view; `base_features[set]` holds role_match,
+    experience_compatible, tfidf_scaled (and a placeholder coverage) indexed by pair_id."""
+    from candidate_screener.evaluation import a1_weights as aw
+    names = list(sets)
+    sel_pairs, sel_y = sets[names[0]]
+    auc = {}
+    for v, freq in arm_freqs.items():
+        feats = {}
+        for n, (pairs, _) in sets.items():
+            f = base_features[n].copy()
+            f["coverage"] = coverage_scores(freq, pairs, extractor).reindex(f.index)
+            feats[n] = f
+        w = aw.fit_weights(feats[names[0]], sel_y.loc[feats[names[0]].index])
+        for n in names[1:]:
+            pairs, y = sets[n]
+            auc[(v, n)] = per_jd_auc(aw.linear_score(feats[n], w), y, pairs.set_index("pair_id").jd_id)
+    return {v: {n: {"auc": float(auc[(v, n)].mean()),
+                    **({} if v == "W0" else paired(auc[(v, n)], auc[("W0", n)]))} for n in names[1:]}
+            for v in arm_freqs}
+
+
 def run() -> dict:
     from candidate_screener.extraction import concept_sources as cs
     from candidate_screener.matching.entity_weighted import DocumentFrequency
     sets = evaluation_sets()
     arms = cs.make_extractors({"minilm": cs.CachedEntities("minilm", None)})
     idf = idf_frame()
+    from candidate_screener.evaluation import a1_weights as aw
+    scorer = aw.build_scorer(0)                      # role, experience, TF-IDF: independent of the concept source
+    base_features = {n: aw.features(scorer, p) for n, (p, _) in sets.items()}
     out = {"variants": VARIANTS, "min_gain": MIN_GAIN, "tie": TIE, "arms": {}}
     for arm in ARMS:
         ext = arms[arm]
@@ -107,7 +136,8 @@ def run() -> dict:
             guidance["gain_on_selection"] = table[chosen][sel_name]["delta"]
             guidance["meets_min_gain"] = bool(table[chosen][sel_name]["delta"] >= MIN_GAIN)
             guidance["positive_on_both_heldout"] = bool(all(table[chosen][n]["delta"] > 0 for n in list(sets)[1:]))
-        out["arms"][arm] = {"table": table, "guidance": guidance}
+        in_score = in_score_check({v: base.variant(**kw) for v, kw in VARIANTS.items()}, ext, sets, base_features)
+        out["arms"][arm] = {"table": table, "guidance": guidance, "in_score": in_score}
     return out
 
 

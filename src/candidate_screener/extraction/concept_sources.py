@@ -81,6 +81,13 @@ class UnionConcepts:
     def concepts(self, text: str, side: str = "cv") -> frozenset[str]:
         return frozenset().union(*(e.concepts(text, side) for e in self.extractors))
 
+    def mentions(self, text: str, side: str = "cv"):
+        from collections import Counter
+        total = Counter()
+        for e in self.extractors:
+            total.update(e.mentions(text, side))
+        return total
+
 
 def make_extractors(sources: dict[str, CachedEntities]) -> dict:
     """The five arms of the plan: R (seed rules), G, N, R+G, R+N."""

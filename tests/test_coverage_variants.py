@@ -69,3 +69,22 @@ def test_pick_prefers_simpler_within_tie_and_takes_a_clear_winner():
     assert cv.pick({"W0": 0.70, "W1": 0.701, "W2": 0.7015, "W3": 0.7}) == "W0"
     assert cv.pick({"W0": 0.70, "W1": 0.71, "W2": 0.72, "W3": 0.715}) == "W2"
     assert cv.pick({"W0": 0.70, "W1": 0.72, "W2": 0.7205, "W3": 0.719}) == "W1"   # all within 0.002
+
+
+def test_w2b_breaks_weight_ties_by_jd_mentions_not_alphabet():
+    f = fitted().variant(unknown="idf", top_k=1, mention_ties=True)
+    jd = {"unknown:aaa", "unknown:zzz"}                       # equal weight (df 0, at the cap)
+    assert f.coverage(jd, {"unknown:zzz"}, jd_mentions={"unknown:zzz": 3, "unknown:aaa": 1}) == pytest.approx(1.0)
+    assert f.coverage(jd, {"unknown:aaa"}, jd_mentions={"unknown:zzz": 3, "unknown:aaa": 1}) == 0.0
+    plain = fitted().variant(unknown="idf", top_k=1)           # W2: alphabetical
+    assert plain.coverage(jd, {"unknown:aaa"}, jd_mentions={"unknown:zzz": 3, "unknown:aaa": 1}) == pytest.approx(1.0)
+
+
+def test_extractor_mentions_count_each_unqualified_mention():
+    from candidate_screener.matching.entity_weighted import ConceptExtractor
+    rows = [{"label": "SKILL", "surface": "Kafka", "context_status": "unqualified"},
+            {"label": "SKILL", "surface": "kafka", "context_status": "unqualified"},
+            {"label": "SKILL", "surface": "Redis", "context_status": "negated"}]
+    ex = ConceptExtractor(entities=lambda t, s: rows, aliases={})
+    assert ex.mentions("x", "jd") == {"unknown:kafka": 2}
+    assert ex.concepts("x", "jd") == {"unknown:kafka"}
