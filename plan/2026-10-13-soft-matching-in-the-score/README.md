@@ -1,6 +1,6 @@
 # Soft matching in the learned score
 
-Status: **approved by the owner 13 Oct 2026; implementation in progress.** Exploratory under D56 (extend its wording on approval).
+Status: **complete (exploratory).** Result and decision: [01-implementation-record.md](01-implementation-record.md). Exploratory under D56 (extend its wording on approval).
 Follows [coverage-weighting-variants](../2026-10-13-coverage-weighting-variants/01-implementation-record.md).
 
 ## Question
