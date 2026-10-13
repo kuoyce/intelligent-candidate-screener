@@ -41,10 +41,11 @@ LLM_FILE = final_set.MANIFESTS / "llm-recheck-full-a1.csv"
 LLM_RUN = 2
 
 
-def build_scorer(seed: int = 0):
+def build_scorer(seed: int = 0, extractor=None):
     """An `EntityWeightedX2` with explicit parts, used only for `.components()`.
 
-    IDF population: the 20k-CV train sample minus every dev-pool CV (as the pilot does)."""
+    IDF population: the 20k-CV train sample minus every dev-pool CV (as the pilot does).
+    `extractor` swaps the concept source (default: the seed rules)."""
     from candidate_screener.evaluation import dev_pools
     from candidate_screener.extraction import role_family
     from candidate_screener.matching import corpus, lexical
@@ -55,7 +56,7 @@ def build_scorer(seed: int = 0):
     dev = dev_pools.build()
     docs = (cv[~cv.id.isin(dev["cv"].id)].rename(columns={"cv_text": "text"})[["id", "text"]]
             .assign(region="train", doc_type="cv"))
-    extractor = ConceptExtractor()
+    extractor = extractor or ConceptExtractor()
     freq = DocumentFrequency(extractor).fit(docs)
     rule = ExtractedRule(role_model=role_family.load_role_model())
     text = lexical.Tfidf("v2")

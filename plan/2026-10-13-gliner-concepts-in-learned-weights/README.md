@@ -1,7 +1,7 @@
 # GLiNER concepts in the learned-weights test
 
-Status: **draft v2, owner answers folded in (13 Oct 2026); awaiting final approval.** Nothing
-below has been run except the GLiNER reproducibility check (Evidence). Exploratory under D56; nothing here is adopted.
+Status: **complete (exploratory).** Approved 13 Oct 2026; Stage 1 gate passed for R+N only, Stage 2
+bar met by no learner. Results, deviations and diagnosis: [01-implementation-record.md](01-implementation-record.md).
 
 ## Question
 
