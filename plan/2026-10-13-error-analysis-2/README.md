@@ -7,9 +7,10 @@ continues notebook 20, which found where X2 errs but not how much each cause is 
 
 Four things could be holding the score back: the role signal, missing experience, label noise,
 and concept coverage. **How much AUC is each worth, so the next plan goes at the biggest?**
-Notebook 20 gave the shape (94% of X2's inversions are "Fit out of role, No Fit in role"; years
-are known on about 28% of pairs; LLM tie-break labels invert 27% of the time against 10-14% for
-human labels). It did not size them.
+Notebook 20 gave the shape (on A2, 71% of X2's mistakes are between two CVs that are both out of
+the JD's role family; "Fit out of role, No Fit in role" is only 9% of mistakes though 94% of those
+pairs are misordered; years are known on about 29% of pairs; LLM tie-break labels invert 27% of the
+time against 10-14% for human labels). It did not size them.
 
 ## Scorers analysed
 
@@ -95,3 +96,21 @@ human labels). It did not size them.
 
 Open: none that block approval. Assumed, please confirm: reason tags live in a separate file
 and are not labels (decision-log entry added on approval).
+
+## Results of steps 1-3 (14 Oct 2026; record `output/extraction/error-analysis-2.json`)
+
+Code: `evaluation/error_analysis.py` (6 tests, mutation-checked). Reported in
+[notebook 21](../../notebooks/21-error-findings-and-manual-review.ipynb); this section is the summary.
+
+- **Culprit term (arithmetic attribution, not cause).** A2, hand-set X2: TF-IDF 56%, role 33%,
+  experience 12% of mistakes. Base-4 logistic: TF-IDF 48%, role 35%, coverage 12%, experience 5%.
+- **Role oracle** (role_match replaced by the same-keyword flag): hand-set -0.002 [-0.042, 0.031],
+  logistic +0.012 [-0.026, 0.042]. **Neither reaches the 0.02 bar**, so a perfect role signal is
+  not shown to be the headroom. (An earlier suggestion that the role model was the top lever rested
+  on misreading notebook 20: 94% is the inversion rate in a 16-pair group, not a share of mistakes.)
+- **Label tiers (A2, different pair subsets):** AUC 0.92 where two humans agree (219 pairs), 0.88
+  with one human (274), **0.72 where an LLM broke a human tie (107)**. The largest gap found.
+- **Slices (consistent across A2 and both D50 sets):** pairs with no concept overlap and pairs with
+  short CVs are misordered more; long CVs least. Experience-known pairs are not consistently better.
+- **By the registered rule no lever qualifies from steps 1-3** (no oracle or slice delta of >= 0.02
+  with a CI above 0). The manual review (step 4) decides what to build next.
