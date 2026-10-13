@@ -34,6 +34,7 @@ dev = [
 ]
 ml = [
     "accelerate>=1.1",
+    "gliner==0.2.21",
     "sentence-transformers>=5",
     "torch>=2.8",
     "transformers>=4.50",
