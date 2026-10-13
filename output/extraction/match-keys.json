@@ -1,0 +1,163 @@
+{
+  "distinct_phrases": 33937,
+  "keys": [
+    "K0",
+    "K1",
+    "K2",
+    "K3@0.7",
+    "K3@0.8",
+    "K3@0.9"
+  ],
+  "sets": {
+    "A1-LLM": {
+      "K0": {
+        "coverage_only_auc": 0.7474594828340233,
+        "fit_rate_gained": null,
+        "fit_rate_still_empty": 0.07171314741035857,
+        "mean_matched": 1.7370892018779343,
+        "no_overlap_share": 0.39280125195618154,
+        "pairs_gained_vs_K0": 0
+      },
+      "K1": {
+        "coverage_only_auc": 0.736801000691166,
+        "fit_rate_gained": 0.0,
+        "fit_rate_still_empty": 0.07531380753138076,
+        "mean_matched": 1.8028169014084507,
+        "no_overlap_share": 0.37402190923317685,
+        "pairs_gained_vs_K0": 12
+      },
+      "K2": {
+        "coverage_only_auc": 0.7982763734257301,
+        "fit_rate_gained": 0.08108108108108109,
+        "fit_rate_still_empty": 0.045454545454545456,
+        "mean_matched": 6.247261345852895,
+        "no_overlap_share": 0.10328638497652583,
+        "pairs_gained_vs_K0": 185
+      },
+      "K3@0.7": {
+        "coverage_only_auc": 0.8399835301374823,
+        "fit_rate_gained": 0.09836065573770492,
+        "fit_rate_still_empty": 0.046511627906976744,
+        "mean_matched": 3.940532081377152,
+        "no_overlap_share": 0.20187793427230047,
+        "pairs_gained_vs_K0": 122
+      },
+      "K3@0.8": {
+        "coverage_only_auc": 0.8105077478009464,
+        "fit_rate_gained": 0.1044776119402985,
+        "fit_rate_still_empty": 0.059782608695652176,
+        "mean_matched": 2.458528951486698,
+        "no_overlap_share": 0.28794992175273865,
+        "pairs_gained_vs_K0": 67
+      },
+      "K3@0.9": {
+        "coverage_only_auc": 0.7586036627282031,
+        "fit_rate_gained": 0.1111111111111111,
+        "fit_rate_still_empty": 0.06866952789699571,
+        "mean_matched": 1.8841940532081378,
+        "no_overlap_share": 0.3646322378716745,
+        "pairs_gained_vs_K0": 18
+      }
+    },
+    "A2 final": {
+      "K0": {
+        "coverage_only_auc": 0.7180942292171106,
+        "fit_rate_gained": null,
+        "fit_rate_still_empty": 0.4421052631578947,
+        "mean_matched": 1.3,
+        "no_overlap_share": 0.475,
+        "pairs_gained_vs_K0": 0
+      },
+      "K1": {
+        "coverage_only_auc": 0.7239289077212806,
+        "fit_rate_gained": 1.0,
+        "fit_rate_still_empty": 0.43416370106761565,
+        "mean_matched": 1.3383333333333334,
+        "no_overlap_share": 0.4683333333333333,
+        "pairs_gained_vs_K0": 4
+      },
+      "K2": {
+        "coverage_only_auc": 0.7414275625504441,
+        "fit_rate_gained": 0.5700934579439252,
+        "fit_rate_still_empty": 0.3651685393258427,
+        "mean_matched": 2.535,
+        "no_overlap_share": 0.2966666666666667,
+        "pairs_gained_vs_K0": 107
+      },
+      "K3@0.7": {
+        "coverage_only_auc": 0.7757388350820553,
+        "fit_rate_gained": 0.6511627906976745,
+        "fit_rate_still_empty": 0.35175879396984927,
+        "mean_matched": 2.308333333333333,
+        "no_overlap_share": 0.33166666666666667,
+        "pairs_gained_vs_K0": 86
+      },
+      "K3@0.8": {
+        "coverage_only_auc": 0.734375840731773,
+        "fit_rate_gained": 0.6875,
+        "fit_rate_still_empty": 0.41106719367588934,
+        "mean_matched": 1.6433333333333333,
+        "no_overlap_share": 0.4216666666666667,
+        "pairs_gained_vs_K0": 32
+      },
+      "K3@0.9": {
+        "coverage_only_auc": 0.7254139763249933,
+        "fit_rate_gained": 0.8888888888888888,
+        "fit_rate_still_empty": 0.427536231884058,
+        "mean_matched": 1.38,
+        "no_overlap_share": 0.46,
+        "pairs_gained_vs_K0": 9
+      }
+    },
+    "D50": {
+      "K0": {
+        "coverage_only_auc": 0.6651140873015874,
+        "fit_rate_gained": null,
+        "fit_rate_still_empty": 0.4709418837675351,
+        "mean_matched": 1.125,
+        "no_overlap_share": 0.499,
+        "pairs_gained_vs_K0": 0
+      },
+      "K1": {
+        "coverage_only_auc": 0.6661836557539682,
+        "fit_rate_gained": 0.7777777777777778,
+        "fit_rate_still_empty": 0.46530612244897956,
+        "mean_matched": 1.155,
+        "no_overlap_share": 0.49,
+        "pairs_gained_vs_K0": 9
+      },
+      "K2": {
+        "coverage_only_auc": 0.7065428654100531,
+        "fit_rate_gained": 0.6132596685082873,
+        "fit_rate_still_empty": 0.389937106918239,
+        "mean_matched": 2.225,
+        "no_overlap_share": 0.318,
+        "pairs_gained_vs_K0": 181
+      },
+      "K3@0.7": {
+        "coverage_only_auc": 0.7052232142857143,
+        "fit_rate_gained": 0.668918918918919,
+        "fit_rate_still_empty": 0.38746438746438744,
+        "mean_matched": 2.079,
+        "no_overlap_share": 0.351,
+        "pairs_gained_vs_K0": 148
+      },
+      "K3@0.8": {
+        "coverage_only_auc": 0.6871269427910053,
+        "fit_rate_gained": 0.7,
+        "fit_rate_still_empty": 0.43356643356643354,
+        "mean_matched": 1.458,
+        "no_overlap_share": 0.429,
+        "pairs_gained_vs_K0": 70
+      },
+      "K3@0.9": {
+        "coverage_only_auc": 0.6723013806216932,
+        "fit_rate_gained": 0.7333333333333333,
+        "fit_rate_still_empty": 0.4628099173553719,
+        "mean_matched": 1.191,
+        "no_overlap_share": 0.484,
+        "pairs_gained_vs_K0": 15
+      }
+    }
+  }
+}

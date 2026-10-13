@@ -76,7 +76,18 @@ class ConceptExtractor:
 class DocumentFrequency:
     """Train-only CV document frequency; repeated rows and mentions count once."""
 
-    def __init__(self, extractor: ConceptExtractor):
+    def __init__(self, extractor: ConceptExtractor, unknown: str = "flat",
+                 min_df: int = 0, top_k: int | None = None):
+        """Weighting variants (plan 2026-10-13-coverage-weighting-variants); defaults are W0.
+
+        ``unknown="idf"`` weights unknown phrases by train df (W1); ``min_df`` keeps an unknown
+        phrase seen in fewer train CVs at weight 1 (W3); ``top_k`` keeps only the JD's k
+        heaviest concepts in numerator and denominator (W2)."""
+        if unknown not in {"flat", "idf"}:
+            raise ValueError("unknown must be 'flat' or 'idf'")
+        if min_df < 0 or (top_k is not None and top_k < 1):
+            raise ValueError("min_df must be >= 0 and top_k >= 1")
+        self.unknown, self.min_df, self.top_k = unknown, min_df, top_k
         self.extractor = extractor
         self.df = Counter()
         self.n_documents = 0
@@ -100,10 +111,16 @@ class DocumentFrequency:
         self.df, self.n_documents, self.fitted = counts, len(unique), True
         return self
 
+    def variant(self, unknown: str = "flat", min_df: int = 0, top_k: int | None = None):
+        """A view with another weighting mode over the same fitted counts."""
+        v = DocumentFrequency(self.extractor, unknown, min_df, top_k)
+        v.df, v.n_documents, v.fitted = self.df, self.n_documents, self.fitted
+        return v
+
     def weight(self, concept: str) -> float:
         if not self.fitted:
             raise ValueError("IDF has not been fitted on training CVs")
-        if concept.startswith("unknown:"):
+        if concept.startswith("unknown:") and (self.unknown == "flat" or self.df[concept] < self.min_df):
             return 1.0
         return min(5.0, 1 + math.log((self.n_documents + 1) / (self.df[concept] + 1)))
 
@@ -112,6 +129,10 @@ class DocumentFrequency:
         if not wanted:
             return 0.0
         weights = {s: self.weight(s) if weighted else 1.0 for s in wanted}
+        if self.top_k is not None and len(weights) > self.top_k:
+            keep = sorted(weights, key=lambda s: (-weights[s], s))[:self.top_k]
+            weights = {s: weights[s] for s in keep}
+            wanted = set(keep)
         return sum(weights[s] for s in wanted & held) / sum(weights.values())
 
 
