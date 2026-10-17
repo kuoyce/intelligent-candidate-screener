@@ -1,6 +1,6 @@
 # Error analysis 2: where is the headroom?
 
-Status: **approved by the owner 14 Oct 2026; implementation in progress.** Exploratory (D56). It
+Status: **approved by the owner 14 Oct 2026; all four steps done 17 Oct 2026** (review stopped at 45 of 111 cases by the owner). Marking it complete waits on the D55 cold run, which the owner schedules (D58). Exploratory (D56). It
 continues notebook 20, which found where X2 errs but not how much each cause is worth.
 
 ## Question
@@ -114,3 +114,59 @@ Code: `evaluation/error_analysis.py` (6 tests, mutation-checked). Reported in
   short CVs are misordered more; long CVs least. Experience-known pairs are not consistently better.
 - **By the registered rule no lever qualifies from steps 1-3** (no oracle or slice delta of >= 0.02
   with a CI above 0). The manual review (step 4) decides what to build next.
+
+## Results of step 4, the manual review (17 Oct 2026; record `output/extraction/error-review-summary.json`)
+
+Code: `evaluation/error_review.py` (sampling, label provenance, saving, counts; 7 tests,
+mutation-checked) and the thin page `evaluation/error_review_app.py`. One reviewer (`yc`), 45 of
+the 111 sampled cases, then stopped by the owner (about 3 minutes per case, longer than the
+plan's 1-2). **The cases are model mistakes, so every count below is on a biased sample: it says
+where the mistakes come from, not how noisy the labels are overall.**
+
+| Bucket (culprit) | n | A transferable | B seniority | C core missing | D label wrong | E other |
+|---|--:|--:|--:|--:|--:|--:|
+| role | 15 | 0 | 3 | 2 | 10 | 0 |
+| TF-IDF | 17 | 2 | 2 | 3 | 10 | 0 |
+| experience | 13 | 4 | 1 | 2 | 3 | 3 |
+| **total** | 45 | 6 | 6 | 7 | **23** | 3 |
+
+Override flags (the reviewer very sure a final label is wrong), by who labelled that side:
+
+| Label source | Fit side flagged | No Fit side flagged |
+|---|--:|--:|
+| LLM only (D50 batch, run 11) | **11 / 21** | 0 / 21 |
+| humans split, LLM broke the tie | **7 / 10** | 0 / 7 |
+| one human | 2 / 7 | 3 / 10 |
+| both humans agree | 1 / 7 | 0 / 7 |
+
+Reading (from the counts and the reviewer's notes):
+
+1. **Label noise is the largest single reason (23 of 45)**, and it sits on the Fit side of
+   LLM-decided labels: Fit CVs that list skills with no work-experience evidence, or miss the
+   JD's core stack. The D50 batch is what the learned weights are trained on; the tie-break rule
+   (D41) leans to Fit where the reviewer leaned to No Fit. This agrees with the label-tier AUC
+   (0.72 on tie-break pairs). **Caveat:** reviewer `yc` is also annotator `yc`; in the tie-breaks
+   the reviewer sided with that annotator's original grade.
+2. **Three concrete scoring defects (about 12 of 45 cases):** negation counted as a match (3
+   cases, one CV: "No Angular/Vue projects" matched Angular); a CV with no professional experience
+   scored as experience-compatible (5); the role model calling a same-role pair out of role (3-4).
+3. **Generic overlap**: shared transferable skills (SQL, databases, AWS) outscore a missing core
+   requirement. Partly label noise, partly no must-have signal in the score.
+4. The role bucket is mostly D, not A, which agrees with the role oracle: a better role signal is
+   not the headroom.
+
+**Against the registered rule:** no lever reached 0.02 in steps 1-3. The review supports "the
+remaining error is mostly label noise" for the learned-weights path and names three cheap defects.
+Those go to their own plan, [score defects](../2026-10-17-score-defects/README.md), not here.
+
+### Deviations from the plan
+
+- **No coverage bucket.** The sample used the hand-set X2 score, which has no coverage term, so
+  only role, experience and TF-IDF buckets exist (D50 experience had 11 mistakes, not 20).
+- **Scorer:** hand-set X2 only (no fit needed, reproducible), not the base-4 logistic as well.
+- **Override flag and label provenance in the details panel**, added at the owner's request
+  (D57 amended): each side shows the tier, each human's grade and the LLM's.
+- **A back button**, owner's request; an edited answer appends a row, the latest wins.
+- **Stopped at 45 of 111** by the owner; the rest are not reviewed.
+- Don't refit on the D50 batch with flagged pairs removed: they were selected because the score
+  misorders them, so removing them is circular.

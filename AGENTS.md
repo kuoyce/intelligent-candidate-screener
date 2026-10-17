@@ -189,22 +189,29 @@ Know what a command costs before you start it (measured 8 Oct 2026, 22 cores, 15
    `logs/checks/<name>.log` and prints one line per check.
 2. **Iterate narrowly, verify broadly.** While working, run the test file you are touching,
    or `pytest --lf`. Run the full suite once, before review.
-3. **Checks go through the runner.** The default, `checks`, is the warm tier for the checks
+3. **`uv run pytest` alone is enough unless the change touches underlying code** (D58): code a
+   committed record is built from, such as models, extractors, features, scorers or the data
+   layer. New standalone tools, tests, docs, plans and notebooks need no checks.
+4. **Ask the owner before any long check run.** Before `--all`, `--cold`, or a run expected to
+   take more than a few minutes, name the checks, give the estimate from `checks --list`, and
+   wait for the owner to confirm there is time. The affected selection can pull in superseded
+   records (`retrieval_pilot` alone took 21 min on 17 Oct 2026).
+5. **Checks go through the runner.** The default, `checks`, is the warm tier for the checks
    your uncommitted changes affect. Use `--affected REF` to compare against a commit, and
    `--explain` to see why a check was selected.
-4. **Cold is mandatory (D55)** before:
+6. **Cold is mandatory (D55)** before:
    - a commit that touches model or training code;
    - marking a plan complete;
    - any final-set score.
 
    Warm proves that the code turning cached model outputs into a record is unchanged. It does
    not prove that training reproduces.
-5. **Superseded records** (indomain v1, `retrieval`, `retrieval_pilot`, `a1_secondary`) run
+7. **Superseded records** (indomain v1, `retrieval`, `retrieval_pilot`, `a1_secondary`) run
    only with `--cold`, or when `--affected` selects them.
-6. **RAM.** The runner defaults to `-j 2`. Checks peaking above 4.5 GB (`role_family`,
+8. **RAM.** The runner defaults to `-j 2`. Checks peaking above 4.5 GB (`role_family`,
    `shortlist_dev`, `dev_pools`, `scoring_batch`) always run alone. Do not start other
    heavy jobs alongside it.
-7. **Long jobs (training, cold checks): start once in the background, then stop and wait.**
+9. **Long jobs (training, cold checks): start once in the background, then stop and wait.**
    Anything longer than about 5 minutes runs as one background command, which writes its
    own exit marker and peak RSS:
 
@@ -220,7 +227,7 @@ Know what a command costs before you start it (measured 8 Oct 2026, 22 cores, 15
    wake-ups and hit the session limit with nothing new learned. Peak RSS comes from
    `time -v` at the end of the log, not from polling. A sub-agent does not babysit a
    multi-hour job: it starts the job, reports the log path, and returns.
-8. **Time one configuration before a grid.** Train the first grid point alone, record its
+10. **Time one configuration before a grid.** Train the first grid point alone, record its
    wall time, and multiply before launching the rest. If the total is more than about an
    hour, say so before starting it.
 
@@ -250,8 +257,9 @@ Always begin by creating a detailed plan and corresponding design specifications
 - Conduct a thorough code review after implementation
 - Verify that the implementation aligns with the approved plan and design
 - Ensure correctness, completeness, and adherence to standards
-- **Run `uv run pytest` and the checks for the records the change can affect**
-  (`python -m candidate_screener.checks`; `--cold` where D55 requires it). With no CI in the
+- **Run `uv run pytest`.** Add the checks for the records the change can affect only when it
+  touches underlying code (`python -m candidate_screener.checks`; `--cold` where D55 requires
+  it), and ask the owner first if the run is long (Testing rules 3-4). With no CI in the
   repository, this step is the only thing that runs them
 
 ### 5. Documentation Updates
