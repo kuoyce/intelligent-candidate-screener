@@ -70,3 +70,25 @@ X2 recall@K of 500-CV pools (mean per JD, 95% CI over JDs):
 recall there is 0.960. The dev proxy has about 32 relevant CVs per JD (same role family) against
 about 6 Fits per final-set JD, so it is the harsher test; K = 100 already keeps 90% of the final
 pools' Fits. Final-pool R@50 0.779 matches the stage-1 record.
+
+## Owner decisions, 17 Oct 2026 (D60)
+
+- **K = 100**, all **60 JDs** (6,000 pairs; X2's top 100 holds about 7 judged CVs per JD).
+- Scored by hand in a claude.ai chat with **`claude-haiku-5-5`**: a new series `chat-1`, never
+  pooled with runs 9-11. The judged CVs are scored in the same chats, so one ranking holds one
+  series.
+- **New listwise instrument**: the a1-judge guide verbatim, 20 CVs per message, JSON-array reply.
+- **One chat per JD** (scale consistency across a JD's five batches); the shortlist is shuffled
+  (seed 0) so batch drift is noise, not bias; batch drift is checked afterwards.
+- Ties in the LLM's top 10 are broken by X2 rank; the evaluation reports how many ties there are
+  and how many slots the tie-break decided.
+- Grading the unjudged CVs in the top 10s is decided after the scores are in, once the count is
+  known. The sample JD already suggests the LLM's top 10 is mostly unjudged CVs.
+
+Tool: `rerank/chat_rerank.py` (plan, prompt, validation, saving; tested) and
+`rerank/chat_rerank_app.py`:
+
+    uv run --group app streamlit run src/candidate_screener/rerank/chat_rerank_app.py
+
+Replies: `output/rerank/chat-rerank-replies.csv` (one row per CV, latest wins) and
+`chat-rerank-replies.raw.jsonl` (the pasted text). JD 1 batches 1-2 are the owner's test pastes.

@@ -154,9 +154,9 @@ def build(seed: int = SEED) -> pd.DataFrame:
     s = system.score(pools)
     if stage1._sha(s) != json.loads(stage1.RECORD.read_text())["systems"][X2]["pool_scores_sha256"]:
         raise ValueError("X2 pool scores differ from the committed stage-1 record")
-    from candidate_screener.evaluation import final_set
+    from candidate_screener.matching import corpus
     plan = plan_from(pools, s.to_numpy())
-    plan["judged"] = plan.pair_id.isin(set(final_set.load().pair_id))
+    plan["judged"] = plan.pair_id.isin(set(corpus.a2_pairs().pair_id))   # the pair list, no labels
     return plan
 
 
