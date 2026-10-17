@@ -51,3 +51,22 @@ not matter here: only its ordering of the shortlist does.
    K? Calls ≈ (unjudged CVs in the top K) × JDs.
 3. Reuse the runs 9/10 scores for the judged CVs, or score the whole shortlist in one new run?
    Reuse saves 600 calls but mixes runs within one ranking (AGENTS: never pool across runs).
+
+## Result of step 1 (17 Oct 2026; record `output/matching/stage1-recall-curve.json`)
+
+X2 recall@K of 500-CV pools (mean per JD, 95% CI over JDs):
+
+| K | dev-select (150 JDs, proxy) | final pools (60 JDs) | generic | targeted |
+|--:|---|---|--:|--:|
+| 10 | 0.350 [0.31, 0.39] | 0.300 [0.24, 0.36] | 0.286 | 0.326 |
+| 20 | 0.544 [0.50, 0.59] | 0.503 [0.42, 0.58] | 0.506 | 0.498 |
+| 50 | 0.727 [0.69, 0.77] | 0.779 [0.71, 0.85] | 0.795 | 0.749 |
+| 100 | 0.844 [0.81, 0.87] | 0.902 [0.85, 0.94] | 0.900 | 0.905 |
+| 150 | 0.886 [0.86, 0.91] | 0.939 [0.89, 0.97] | 0.930 | 0.956 |
+| **200** | **0.911** [0.89, 0.93] | **0.960** [0.93, 0.98] | 0.962 | 0.956 |
+| 250 | 0.927 [0.91, 0.95] | 0.969 [0.95, 0.99] | 0.969 | 0.970 |
+
+**By the registered rule, K = 200** (the smallest K with dev-select recall >= 0.90). Final-pool
+recall there is 0.960. The dev proxy has about 32 relevant CVs per JD (same role family) against
+about 6 Fits per final-set JD, so it is the harsher test; K = 100 already keeps 90% of the final
+pools' Fits. Final-pool R@50 0.779 matches the stage-1 record.

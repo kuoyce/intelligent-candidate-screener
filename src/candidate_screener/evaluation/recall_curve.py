@@ -66,7 +66,9 @@ def run(seed: int = 0) -> dict:
     fits = rel.groupby(pools.jd_id.to_numpy()).sum()
     # dev-select (where K is chosen)
     dev = dev_pools.build()
-    frame = dev_pools.pairs(dev, "select").reset_index(drop=True)
+    frame = dev_pools.pairs(dev, dev_pools.SPLITS[1]).reset_index(drop=True)
+    if frame.empty:
+        raise ValueError(f"no {dev_pools.SPLITS[1]} pairs")
     ds = system.score(frame)
     drel = dev_pools.labels(dev, frame)
     return {"status": "exploratory; K is chosen on dev-select only (D46)", "retriever": X2, "pool_size": retrieval_pilot.POOL_SIZE,
