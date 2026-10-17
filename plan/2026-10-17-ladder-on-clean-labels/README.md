@@ -34,3 +34,15 @@ SBERT (weak fine-tuned) gains least from clean labels (0.834 → 0.852); the top
 pairs, −0.009 [−0.054, +0.032] on `llm_free`. The cross-encoders (R1, R2) stay below TF-IDF; the
 bi-encoder R3 gains a little (pairwise 0.730 → 0.808, just above TF-IDF's 0.794 on clean pairs;
 unpaired). Label noise was not hiding the value of the sophisticated rungs.
+
+## Amendment (owner, 17 Oct 2026): every reranker against X2
+
+Stage 2 compared R1-R3 with SBERT weak and TF-IDF only (registration O1-O5). The owner asked for
+X2 as an independent yardstick: it never saw an LLM score. `clean_labels.py` adds paired
+pairwise and nDCG deltas against X2 on the human grades (`yc`, `mean`; `full`, `llm_free`), with
+every score digest checked against the committed records. Not registered, so `exploratory`.
+
+Result (pairwise vs `yc`, total; all / clean): R1 −0.197 / −0.178, R2 −0.201 / −0.222 (both
+resolved, worse); R3 −0.007 / −0.001, SBERT weak −0.009 / −0.015, X4 +0.008 / +0.006 (level).
+R3's one resolved gain is generic nDCG (+0.043 [+0.01, +0.08]). No reranker trained on the LLM
+batch orders candidates better than X2.
