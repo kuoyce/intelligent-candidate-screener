@@ -1,0 +1,81 @@
+{
+  "a": "extracted rule + TF-IDF",
+  "b": "extracted rule + SBERT (weak fine-tuned)",
+  "comparison": "extracted rule + SBERT (weak fine-tuned) vs extracted rule + TF-IDF",
+  "decides": "nothing",
+  "deltas": [
+    {
+      "ci": [
+        0.000738,
+        0.057744
+      ],
+      "delta": 0.027719,
+      "half_width": 0.028503,
+      "metric": "auc",
+      "n_jd": 39,
+      "scope": "generic",
+      "subset": "all"
+    },
+    {
+      "ci": [
+        -0.107673,
+        0.019561
+      ],
+      "delta": -0.041006,
+      "half_width": 0.063617,
+      "metric": "auc",
+      "n_jd": 20,
+      "scope": "targeted",
+      "subset": "all"
+    },
+    {
+      "ci": [
+        -0.025934,
+        0.032969
+      ],
+      "delta": 0.004422,
+      "half_width": 0.029451,
+      "metric": "auc",
+      "n_jd": 59,
+      "scope": "total",
+      "subset": "all"
+    },
+    {
+      "ci": [
+        -0.009049,
+        0.050089
+      ],
+      "delta": 0.019659,
+      "half_width": 0.029569,
+      "metric": "auc",
+      "n_jd": 38,
+      "scope": "generic",
+      "subset": "llm_free"
+    },
+    {
+      "ci": [
+        -0.189811,
+        0.037115
+      ],
+      "delta": -0.072129,
+      "half_width": 0.113463,
+      "metric": "auc",
+      "n_jd": 17,
+      "scope": "targeted",
+      "subset": "llm_free"
+    },
+    {
+      "ci": [
+        -0.053644,
+        0.032119
+      ],
+      "delta": -0.008712,
+      "half_width": 0.042881,
+      "metric": "auc",
+      "n_jd": 55,
+      "scope": "total",
+      "subset": "llm_free"
+    }
+  ],
+  "seed": 0
+}
