@@ -59,3 +59,12 @@ def test_the_prompt_carries_the_guide_and_hides_x2():
 def test_parse_reply_accepts_curly_quotes_from_autocorrect():
     text = "[{\u201ccv\u201d:\u201dC001\",\u201dlabel\u201d:\u201dNo Fit\u201d,\u201dscore\u201d:5,\u201dreason\u201d:\u201dsales\u201d}]"
     assert cr.parse_reply(text, ["C001"]).score.tolist() == [5]
+
+
+def test_save_reply_accepts_numpy_batch_numbers_and_logs_the_raw_paste(tmp_path):
+    plan = cr.plan_from(pools(1, 25), np.arange(25, 0, -1).astype(float), k=20, batch=20)
+    raw = reply([f"C{i:03d}" for i in range(1, 21)])
+    path = tmp_path / "r.csv"
+    cr.save_reply("j0", np.int64(1), raw, cr.parse_reply(raw, [f"C{i:03d}" for i in range(1, 21)]), plan, path=path)
+    assert len(cr.latest(path)) == 20
+    assert json.loads(path.with_suffix(".raw.jsonl").read_text())["raw"] == raw

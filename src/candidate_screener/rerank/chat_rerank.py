@@ -126,16 +126,17 @@ def parse_reply(text: str, expected: list[str]) -> pd.DataFrame:
 
 
 def save_reply(jd_id: str, b: int, raw: str, parsed: pd.DataFrame, plan: pd.DataFrame, path=REPLIES) -> None:
-    """Append one validated batch: one row per CV, the raw reply on each (latest batch row wins)."""
+    """Append one validated batch: the raw reply to the log first, then one row per CV (latest wins)."""
+    b = int(b)                                   # the app passes numpy ints from the plan
     p = plan[(plan.jd_id == jd_id) & (plan.batch == b)].set_index("short_id")
     out = parsed.assign(jd_id=jd_id, batch=b, pair_id=parsed.short_id.map(p.pair_id), model=MODEL, run=RUN,
                         instrument_sha256=instrument_sha256(), raw_sha256=hashlib.sha256(raw.encode()).hexdigest(),
                         saved_at=datetime.now(timezone.utc).isoformat(timespec="seconds"))
     path.parent.mkdir(parents=True, exist_ok=True)
+    line = json.dumps({"jd_id": str(jd_id), "batch": b, "raw": raw, "saved_at": out.saved_at.iloc[0]}) + "\n"
+    with path.with_suffix(".raw.jsonl").open("a", encoding="utf-8") as f:
+        f.write(line)
     out.to_csv(path, mode="a", header=not path.exists(), index=False)
-    raw_log = path.with_suffix(".raw.jsonl")
-    with raw_log.open("a", encoding="utf-8") as f:
-        f.write(json.dumps({"jd_id": jd_id, "batch": b, "raw": raw, "saved_at": out.saved_at.iloc[0]}) + "\n")
 
 
 def latest(path=REPLIES) -> pd.DataFrame:
