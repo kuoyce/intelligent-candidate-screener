@@ -1,7 +1,9 @@
 # Stage 2: the LLM reranks X2's shortlist into a top 10
 
-Status: **in progress (owner, 17 Oct 2026).** Branch `exp/stage2-llm-rerank`. Decision D59
-(amends D43): the LLM may be the stage-2 reranker.
+Status: **superseded 18 Oct 2026 by [classifier-then-rerank](../2026-10-18-classifier-then-rerank/README.md)
+(D61).** `chat-1` is complete (60 JDs, 6,000 pairs) and is now the stage-2 target. Branch
+`exp/stage2-llm-rerank`. Decision D59 (amended D43, now superseded): the LLM may be the
+stage-2 reranker.
 
 ## Goal (owner's framing)
 

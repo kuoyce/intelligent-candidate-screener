@@ -115,11 +115,12 @@ No runnable scripts under `plan/`; code that outlives a decision goes in the pac
   `prompt_calibration` raise `DispatchClosed`. The one exception is the D50 scoring batch,
   scoped in code. Reopening further needs a decision in the log.
 - **The LLM is a secondary annotator** (D43). Exactly one series enters the final set:
-  instrument `5d986c82`, `claude-haiku-4-5`, runs 9/10. **It may also be the stage-2
-  reranker** (D59): it reorders the stage-1 shortlist, and is scored against the human
-  grades only, never against itself. Only a reranker may train on LLM output, and only on
-  the D50 batch (D51). Ordering figures and any LLM scored as a system are reported on the
-  `llm_free` subset beside `full`.
+  instrument `5d986c82`, `claude-haiku-4-5`, runs 9/10. Only a reranker or the stage-1
+  classifier may train on LLM output: on the D50 batch (D51, D61), and, for the stage-2
+  reranker, on `chat-1` (D61). **For the stage-2 top-10 task only, `chat-1` is the target
+  and the reference** (folds by JD); everywhere else the human grades are the only
+  reference. Ordering figures and any LLM scored as a system are reported on the `llm_free`
+  subset beside `full`.
 - **LLM labels never enter `judgements.csv`.** They live in `llm-*.csv`, keyed by
   (`agent_sha256`, model, run, draw). Never pool across those axes.
 - Every document displayed to a person passes `annotation.redact`.
