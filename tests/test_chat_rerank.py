@@ -54,3 +54,8 @@ def test_the_prompt_carries_the_guide_and_hides_x2():
     text = cr.prompt("Python developer, mail me at a@b.com", [("C001", "I write Python")], 1, 5, first=True)
     assert "# Annotation guide" in text and "[EMAIL]" in text and "x2" not in text.lower()
     assert cr.prompt("jd", [("C021", "cv")], 2, 5, first=False).startswith("Batch 2 of 5")
+
+
+def test_parse_reply_accepts_curly_quotes_from_autocorrect():
+    text = "[{\u201ccv\u201d:\u201dC001\",\u201dlabel\u201d:\u201dNo Fit\u201d,\u201dscore\u201d:5,\u201dreason\u201d:\u201dsales\u201d}]"
+    assert cr.parse_reply(text, ["C001"]).score.tolist() == [5]

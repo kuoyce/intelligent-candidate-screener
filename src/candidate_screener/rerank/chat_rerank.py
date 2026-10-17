@@ -34,6 +34,8 @@ AGENT = PROJECT_ROOT / ".claude" / "agents" / "a1-judge.md"
 PLAN = DATA / "interim" / "chat-rerank-plan.csv"
 REPLIES = OUTPUT / "rerank" / "chat-rerank-replies.csv"
 LABELS = ("Good Fit", "Potential Fit", "No Fit")
+#: Curly double quotes a phone or chat app substitutes for JSON's straight ones.
+SMART_QUOTES = str.maketrans({"“": '"', "”": '"', "„": '"', "″": '"'})
 X2 = "extracted rule + TF-IDF"
 
 HEADER = """You are one annotator in a labelling session. You will be shown **one** job description
@@ -97,6 +99,7 @@ def parse_reply(text: str, expected: list[str]) -> pd.DataFrame:
     """Validate one pasted reply against the batch's ids. Raises ValueError with the reason."""
     s = text.strip()
     s = re.sub(r"^```(?:json)?\s*|\s*```$", "", s)          # tolerate a fence, nothing else
+    s = s.translate(SMART_QUOTES)                            # autocorrect on the paste path (17 Oct 2026)
     try:
         items = json.loads(s)
     except json.JSONDecodeError as e:
