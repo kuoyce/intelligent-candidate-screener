@@ -1,0 +1,342 @@
+{
+  "f3_role_misses": {
+    "A: Fit CV out of role (role < 0.5)": 6,
+    "A: median role_match, Fit side": 0.0385,
+    "all reviewed: Fit side out of role": 30,
+    "all reviewed: No Fit side out of role": 25,
+    "n_reviewed": 45,
+    "n_tagged_A": 6
+  },
+  "sets": {
+    "A2 final (59 JDs)": {
+      "auc": {
+        "F1 + F2": {
+          "generic": 0.8615272690272692,
+          "targeted": 0.8263333333333334,
+          "total": 0.8495971213344095
+        },
+        "F1 negation": {
+          "generic": 0.8583221408221409,
+          "targeted": 0.8263333333333334,
+          "total": 0.8474784772666129
+        },
+        "F2 no experience": {
+          "generic": 0.8660042735042734,
+          "targeted": 0.8263333333333334,
+          "total": 0.8525564971751413
+        },
+        "F2b unknown = 0": {
+          "generic": 0.8533445258445258,
+          "targeted": 0.785875,
+          "total": 0.830473500134517
+        },
+        "X2": {
+          "generic": 0.8627991452991453,
+          "targeted": 0.8263333333333334,
+          "total": 0.8504378531073447
+        }
+      },
+      "delta_vs_x2": {
+        "F1 + F2": {
+          "generic": {
+            "ci": [
+              -0.01587301587301586,
+              0.010073260073260077
+            ],
+            "delta": -0.0012718762718762673,
+            "jds_down": 1,
+            "jds_up": 2,
+            "n_jd": 39
+          },
+          "targeted": {
+            "ci": [
+              0.0,
+              0.0
+            ],
+            "delta": 0.0,
+            "jds_down": 0,
+            "jds_up": 0,
+            "n_jd": 20
+          },
+          "total": {
+            "ci": [
+              -0.010492332526230825,
+              0.006658595641646492
+            ],
+            "delta": -0.0008407317729351598,
+            "jds_down": 1,
+            "jds_up": 2,
+            "n_jd": 59
+          }
+        },
+        "F1 negation": {
+          "generic": {
+            "ci": [
+              -0.017094017094017085,
+              0.003663003663003667
+            ],
+            "delta": -0.004477004477004472,
+            "jds_down": 1,
+            "jds_up": 1,
+            "n_jd": 39
+          },
+          "targeted": {
+            "ci": [
+              0.0,
+              0.0
+            ],
+            "delta": 0.0,
+            "jds_down": 0,
+            "jds_up": 0,
+            "n_jd": 20
+          },
+          "total": {
+            "ci": [
+              -0.01129943502824858,
+              0.0024213075060532715
+            ],
+            "delta": -0.00295937584073177,
+            "jds_down": 1,
+            "jds_up": 1,
+            "n_jd": 59
+          }
+        },
+        "F2 no experience": {
+          "generic": {
+            "ci": [
+              0.0,
+              0.009615384615384616
+            ],
+            "delta": 0.003205128205128205,
+            "jds_down": 0,
+            "jds_up": 1,
+            "n_jd": 39
+          },
+          "targeted": {
+            "ci": [
+              0.0,
+              0.0
+            ],
+            "delta": 0.0,
+            "jds_down": 0,
+            "jds_up": 0,
+            "n_jd": 20
+          },
+          "total": {
+            "ci": [
+              0.0,
+              0.006355932203389831
+            ],
+            "delta": 0.00211864406779661,
+            "jds_down": 0,
+            "jds_up": 1,
+            "n_jd": 59
+          }
+        },
+        "F2b unknown = 0": {
+          "generic": {
+            "ci": [
+              -0.043040725478225475,
+              0.02796481990231989
+            ],
+            "delta": -0.00945461945461945,
+            "jds_down": 10,
+            "jds_up": 6,
+            "n_jd": 39
+          },
+          "targeted": {
+            "ci": [
+              -0.08108660714285713,
+              -0.0025114583333333213
+            ],
+            "delta": -0.04045833333333333,
+            "jds_down": 8,
+            "jds_up": 3,
+            "n_jd": 20
+          },
+          "total": {
+            "ci": [
+              -0.04690074320688727,
+              0.007594464622006986
+            ],
+            "delta": -0.019964352972827545,
+            "jds_down": 18,
+            "jds_up": 9,
+            "n_jd": 59
+          }
+        }
+      },
+      "fit_rate": 0.6116666666666667,
+      "n_jds": 60,
+      "n_pairs": 600,
+      "prevalence": {
+        "CVs stating no professional experience": 0.005,
+        "CVs with a negated clause": 0.06666666666666667,
+        "pairs whose F1 score changes": 0.23,
+        "pairs whose F2 score changes": 0.0033333333333333335,
+        "pairs whose F2b score changes": 0.7083333333333334,
+        "pairs with an unknown experience band": 0.7083333333333334
+      }
+    },
+    "D50 held-out (30 JDs)": {
+      "auc": {
+        "F1 + F2": {
+          "total": 0.8589257369614512
+        },
+        "F1 negation": {
+          "total": 0.854640022675737
+        },
+        "F2 no experience": {
+          "total": 0.863390022675737
+        },
+        "F2b unknown = 0": {
+          "total": 0.8506037414965987
+        },
+        "X2": {
+          "total": 0.8591043083900228
+        }
+      },
+      "delta_vs_x2": {
+        "F1 + F2": {
+          "total": {
+            "ci": [
+              -0.013392857142857142,
+              0.012857142857142869
+            ],
+            "delta": -0.00017857142857142478,
+            "jds_down": 1,
+            "jds_up": 1,
+            "n_jd": 28
+          }
+        },
+        "F1 negation": {
+          "total": {
+            "ci": [
+              -0.013392857142857142,
+              0.0
+            ],
+            "delta": -0.004464285714285714,
+            "jds_down": 1,
+            "jds_up": 0,
+            "n_jd": 28
+          }
+        },
+        "F2 no experience": {
+          "total": {
+            "ci": [
+              0.0,
+              0.012857142857142869
+            ],
+            "delta": 0.004285714285714289,
+            "jds_down": 0,
+            "jds_up": 1,
+            "n_jd": 28
+          }
+        },
+        "F2b unknown = 0": {
+          "total": {
+            "ci": [
+              -0.04216149376417234,
+              0.02310374149659864
+            ],
+            "delta": -0.008500566893424029,
+            "jds_down": 5,
+            "jds_up": 5,
+            "n_jd": 28
+          }
+        }
+      },
+      "fit_rate": 0.5933333333333334,
+      "n_jds": 30,
+      "n_pairs": 300,
+      "prevalence": {
+        "CVs stating no professional experience": 0.0033333333333333335,
+        "CVs with a negated clause": 0.10666666666666667,
+        "pairs whose F1 score changes": 0.30333333333333334,
+        "pairs whose F2 score changes": 0.0033333333333333335,
+        "pairs whose F2b score changes": 0.7333333333333333,
+        "pairs with an unknown experience band": 0.7333333333333333
+      }
+    },
+    "D50 selection (70 JDs)": {
+      "auc": {
+        "F1 + F2": {
+          "total": 0.8692897992530345
+        },
+        "F1 negation": {
+          "total": 0.8692897992530345
+        },
+        "F2 no experience": {
+          "total": 0.8699900793650793
+        },
+        "F2b unknown = 0": {
+          "total": 0.8521615312791784
+        },
+        "X2": {
+          "total": 0.8690709617180206
+        }
+      },
+      "delta_vs_x2": {
+        "F1 + F2": {
+          "total": {
+            "ci": [
+              -0.0021008403361344563,
+              0.0027573529411764708
+            ],
+            "delta": 0.00021883753501400482,
+            "jds_down": 1,
+            "jds_up": 1,
+            "n_jd": 68
+          }
+        },
+        "F1 negation": {
+          "total": {
+            "ci": [
+              -0.0021008403361344563,
+              0.0027573529411764708
+            ],
+            "delta": 0.00021883753501400482,
+            "jds_down": 1,
+            "jds_up": 1,
+            "n_jd": 68
+          }
+        },
+        "F2 no experience": {
+          "total": {
+            "ci": [
+              0.0,
+              0.0027573529411764708
+            ],
+            "delta": 0.0009191176470588235,
+            "jds_down": 0,
+            "jds_up": 1,
+            "n_jd": 68
+          }
+        },
+        "F2b unknown = 0": {
+          "total": {
+            "ci": [
+              -0.0373357113678805,
+              0.002801280929038264
+            ],
+            "delta": -0.016909430438842216,
+            "jds_down": 19,
+            "jds_up": 11,
+            "n_jd": 68
+          }
+        }
+      },
+      "fit_rate": 0.6242857142857143,
+      "n_jds": 70,
+      "n_pairs": 700,
+      "prevalence": {
+        "CVs stating no professional experience": 0.002857142857142857,
+        "CVs with a negated clause": 0.05857142857142857,
+        "pairs whose F1 score changes": 0.17,
+        "pairs whose F2 score changes": 0.002857142857142857,
+        "pairs whose F2b score changes": 0.7071428571428572,
+        "pairs with an unknown experience band": 0.7071428571428572
+      }
+    }
+  }
+}
