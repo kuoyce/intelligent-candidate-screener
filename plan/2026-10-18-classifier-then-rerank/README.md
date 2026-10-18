@@ -1,7 +1,7 @@
 # Two-stage screening: a learned stage-1 classifier, then a reranker trained on `chat-1`
 
-Status: **approved by the owner, 18 Oct 2026. Steps 1-3 done. Step 4 (revised) approved 18 Oct 2026,
-in progress; step 5 is findings only. D55 cold run of `rerank_chat` deferred to the end of the branch.** Decision D61 below. Branch
+Status: **approved by the owner, 18 Oct 2026. Steps 1-4 done (18 Oct 2026); step 5 is findings only.
+D55 cold run of `rerank_chat` deferred to the end of the branch.** Decision D61 below. Branch
 `exp/classifier-then-rerank`, from `exp/stage2-llm-rerank`.
 
 ## Vision (owner, 18 Oct 2026)
@@ -457,6 +457,12 @@ Answered 18 Oct 2026 (owner):
     **latest score wins**, as `chat_rerank.latest()` does now: an anchor's fresh score replaces its
     `chat-1` score in step 4's reference. Step 3's record and L2's training stay on `chat-1` as
     committed, so they still reproduce.
+21. Drift (owner, 18 Oct 2026, after seeing it: anchors +3.4 [+2.2, +4.6]): **headline left
+    uncorrected**; no correction rule is chosen ("not enough data to make a decision"). The offset
+    is reported beside every 4a figure.
+22. The accidental retest (JDs 2-6 re-scored during the `chat-2` session): kept as its own run,
+    `chat-1r`, through `output/rerank/chat-rerank-relabel.csv`; `chat-1` stays as committed (owner,
+    option A). Reported as an exploratory noise check only.
 20. A possible second, smaller chat round after 4b; N2 timed first and skipped if over ~1 h unless
     the owner says otherwise. *Agreed.*
 
@@ -467,6 +473,69 @@ chat's top 10, and (b) when L2 puts one in its top 10 it can only count as a mis
 never a No Fit. Every unscored CV would count against the lower threshold and for X2's top 100
 (whose CVs are all scored), so the comparison 4a exists for would be biased. Scoring the 702
 removes that; t = 0.2 (3,529) would stay a size-only row.
+
+## Step 4 record (18 Oct 2026)
+
+Code: `rerank/chat_rerank.py` (`--fresh-s1`, fresh chats with anchors; `relabel`), `rerank/chat_targets.py`
+(`load(run)`, `load_latest`, `anchor_pairs`), `evaluation/stage1_threshold.py` →
+`output/rerank/threshold-ceiling.json`, `matching/learned.py` (F9, N1, N3, N4, `concepts="R+N"`),
+`evaluation/feature_arms.py` → `output/rerank/feature-arms.json`, `output/rerank/chat-rerank-relabel.csv`,
+notebook 25. Both checks registered. Guards in the runs: X2 reproduces the stage-1 record; step 3's L2
+fold models reproduce step 3's scores; L2 on F9 reproduces 4b's A1 arm; every CV a list hands over is
+chat-scored.
+
+### 4a: the ceiling rises, the bar is missed by 0.0003
+
+| Pipeline (stage 2 = step 3's L2) | List per JD (median) | Ceiling (gen / tar) | Recall@10 | Δ vs X2 alone |
+|---|---|---|---|---|
+| X2 alone | 10 | – | 0.417 | – |
+| X2 top 100 → L2 | 100 | 0.964 (0.960 / 0.971) | **0.482** | +0.065 [+0.034, +0.099] |
+| t = 0.5 → L2 | 23 | 0.655 (0.721 / 0.523) | 0.438 | +0.021 |
+| t = 0.4 → L2 | 32 | 0.748 | 0.458 | +0.041 |
+| **t = 0.3 → L2** (registered) | 56 | **0.858** (0.878 / 0.817) | 0.467 | **+0.0497 [+0.017, +0.084]: fail** (bar +0.05) |
+| t = 0.3 → L2 on F9 (after 4b, option B) | 56 | 0.858 | 0.465 | +0.048 [+0.015, +0.082] |
+
+- t = 0.3 against X2's top 100 → L2: −0.015 [−0.032, −0.001]. Stage-1 recall of judged Fits: 295 of
+  367 at t = 0.3 (240 at 0.5; X2's top 100: 332). t = 0.2: size only (median 131; 2,827 unscored).
+- **Drift:** the 678 anchors scored +3.4 [+2.2, +4.6] higher in the fresh chats (mean |Δ| 8.3, rank
+  agreement 0.88, labels 79%). Headline uncorrected (owner, question 21). It favours the low-threshold
+  lists, so 4a's gains are if anything optimistic.
+- **Retest** (`chat-1r`, 5 JDs, exploratory): the chat reproduces 0.80 of its own top 10 (0.63-0.90
+  per JD; offset +0.2, rank agreement 0.93, labels 84%): a rough noise ceiling.
+
+### 4b: F9 adopted, no change passes
+
+| Arm | L2 Recall@10 | Δ vs F9 [CI] | Stage-1 D50-CV AUC |
+|---|---|---|---|
+| A0 F12 | 0.492 | −0.005 (F9 vs F12: +0.005 [−0.005, +0.016]) | 0.868 |
+| **A1 F9** (adopted) | **0.497** | – | 0.870 |
+| A2 + JD-title role (N1) | 0.488 | −0.008 [−0.035, +0.020] | 0.869 |
+| A3 + no-experience flag (N3 F2) | 0.492 | −0.005 [−0.015, +0.004] | 0.870 |
+| A4 negation-stripped CVs (N3 F1) | 0.506 | +0.009 [−0.005, +0.023] | 0.867 |
+| A5 + zero-shot SBERT (N4) | 0.478 | −0.019 [−0.040, +0.001] | 0.868 |
+| A6 R+N concepts (N2) | 0.478 | −0.018 [−0.039, +0.001] | 0.877 |
+
+The final arm is F9. Re-applying 4a's rule to an F9 S1 gives t = 0.3 (dev-select median 49), whose
+list holds 134 CVs never chat-scored; the owner chose **option B**: stage 1 stays on F12, L2 on F9
+(table above). No second chat round.
+
+### Reading
+
+The best pipeline is still **X2's top 100 → L2** (+0.065 over X2 alone). The learned stage 1 at
+t = 0.3 comes within a hair of the bar but not past X2's top 100, and hand-made features are
+saturated for stage 2. What is left is a stage-2 model that reads the text (step 5), against a
+noise ceiling near 0.8.
+
+### Deviations
+
+- **N2 reinstated** (owner, 18 Oct 2026, before any 4b result): tagging 26,155 documents took ~60 min
+  in the background (timed at 80).
+- **App bug:** after a fresh chat's last batch the app moved to the next *position*, a saved `chat-1`
+  batch, and JDs 2-6 were re-scored (501 replies). Fixed (next *unsaved* batch, red warning on saved
+  ones); the replies are relabelled `chat-1r` (owner, option A), so `chat-1` stays as committed.
+- 4a's record gained the F9 rows (option B) and the retest block after its first run; the registered
+  row and bar are unchanged. `reporting.dot_ci` gained an optional label format (0.0497 printed as
+  0.05 would read as a pass).
 
 ## Step 5 (findings only, 18 Oct 2026; not planned)
 

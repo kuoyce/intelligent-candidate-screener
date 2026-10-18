@@ -21,6 +21,7 @@ that JD's earlier batches so the scale carries over. Same instrument, same serie
 from __future__ import annotations
 
 import argparse
+from pathlib import Path
 import hashlib
 import json
 import re
@@ -36,6 +37,10 @@ BATCH = 20
 SEED = 0
 MODEL = "claude-haiku-5-5 (claude.ai chat)"
 RUN = "chat-1"
+#: Step 4a (plan 2026-10-18, D61 amended): fresh chats for S1's passed set at P >= 0.3, outside the
+#: pairs already scored, padded with already-scored anchors. Own run label, own short ids
+#: (`F001`...) and batches numbered from 101, so no row collides with `chat-1`'s.
+FRESH_RUN, FRESH_PREFIX, FRESH_BATCH0, MIN_ANCHORS = "chat-2", "F", 100, 5
 AGENT = PROJECT_ROOT / ".claude" / "agents" / "a1-judge.md"
 PLAN = DATA / "interim" / "chat-rerank-plan.csv"
 REPLIES = OUTPUT / "rerank" / "chat-rerank-replies.csv"
@@ -114,6 +119,56 @@ def extend(plan: pd.DataFrame, extra: pd.DataFrame, source: str) -> pd.DataFrame
     return pd.concat([plan, *rows], ignore_index=True)
 
 
+def n_anchors(n_new: int, batch: int = BATCH, minimum: int = MIN_ANCHORS) -> int:
+    """Anchors that fill `n_new` up to a multiple of `batch`, never fewer than `minimum`."""
+    fill = (-n_new) % batch
+    while fill < minimum:
+        fill += batch
+    return fill
+
+
+def anchors(scored: pd.DataFrame, k: int, rng) -> pd.DataFrame:
+    """`k` of one JD's scored pairs, spread evenly over its score order (systematic sample)."""
+    order = scored.sort_values(["score", "pair_id"]).reset_index(drop=True)
+    if k > len(order):
+        raise ValueError(f"{k} anchors asked for {len(order)} scored pairs")
+    pos = np.floor((np.arange(k) + rng.uniform()) * len(order) / k).astype(int)
+    return order.iloc[pos]
+
+
+def fresh(plan: pd.DataFrame, scored: pd.DataFrame, new: pd.DataFrame, seed: int = SEED) -> pd.DataFrame:
+    """`plan` plus one fresh chat per JD with `new` pairs: the new pairs and `n_anchors` already-scored
+    ones (`scored`: `pair_id`, `jd_id`, `cv_id`, `score`), shuffled, ids `F001`..., batches of 20
+    numbered from 101. Ids only. Refuses a plan that already has fresh rows."""
+    plan = plan.assign(run=plan["run"] if "run" in plan else RUN)
+    if (plan.run == FRESH_RUN).any():
+        raise ValueError(f"the plan already has {FRESH_RUN} rows: never rebuild a collection")
+    new = new[~new.pair_id.isin(set(plan.pair_id))]
+    rows = []
+    for jd, g in new.sort_values("pair_id").groupby("jd_id", sort=True):
+        mine = plan[plan.jd_id == jd]
+        if mine.empty:
+            raise ValueError(f"{jd} is not in the plan: a fresh chat adds CVs, never a JD")
+        rng = np.random.default_rng([seed, int(mine.jd_order.iloc[0])])
+        a = anchors(scored[scored.jd_id == jd], n_anchors(len(g)), rng)
+        both = pd.concat([g[["jd_id", "cv_id", "pair_id"]].assign(source="s1_t030"),
+                          a[["jd_id", "cv_id", "pair_id"]].assign(source="anchor")], ignore_index=True)
+        both = both.iloc[rng.permutation(len(both))].reset_index(drop=True)
+        rows.append(both.assign(stratum=mine.stratum.iloc[0], jd_order=int(mine.jd_order.iloc[0]), run=FRESH_RUN,
+                                short_id=[f"{FRESH_PREFIX}{i + 1:03d}" for i in range(len(both))],
+                                batch=FRESH_BATCH0 + 1 + both.index // BATCH))
+    return pd.concat([plan, *rows], ignore_index=True) if rows else plan
+
+
+def chat_batches(plan: pd.DataFrame, jd_id: str, b: int) -> tuple[int, int]:
+    """(position of batch `b` within its chat, batches in that chat): a run is one chat per JD."""
+    g = plan[plan.jd_id == jd_id]
+    if "run" in g:
+        g = g[g.run.fillna(RUN) == g[g.batch == b].run.fillna(RUN).iloc[0]]
+    batches = sorted(g.batch.unique())
+    return batches.index(b) + 1, len(batches)
+
+
 def prompt(jd_text: str, cvs: list[tuple[str, str]], b: int, n: int, first: bool) -> str:
     """The text to paste for one batch: full instrument on a JD's first batch, a short follow-up after."""
     from candidate_screener.annotation.redact import redact_text
@@ -157,7 +212,8 @@ def save_reply(jd_id: str, b: int, raw: str, parsed: pd.DataFrame, plan: pd.Data
     """Append one validated batch: the raw reply to the log first, then one row per CV (latest wins)."""
     b = int(b)                                   # the app passes numpy ints from the plan
     p = plan[(plan.jd_id == jd_id) & (plan.batch == b)].set_index("short_id")
-    out = parsed.assign(jd_id=jd_id, batch=b, pair_id=parsed.short_id.map(p.pair_id), model=MODEL, run=RUN,
+    run = p.run.fillna(RUN).iloc[0] if "run" in p else RUN
+    out = parsed.assign(jd_id=jd_id, batch=b, pair_id=parsed.short_id.map(p.pair_id), model=MODEL, run=run,
                         instrument_sha256=instrument_sha256(), raw_sha256=hashlib.sha256(raw.encode()).hexdigest(),
                         saved_at=datetime.now(timezone.utc).isoformat(timespec="seconds"))
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -167,11 +223,29 @@ def save_reply(jd_id: str, b: int, raw: str, parsed: pd.DataFrame, plan: pd.Data
     out.to_csv(path, mode="a", header=not path.exists(), index=False)
 
 
-def latest(path=REPLIES) -> pd.DataFrame:
+#: Saved batches whose run label is corrected (owner, 18 Oct 2026): `chat-1` batches re-scored by
+#: mistake during the `chat-2` session are the run `chat-1r` (a retest), so `chat-1` stays as
+#: committed. Keyed by (jd_id, batch, saved_at); read wherever replies are read, i.e. here.
+RELABEL = OUTPUT / "rerank" / "chat-rerank-relabel.csv"
+
+
+def relabel(d: pd.DataFrame, path=RELABEL) -> pd.DataFrame:
+    """`d` with the run of every listed (jd_id, batch, saved_at) replaced by the list's `run`."""
+    if not Path(path).exists() or d.empty:
+        return d
+    m = pd.read_csv(path)
+    key = pd.MultiIndex.from_frame(d[["jd_id", "batch", "saved_at"]].astype(str))
+    to = pd.Series(m.run.to_numpy(), index=pd.MultiIndex.from_frame(m[["jd_id", "batch", "saved_at"]].astype(str)))
+    new = to.reindex(key).to_numpy()
+    return d.assign(run=np.where(pd.isna(new), d.run.to_numpy(), new))
+
+
+def latest(path=REPLIES, relabel_path=RELABEL) -> pd.DataFrame:
+    """The last saved reply per (run, JD, short id), after `relabel`."""
     if not path.exists():
-        return pd.DataFrame(columns=["jd_id", "batch", "short_id", "pair_id", "label", "score"])
-    d = pd.read_csv(path)
-    return d.drop_duplicates(["jd_id", "short_id"], keep="last")
+        return pd.DataFrame(columns=["jd_id", "batch", "short_id", "pair_id", "label", "score", "run"])
+    d = relabel(pd.read_csv(path), relabel_path)
+    return d.drop_duplicates(["run", "jd_id", "short_id"], keep="last")
 
 
 def build(seed: int = SEED) -> pd.DataFrame:
@@ -198,14 +272,16 @@ def texts(plan: pd.DataFrame) -> pd.DataFrame:
 def batch_prompt(plan_t: pd.DataFrame, jd_id: str, b: int) -> tuple[str, list[str]]:
     g = plan_t[plan_t.jd_id == jd_id]
     rows = g[g.batch == b].sort_values("short_id")
-    n = int(g.batch.max())
-    return prompt(g.jd_text.iloc[0], list(zip(rows.short_id, rows.cv_text)), b, n, first=b == 1), list(rows.short_id)
+    i, n = chat_batches(g, jd_id, b)
+    return prompt(g.jd_text.iloc[0], list(zip(rows.short_id, rows.cv_text)), i, n, first=i == 1), list(rows.short_id)
 
 
 def main(argv=None) -> None:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--build", action="store_true")
     ap.add_argument("--sample", action="store_true", help="write the first JD's batch 1 and 2 prompts to data/interim")
+    ap.add_argument("--fresh-s1", type=float, metavar="T",
+                    help="step 4a: fresh chats (chat-2) for S1's passed set at P >= T outside the scored pairs")
     ap.add_argument("--extend-s1", action="store_true",
                     help="append S1's passed CVs outside X2's top 100 (needs ~4 min of features)")
     args = ap.parse_args(argv)
@@ -227,6 +303,19 @@ def main(argv=None) -> None:
         added = out[out.source == "s1_passed"]
         print(PLAN, f"{len(added)} S1 passed CVs outside X2's top 100, {added.jd_id.nunique()} JDs, "
               f"{added.judged.sum()} of them judged")
+    if args.fresh_s1 is not None:
+        from candidate_screener.evaluation import stage1_classifier
+        from candidate_screener.matching import corpus
+        from candidate_screener.rerank import chat_targets
+        plan = pd.read_csv(PLAN, float_precision="round_trip")
+        out = fresh(plan, chat_targets.load(), stage1_classifier.passed_set(SEED, threshold=args.fresh_s1), SEED)
+        out["judged"] = out.pair_id.isin(set(corpus.a2_pairs().pair_id))   # the pair list, no labels
+        out["x2_rank"] = out.x2_rank.astype("Int64")
+        out.to_csv(PLAN, index=False)
+        f = out[out.run == FRESH_RUN]
+        print(PLAN, f"{FRESH_RUN}: {f.jd_id.nunique()} JDs, {(f.source == 's1_t030').sum()} new + "
+              f"{(f.source == 'anchor').sum()} anchors = {len(f)} CVs, "
+              f"{f.groupby('jd_id').batch.nunique().sum()} batches")
     if args.sample:
         plan_t = texts(pd.read_csv(PLAN))
         jd = plan_t.sort_values("jd_order").jd_id.iloc[0]

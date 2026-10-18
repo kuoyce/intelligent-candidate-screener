@@ -168,3 +168,69 @@ def test_stage2_training_modules_never_read_final_labels_or_judgements():
     """D46 / D61: the code that fits on chat-1 never names the final labels or the judgements."""
     for module in (ct, chunked, learners):
         assert reads_final_labels(module) == [], module.__name__
+
+
+def test_step_3_stays_on_chat_1_and_step_4_takes_the_latest_score(tmp_path, monkeypatch):
+    """An anchor re-scored in chat-2 must change step 4's reference (latest wins, owner 18 Oct
+    2026) and must not change chat-1, on which step 3 was trained and scored."""
+    from candidate_screener.rerank import chat_rerank as cr
+    plan = pd.DataFrame({"jd_id": "j", "cv_id": ["a", "b", "a", "n"], "pair_id": ["j__a", "j__b", "j__a", "j__n"],
+                         "stratum": "generic", "short_id": ["C001", "C002", "F001", "F002"],
+                         "batch": [1, 1, 101, 101], "jd_order": 1,
+                         "source": ["x2_top100", "x2_top100", "anchor", "s1_t030"],
+                         "run": ["chat-1", "chat-1", "chat-2", "chat-2"]})
+    replies = pd.DataFrame({"jd_id": "j", "short_id": ["C001", "C002", "F001", "F002"],
+                            "pair_id": ["j__a", "j__b", "j__a", "j__n"], "batch": [1, 1, 101, 101],
+                            "label": ["Good Fit", "No Fit", "Potential Fit", "No Fit"], "score": [80, 10, 55, 5],
+                            "run": ["chat-1", "chat-1", "chat-2", "chat-2"], "instrument_sha256": "x",
+                            "saved_at": ["2026-10-17T10:00:00", "2026-10-17T10:00:00",
+                                         "2026-10-18T10:00:00", "2026-10-18T10:00:00"]})
+    plan.to_csv(tmp_path / "plan.csv", index=False)
+    replies.to_csv(tmp_path / "replies.csv", index=False)
+    monkeypatch.setattr(cr, "PLAN", tmp_path / "plan.csv")
+    monkeypatch.setattr(cr, "REPLIES", tmp_path / "replies.csv")
+    monkeypatch.setattr(cr, "latest", lambda path=tmp_path / "replies.csv": pd.read_csv(path))
+    one = ct.load()
+    assert one.set_index("pair_id").score.to_dict() == {"j__a": 80, "j__b": 10}
+    both = ct.load_latest().set_index("pair_id")
+    assert both.score.to_dict() == {"j__a": 55, "j__b": 10, "j__n": 5}
+    assert both.loc["j__a", "source"] == "x2_top100" and both.loc["j__n", "source"] == "s1_t030"
+    assert ct.anchor_pairs().set_index("pair_id")[["first", "again"]].loc["j__a"].tolist() == [80, 55]
+
+
+def test_ceiling_is_the_recall_of_a_perfect_stage_2():
+    """The ceiling counts only what stage 1 hands over: half the chat's top 10 handed over is 0.5,
+    whatever order stage 2 would give it."""
+    from candidate_screener.evaluation import stage1_threshold as st
+    chat = np.arange(20, 0, -1, dtype=float)
+    returned = np.zeros(20, bool)
+    returned[[0, 2, 4, 6, 8, 11, 13]] = True                    # 5 of the top 10, 2 below it
+    assert st.ceiling(np.arange(20), chat, returned) == pytest.approx(0.5)
+    ids = np.array([f"p{i:02d}" for i in range(20)])
+    assert ct.recall_at_k(ids, chat, chat, returned) == pytest.approx(0.5)
+
+
+def test_drift_reports_the_offset_and_agreement_per_jd():
+    from candidate_screener.evaluation import stage1_threshold as st
+    a = pd.DataFrame({"pair_id": [f"p{i}" for i in range(6)], "jd_id": ["a"] * 3 + ["b"] * 3,
+                      "first": [10, 50, 90, 20, 40, 60], "again": [15, 55, 95, 10, 30, 50],
+                      "first_label": ["No Fit"] * 6, "again_label": ["No Fit"] * 5 + ["Good Fit"]})
+    d = st.drift(a, pd.Series({"a": "generic", "b": "targeted"}))
+    assert d["offset"]["generic"]["value"] == 5 and d["offset"]["targeted"]["value"] == -10
+    assert d["offset"]["total"]["value"] == -2.5 and d["spearman"]["total"]["value"] == 1.0
+    assert d["label_agreement"]["targeted"]["value"] == pytest.approx(2 / 3)
+
+
+def test_feature_adoption_follows_the_plans_rule():
+    """F9 survives a loss up to 0.005; a change needs a positive delta AND a CI above 0."""
+    from candidate_screener.evaluation import feature_arms as fa
+    d = lambda v, lo: {"value": v, "ci": [lo, v + 0.05]}
+    out = fa.adopt({"A2": d(0.02, 0.001), "A3": d(0.03, -0.01), "A5": d(-0.01, -0.03)}, d(-0.004, -0.02))
+    assert out == {"base": "F9", "changes": ["A2"]}
+    assert fa.adopt({}, d(-0.006, -0.02))["base"] == "F12"
+
+
+def test_d50_folds_hold_each_jd_once_and_are_balanced():
+    from candidate_screener.evaluation import feature_arms as fa
+    f = fa.jd_folds([f"j{i:03d}" for i in range(100)] * 10)
+    assert len(f) == 100 and f.value_counts().eq(20).all() and f.equals(fa.jd_folds(list(f.index)))

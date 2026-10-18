@@ -20,13 +20,14 @@ def style(plt) -> None:
         "font.size": 10, "legend.frameon": False})
 
 
-def dot_ci(ax, labels, values, lows, highs, color=SERIES[0], ref=None, ref_label=None):
+def dot_ci(ax, labels, values, lows, highs, color=SERIES[0], ref=None, ref_label=None,
+           fmt="{:.2f}"):
     """Horizontal dot + CI whisker per row, value labelled at the dot."""
     ys = range(len(labels))[::-1]
     for y, v, lo, hi in zip(ys, values, lows, highs):
         ax.plot([lo, hi], [y, y], color=color, linewidth=2, solid_capstyle="round")
         ax.plot([v], [y], "o", color=color, markersize=8, markeredgecolor=SURFACE, markeredgewidth=2)
-        ax.annotate(f"{v:.2f}", (hi, y), xytext=(6, 0), textcoords="offset points",
+        ax.annotate(fmt.format(v), (hi, y), xytext=(6, 0), textcoords="offset points",
                     va="center", color=TEXT_2, fontsize=9)
     ax.set_yticks(list(ys), labels)
     ax.grid(axis="y", visible=False)

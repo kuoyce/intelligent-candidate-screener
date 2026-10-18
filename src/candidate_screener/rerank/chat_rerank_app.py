@@ -42,13 +42,19 @@ if c3.button("Open"):
     st.session_state.pos = first_open
 pos = st.session_state.pos
 jd_order, jd_id, stratum, b = batches[pos]
-n_b = int(plan[plan.jd_id == jd_id].batch.max())
+i_b, n_b = cr.chat_batches(plan, jd_id, b)
+run = plan[(plan.jd_id == jd_id) & (plan.batch == b)].get("run", pd.Series([cr.RUN])).fillna(cr.RUN).iloc[0]
 
-st.title(f"JD {jd_order} of {len(order)} · batch {b} of {n_b}")
-status = "✅ saved (pasting again replaces it)" if (jd_id, b) in done_batches else "⏳ not done"
+st.title(f"JD {jd_order} of {len(order)} · {run} · batch {i_b} of {n_b}")
+status = "✅ saved" if (jd_id, b) in done_batches else "⏳ not done"
 st.caption(f"{status} · stratum {stratum}")
-if b == 1:
-    st.warning("**Start a new chat** for this JD, then paste the prompt below.")
+if (jd_id, b) in done_batches:
+    st.error("**Already saved.** Pasting a reply here replaces its scores. Press **Open** to go to "
+             "the next unsaved batch, unless you mean to re-score this one.")
+if i_b == 1:
+    st.warning("**Start a new chat** for this JD"
+               + (" (a fresh one, not the JD's chat-1 chat)" if run != cr.RUN else "")
+               + ", then paste the prompt below.")
 elif "source" in plan and plan[(plan.jd_id == jd_id) & (plan.batch == b)].source.eq("s1_passed").all():
     st.info("**Extension batch** (S1 passed CVs outside X2's top 100): paste into the **same chat** "
             "as this JD's earlier batches, after its last reply.")
@@ -71,7 +77,11 @@ with st.form(f"reply-{jd_id}-{b}", clear_on_submit=True):
             st.error(f"Refused: {e}. Ask the chat to resend the JSON for exactly these ids.")
         else:
             cr.save_reply(jd_id, b, raw, parsed, plan)
-            st.session_state.pos = min(pos + 1, len(batches) - 1)
+            # the next *unsaved* batch, never merely the next position: a saved batch after a
+            # fresh chat's last one was re-scored by mistake on 18 Oct 2026 (JDs 2-6)
+            done_batches.add((jd_id, b))
+            st.session_state.pos = next((i for i, (_, j, _, bb) in enumerate(batches)
+                                         if (j, bb) not in done_batches), pos)
             st.success(f"Saved {len(parsed)} CVs.")
             st.rerun()
 

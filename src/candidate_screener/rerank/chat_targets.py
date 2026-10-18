@@ -22,20 +22,62 @@ SEED = 0
 TRAIN_SOURCE = "x2_top100"
 
 
-def load() -> pd.DataFrame:
-    """Chat-scored pairs: `pair_id`, `jd_id`, `cv_id`, `stratum`, `source`, `score`, `label`."""
+def _plan() -> pd.DataFrame:
     from candidate_screener.rerank import chat_rerank as cr
     plan = pd.read_csv(cr.PLAN)
-    plan = plan.assign(source=plan["source"] if "source" in plan else TRAIN_SOURCE)
+    return plan.assign(source=plan["source"] if "source" in plan else TRAIN_SOURCE,
+                       run=plan["run"].fillna(cr.RUN) if "run" in plan else cr.RUN)
+
+
+def load(run: str = "chat-1") -> pd.DataFrame:
+    """One run's chat-scored pairs: `pair_id`, `jd_id`, `cv_id`, `stratum`, `source`, `score`, `label`.
+
+    The default, `chat-1`, is what step 3 trained and scored on; later runs never change it."""
+    from candidate_screener.rerank import chat_rerank as cr
+    plan = _plan()
+    plan = plan[plan.run == run]
     d = cr.latest()
-    if d.run.nunique() != 1 or d.instrument_sha256.nunique() != 1:
-        raise ValueError("chat replies pooled across runs or instruments")
+    d = d[d.run == run]
+    if d.instrument_sha256.nunique() != 1:
+        raise ValueError("chat replies pooled across instruments")
     out = plan[["pair_id", "jd_id", "cv_id", "stratum", "source"]].merge(
         d[["pair_id", "score", "label"]], on="pair_id", how="inner", validate="one_to_one")
     missing = set(plan.pair_id) - set(out.pair_id)
     if missing:
         raise ValueError(f"{len(missing)} planned pairs have no chat score")
     return out.sort_values("pair_id").reset_index(drop=True)
+
+
+REFERENCE_RUNS = ("chat-1", "chat-2")
+
+
+def load_latest(runs=REFERENCE_RUNS) -> pd.DataFrame:
+    """Every chat-scored pair once, its **latest** score across `runs` (step 4's reference, owner
+    18 Oct 2026; the retest `chat-1r` is not one of them). `source` is the pair's first plan row
+    (an anchor keeps `x2_top100`); `run` is the run its score comes from."""
+    from candidate_screener.rerank import chat_rerank as cr
+    plan = _plan().drop_duplicates("pair_id", keep="first")
+    d = cr.latest()
+    d = d[d.run.isin(runs)]
+    if d.instrument_sha256.nunique() != 1:
+        raise ValueError("chat replies pooled across instruments")
+    d = d.sort_values("saved_at", kind="stable").drop_duplicates("pair_id", keep="last")
+    out = plan[["pair_id", "jd_id", "cv_id", "stratum", "source"]].merge(
+        d[["pair_id", "score", "label", "run"]], on="pair_id", how="inner", validate="one_to_one")
+    return out.sort_values("pair_id").reset_index(drop=True)
+
+
+def anchor_pairs(again_run: str = "chat-2") -> pd.DataFrame:
+    """Pairs scored in `chat-1` and again in `again_run`: `pair_id`, `jd_id`, `first`, `again` and
+    their labels. `chat-2` gives the anchors' drift; `chat-1r` the accidental retest. Decides nothing."""
+    from candidate_screener.rerank import chat_rerank as cr
+    d = cr.latest()
+    first = d[d.run == cr.RUN].set_index("pair_id")
+    again = d[d.run == again_run].sort_values("saved_at", kind="stable").drop_duplicates("pair_id", keep="last")
+    again = again[again.pair_id.isin(first.index)].set_index("pair_id")
+    return pd.DataFrame({"jd_id": again.jd_id, "first": first.score.loc[again.index],
+                         "again": again.score, "first_label": first.label.loc[again.index],
+                         "again_label": again.label}).reset_index()
 
 
 def folds(strata: pd.Series, n_folds: int = N_FOLDS, seed: int = SEED) -> pd.Series:

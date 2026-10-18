@@ -178,8 +178,10 @@ def fit_arms(feats):
     return d50, y50, X50, {a: learned.LearnedStage1(a, feats).fit_features(X50, y50) for a in ARMS}
 
 
-def passed_set(seed: int = 0, arm: str = PRIMARY) -> pd.DataFrame:
-    """S1's stage-1 output on the 60 final pools: `jd_id`, `cv_id`, `pair_id`, `stratum`, `p_fit`."""
+def passed_set(seed: int = 0, arm: str = PRIMARY, threshold: float | None = None) -> pd.DataFrame:
+    """S1's stage-1 output on the 60 final pools: `jd_id`, `cv_id`, `pair_id`, `stratum`, `p_fit`.
+
+    `threshold` defaults to `learned.THRESHOLD` (0.5); step 4a uses 0.3."""
     from candidate_screener.evaluation import retrieval_pilot
     from candidate_screener.matching import learned
     feats = learned.Features()
@@ -187,7 +189,8 @@ def passed_set(seed: int = 0, arm: str = PRIMARY) -> pd.DataFrame:
     pools = retrieval_pilot.build_pools(seed, TEXT_VARIANT)
     p = m.proba(feats(pools)).loc[pools.pair_id.to_numpy()].to_numpy()
     out = pools[["jd_id", "cv_id", "pair_id", "stratum"]].assign(p_fit=p)
-    return out[p >= learned.THRESHOLD].reset_index(drop=True)
+    t = learned.THRESHOLD if threshold is None else threshold
+    return out[p >= t].reset_index(drop=True)
 
 
 def evaluate(seed: int = 0) -> dict:
