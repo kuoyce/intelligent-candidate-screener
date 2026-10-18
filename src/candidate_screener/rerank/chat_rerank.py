@@ -9,8 +9,14 @@ The prompt is a **new listwise instrument**: the annotation guide, verbatim from
 agent, with its one-CV framing replaced by a numbered list and a JSON-array reply. X2 scores and
 ranks are never shown. Every document passes `annotation.redact`.
 
-    uv run python -m candidate_screener.rerank.chat_rerank --build     # the plan (ids only)
-    uv run python -m candidate_screener.rerank.chat_rerank --sample    # one batch to a text file
+**Extension (D61 amended, 18 Oct 2026).** Stage 1 became S1's passed set (plan
+2026-10-18-classifier-then-rerank), and a few passed CVs lie outside X2's top 100. `--extend-s1`
+appends them as one more batch per JD (short ids after `C100`), pasted into the **same chat** as
+that JD's earlier batches so the scale carries over. Same instrument, same series.
+
+    uv run python -m candidate_screener.rerank.chat_rerank --build       # the plan (ids only)
+    uv run python -m candidate_screener.rerank.chat_rerank --extend-s1   # + S1 passed CVs outside it
+    uv run python -m candidate_screener.rerank.chat_rerank --sample      # one batch to a text file
 """
 from __future__ import annotations
 
@@ -84,6 +90,28 @@ def plan_from(pools: pd.DataFrame, scores: np.ndarray, k: int = K, batch: int = 
         top["jd_order"] = j + 1
         rows.append(top)
     return pd.concat(rows, ignore_index=True)
+
+
+def extend(plan: pd.DataFrame, extra: pd.DataFrame, source: str) -> pd.DataFrame:
+    """`plan` plus the `extra` pairs it lacks: per JD one more batch, short ids after the JD's last.
+
+    `extra` carries `jd_id`, `cv_id`, `pair_id`; rows are added in pair-id order. A JD with no new
+    pair gets no batch. Ids only, like the plan."""
+    plan = plan.assign(source=plan["source"] if "source" in plan else "x2_top100")
+    new = extra[~extra.pair_id.isin(set(plan.pair_id))].sort_values("pair_id")
+    rows = []
+    for jd, g in new.groupby("jd_id", sort=True):
+        mine = plan[plan.jd_id == jd]
+        if mine.empty:
+            raise ValueError(f"{jd} is not in the plan: an extension adds CVs, never a JD")
+        last = int(mine.short_id.str[1:].astype(int).max())
+        rows.append(pd.DataFrame({
+            "jd_id": jd, "cv_id": g.cv_id.to_numpy(), "pair_id": g.pair_id.to_numpy(),
+            "stratum": mine.stratum.iloc[0], "short_id": [f"C{last + i + 1:03d}" for i in range(len(g))],
+            "batch": int(mine.batch.max()) + 1, "jd_order": int(mine.jd_order.iloc[0]), "source": source}))
+    if not rows:
+        return plan
+    return pd.concat([plan, *rows], ignore_index=True)
 
 
 def prompt(jd_text: str, cvs: list[tuple[str, str]], b: int, n: int, first: bool) -> str:
@@ -178,6 +206,8 @@ def main(argv=None) -> None:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--build", action="store_true")
     ap.add_argument("--sample", action="store_true", help="write the first JD's batch 1 and 2 prompts to data/interim")
+    ap.add_argument("--extend-s1", action="store_true",
+                    help="append S1's passed CVs outside X2's top 100 (needs ~4 min of features)")
     args = ap.parse_args(argv)
     if args.build:
         plan = build()
@@ -186,6 +216,17 @@ def main(argv=None) -> None:
         g = plan.groupby("jd_id")
         print(PLAN, f"{plan.jd_id.nunique()} JDs, {len(plan)} CVs, judged in shortlist per JD "
               f"{g.judged.sum().mean():.1f}, unjudged {(~plan.judged).groupby(plan.jd_id).sum().mean():.1f}")
+    if args.extend_s1:
+        from candidate_screener.evaluation import stage1_classifier
+        from candidate_screener.matching import corpus
+        plan = pd.read_csv(PLAN, float_precision="round_trip")      # x2 back bit for bit
+        out = extend(plan, stage1_classifier.passed_set(SEED), "s1_passed")
+        out["x2_rank"] = out.x2_rank.astype("Int64")                # blank for the extension
+        out["judged"] = out.pair_id.isin(set(corpus.a2_pairs().pair_id))   # the pair list, no labels
+        out.to_csv(PLAN, index=False)
+        added = out[out.source == "s1_passed"]
+        print(PLAN, f"{len(added)} S1 passed CVs outside X2's top 100, {added.jd_id.nunique()} JDs, "
+              f"{added.judged.sum()} of them judged")
     if args.sample:
         plan_t = texts(pd.read_csv(PLAN))
         jd = plan_t.sort_values("jd_order").jd_id.iloc[0]

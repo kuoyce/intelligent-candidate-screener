@@ -40,6 +40,8 @@ uv run python -m candidate_screener.evaluation.dev_pools --check       # shortli
 uv run python -m candidate_screener.evaluation.shortlist_dev --check   # Y rungs on the dev set (~12 min)
 uv run python -m candidate_screener.evaluation.shortlist_dev --variants --check  # amendment Z (Z1-Z3) on the dev set
 uv run python -m candidate_screener.evaluation.shortlist_final --check   # Q8: frozen Z1/Z1L on the final set
+uv run python -m candidate_screener.evaluation.stage1_classifier --check  # S1/S2: learned stage 1 vs X2 (~7 min)
+uv run python -m candidate_screener.evaluation.rerank_chat --check --warm  # S3: rerankers on chat-1 (cold ~9 h: retrains L3)
 uv run pytest                                                   # the suite (no data needed)
 uv run python -m candidate_screener.checks                      # warm checks your uncommitted changes affect
 uv run python -m candidate_screener.checks --warm --all         # every live record, warm (D55)

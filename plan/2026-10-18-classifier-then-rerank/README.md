@@ -1,6 +1,7 @@
 # Two-stage screening: a learned stage-1 classifier, then a reranker trained on `chat-1`
 
-Status: **approved by the owner, 18 Oct 2026. Not started.** Decision D61 below. Branch
+Status: **approved by the owner, 18 Oct 2026. Steps 1-3 done (18 Oct 2026); D55 cold run and
+step 4 open.** Decision D61 below. Branch
 `exp/classifier-then-rerank`, from `exp/stage2-llm-rerank`.
 
 ## Vision (owner, 18 Oct 2026)
@@ -38,6 +39,9 @@ Marked in the log: D59, D60 → *superseded by D61*; D51 → *amended by D61*. T
 - **Stage-1 AUC on the final set is about done.** Notebook 19, part 4 trained logistic base (4)
   on all 100 D50 JDs. Per-JD AUC on the A2 final set was **+0.004 [−0.006, 0.014]** against X2
   (0.850); logistic all (11) gave +0.010 and boosting +0.004. All three are well inside ±0.06.
+  *Sign corrected 18 Oct 2026:* notebook 19 parts 3-4 call `paired_delta(hand, learned)`, so
+  these are X2 − learned. Learned − X2 is **−0.004**, −0.010 and −0.004; S1's base-4 arm
+  reproduces −0.0037 [−0.0138, 0.0060], the exact mirror. The ±0.06 reading is unchanged.
   The new questions are the 500-CV pools and the overlap.
 - **Risk for the pools.** D50 pairs are 80% same-keyword and 61% Fit. A 500-CV pool is about
   1% Fit, mostly other roles. A classifier trained on D50 has rarely seen an off-role CV, so it may
@@ -187,6 +191,145 @@ Resolved 18 Oct 2026 (owner):
    classifier's top 100 by probability. The threshold is left to step 4.
 
 Open: none.
+
+## Implementation record (steps 1-2, 18 Oct 2026)
+
+Code: `matching/learned.py` (`LearnedStage1`, `Features`), `evaluation/stage1_classifier.py`
+→ `output/matching/stage1-classifier.json`, registered as check `stage1_classifier`
+(`run_alone`, 440 s, peak 4.2 GB). Tests: `tests/test_stage1_classifier.py`. Guards in the
+run: X2's final-set and pool scores match the stage-1 record's digests; X2's hand weights over
+F12's first three columns reproduce X2 row by row on all three frames; X2's top 100 is exactly
+the 6,000 pairs `chat-1` scored.
+
+### S1: pass
+
+| Arm | Per-JD AUC Δ vs X2, total (gen / tar) | Size-matched recall Δ, total (gen / tar) | Passed per JD, median [range] |
+|---|---|---|---|
+| **F12** (S1) | **+0.009** [−0.013, 0.031] (+0.022 / −0.016) | **−0.007** [−0.040, 0.027] (+0.006 / −0.032) | 23 [1, 81] |
+| base 4 | −0.004 [−0.014, 0.006] (−0.004 / −0.003) | +0.004 [−0.011, 0.020] (+0.011 / −0.009) | 17.5 [0, 75] |
+
+AUC n = 60 JDs, recall n = 59 (JDs with a judged Fit). F12 on `llm_free`: AUC Δ +0.003
+[−0.035, 0.038]. Within-family AUC Δ, total: +0.028 [−0.015, 0.072]. Absolute AUC: X2 0.850,
+F12 0.860, base 4 0.847.
+
+- **Role still dominates.** F12's standardised coefficients: `role_match` 1.13, `sbert` 0.37,
+  `log_matched` 0.35, `tfidf_scaled` 0.26, then ≤ 0.17. The pool risk above (D50 rarely shows an
+  off-role CV) did not show as a weak role weight.
+- **The 0.5 threshold passes few CVs.** Median 23 per JD (generic 27, targeted 10); 17 of 60 JDs
+  pass ≤ 10, none passes 100. The passed set keeps **240 of 367** judged Fits (recall 0.59),
+  where X2's top 100 keeps 332. Size-matched, X2 does no better (0.60), so the loss is the size,
+  not S1's order.
+- Dev-select (role-family proxy): passed median 21 [0, 110], 3 JDs over 100; size-matched proxy
+  recall Δ −0.012 [−0.021, −0.003].
+
+### S2: pass on the passed set (the registered shortlist)
+
+| Shortlist | Mean overlap with X2's top 100, total (gen / tar) | CVs with no chat score |
+|---|---|---|
+| **Passed set** (governs: median 23 ≤ 125) | **0.987** [0.978, 0.995] (0.987 / 0.987) | 20 in all, max 4 per JD |
+| Top 100 by probability (open question 6) | 0.691 [0.665, 0.717] (0.704 / 0.664) | 1,857, median 32 per JD |
+
+The pass is the other face of the small passed set: 23 CVs nested in X2's top 100. S1's top 100
+would fail the bar (0.69).
+
+### Readings and assumptions (owner to confirm)
+
+- Both bars were judged on **point estimates**, CIs stated beside (stage1.py's S2 convention). *Confirmed.*
+- Open question 6's "far more than 100" was read as a **median passed-set size above 125**, the
+  size past which even a passed set nested around X2's top 100 cannot reach 0.80. Not triggered. *Confirmed.*
+- Implemented inline, not by sub-agents (AGENTS workflow step 3): the work needed the context
+  already loaded. Step 4's review can be a sub-agent.
+
+### Open questions from steps 1-2 (resolved 18 Oct 2026, owner)
+
+7. **Stage 1 for step 3's end-to-end run = S1's passed set** (P >= 0.5), not a top 100. The 20
+   passed CVs outside X2's top 100 (12 JDs, at most 4 per JD) get chat scores: one more batch
+   in each JD's existing chat through the Streamlit app (`chat_rerank --extend-s1`; D61 amended).
+8. Notebook 19 corrected: parts 3-4 now call `paired_delta(learned, hand)` and were re-executed.
+9. Both readings above (point estimates; "far more" = median above 125) confirmed.
+
+## Step 3 record (18 Oct 2026)
+
+Owner, 18 Oct 2026: the L1/L2 constraint split, features from the pool frame and the "best"
+rule were confirmed; **learning curves skipped**; L3 runs all five folds without a stop to ask.
+
+| What | Where |
+|---|---|
+| `chat-1` targets, folds, tie-aware Recall@10, nDCG@10, No Fits | `rerank/chat_targets.py` |
+| L1 (bounded ridge), L2 (monotone boosting), out of fold | `rerank/learners.py` *(new; not in the code table)* |
+| L3 (MaxP windows), per-fold weights and OOF scores | `rerank/chunked.py` *(new; not in the code table)* |
+| S3 evaluation, human check, end to end | `evaluation/rerank_chat.py` → `output/rerank/chat-rerank-eval.json` |
+| Report | `notebooks/24-classifier-then-rerank.ipynb` |
+
+Fitting code sits in `rerank/` so it never names the final labels (D46 guard tests); the
+evaluation module reads them only for the human check.
+
+- **L1/L2 constraints:** non-negative / increasing on the 8 match signals (`role_match`,
+  `experience_compatible`, `tfidf_scaled`, `coverage`, `coverage_unweighted`, `log_matched`,
+  `skill_overlap`, `sbert`); free on `log_jd_concepts`, `log_cv_concepts`, `exp_gap`,
+  `exp_known`. L1 = ridge alpha 1 on fold-standardised features (bounded least squares, equal
+  to sklearn `Ridge` when no bound binds); L2 = `HistGradientBoostingRegressor` defaults.
+- **L3 cost, measured:** 12,607 windows (2.1 per pair); a fold trains on ~10,100 windows.
+  0.53 s/window on one process (11 threads), so ~8 h for five folds; two processes of 5
+  threads gave 2.4 windows/s against 1.9, so L3 runs as two workers (folds 0, 2, 4 and 1, 3),
+  about 6.5 h. `threads: 5` is in L3's config (float sums depend on it). The earlier ~3.8 h
+  estimate (scaled from R2) was low by about half.
+- **Cold check cost:** `rerank_chat --check` retrains L3's folds in one process, about 9 h.
+  `--warm` replays R1-R3 and L3. D55 needs the cold run before the plan is marked complete; the
+  owner is asked first.
+
+
+### S3 result: L2 passes the bar (best), L1 passes; every text model loses
+
+Recall@10 against the chat's top 10, X2's top 100, 60 JDs, out of fold (5 JD folds):
+
+| Candidate | R@10 total (gen / tar) | Δ vs X2 order, total [CI] | Bar |
+|---|---|---|---|
+| X2's order | 0.419 (0.421 / 0.416) | – | – |
+| S1 probability | 0.454 | +0.034 [+0.005, +0.063] | fail |
+| **L2 boosting** | **0.492** (0.502 / 0.472) | **+0.072 [+0.042, +0.104]** (+0.081 / +0.056) | **pass, best** |
+| L1 linear | 0.483 (0.490 / 0.469) | +0.064 [+0.035, +0.094] (+0.068 / +0.054) | pass |
+| R3 bi-encoder (D50) | 0.409 | −0.010 [−0.074, +0.057] | fail |
+| R2 cross-encoder (D50) | 0.234 | −0.186 [−0.246, −0.125] | fail |
+| R1 cross-encoder (D50) | 0.191 | −0.228 [−0.293, −0.162] | fail |
+| L3 cross-encoder (chat-1, MaxP) | 0.189 | −0.231 [−0.302, −0.156] | fail |
+
+- nDCG@10 (gain = chat score): X2 0.776, L2 0.824 (+0.048 [+0.019, +0.081]). Chat No Fits in the
+  top 10: X2 1.70, L2 1.35 (−0.35 [−0.70, −0.07]).
+- **Ablations of L2** (Δ vs X2): without `role_match` +0.002 (level with X2), without `sbert`
+  +0.042, without `tfidf_scaled` +0.060. The learned gain is role.
+- **L1 coefficients** (standardised, mean of folds): `role_match` 12.1, `sbert` 6.1, `tfidf_scaled`
+  4.0, `log_matched` 3.6; `coverage`, `coverage_unweighted`, `skill_overlap` held at 0 by the bound.
+- **L3 hardly learned.** Training MSE 0.065-0.071 per fold against a target variance of 0.072
+  (one epoch, lr 2e-5, every window carrying its pair's score). A scratch diagnostic (not a
+  record): within-JD Spearman of L3 with the chat score 0.27; with the CV's window count 0.17,
+  where the chat score's is 0.03, so MaxP also favours long CVs. Not a code fault: the scoring
+  loads report no missing weights. Options not run: R1's selected grid point (lr 5e-5, 3 epochs,
+  ~3x the 5.6 h), mean instead of max over windows. Either is exploratory now (its result is seen).
+- **Human check (exploratory, 422 judged CVs in the shortlists, 55-60 JDs):** L2 over X2, per-JD
+  AUC +0.116 [+0.043, +0.198], pairwise vs yc +0.127 [+0.064, +0.193]; L1 +0.071 / +0.100. L2 did
+  not merely learn the chat's mistakes.
+
+### End to end (reference: chat's top 10 over every chat-scored CV)
+
+| Pipeline | R@10 total (gen / tar) | Δ vs X2 alone | Chat No Fits in top 10 | JDs returning < 10 |
+|---|---|---|---|---|
+| X2 alone | 0.419 (0.421 / 0.416) | – | 1.70 | 0 |
+| S1 passed set, by probability | 0.422 | +0.003 [−0.033, +0.038] | 0.75 | 14 |
+| X2 top 100 → L2 | **0.492** | +0.072 [+0.042, +0.104] | 1.35 | 0 |
+| **S1 passed set → L2** (the owner's stage 1) | 0.449 (0.470 / 0.406) | +0.030 [−0.010, +0.071] | **0.72** | 14 |
+
+S1 passed set → L2 against X2 top 100 → L2: −0.043 [−0.070, −0.018] (generic −0.031, targeted
+−0.065). The short passed set misses part of the chat's top 10 (14 JDs hand over fewer than 10
+CVs); it shows half the chat No Fits, mostly because it shows fewer CVs. Its threshold (step 4)
+is the lever.
+
+### Deviations
+
+- Learning curve skipped (owner). L3 ran as two parallel workers at 5 threads (`threads` in its
+  config). `rerank/learners.py` and `rerank/chunked.py` added beside the planned modules.
+- `stage1_classifier.fit_arms` / `passed_set` were factored out after the S1 record was written;
+  the record's `--check` was re-run to prove it unchanged.
 
 ## Assumptions (to confirm)
 

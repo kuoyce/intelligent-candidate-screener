@@ -49,6 +49,9 @@ status = "✅ saved (pasting again replaces it)" if (jd_id, b) in done_batches e
 st.caption(f"{status} · stratum {stratum}")
 if b == 1:
     st.warning("**Start a new chat** for this JD, then paste the prompt below.")
+elif "source" in plan and plan[(plan.jd_id == jd_id) & (plan.batch == b)].source.eq("s1_passed").all():
+    st.info("**Extension batch** (S1 passed CVs outside X2's top 100): paste into the **same chat** "
+            "as this JD's earlier batches, after its last reply.")
 else:
     st.info("Paste into the **same chat** as this JD's batch 1.")
 

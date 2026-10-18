@@ -111,6 +111,14 @@ REGISTRY: tuple[Check, ...] = (
     Check("shortlist_dev_variants", "evaluation.shortlist_dev", ("--variants", "--check"),
           cold_s=284.2),
     Check("shortlist_final", "evaluation.shortlist_final", ("--check",), cold_s=160.3),
+    # stage1_classifier: its first (writing) run, 18 Oct 2026, alone; peak 4.2 GB, kept alone
+    # because it loads the D50 train split beside the dev pools.
+    Check("stage1_classifier", "evaluation.stage1_classifier", ("--check",), run_alone=True,
+          cold_s=440.2),
+    # rerank_chat: cold retrains L3's five folds one after another at 5 threads (estimate from the
+    # 18 Oct 2026 parallel run; L3 workers ran two folds at a time). Warm replays R1-R3 and L3.
+    Check("rerank_chat", "evaluation.rerank_chat", ("--check",), W, run_alone=True,
+          cold_s=32400.0, warm_s=600.0),
     Check("stage2", "evaluation.stage2", ("--check",), W, run_alone=True, cold_s=12609.0,
           warm_s=251.5),
 )

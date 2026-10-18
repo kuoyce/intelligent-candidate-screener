@@ -68,3 +68,22 @@ def test_save_reply_accepts_numpy_batch_numbers_and_logs_the_raw_paste(tmp_path)
     cr.save_reply("j0", np.int64(1), raw, cr.parse_reply(raw, [f"C{i:03d}" for i in range(1, 21)]), plan, path=path)
     assert len(cr.latest(path)) == 20
     assert json.loads(path.with_suffix(".raw.jsonl").read_text())["raw"] == raw
+
+
+def test_extend_adds_one_batch_per_jd_after_the_last_short_id_and_skips_planned_pairs():
+    """An extension must not reuse a short id (the reply would overwrite a scored CV), must not
+    re-plan a pair already scored, and must not invent a JD."""
+    plan = pd.DataFrame({"jd_id": ["a", "a", "b"], "cv_id": ["x", "y", "z"],
+                         "pair_id": ["a__x", "a__y", "b__z"], "stratum": ["generic", "generic", "targeted"],
+                         "short_id": ["C001", "C002", "C001"], "batch": [1, 2, 1], "jd_order": [1, 1, 2]})
+    extra = pd.DataFrame({"jd_id": ["a", "a", "b"], "cv_id": ["w", "x", "z"],
+                          "pair_id": ["a__w", "a__x", "b__z"]})
+    out = cr.extend(plan, extra, "s1_passed")
+    new = out[out.source == "s1_passed"]
+    assert new.pair_id.tolist() == ["a__w"]
+    assert new.short_id.tolist() == ["C003"] and new.batch.tolist() == [3]
+    assert new.jd_order.tolist() == [1] and new.stratum.tolist() == ["generic"]
+    assert (out[out.source == "x2_top100"].pair_id.tolist() == plan.pair_id.tolist())
+    assert cr.extend(out, extra, "s1_passed").equals(out)            # idempotent
+    with pytest.raises(ValueError, match="never a JD"):
+        cr.extend(plan, pd.DataFrame({"jd_id": ["c"], "cv_id": ["q"], "pair_id": ["c__q"]}), "s1_passed")
