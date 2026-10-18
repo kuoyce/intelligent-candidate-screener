@@ -831,6 +831,33 @@ Design fixed before scoring: the same 239 pairs, metric, CIs and comparisons as 
 - `rerank/cross.py`, `evaluation/rerank_embed.py --pilot-cross` → `output/rerank/cross-pilot.json`.
   Exploratory.
 
+### Step 5a cross-encoder pilot record (18 Oct 2026; exploratory)
+
+`output/rerank/cross-pilot.json`, `logs/rerank_cross_pilot.log`. The same 239 pairs. 61 min end to
+end; peak RSS 6.8 GB. Measured: C1 425 s (1.8 s/pair), C2 1,524 s and C3 1,482 s (6.3 s/pair), so
+the ~19 min estimate for each Qwen variant was low by a third.
+
+| System | AUC (gen / tar) | Δ vs X2 [CI] | Δ vs L2 F9 [CI] |
+|---|---|---|---|
+| X2 | 0.802 | – | −0.092 |
+| L2 F9 | **0.894** | +0.092 [+0.035, +0.156] | – |
+| E1 I0 (embedder) | 0.812 | +0.010 | −0.081 |
+| C1 gte-reranker | 0.727 (0.711 / 0.758) | −0.075 [−0.203, +0.066] | −0.167 [−0.252, −0.076] |
+| **C2 Qwen3-Reranker, fit instruction** | **0.846** (0.843 / 0.853) | +0.044 [−0.018, +0.110] | −0.047 [−0.095, −0.001] |
+| C3 Qwen3-Reranker, default instruction | 0.823 (0.823 / 0.824) | +0.021 | −0.070 |
+| U2 C1 + L2 | 0.860 | +0.058 | −0.033 [−0.066, +0.003] |
+| **U2 C2 + L2** | **0.902** (0.907 / 0.890) | +0.100 [+0.037, +0.165] | **+0.008 [−0.024, +0.044]** |
+| U2 C3 + L2 | 0.892 | +0.090 | −0.001 |
+
+- **C1, a reranker trained on web search, is below X2**: the same failure as R1, R2 and L3.
+- **C2 is the best text model so far.** Alone it beats X2 (+0.044) and the embedder (+0.034),
+  but stays below L2 (−0.047). It is the only arm whose fusion with L2 has a positive point
+  estimate (+0.008), with a CI across 0 on 12 JDs.
+- **The fit instruction helps the reranker** (C2 0.846 against C3 0.823), unlike the embedder,
+  where every instruction hurt. A reading, not tested: in the reranker the instruction states the
+  yes/no question it answers; in the embedder it only shifts the query vector.
+- **Cost of a full C2 run**: the remaining 5,781 pairs at 6.3 s each come to ~10 h on this CPU.
+
 ## Assumptions (to confirm)
 
 - Stage 2 uses F12, the same features as stage 1 (owner, 18 Oct 2026). R1–R3 and L3 bring the
