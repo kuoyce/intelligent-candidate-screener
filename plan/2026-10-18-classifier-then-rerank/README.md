@@ -780,6 +780,57 @@ allows: one process (measured above).
   `evaluation/rerank_embed.py --pilot` → `output/rerank/embed-pilot.json`. No `--check` until a
   full run. Tests (inline synthetic): query format, sample composition, per-JD fusion and AUC.
 
+### Step 5a pilot record (18 Oct 2026; exploratory)
+
+`output/rerank/embed-pilot.json`, `logs/rerank_embed_pilot.log`. 12 JDs (8 generic, 4 targeted),
+239 pairs, 235 CVs, 143 pairs in the chat's top 10. Encoding took 671 s (181 tok/s, as timed);
+16 min end to end; peak RSS 5.2 GB. The guards held: X2 matches the stage-1 record, and L2 on F9
+reproduces 4b's A1.
+
+| System | AUC, chat top 10 vs others (gen / tar) | Δ vs X2 [CI] | Δ vs L2 F9 [CI] |
+|---|---|---|---|
+| X2 | 0.802 (0.834 / 0.737) | – | −0.092 [−0.156, −0.035] |
+| L2 F9 | **0.894** (0.905 / 0.870) | +0.092 [+0.035, +0.156] | – |
+| E1 I0 (no instruction) | 0.812 (0.816 / 0.804) | +0.010 [−0.057, +0.081] | −0.081 [−0.117, −0.048] |
+| E1 I1 (fit) | 0.779 | −0.023 | −0.115 |
+| E1 I2 (role, skills, years) | 0.764 | −0.038 | −0.129 |
+| E1 I3 (I2 + JD title) | 0.745 | −0.057 | −0.149 |
+| U2 I0 (E1 + L2, min-max sum) | 0.892 (0.908 / 0.861) | +0.090 | **−0.002 [−0.023, +0.021]** |
+| U2 I1 / I2 / I3 | 0.883 / 0.880 / 0.870 | – | −0.011 / −0.013 / −0.023 |
+
+- **Alone, the zero-shot embedder is level with X2** and well below L2. On this metric L2 beats X2
+  by +0.092, in line with S3's Recall@10 gain (+0.072). The pilot metric tracks the full one.
+- **Every instruction made it worse**, in order: none > fit > criteria > criteria + title. A
+  reading, not tested: Qwen's instructions are built for asymmetric query-to-passage search, while a
+  JD and a CV are both long documents, so plain document-to-document similarity suits them better.
+- **Fused with L2, it adds nothing** (−0.002). U3 (an L2 feature) is untested. 4b's nearest arm,
+  zero-shot MiniLM as an L2 feature (N4), lost 0.019.
+- **The pre-set rule chooses I0, and the proposal is technically met** (E1 I0 Δ vs X2 = +0.010 > 0),
+  but by a margin far inside its CI. A full run (the remaining 4,546 CVs, ~3.2 h) would test only U3.
+  The owner decides.
+
+### Step 5a cross-encoder pilot (owner, 18 Oct 2026: "run the cross-encoders on the same sample")
+
+Design fixed before scoring: the same 239 pairs, metric, CIs and comparisons as the embedder pilot.
+
+- **C1:** `Alibaba-NLP/gte-reranker-modernbert-base` at revision `f7481e60` (no instruction).
+- **C2:** `Qwen/Qwen3-Reranker-0.6B` at revision `e61197ed`, with I1's wording as its instruction
+  ("Given a job description, retrieve the CVs of candidates who fit its requirements").
+- **C3:** the same model with its own default instruction (web search). It tests whether the
+  instruction helps, as I0 did for the embedder.
+- **Settings for all three:** float32 (the Qwen checkpoint's bfloat16 default was the slow
+  timing), max length 8,192 (the longest pair is 3,390 tokens, so nothing is cut), batch 1,
+  6 threads. Score = the raw logit (Qwen: yes minus no). Scores are cached per pair.
+- **Compared with:** X2, L2 F9 and E1 I0, each on the same pairs. U2 for each Cx = the per-JD
+  min-max sum with L2.
+- **Order:** C1, C2, then C3. The record is rewritten after each, so a long run still leaves
+  results.
+- **Cost:** ~203k tokens of pairs. C1 ~9 min; C2 and C3 ~19 min each at the embedder's measured
+  181 tok/s (same 0.6B backbone); ~50 min in all. The earlier "~20 min for both Qwen variants"
+  was low by half.
+- `rerank/cross.py`, `evaluation/rerank_embed.py --pilot-cross` → `output/rerank/cross-pilot.json`.
+  Exploratory.
+
 ## Assumptions (to confirm)
 
 - Stage 2 uses F12, the same features as stage 1 (owner, 18 Oct 2026). R1–R3 and L3 bring the
