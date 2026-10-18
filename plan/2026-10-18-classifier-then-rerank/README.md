@@ -1,7 +1,7 @@
 # Two-stage screening: a learned stage-1 classifier, then a reranker trained on `chat-1`
 
-Status: **approved by the owner, 18 Oct 2026. Steps 1-3 done (18 Oct 2026); D55 cold run and
-step 4 open.** Decision D61 below. Branch
+Status: **approved by the owner, 18 Oct 2026. Steps 1-3 done. Step 4 (revised) approved 18 Oct 2026,
+in progress; step 5 is findings only. D55 cold run of `rerank_chat` deferred to the end of the branch.** Decision D61 below. Branch
 `exp/classifier-then-rerank`, from `exp/stage2-llm-rerank`.
 
 ## Vision (owner, 18 Oct 2026)
@@ -155,6 +155,9 @@ in batch 1 to −3.7 in batch 5) and its multiples-of-5 scores cap every model's
 with no chat score are counted and shown, never imputed.
 
 ## Step 4. Enhancements (only if time)
+
+*Superseded 18 Oct 2026 by "Step 4 (revised)" below; kept as approved (D45).*
+
 
 Stage-1 tuning (class weights, the extra features), hard filters (each filter's recall loss is
 measured on dev-select first), and a threshold in place of a fixed K.
@@ -330,6 +333,168 @@ is the lever.
   config). `rerank/learners.py` and `rerank/chunked.py` added beside the planned modules.
 - `stage1_classifier.fit_arms` / `passed_set` were factored out after the S1 record was written;
   the record's `--check` was re-run to prove it unchanged.
+
+## Analysis after step 3 (exploratory, 18 Oct 2026)
+
+**End to end, corrected reading.** X2's top 100 → L2 *does* beat X2 alone (+0.072 [+0.042,
++0.104]). The pipeline that does not is S1's passed set → L2 (+0.030 [−0.010, +0.071]).
+
+**Where the loss is: a ceiling check** (scratch script, not a record). *Ceiling* = the share of the
+chat's top 10 (tie-aware, over every chat-scored CV) that stage 1 hands to stage 2, i.e. Recall@10
+with a perfect stage 2.
+
+| Stage 1 | Ceiling, total (generic / targeted) | L2 reaches |
+|---|---|---|
+| X2's top 100 | 1.000 | 0.492 |
+| S1 passed set (P ≥ 0.5) | **0.671** (0.745 / 0.523) | 0.449 |
+
+1. **Stage 1 is the main loss** for the S1 pipeline: a third of the chat's top 10 (half for
+   targeted JDs) never reaches stage 2.
+2. **Stage 2 recovers about half** of the chat's top 10 even inside X2's 100. Part is reference
+   noise (a median of 4 CVs tie at the chat's 10th score; one run with batch drift), part is L2
+   (it only reweights F12; the text models failed, step 5).
+3. Judged Fits in the top 10 barely move (X2 alone 116, X2 top 100 → L2 113, S1 → L2 110); only 10
+   of 500 CVs per JD are judged, so this is weak either way.
+
+**Disclosure.** The same scratch run also scored "passed set with a floor of 10 / 20 CVs per JD"
+on the final-set JDs (floor 20: R@10 0.488, ceiling 0.770). Those variants are now **seen**: a
+floor rule in step 4 is post-hoc unless justified on development data.
+
+**Why F12's concept terms get 0 or negative weights: collinearity, not a fault.** On the D50
+training pairs, `coverage`, `coverage_unweighted` and `skill_overlap` are near-copies (Spearman
+0.99-1.00; variance inflation factors 130, 177 and 38); `log_matched` correlates 0.95 with them.
+Each one fitted alone beside X2's three terms gets a **positive** standardised weight (+0.20 to
++0.30). Together the model splits one signal four ways, so their individual signs mean nothing;
+under L1's non-negativity three are held at 0 because the others already carry it.
+`log_jd_concepts` is a count control: negative means more listed requirements make the same
+matches worth less.
+
+## Step 4 (revised; approved by the owner 18 Oct 2026)
+
+**Goal.** Raise what stage 1 hands to stage 2 (the ceiling) without an unbounded list, then see
+whether better features help either stage. Order: 4a, then 4b. If 4b changes S1, 4a's chosen rule
+is re-applied mechanically and reported beside.
+
+### 4a. Stage-1 threshold
+
+**Sizes** (counted 18 Oct 2026, sizes only; no recall or ceiling looked at):
+
+| t | Final pools: median passed [range] | JDs < 10 | JDs > 100 | New CVs to chat-score (≥ batches of 20) | Dev-select median |
+|---|---|---|---|---|---|
+| 0.5 (now) | 23 [1, 81] | 14 | 0 | 0 | 21 |
+| 0.4 | 32 [1, 98] | 8 | 0 | 102 (27) | 31 |
+| 0.3 | 56 [1, 142] | 2 | 9 | 702 (63) | 55 |
+| 0.2 | 131 [30, 270] | 0 | 39 | 3,529 (207) | 122.5 |
+| 0.1 | 372 [183, 462] | 0 | 60 | 15,720 (817) | 357 |
+
+S1's probabilities are not calibrated for a pool: it was fitted with balanced classes on D50 (61%
+Fit), a pool is ~1% Fit. Below 0.2 nearly the whole pool passes, so 0.1 and 0.05 are out.
+
+- **Arms:** t ∈ {0.5, 0.4, 0.3, 0.2}, beside X2's top 100. Stage 2 is L2 as trained in step 3 (it
+  scores any pair; no retraining).
+- **Operating point, chosen before looking (proposal):** a stage-2 budget of a median ≤ 100 CVs
+  per JD on **dev-select** (D46-clean: sizes only) → **t = 0.3** (dev-select median 55; 0.2 gives
+  122.5). Ceiling and recall rise as t falls, so any "maximise the ceiling" rule picks the lowest t
+  allowed; the real choice is the budget. The other arms are reported as a curve (exploratory).
+- **Measures** (per JD, mean, JD-resampled CI, generic / targeted / total): ceiling; end-to-end
+  Recall@10, nDCG@10 and chat No Fits with L2; list size and JDs under 10; judged Fits kept
+  (stage-1 recall, human final set). Paired against X2 alone, X2's top 100 → L2, and t = 0.5 → L2.
+- **Bar (proposal):** the S3 bar, end to end: Recall@10 Δ vs X2 alone ≥ +0.05 with the CI above
+  0. Reported beside: Δ vs X2's top 100 → L2.
+- **Chat scoring.** Every passed CV outside the CVs already scored, down to the lowest arm scored:
+  702 CVs (≥ 63 batches) for t = 0.3, 3,529 (≥ 207) for t = 0.2. Pasted as further batches in each
+  JD's existing chat (batch 7 onwards), same instrument, through the app (`--extend-s1` gains a
+  threshold). At t = 0.2 a JD's chat grows by up to 170 CVs, which may near the chat's context
+  limit; t = 0.3 adds at most 42 per JD.
+- **Caveat.** Scoring more CVs enlarges the reference: a newly scored CV can enter the chat's top
+  10, so X2's top-100 ceiling can drop below 1. That is the more complete reference, not an error.
+
+### 4b. Features
+
+- **4b-0 de-duplicate:** F12 → **F9** without `coverage_unweighted`, `skill_overlap`,
+  `log_matched` (keep `coverage`, `log_jd_concepts`, `log_cv_concepts`). Expected: no loss, and
+  coefficients that read correctly.
+- **Candidates to add** (text only, D53; the JD title is allowed, D54). Each is one arm:
+
+| Id | Feature | Why | Cost |
+|---|---|---|---|
+| N1 | JD-title role match: the CV's probability of the JD title's family (Z1L's lookup-or-text) | role carries all of L2's gain; Z1L was the dev-best role rule | minutes (role model cached) |
+| N2 | R+N tagger concept coverage (GLiNER / MiniLM), *replacing* `coverage` | passed the overlap gate before; never tested in a pool | to measure first (tagging 12.6k pool + 14k dev CVs) |
+| N3 | F1 negation drop, F2 no-experience flag | open options from score-defects | minutes |
+| N4 | SBERT zero-shot cosine | a second text view; embeddings cached | minutes |
+| N5 | log CV length | control (L3 favoured long CVs) | minutes |
+
+- **Where each stage is judged** (never the final set for stage 1, D46): stage 1 by 5-fold JD CV on
+  D50 (per-JD AUC on held-out JDs); stage 2 by `chat-1` out-of-fold Recall@10 (D61).
+- **Adoption rule (proposal):** F9 is adopted if L2's out-of-fold Recall@10 Δ vs F12 is ≥ −0.005
+  (no loss). An added feature is adopted if its paired Δ (vs F9) is > 0 with the CI above 0. Then
+  one final arm with every adopted feature. Multiple arms: a single nominal pass is weak evidence.
+
+**Cost.** 4a: about half a day of code and ~10 min per run, plus the owner's chat time (63-207
+batches). 4b: about half a day, ~15 min per arm (N2 extra, to measure).
+
+### Open questions (step 4)
+
+Answered 18 Oct 2026 (owner):
+
+10. Operating point: **t = 0.3**, from the dev-select budget (median ≤ 100). *Agreed.*
+12. 4a bar: the S3 bar end to end (Recall@10 Δ vs X2 alone ≥ +0.05, CI above 0). *Agreed.*
+13. Features: **N1-N4**; N5 (CV length) dropped. Adoption rule as above. *Agreed.*
+14. New chat batches go in a **fresh chat** per JD (not the JD's existing chat).
+15. D55 cold run of `rerank_chat`: **deferred** until this plan and branch are finished.
+
+11. Chat scoring: **t = 0.3 only** (702 new CVs over 47 JDs; median 10, max 62 per JD); t = 0.2
+    stays a size-only row. *Agreed.*
+16. Anchors: yes. Each fresh chat is padded with already-scored CVs of the same JD to a multiple
+    of 20 (5 new → 15 anchors). *Agreed.* Total: 558 anchors, 1,260 CVs, 63 batches.
+
+17. At least 5 anchors per JD: **69 batches** (702 new + 678 anchors = 1,380 CVs). *Agreed.*
+18. Anchor *selection* is fixed before scoring: spread evenly over the JD's `chat-1` score order
+    (seeded), shuffled with the new CVs, never marked. How anchors are *used* (correct or not) is
+    **decided after seeing the drift** (owner); whatever is chosen is labelled post-hoc.
+19. Mixing `chat-1` and the fresh chats in 4a's reference is accepted (same model, same instrument;
+    owner). The fresh chats get their own label (`chat-2`) so they can be told apart. Per pair the
+    **latest score wins**, as `chat_rerank.latest()` does now: an anchor's fresh score replaces its
+    `chat-1` score in step 4's reference. Step 3's record and L2's training stay on `chat-1` as
+    committed, so they still reproduce.
+20. A possible second, smaller chat round after 4b; N2 timed first and skipped if over ~1 h unless
+    the owner says otherwise. *Agreed.*
+
+**Why 4a needs chat scores.** L2 needs none: it is trained on X2's top 100 and scores any pair.
+The scores are for the **reference**. At t = 0.3 a JD's passed set holds CVs outside X2's top 100
+that the chat never saw. Unscored, (a) the ceiling cannot tell whether one of them belongs in the
+chat's top 10, and (b) when L2 puts one in its top 10 it can only count as a miss, never a hit and
+never a No Fit. Every unscored CV would count against the lower threshold and for X2's top 100
+(whose CVs are all scored), so the comparison 4a exists for would be biased. Scoring the 702
+removes that; t = 0.2 (3,529) would stay a size-only row.
+
+## Step 5 (findings only, 18 Oct 2026; not planned)
+
+The template the retrieval literature follows for cross-encoder rerankers, against R1-R3 and L3:
+
+| Practice | Template | Ours |
+|---|---|---|
+| Starting checkpoint | fine-tune a model **already trained as a reranker** (MS MARCO cross-encoder); two-stage (MS MARCO, then LLM labels) was best in Rank-DistiLLM; a non-reranker base "requires more training data" | `all-MiniLM-L6-v2`, a sentence-embedding model, random score head: **the biggest gap** |
+| Training candidates | the first-stage retriever's hard candidates, "the first-stage retriever matters most"; ~10k queries, depth 50 sufficed | R1-R3: D50, 100 JDs × 10, not X2's shortlists; L3: right distribution but 48 JDs per fold |
+| Loss | LLM distillation: pairwise RankNet ≈ listwise; binary labels: BCE with mined hard negatives (`pos_weight`); LambdaLoss reported strong | R1, L3 pointwise MSE on 0-100 (learns the chat's batch drift; a within-batch pairwise loss cancels it); R2 RankNet on 800 pairs |
+| Long documents | passages + MaxP / FirstP (Dai & Callan); effective **only with MS MARCO pre-fine-tuning** (Zhang, Yates & Lin); or long-context rerankers; person-job work decomposes résumé and job (Malt 2026) | R1/R2 cut at 384 tokens; L3 MaxP with no pre-fine-tuning: the setting that study found ineffective |
+| Validation | cross-encoders "overfit rather quickly": reranking evaluator on the stage-1 top k, keep the best checkpoint | fixed epochs, no in-fold validation; L3 under-trained |
+| Scale | 110M-600M (monoELECTRA, ModernBERT) | MiniLM-L6, 22M (CPU) |
+
+Possible shape, to plan later: **5a** zero-shot MS MARCO and long-context rerankers on X2's top 100
+against `chat-1` (inference only, ~30 min-3 h CPU); **5b** fine-tune the better one on `chat-1`
+with a within-batch pairwise loss, 5 JD folds, early stopping on an inner fold (MiniLM-size: ~1.5-2
+h per fold at L3's measured 0.5 s/window). Needs model downloads (the code loads local files only).
+
+Sources: [Rank-DistiLLM](https://arxiv.org/html/2405.07920v1);
+[Training reranker models with Sentence Transformers](https://huggingface.co/blog/train-reranker);
+[sbert.net MS MARCO cross-encoder training](https://sbert.net/examples/cross_encoder/training/ms_marco/);
+[sbert.net cross-encoder losses](https://sbert.net/docs/package_reference/cross_encoder/losses.html);
+[cross-encoder/ms-marco-MiniLM-L6-v2](https://huggingface.co/cross-encoder/ms-marco-MiniLM-L6-v2);
+[Zhang, Yates & Lin, ECIR 2021](https://cs.uwaterloo.ca/~jimmylin/publications/978-3-030-72240-1_11.pdf);
+[Pretrained Transformers for Text Ranking](https://arxiv.org/pdf/2010.06467);
+[Malt person-job fit, 2026](https://arxiv.org/abs/2601.10321v2);
+[TalentCLEF 2026](https://ceur-ws.org/Vol-4283/paper491.pdf).
 
 ## Assumptions (to confirm)
 
