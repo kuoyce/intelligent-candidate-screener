@@ -31,6 +31,13 @@ from candidate_screener.config import OUTPUT
 
 PILOT_RECORD = OUTPUT / "rerank" / "embed-pilot.json"
 CROSS_RECORD = OUTPUT / "rerank" / "cross-pilot.json"
+COVERAGE_RECORD = OUTPUT / "rerank" / "topk-coverage.json"
+COVERAGE_K = (10, 20, 30, 40, 50, 100)
+CASCADE_RECORD = OUTPUT / "rerank" / "cascade-c2.json"
+CASCADE_K = 30
+CASCADE_SYSTEM = "C2 Qwen3-Reranker, fit"
+HELD_OUT_FOLDS = (1, 2, 3, 4)
+FUSED, C_ONLY = "L2 top 30 -> C2 + L2", "L2 top 30 -> C2"
 TEXT_VARIANT = "v2"
 PILOT_FOLD = 0
 N_OTHER = 8
@@ -94,6 +101,44 @@ def minmax_fuse(sample: pd.DataFrame, a: pd.Series, b: pd.Series) -> pd.Series:
 def block(per: pd.Series, stratum: pd.Series, seed: int = SEED) -> dict:
     from candidate_screener.evaluation.stage1_classifier import by_scope, mean_block
     return by_scope(per, stratum, lambda r: mean_block(r.astype(float), seed))
+
+
+def coverage(chat: pd.DataFrame, system: pd.Series, k: int) -> pd.Series:
+    """Per JD: the share of the chat's tie-aware top 10 inside `system`'s top `k` (ties by pair
+    id), i.e. Recall@10 with a perfect reranker on that list. `k` = 10 is Recall@10 itself."""
+    from candidate_screener.rerank.chat_targets import K, chat_weights, top_k_mask
+    out = {}
+    for jd, g in chat.sort_values("pair_id").groupby("jd_id", sort=True):
+        ids = g.pair_id.to_numpy()
+        w = chat_weights(g.score.to_numpy())
+        out[jd] = float(w[top_k_mask(ids, system.loc[ids].to_numpy(dtype=float), k)].sum() / min(K, len(ids)))
+    return pd.Series(out, dtype=float)
+
+
+def _minmax(v: np.ndarray) -> np.ndarray:
+    span = v.max() - v.min()
+    return (v - v.min()) / (span if span > 0 else 1.0)
+
+
+def cascade_scores(chat: pd.DataFrame, first: pd.Series, second: pd.Series, k: int = CASCADE_K
+                   ) -> tuple[pd.Series, pd.Series]:
+    """(fused, second only) over every pair of `chat`, by pair id. Per JD, `first`'s top `k` (ties
+    by pair id) is reordered, by min-max `first` + min-max `second` within the k, or by `second`
+    alone; the rest stay in `first`'s order below them. `second` needs only the top-k pairs."""
+    from candidate_screener.rerank.chat_targets import top_k_mask
+    fused = pd.Series(np.nan, index=chat.pair_id.to_numpy())
+    alone = fused.copy()
+    for _, g in chat.sort_values("pair_id").groupby("jd_id", sort=True):
+        ids = g.pair_id.to_numpy()
+        f = first.loc[ids].to_numpy(dtype=float)
+        top = top_k_mask(ids, f, k)
+        below = _minmax(f)[~top]                 # in [0, 1]; the top k sit above 10
+        sec = _minmax(second.loc[ids[top]].to_numpy(dtype=float))
+        fused.loc[ids[top]] = 10 + _minmax(f[top]) + sec
+        alone.loc[ids[top]] = 10 + sec
+        fused.loc[ids[~top]] = below
+        alone.loc[ids[~top]] = below
+    return fused, alone
 
 
 def best_variant(auc_total: dict[str, float]) -> str:
@@ -234,6 +279,111 @@ def cross_pilot(seed: int = SEED, write=None) -> dict:
     return doc
 
 
+def coverage_doc(seed: int = SEED) -> dict:
+    """How much of the chat's top 10 L2's (and X2's) top k holds, all 60 JDs: the ceiling of a
+    cascade that reranks only that top k. Uses no cross-encoder score."""
+    from candidate_screener.rerank import chat_targets as ct, chunked
+    chat_all = chunked.chat_frame()
+    chat = chat_all[chat_all.source == ct.TRAIN_SOURCE].reset_index(drop=True)
+    stratum = chat.drop_duplicates("jd_id").set_index("jd_id").stratum
+    x2, l2 = _x2_and_l2(chat_all, seed)
+    out = {}
+    for name, s in (("L2 (F9)", l2), ("X2", x2)):
+        out[name] = {str(k): block(coverage(chat, s, k), stratum, seed) for k in COVERAGE_K}
+    return {"plan": "plan/2026-10-18-classifier-then-rerank (step 5a, cascade cost)", "status": "exploratory",
+            "pairs": int(len(chat)), "jds": int(chat.jd_id.nunique()), "k": list(COVERAGE_K),
+            "metric": "share of the chat's tie-aware top 10 inside the system's top k (ties by pair id)",
+            "coverage": out}
+
+
+def _human(scores: dict[str, pd.Series], chat: pd.DataFrame, refs, seed: int = SEED) -> dict:
+    """Exploratory: judged CVs in X2's top 100; per-JD AUC on the final label and pairwise on
+    yc's grades, `full` and `llm_free`, paired against each of `refs` (as `rerank_chat`)."""
+    from candidate_screener.evaluation import final_set, indomain, ordering
+    from candidate_screener.evaluation.rerank_chat import HUMAN_REF
+    from candidate_screener.matching import corpus
+    frame = final_set.load()
+    rule_version = int(frame.rule_version.iloc[0])
+    lab = indomain.labels(frame)
+    judged = lab.index.intersection(pd.Index(chat.pair_id))
+    lab_j = lab.loc[judged]
+    pairs = corpus.a2_pairs(text_variant=TEXT_VARIANT).assign(keyword_match=lambda d: corpus.keyword_match(d))
+    grades = ordering.grade_frame(frame).loc[judged]
+    out, unscoreable = {}, []
+    with indomain.auc_memo():
+        for name, s in scores.items():
+            s = s.loc[judged]
+            block_ = {"auc": [f.as_dict() for f in indomain.rank_figures(name, s, lab_j, pairs, rule_version,
+                                                                         seed, unscoreable)],
+                      "pairwise_" + HUMAN_REF: {sub: {scope: ordering.summarise(ordering.per_jd(
+                          ordering.restrict(grades, scope, sub), HUMAN_REF, s, "pairwise")[0], seed)
+                          for scope in final_set.SCOPES} for sub in ("full", "llm_free")}}
+            for ref in refs:
+                if ref == name:
+                    continue
+                a = scores[ref].loc[judged]
+                block_[f"auc_delta_vs_{ref}"] = [indomain.paired_delta(s, a, lab_j, pairs, "auc", scope, sub, seed)
+                                                 for sub in indomain.SUBSETS for scope in final_set.SCOPES]
+                block_[f"pairwise_delta_vs_{ref}"] = [ordering.paired_delta(s, a, grades, HUMAN_REF, "pairwise",
+                                                                            scope, sub, seed)
+                                                      for sub in ("full", "llm_free") for scope in final_set.SCOPES]
+            out[name] = block_
+    return {"reference": HUMAN_REF, "judged_pairs": int(len(judged)), "systems": out,
+            "unscoreable": unscoreable, "status": "exploratory"}
+
+
+def cascade(seed: int = SEED, write=None) -> dict:
+    """Step 5b: L2's top 30 per JD rescored by C2, fused with L2 (the decision arm) or alone."""
+    from candidate_screener.evaluation import rerank_chat as rc
+    from candidate_screener.rerank import chat_targets as ct, chunked, cross
+    t_start = time.time()
+    chat_all = chunked.chat_frame()
+    chat = chat_all[chat_all.source == ct.TRAIN_SOURCE].reset_index(drop=True)
+    stratum = chat.drop_duplicates("jd_id").set_index("jd_id").stratum
+    fold_of = chat.drop_duplicates("jd_id").set_index("jd_id").fold
+    _log("X2 and L2 (F9) scores")
+    x2, l2 = _x2_and_l2(chat_all, seed)
+    top = pd.concat([g[ct.top_k_mask(g.pair_id.to_numpy(), l2.loc[g.pair_id.to_numpy()].to_numpy(dtype=float),
+                                     CASCADE_K)] for _, g in chat.sort_values("pair_id").groupby("jd_id", sort=True)])
+    _log(f"stage 2b: {len(top)} pairs ({CASCADE_SYSTEM})")
+    t0 = time.time()
+    c = cross.score_pairs(top, CASCADE_SYSTEM)
+    score_s = time.time() - t0
+    fused, alone = cascade_scores(chat, l2, c)
+    systems = {"X2": x2, "L2 (F9)": l2, FUSED: fused, C_ONLY: alone}
+    per = {n: ct.per_jd(chat, s) for n, s in systems.items()}
+    held = fold_of.index[fold_of.isin(HELD_OUT_FOLDS)]
+
+    def scored(jds) -> dict:
+        res = {}
+        for n in systems:
+            p = per[n].loc[per[n].index.intersection(jds)]
+            res[n] = {"summary": rc.summary(p, stratum, seed)}
+            for ref in ("L2 (F9)", "X2"):
+                if n != ref:
+                    res[n][f"delta_vs_{ref}"] = rc.deltas(p, per[ref].loc[p.index], stratum, seed)
+        return res
+
+    held_res, all_res = scored(held), scored(fold_of.index)
+    d = held_res[FUSED]["delta_vs_L2 (F9)"]["recall"]["total"]
+    doc = {"plan": "plan/2026-10-18-classifier-then-rerank (step 5b cascade)", "status": "exploratory",
+           "seed": seed, "k": CASCADE_K, "stage_2b": cross.config(CASCADE_SYSTEM),
+           "pairs": {"chat": int(len(chat)), "rescored": int(len(top)), "jds": int(chat.jd_id.nunique()),
+                     "held_out_jds": int(len(held))},
+           "decision": {"rule": "fused Recall@10 delta vs L2 F9 (total, folds 1-4) > 0 with the CI above 0",
+                        "delta": d, "adopted": bool(d["value"] > 0 and d["ci"][0] > 0)},
+           "held_out_folds_1_4": held_res, "all_60": all_res,
+           "cost": {"stage_2b_seconds": round(score_s, 1), "total_seconds": None}}
+    if write is not None:
+        write(doc)
+    _log("human check (exploratory)")
+    doc["human_check"] = _human(systems, chat, ("L2 (F9)", "X2"), seed)
+    doc["cost"]["total_seconds"] = round(time.time() - t_start, 1)
+    if write is not None:
+        write(doc)
+    return doc
+
+
 def render(doc: dict) -> str:
     return json.dumps(doc, indent=1, ensure_ascii=False) + "\n"
 
@@ -249,7 +399,30 @@ def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     ap.add_argument("--pilot", action="store_true", help="the fold-0 sample pilot (E1)")
     ap.add_argument("--pilot-cross", action="store_true", help="C1-C3 on the same sample")
+    ap.add_argument("--coverage", action="store_true", help="the chat's top 10 inside L2's / X2's top k")
+    ap.add_argument("--cascade", action="store_true", help="step 5b: L2 top 30 -> C2 (+ L2)")
     args = ap.parse_args(argv)
+    if args.cascade:
+        def write(doc):
+            CASCADE_RECORD.write_text(render(doc), encoding="utf-8")
+            _log(f"wrote {CASCADE_RECORD}")
+        doc = cascade(write=write)
+        for scope_name in ("held_out_folds_1_4", "all_60"):
+            for n, r in doc[scope_name].items():
+                t = r["summary"]["recall"]["total"]
+                dl = r.get("delta_vs_L2 (F9)", {}).get("recall", {}).get("total")
+                print(f"{scope_name:20s} {n:24s} R@10 {t['value']:.3f}"
+                      + (f"  vs L2 {dl['value']:+.3f} [{dl['ci'][0]:+.3f}, {dl['ci'][1]:+.3f}]" if dl else ""))
+        print("decision:", doc["decision"])
+        return 0
+    if args.coverage:
+        doc = coverage_doc()
+        COVERAGE_RECORD.write_text(render(doc), encoding="utf-8")
+        _log(f"wrote {COVERAGE_RECORD}")
+        for name, by_k in doc["coverage"].items():
+            print(name, "  ".join(f"k={k}: {v['total']['value']:.3f} (gen {v['generic']['value']:.3f} / "
+                                  f"tar {v['targeted']['value']:.3f})" for k, v in by_k.items()))
+        return 0
     if args.pilot_cross:
         def write(doc):
             CROSS_RECORD.parent.mkdir(parents=True, exist_ok=True)

@@ -66,3 +66,24 @@ def test_per_jd_auc_and_best_variant():
     assert re_.best_variant({"I0": 0.7, "I1": 0.8, "I2": 0.8}) == "I1"
     with pytest.raises(KeyError):
         embedder.query_text("jd", "I9")
+
+
+def test_coverage_is_the_share_of_the_chat_top10_in_the_system_top_k():
+    chat = _chat(n_jd=1, n_cv=20)                       # chat's top 10 = cv 0..9
+    system = pd.Series(np.arange(20, dtype=float), index=chat.pair_id)   # reversed: best = cv 19
+    assert re_.coverage(chat, system, 10).iloc[0] == 0.0
+    assert re_.coverage(chat, system, 15).iloc[0] == 0.5
+    assert re_.coverage(chat, system, 20).iloc[0] == 1.0
+    assert re_.coverage(chat, -system, 10).iloc[0] == 1.0
+
+
+def test_cascade_reorders_only_the_first_stage_top_k():
+    chat = _chat(n_jd=1, n_cv=6)
+    ids = chat.pair_id.to_numpy()
+    first = pd.Series([6, 5, 4, 3, 2, 1], index=ids, dtype=float)          # top 3 = ids[0:3]
+    second = pd.Series({ids[0]: 0.0, ids[1]: 1.0, ids[2]: 2.0})             # only the top 3 scored
+    fused, alone = re_.cascade_scores(chat, first, second, k=3)
+    assert list(alone.sort_values(ascending=False).index[:3]) == [ids[2], ids[1], ids[0]]
+    assert (fused.loc[ids[:3]] >= 10).all() and (fused.loc[ids[3:]] <= 1).all()
+    assert list(fused.loc[ids[3:]].sort_values(ascending=False).index) == list(ids[3:])
+    assert np.allclose(fused.loc[ids[:3]].to_numpy(), [11.0, 11.0, 11.0])  # min-max sums tie here

@@ -858,6 +858,47 @@ the ~19 min estimate for each Qwen variant was low by a third.
   yes/no question it answers; in the embedder it only shifts the query vector.
 - **Cost of a full C2 run**: the remaining 5,781 pairs at 6.3 s each come to ~10 h on this CPU.
 
+### Cascade cost: the chat's top 10 inside L2's top k (owner, 18 Oct 2026; exploratory)
+
+`evaluation/rerank_embed.py --coverage` → `output/rerank/topk-coverage.json`. All 60 JDs, X2's
+top 100. Coverage = the share of the chat's tie-aware top 10 inside a system's top k, i.e. Recall@10
+with a perfect reranker on that list. No cross-encoder score is used. L2's k = 10 row reproduces
+4b's A1 Recall@10 (0.497).
+
+| k | L2 F9 (gen / tar) | X2 | C2 pairs to score (60 × k) | ~Time at 6.3 s/pair |
+|---|---|---|---|---|
+| 10 | 0.497 (0.503 / 0.485) | 0.419 | – | – |
+| 20 | 0.711 (0.725 / 0.682) | 0.651 | 1,200 | 2.1 h |
+| **30** | **0.819** (0.832 / 0.794) | 0.762 | 1,800 | 3.2 h |
+| 40 | 0.874 (0.879 / 0.866) | 0.805 | 2,400 | 4.2 h |
+| 50 | 0.910 (0.917 / 0.896) | 0.857 | 3,000 | 5.3 h |
+| 100 | 1.000 | 1.000 | 6,000 | 10.5 h |
+
+Times are before subtracting the pilot's cached pairs that fall inside each top k (at most 239).
+
+### Step 5b: cascade L2 top 30 → Qwen3-Reranker (owner, 18 Oct 2026: k = 30; fixed before scoring)
+
+- **Stage 2a:** L2 on F9, out of fold (4b's A1, digest-guarded), over X2's top 100 of each JD. Its top
+  30 per JD (ties by pair id) go on.
+- **Stage 2b:** C2 (Qwen3-Reranker-0.6B, the fit instruction, the pilot's exact config and cache)
+  scores those 1,800 pairs. Nothing is trained.
+- **Arms:**
+  - **"L2 top 30 → C2 + L2"** (the decision arm): within the top 30, the sum of per-JD min-max L2 and
+    min-max C2;
+  - "L2 top 30 → C2": within the top 30, C2's order alone.
+  - In both, ranks 31-100 stay in L2's order below the 30.
+- **Metrics:** S3's Recall@10 against the chat's top 10, nDCG@10, chat No Fits; generic / targeted /
+  total, JD-resampled CIs; paired against L2 F9 and against X2. The human check (judged CVs in X2's
+  top 100: per-JD AUC on the final label, pairwise on yc's grades, `full` and `llm_free`) is
+  exploratory.
+- **Decision, on folds 1-4** (48 JDs; fold 0's C2 scores were seen in the pilot): 4b's adoption rule,
+  i.e. the fused arm is adopted if its Recall@10 Δ vs L2 F9 (total) is > 0 with the CI above 0. All
+  60 JDs are reported beside it.
+- **Cost:** ≤ 1,800 pairs at 6.3 s, minus the pilot pairs already cached: ~3 h, one background
+  process. Scores are cached per pair, so a crash after scoring costs only the ~5 min of features.
+- `evaluation/rerank_embed.py --cascade` → `output/rerank/cascade-c2.json`. Exploratory: no
+  `--check` until the owner decides to keep it.
+
 ## Assumptions (to confirm)
 
 - Stage 2 uses F12, the same features as stage 1 (owner, 18 Oct 2026). R1–R3 and L3 bring the
