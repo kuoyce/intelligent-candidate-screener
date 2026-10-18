@@ -87,3 +87,11 @@ def test_cascade_reorders_only_the_first_stage_top_k():
     assert (fused.loc[ids[:3]] >= 10).all() and (fused.loc[ids[3:]] <= 1).all()
     assert list(fused.loc[ids[3:]].sort_values(ascending=False).index) == list(ids[3:])
     assert np.allclose(fused.loc[ids[:3]].to_numpy(), [11.0, 11.0, 11.0])  # min-max sums tie here
+
+
+def test_capped_list_applies_threshold_then_cap():
+    chat = _chat(n_jd=2, n_cv=6)
+    p = pd.Series([0.9, 0.8, 0.7, 0.35, 0.2, 0.1] * 2, index=chat.pair_id.to_numpy())
+    got = re_.capped_list(chat, p, t=0.3, cap=3)
+    assert got == {"p00-00", "p00-01", "p00-02", "p01-00", "p01-01", "p01-02"}
+    assert re_.capped_list(chat, p, t=0.3, cap=30) == got | {"p00-03", "p01-03"}

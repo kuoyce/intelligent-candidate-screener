@@ -899,6 +899,62 @@ Times are before subtracting the pilot's cached pairs that fall inside each top 
 - `evaluation/rerank_embed.py --cascade` → `output/rerank/cascade-c2.json`. Exploratory: no
   `--check` until the owner decides to keep it.
 
+### Step 5b record (18 Oct 2026): not adopted
+
+`output/rerank/cascade-c2.json`, `logs/rerank_cascade.log`. 1,800 pairs rescored, 150 of them cached
+from the pilot. The other 1,650 took 8,305 s (5.0 s/pair, faster than the pilot's 6.3); 2 h 22 min
+end to end; peak RSS 5.2 GB. The L2 digest guard held.
+
+| Pipeline | R@10, folds 1-4 (gen / tar) | Δ vs L2 F9 [CI] | nDCG@10 Δ vs L2 | Chat No Fits | R@10, all 60 (Δ vs L2) |
+|---|---|---|---|---|---|
+| X2's order | 0.410 | −0.079 [−0.114, −0.045] | −0.042 | 1.60 | 0.419 |
+| L2 F9 | 0.489 (0.498 / 0.471) | – | – | 1.38 | 0.497 |
+| **L2 top 30 → C2 + L2** | **0.502** (0.503 / 0.500) | **+0.013 [−0.011, +0.038]** | +0.019 [+0.001, +0.039] | 1.27 | 0.522 (+0.025 [+0.003, +0.046]) |
+| L2 top 30 → C2 alone | 0.422 | −0.067 [−0.105, −0.027] | −0.034 | 1.48 | 0.439 |
+
+- **Decision (folds 1-4, 48 JDs): not adopted.** +0.013 Recall@10 over L2, CI across 0. The
+  all-60 row (+0.025, CI above 0) includes fold 0, whose C2 scores were seen in the pilot, so it
+  does not decide.
+- The fused arm improves the order a little: nDCG@10 +0.019, CI just above 0, and 0.1 fewer chat No
+  Fits. Against X2 it clears S3's bar (+0.092 [+0.055, +0.132]), but L2 alone already does (+0.079).
+- **C2 alone loses to L2 inside the same 30 (−0.067).** The reranker helps only as a second opinion
+  beside L2's features.
+- **Human check (exploratory, 422 judged CVs): no change.** Fused vs L2: per-JD AUC −0.004
+  [−0.040, +0.028], pairwise on yc +0.007 [−0.024, +0.042]; `llm_free` is similar.
+- **Reading:** a zero-shot 0.6B instruction reranker adds ~+0.01 to +0.02 Recall@10 at ~2.3 h of
+  CPU per 60 JDs (top 30). That is within noise against the pre-set bar. The text gain over
+  hand-made features stays small, as in steps 3 and 4b.
+
+### Step 5c: S1 → zero-shot reranker, nothing trained on `chat-1` (owner, 18 Oct 2026; fixed before scoring)
+
+Owner, 18 Oct 2026: L2 is suspect because it is trained on the reference it is scored against. Stage
+2 should be zero-shot: less likely to overfit, and swappable by speed. Stage 1 should be S1: trained
+and tested on labels, modular, with explainable coefficients, where X2's formula is hand-set. The
+agent's take, recorded beside it: the human check (+0.116 AUC over X2) says L2 learned more than the
+chat's habits. S1 is also trained on LLM labels, but from D50's other JDs, never the evaluation
+judge's scores. So this pipeline uses `chat-1` only to score.
+
+- **Stage 1:** S1 (logistic on F12, fitted on D50 as in steps 1 and 4a), the t = 0.3 list (4a's
+  registered threshold), capped at its top 30 by probability (ties by pair id). 1,657 pairs, median
+  30 per JD [1, 30]. Every one has a chat score. Counted 18 Oct 2026: 1,296 already have C2 scores,
+  361 are new (~30 min).
+- **Stage 2:** C2 (Qwen3-Reranker-0.6B, the fit instruction, the pilot's config and cache).
+- **Arms on that list:** "S1 alone" (S1's probability order); "S1 → C2" (C2's order); **"S1 → C2 +
+  S1"** (the decision arm: the sum of per-JD min-max S1 probability and min-max C2 within the list).
+- **Beside them:** X2's top 100 → L2 F9 (what training on `chat-1` buys) and X2 alone.
+- **Reference:** `ct.load_latest()` (`chat-1` + `chat-2`, the latest score per pair), as in 4a.
+  `chat-2`'s +3.4 offset (4a's anchors) is reported beside; the headline is uncorrected (question
+  21). Recall@10, nDCG@10, chat No Fits and the ceiling, tie-aware over every chat-scored CV of the
+  JD. A list shorter than 10 hands over what it has.
+- **Decision, on folds 1-4** (C2 scores from fold 0 were seen in the pilot): the zero-shot stage 2 is
+  adopted over S1 alone if "S1 → C2 + S1" has a Recall@10 Δ vs "S1 alone" (total) > 0 with the CI
+  above 0. All 60 JDs are reported beside.
+- **Human check (exploratory):** judged CVs inside the S1 list. Per-JD AUC and pairwise on yc, the
+  three S1 arms only, against S1 alone.
+- **Guards:** X2's pool scores match the stage-1 record; the uncapped t = 0.3 list sizes match 4a's
+  record; L2 F9 reproduces 4b's A1; every listed CV has a chat score.
+- `evaluation/rerank_embed.py --s1-zero-shot` → `output/rerank/s1-zero-shot.json`. Exploratory.
+
 ## Assumptions (to confirm)
 
 - Stage 2 uses F12, the same features as stage 1 (owner, 18 Oct 2026). R1–R3 and L3 bring the

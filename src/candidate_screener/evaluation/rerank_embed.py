@@ -38,6 +38,10 @@ CASCADE_K = 30
 CASCADE_SYSTEM = "C2 Qwen3-Reranker, fit"
 HELD_OUT_FOLDS = (1, 2, 3, 4)
 FUSED, C_ONLY = "L2 top 30 -> C2 + L2", "L2 top 30 -> C2"
+S1_RECORD = OUTPUT / "rerank" / "s1-zero-shot.json"
+S1_T, S1_CAP = 0.3, 30
+S1_ALONE, S1_C2, S1_FUSED = "S1 alone", "S1 -> C2", "S1 -> C2 + S1"
+X2_L2, X2_ALONE = "X2 top 100 -> L2 (F9)", "X2 alone"
 TEXT_VARIANT = "v2"
 PILOT_FOLD = 0
 N_OTHER = 8
@@ -139,6 +143,13 @@ def cascade_scores(chat: pd.DataFrame, first: pd.Series, second: pd.Series, k: i
         fused.loc[ids[~top]] = below
         alone.loc[ids[~top]] = below
     return fused, alone
+
+
+def capped_list(frame: pd.DataFrame, p: pd.Series, t: float = S1_T, cap: int = S1_CAP) -> set:
+    """Pair ids of each JD's pairs with `p` >= `t`, at most its top `cap` (ties by pair id)."""
+    d = frame.assign(p=p.loc[frame.pair_id.to_numpy()].to_numpy())
+    d = d[d.p >= t].sort_values(["jd_id", "p", "pair_id"], ascending=[True, False, True])
+    return set(d.groupby("jd_id").head(cap).pair_id)
 
 
 def best_variant(auc_total: dict[str, float]) -> str:
@@ -384,6 +395,91 @@ def cascade(seed: int = SEED, write=None) -> dict:
     return doc
 
 
+def s1_zero_shot(seed: int = SEED, write=None) -> dict:
+    """Step 5c: S1's t = 0.3 list capped at 30, reordered by zero-shot C2 (alone or + S1); nothing
+    in the pipeline is trained on `chat-1`, which only scores it (`ct.load_latest()`)."""
+    from candidate_screener.evaluation import rerank_chat as rc, retrieval_pilot, stage1, \
+        stage1_classifier as sc, stage1_threshold as st
+    from candidate_screener.matching import learned
+    from candidate_screener.rerank import chat_targets as ct, cross
+    t_start = time.time()
+    pools = retrieval_pilot.build_pools(seed, TEXT_VARIANT)
+    x2 = sc._x2().score(pools)
+    if rc._sha(x2) != json.loads(stage1.RECORD.read_text(encoding="utf-8"))["systems"][stage1.X2]["pool_scores_sha256"]:
+        raise ValueError("X2 pool scores differ from the stage-1 record")
+    feats = learned.Features()
+    s1 = sc.fit_arms(feats)[3][sc.PRIMARY]
+    Xp = feats(pools)
+    p = s1.proba(Xp).loc[pools.pair_id.to_numpy()]
+    n_full = pd.Series((p >= S1_T).to_numpy()).groupby(pools.jd_id.to_numpy()).sum()
+    if sc.sizes(n_full)["median"] != json.loads(st.RECORD.read_text(encoding="utf-8"))["arms"][f"t = {S1_T}"]["returned"]["median"]:
+        raise ValueError("S1's t = 0.3 list sizes differ from step 4a's record")
+    members = capped_list(pools, p)
+
+    ref = ct.load_latest()
+    ids = ref.pair_id.to_numpy()
+    stratum = ref.drop_duplicates("jd_id").set_index("jd_id").stratum
+    fold_of = ct.folds(stratum)
+    missing = members - set(ids)
+    if missing:
+        raise ValueError(f"{len(missing)} listed CVs have no chat score")
+    from candidate_screener.rerank import chunked
+    _, l2 = _x2_and_l2(chunked.chat_frame(), seed)
+    x2_top = set(pools.pair_id[sc.top_k(pools, x2, sc.TOP)])
+
+    listed = pools[pools.pair_id.isin(members)]
+    _log(f"stage 2: {len(listed)} pairs (C2)")
+    t0 = time.time()
+    c2 = cross.score_pairs(listed[["pair_id", "jd_text", "cv_text"]], CASCADE_SYSTEM)
+    score_s = time.time() - t0
+    fused, _ = cascade_scores(listed, p, c2, k=S1_CAP)          # the whole list is the "top k"
+    low = -1e9
+
+    def on_ref(s: pd.Series) -> pd.Series:
+        return pd.Series(s.reindex(ids).fillna(low).to_numpy(), index=ids)
+    in_list = pd.Series(ref.pair_id.isin(members).to_numpy(), index=ids)
+    in_x2 = pd.Series(ref.pair_id.isin(x2_top).to_numpy(), index=ids)
+    arms = {S1_ALONE: (on_ref(p.loc[list(members)]), in_list), S1_C2: (on_ref(c2), in_list),
+            S1_FUSED: (on_ref(fused), in_list), X2_L2: (on_ref(l2), in_x2), X2_ALONE: (on_ref(x2), None)}
+    per = {n: st.arm_per_jd(ref, s, r) for n, (s, r) in arms.items()}
+    held = fold_of.index[fold_of.isin(HELD_OUT_FOLDS)]
+
+    def scored(jds) -> dict:
+        res = {}
+        for n in arms:
+            q = per[n].loc[per[n].index.intersection(jds)]
+            res[n] = {"summary": rc.summary(q, stratum, seed)}
+            if "ceiling" in q:
+                res[n]["ceiling"] = block(q.ceiling, stratum, seed)
+            for ref_name in (S1_ALONE, X2_L2, X2_ALONE):
+                if n != ref_name:
+                    res[n][f"delta_vs_{ref_name}"] = rc.deltas(q, per[ref_name].loc[q.index], stratum, seed)
+        return res
+
+    sizes = pd.Series(in_list.to_numpy()).groupby(ref.jd_id.to_numpy()).sum()
+    d = scored(held)[S1_FUSED][f"delta_vs_{S1_ALONE}"]["recall"]["total"]
+    doc = {"plan": "plan/2026-10-18-classifier-then-rerank (step 5c)", "status": "exploratory", "seed": seed,
+           "stage_1": {"model": "S1, logistic on F12, fitted on D50", "t": S1_T, "cap": S1_CAP,
+                       "list_sizes": sc.sizes(sizes)},
+           "stage_2": cross.config(CASCADE_SYSTEM),
+           "reference": {"runs": list(ct.REFERENCE_RUNS), "pairs": int(len(ref)),
+                         "listed_from_chat_2": int(ref[ref.pair_id.isin(members)].run.eq("chat-2").sum()),
+                         "chat_2_offset": json.loads(st.RECORD.read_text(encoding="utf-8"))["drift"]["offset"]},
+           "decision": {"rule": f"{S1_FUSED} Recall@10 delta vs {S1_ALONE} (total, folds 1-4) > 0 with the CI above 0",
+                        "delta": d, "adopted": bool(d["value"] > 0 and d["ci"][0] > 0)},
+           "held_out_folds_1_4": scored(held), "all_60": scored(fold_of.index),
+           "cost": {"stage_2_pairs": int(len(listed)), "stage_2_seconds": round(score_s, 1)}}
+    if write is not None:
+        write(doc)
+    _log("human check (exploratory)")
+    frame = ref[ref.pair_id.isin(members)]
+    doc["human_check"] = _human({n: arms[n][0] for n in (S1_ALONE, S1_C2, S1_FUSED)}, frame, (S1_ALONE,), seed)
+    doc["cost"]["total_seconds"] = round(time.time() - t_start, 1)
+    if write is not None:
+        write(doc)
+    return doc
+
+
 def render(doc: dict) -> str:
     return json.dumps(doc, indent=1, ensure_ascii=False) + "\n"
 
@@ -401,7 +497,21 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--pilot-cross", action="store_true", help="C1-C3 on the same sample")
     ap.add_argument("--coverage", action="store_true", help="the chat's top 10 inside L2's / X2's top k")
     ap.add_argument("--cascade", action="store_true", help="step 5b: L2 top 30 -> C2 (+ L2)")
+    ap.add_argument("--s1-zero-shot", action="store_true", help="step 5c: S1 list -> C2 (+ S1)")
     args = ap.parse_args(argv)
+    if args.s1_zero_shot:
+        def write(doc):
+            S1_RECORD.write_text(render(doc), encoding="utf-8")
+            _log(f"wrote {S1_RECORD}")
+        doc = s1_zero_shot(write=write)
+        for scope_name in ("held_out_folds_1_4", "all_60"):
+            for n, r in doc[scope_name].items():
+                t = r["summary"]["recall"]["total"]
+                dl = r.get(f"delta_vs_{S1_ALONE}", {}).get("recall", {}).get("total")
+                print(f"{scope_name:20s} {n:24s} R@10 {t['value']:.3f}"
+                      + (f"  vs S1 alone {dl['value']:+.3f} [{dl['ci'][0]:+.3f}, {dl['ci'][1]:+.3f}]" if dl else ""))
+        print("decision:", doc["decision"])
+        return 0
     if args.cascade:
         def write(doc):
             CASCADE_RECORD.write_text(render(doc), encoding="utf-8")
