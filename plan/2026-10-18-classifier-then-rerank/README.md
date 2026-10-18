@@ -1,6 +1,7 @@
 # Two-stage screening: a learned stage-1 classifier, then a reranker trained on `chat-1`
 
-Status: **approved by the owner, 18 Oct 2026. Steps 1-4 done (18 Oct 2026); step 5 is findings only.
+Status: **approved by the owner, 18 Oct 2026. Steps 1-4 done (18 Oct 2026); step 5 is findings;
+step 5a (an instruction-tuned embedder) is proposed and awaits approval.
 D55 cold run of `rerank_chat` deferred to the end of the branch.** Decision D61 below. Branch
 `exp/classifier-then-rerank`, from `exp/stage2-llm-rerank`.
 
@@ -564,6 +565,220 @@ Sources: [Rank-DistiLLM](https://arxiv.org/html/2405.07920v1);
 [Pretrained Transformers for Text Ranking](https://arxiv.org/pdf/2010.06467);
 [Malt person-job fit, 2026](https://arxiv.org/abs/2601.10321v2);
 [TalentCLEF 2026](https://ceur-ws.org/Vol-4283/paper491.pdf).
+
+*Correction, 18 Oct 2026:* `paper491` is Skillberg's system paper, not the TalentCLEF overview; the
+overview is [arXiv 2606.31692](https://arxiv.org/html/2606.31692v1).
+
+### Step 5 findings, part 2: zero-shot reranking beyond cross-encoders (18 Oct 2026; not planned)
+
+Owner, 18 Oct 2026: fine-tuning is hard for now; look for anything shown to rerank in a RAG
+pipeline, zero-shot.
+
+**Closest benchmark: TalentCLEF 2026 Task A** (a JD ranks a pool of ~470 CVs; 10 dev and 40 test JDs
+per language; MAP; synthetic CVs with expert labels; no training data). Dev sets are 10 JDs, and
+dev-to-test drops reached ~0.25 MAP, so every row is directional.
+
+| Finding | Evidence |
+|---|---|
+| A zero-shot MS MARCO cross-encoder **hurts** | ui-nlp: `ms-marco-MiniLM-L-12-v2` on the top 50, dev MAP 0.578 against 0.866 for mE5-large alone. The same failure as R1, R2, L3 |
+| A fine-tuned cross-encoder hurt in some languages | Skillberg (4th): reranker applied only where dev improved |
+| **Instruction-tuned embeddings work zero-shot**, full text | ui-nlp: `multilingual-e5-large-instruct` 0.899 against MiniLM-L12 0.706. classum (1st): Nemotron-8B embedding 0.906, near its best component, Claude Opus listwise (0.913) |
+| BM25 is a strong single route | CYUT: BM25 0.852, BGE-M3 dense 0.813 |
+| **Fusion beats any single route** | CYUT: RRF of BM25 + HyDE routes 0.885. classum: an equal-weight sum of per-JD min-max scores beat every tuned weighting (0.934). Organizers: multiple sources of evidence fused |
+| HyDE | CYUT: a hypothetical CV written from the JD ≈ dense (0.815); ESCO-grounded +0.013. A hypothetical JD per CV was the 2nd-best single route (0.842) |
+| LLM-parsed structured views (title, seniority, years, domain, skills) | QTPride (2nd), classum (1st); not ablated |
+| Learned sparse: small gain; zero-shot ColBERT: none | Palomino: JobBERT → SPLADE (RRF) +0.006; → ColBERT −0.002 (en) |
+| LLM listwise reranking: small, unstable | CYUT: RankZephyr-7B +0.005 (en), −0.040 (es). Devoteam: GPT-5.2 on the top 50, +1.6 points [+0.6, +3.1] (20 dev JDs) |
+
+**The general reranking literature**, by family:
+
+| Family | Zero-shot options (size, context, licence) | For us |
+|---|---|---|
+| MS MARCO cross-encoders | `ms-marco-MiniLM-L6/L12` (512), monoT5 | weakest bet: topical relevance is not fit (above). Size helps out of domain (Rosa et al. 2022, monoT5-3B), but 3B is out of reach on CPU |
+| **Instruction-following LLM rerankers** (pointwise, yes/no logit) | Qwen3-Reranker-0.6B (Apache-2.0, 32k, an instruction slot; loads as a sentence-transformers `CrossEncoder`); mxbai-rerank-base-v2 (0.5B, Apache-2.0, 8k); jina-reranker-v3 (0.6B listwise, 64 CVs per pass, CC BY-NC); zerank-2 (4B, CC BY-NC) | the main candidate: the instruction can ask for fit, and a whole JD + CV fits |
+| Long-context encoder rerankers | gte-reranker-modernbert-base (149M, 8k, Apache-2.0); bge-reranker-v2-m3 (568M, 8k) | cheapest with no truncation; no instruction |
+| **Instruction-aware embeddings** | Qwen3-Embedding-0.6B (32k, instruction); multilingual-e5-large-instruct (512); gte-modernbert-base (8k); bge-m3 (8k) | TalentCLEF's zero-shot winner; each document encoded once; also a stage-1 signal |
+| Late interaction (token MaxSim) | GTE-ModernColBERT-v1; answerai-colbert-small-v1; jina-colbert-v2 | requirement-to-span matching suits the task, but no gain in Palomino; needs PyLate |
+| Learned sparse | SPLADE-v3 | lexical with expansion; small gain at best (TF-IDF is in X2) |
+| Expansion | HyDE (Gao et al. 2022); ConFit v2's hypothetical résumé (HyRe, but trained) | forward HyDE = 60 generations, needs an LLM (question 26) |
+| LLM rerankers: pointwise with graded labels (Zhuang et al. 2024), pairwise (PRP), setwise, listwise (RankGPT, RankZephyr, FIRST), reasoning (Rank1) | 7B and up | strongest in the literature; days on CPU. The reference is itself an LLM listwise score, so this would partly measure agreement with the judge |
+| Fusion and interpolation | RRF (Cormack et al. 2009); BM25 + dense interpolation (Wang, Zhuang & Zuccon 2021); PRF interpolation (Li et al. 2022) | the cheapest, best-supported use: combine a zero-shot text score with L2, not replace it |
+
+**Already measured here.** Zero-shot MiniLM SBERT as an L2 feature (N4): −0.019. R3 (bi-encoder,
+D50): −0.010. Every cross-encoder: −0.19 to −0.23. In the 500-CV pools, zero-shot MiniLM recall@100 is
+0.633, TF-IDF 0.777, X2 0.902 (`output/matching/stage1-metrics.json`, 59 JDs). `all-MiniLM-L6-v2` reads
+256 word pieces (chunk-mean here); the models above read 8k-32k.
+
+**A possible 5a (proposal, not planned).** X2's top 100, scored against `chat-1`, nothing trained:
+- **Arms:** (1) Qwen3-Reranker-0.6B with a fit instruction; (2) an instruction-aware embedder
+  (Qwen3-Embedding-0.6B or multilingual-e5-large-instruct), cosine; (3) gte-reranker-modernbert-base,
+  the cheap uninstructed control.
+- **Uses:** alone; fused with L2 by the equal-weight per-JD min-max sum (classum) or RRF (k = 60),
+  nothing tuned; as an extra L2 feature (L2 retrains in minutes; the text model stays zero-shot).
+- S3's metrics and bar; the human check beside every arm (the guard against matching the judge).
+- **Cost, to time on one JD first.** Scaling L3's measured speed by FLOPs: roughly 2-5 h for a
+  150M reranker and 6-20 h for a 0.6B one over all 6,000 pairs. An embedder costs about half (each of
+  ~5k CVs once). Reranking only L2's top 30 cuts a cross-encoder's cost by 3x; that cut is decided
+  before scoring.
+
+**Vector database (owner's question, 18 Oct 2026).** Not for the experiments. A vector database
+stores embeddings and returns an approximate top-k fast over millions of vectors. Here every pool is
+500 CVs, and exact cosine over 500 vectors is one matrix product: the index would add approximation
+and change no score. The cost is encoding, and the embeddings are already cached in files. Quality
+comes from the embedding model and from what is embedded. Stage 1 is where dense retrieval would
+sit, but dense alone lost to X2 in the pools (above): a stronger embedder enters as an F12 column or a
+fused route, not through a database. A database matters only for a deployed app searching a whole
+CV corpus for a new JD (FAISS, pgvector, Qdrant): a scaling note for the report.
+
+**Open questions (step 5a, for the owner)**
+
+23. Which arms and uses, and the rule that picks the winner, fixed before scoring. Arms × uses
+    multiply comparisons, as in 4b. *Owner, 18 Oct 2026: no answer yet. Context given: after stage 2
+    a language model converses with the recruiter about which CV fits the JD and why (the CNI
+    Workshop B pattern: retrieved evidence, typed tool calls, app-owned state). Open to suggestions.*
+24. Models download from Hugging Face; the code loads local files only. Are the CC BY-NC models
+    (jina-reranker-v3, zerank-2) acceptable for a university project? *Owner: yes to both; no
+    restrictions so far.*
+25. Is fusing a zero-shot score with L2, or adding it as an L2 feature, still "zero-shot"? (L2 is
+    trained on `chat-1`.) *Owner: zero-shot is not a requirement; fine-tuning is allowed but CPU-
+    and time-limited. Owner is sceptical of fine-tuning a small model and prefers pipeline building,
+    or a larger model (Qwen 4B / 8B) without fine-tuning. No checks run yet.*
+26. LLM-generated views (forward HyDE, structured JD parsing): a small local LLM (60 generations is
+    feasible on CPU), or the owner in claude.ai like `chat-1` (a D42/D61 decision)? A hypothetical JD
+    per CV (~5k generations) is out on CPU. *Owner: the `chat-1` method if it proves useful; low
+    priority.*
+
+Sources (part 2): [TalentCLEF 2026 overview](https://arxiv.org/html/2606.31692v1);
+[classum](https://ceur-ws.org/Vol-4283/paper481.pdf); [VerbaNexAI](https://ceur-ws.org/Vol-4283/paper483.pdf);
+[Palomino](https://ceur-ws.org/Vol-4283/paper484.pdf); [CYUT](https://ceur-ws.org/Vol-4283/paper485.pdf);
+[ui-nlp](https://ceur-ws.org/Vol-4283/paper486.pdf); [Devoteam](https://ceur-ws.org/Vol-4283/paper487.pdf);
+[QTPride](https://ceur-ws.org/Vol-4283/paper490.pdf); [Skillberg](https://ceur-ws.org/Vol-4283/paper491.pdf);
+[ConFit v2](https://arxiv.org/abs/2502.12361);
+[In Defense of Cross-Encoders for Zero-Shot Retrieval](https://arxiv.org/abs/2212.06121);
+[Qwen3-Reranker-0.6B](https://huggingface.co/Qwen/Qwen3-Reranker-0.6B);
+[Qwen3-Embedding-0.6B](https://huggingface.co/Qwen/Qwen3-Embedding-0.6B);
+[jina-reranker-v3](https://huggingface.co/jinaai/jina-reranker-v3);
+[mxbai-rerank-v2](https://www.mixedbread.com/blog/mxbai-rerank-v2);
+[gte-reranker-modernbert-base](https://huggingface.co/Alibaba-NLP/gte-reranker-modernbert-base);
+[zerank-2](https://huggingface.co/zeroentropy/zerank-2);
+[GTE-ModernColBERT-v1](https://huggingface.co/lightonai/GTE-ModernColBERT-v1);
+[PyLate](https://arxiv.org/abs/2508.03555);
+[PRP](https://arxiv.org/abs/2306.17563); [Setwise reproducibility](https://arxiv.org/abs/2504.10509);
+[Beyond Yes and No](https://aclanthology.org/2024.naacl-short.31);
+[UPR](https://arxiv.org/abs/2204.07496); [Rank1](https://arxiv.org/abs/2502.18418);
+[Dense retrievers require interpolation with BM25](https://ir.webis.de/anthology/2021.ictir_conference-2021.36);
+[To Interpolate or not to Interpolate](https://arxiv.org/abs/2205.00235).
+
+## Step 5a (proposal, 18 Oct 2026; awaiting the owner's approval)
+
+Owner, 18 Oct 2026: **stage 2 only**; test an instruction-tuned embedder **locally** first; Colab
+only if the result is positive. Fine-tuning a small model is dropped (the owner is sceptical, and
+gte-reranker fine-tuning measured 13.7 h per epoch, below). Stage 3 (the recruiter conversation)
+is not started.
+
+**No chunking is needed.** Tokens over all 6,020 `chat-1` pairs (Qwen tokenizer): JD median 311
+(max 895), CV median 369 (p99 1,438, max 2,544), pair median 753 (p99 1,961, max 3,105). The models
+below read 8k-32k tokens, so every JD and CV is read whole. The text R1/R2 and L3 lost came from
+MiniLM's 384/512-token inputs. Requirement-to-passage matching remains possible as a later arm.
+
+**Measured cost** (scratch timing, 18 Oct 2026, this CPU; `logs/step5-timing*.log`, not records):
+
+| Model | Kind | Cost over the 6,020 pairs | Note |
+|---|---|---|---|
+| **Qwen3-Embedding-0.6B**, float32 | instruction-tuned embedder | **3.9 h** (4,781 CVs encoded once; 156 tok/s, batch 1, 6 threads, 4.4 GB) | the checkpoint's bfloat16 default is 3x slower on this AVX2 CPU (50 tok/s) |
+| gte-reranker-modernbert-base | cross-encoder, no instruction | 3.7 h inference; 13.7 h per fine-tuning epoch | timed under memory pressure: an upper bound |
+| Qwen3-Reranker-0.6B | instruction-tuned cross-encoder | 37 h (bfloat16, with swapping) | float32 not timed; out unless re-timed |
+
+Batch 4 was slower than batch 1 (padding), and 11 threads no faster than 6.
+
+**Design (proposal)**
+- **E1:** Qwen3-Embedding-0.6B, float32, whole documents, max length 4,096. The instruction goes
+  on the JD side only (the model card's convention), fixed before scoring: `Instruct: Given a job
+  description, retrieve the CVs of candidates who fit its requirements` / `Query:` + JD text. CVs
+  get no instruction. Score = cosine. Embeddings are cached with a fingerprint (model revision,
+  dtype, threads, instruction, text variant v2). Nothing is trained.
+- **Scope:** the 6,020 `chat-1` pairs (X2's top 100 + the S1 extension), as in S3.
+- **Uses**, all on `chat-1`, out of fold wherever L2 is involved:
+  - **U1 alone:** E1's order.
+  - **U2 fused:** the equal-weight sum of per-JD min-max-scaled E1 and L2 (F9, out of fold).
+    Nothing tuned (the classum rule).
+  - **U3 feature:** F9 + E1's cosine as one more L2 column, retrained per fold (4b's harness).
+- **Baselines:** X2's order; L2 on F9 (4b's A1, Recall@10 0.497).
+- **Metrics:** S3's: Recall@10 against the chat's top 10, nDCG@10, chat No Fits in the top 10, and
+  the human check on the 422 judged CVs. Generic / targeted / total, JD-resampled CIs.
+- **Bars (proposal):** U1 against S3's bar (Δ vs X2's order ≥ +0.05, CI above 0). U2 and U3
+  against 4b's adoption rule (Δ vs L2 F9 > 0, CI above 0). Three comparisons: one nominal pass
+  is weak evidence, as in 4b.
+- **Run:** one background job, encoding once into the cache: **~3.4 h**, one process, 4 GB. The
+  uses then cost minutes. *Measured 18 Oct 2026 (`logs/step5-parallel.log`): splitting does not
+  help.* Combined throughput was 178 tok/s for 1 process × 6 threads, 183 for 1 × 11, 172 for
+  2 × 6, 174 for 2 × 5 and 182 for 3 × 4. The CPU is saturated by one process. The earlier
+  "two processes, ~2 h" was an assumption, now withdrawn.
+- **The instruction changes only the JD side.** The 4,781 CV vectors are encoded once; one more
+  instruction costs 60 JD encodings (seconds). Several wordings are cheap to compute, but choosing
+  among them on `chat-1` is selection on the reference (question 28).
+- **Code:** `rerank/embedder.py` (encode, cache; never reads a human label) and
+  `evaluation/rerank_embed.py` → `output/rerank/embed-eval.json`, registered in `checks` (warm
+  replays the cache; cold re-encodes, ~2-4 h). Tests (inline synthetic): instruction format, cache
+  fingerprint, per-JD min-max fusion, the registry. `HF_HUB_OFFLINE` stays on in the package: the
+  model is downloaded once, outside it.
+- **If positive:** the owner chooses among Qwen3-Embedding-4B/8B (Colab), gte-reranker locally
+  (3.7 h), or requirement-level matching.
+
+**Open questions (step 5a)**
+
+27. Approve E1 with U1-U3 and the bars above? *Owner, 18 Oct 2026: OK.*
+28. The instruction wording above, fixed before scoring, or another? *Owner: needs more
+    information on what goes into the model.* Given: the JD is `Long Description` only (text v2,
+    D53; the JD title is allowed by D54 but not in v2); the CV is `CV` + `Highlights` + `Moreinfo`
+    + `Looking For`; the instruction is one sentence on the JD side. Options: (a) generic; (b) naming
+    role, skills and years; (c) either with the JD title. Report a fixed set, or pick on one fold and
+    score on four.
+29. How many processes? *Measured: one; splitting does not raise throughput (above). ~3.4 h.*
+    Ways to shorten: a pilot on 2 folds (~40%), int8 quantisation (ONNX/OpenVINO, untested), or a
+    smaller long-context embedder (nomic-embed-text-v1.5, gte-modernbert-base; untimed).
+30. gte-reranker as a second arm in the same run (+3.7 h), or only if E1 is positive? *Owner:
+    pending the explanation of model types (embedder vs cross-encoder vs listwise), given 18 Oct.*
+31. *(Owner, 18 Oct 2026)* Why not put all 100 CVs in one context (listwise)? Given: ~45k tokens
+    per JD; at least the cross-encoder's cost plus attention that grows with the square of the
+    length; listwise rankers use windows of ~20 (RankGPT), `chat-1` used batches of 20,
+    jina-reranker-v3 takes at most 64 per pass. A later arm, timed on one JD first.
+
+### Step 5a pilot (approved by the owner 18 Oct 2026; design fixed before any scoring)
+
+Owner, 18 Oct 2026: the embedder first, Qwen3-Embedding-0.6B, **on a sample with ~10 min of
+encoding**. The instruction wording is left to the agent, and several are tested (question 28).
+Cross-encoders wait until after the embedder (question 30). Run it as parallel as the machine
+allows: one process (measured above).
+
+- **Sample:** fold 0's 12 JDs (8 generic, 4 targeted), X2's top 100 only. Per JD: every CV in the
+  chat's tie-aware top 10 (`chat_weights > 0`), plus 8 other CVs drawn at random (seed 0) from the
+  rest of its 100. That is about 240 CVs, ~10 min at the measured 180 tok/s. A system scores each
+  pair alone, so the sample cannot change any score.
+- **Instruction variants** (JD side only; CVs get none; the model card's `Instruct: …\nQuery:` form):
+  - **I0:** none (the JD text alone);
+  - **I1:** "Given a job description, retrieve the CVs of candidates who fit its requirements";
+  - **I2:** "Given a job description, retrieve the CVs of candidates whose role, skills and years of
+    experience match its requirements";
+  - **I3:** I2 with the JD title first in the query (`Job title: …`, D54).
+- **Model:** `Qwen/Qwen3-Embedding-0.6B` at revision `97b0c614`, float32, max length 4,096,
+  batch 1, 6 threads; normalised vectors, score = cosine. CV vectors are cached by CV id and text
+  hash, so a full run reuses them.
+- **Pilot metric** (a full list is not scored, so Recall@10 is not defined): per-JD **AUC of the
+  score for the chat's top 10 against the sampled others**, the quantity Recall@10 rewards. Mean
+  over the 12 JDs, JD-resampled 95% CI, generic / targeted / total. Secondary: within-JD Spearman
+  with the chat score on the sampled CVs.
+- **Compared on the same pairs:** X2; L2 on F9 out of fold (4b's A1; its scores are guarded against
+  4b's digest); **U2 fused** = the per-JD min-max sum of E and L2 over the sampled CVs (the full run
+  scales over all 100). U3 (the L2 feature) needs every training pair, so it waits for a full run.
+- **Status: exploratory.** Every variant is reported. **Rule for a full run, fixed now:** its
+  instruction is the variant with the highest pilot AUC (total). The full run then reports folds
+  1-4 as its held-out estimate (the instruction was chosen on fold 0) beside all five. Whether to
+  run it is the owner's call. Proposal: go if that variant's AUC Δ vs X2 > 0, or U2's Δ vs L2 > 0
+  (point estimates; 12 JDs make wide CIs).
+- **Code:** `rerank/embedder.py` (encode, cache, instructions; never reads a human label) and
+  `evaluation/rerank_embed.py --pilot` → `output/rerank/embed-pilot.json`. No `--check` until a
+  full run. Tests (inline synthetic): query format, sample composition, per-JD fusion and AUC.
 
 ## Assumptions (to confirm)
 
