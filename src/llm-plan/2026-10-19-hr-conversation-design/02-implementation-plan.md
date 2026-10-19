@@ -1,7 +1,12 @@
 # Implementation plan: guided HR portal assistant
 
-Status: proposed implementation; the earlier local prototype does not establish
-that these portal integrations exist. No email is authorized or sent by this plan.
+Status: approved; local implementation is recorded in [05](05-implementation.md).
+Revision20October: [06](06-hr-conversational-qa-amendment.md) is the current
+proposed implementation sequence for adding typed HR conversation and Qwen QA.
+It supersedes dropdown-only clauses below; the existing guided implementation
+remains the baseline, not evidence that generative chat is delivered.
+The earlier prototype does not establish that production portal integrations exist.
+No email was sent during implementation; actual delivery remains unavailable.
 
 ## Architecture
 
@@ -12,12 +17,14 @@ Ranking database -> authorized JD/run selector -> immutable top10 snapshot
 Document store -> authorized redacted PDF/text preview
 Extraction/evidence services -> five-type display + exact source citations
 Dropdown action -> typed dialogue controller -> bounded application service
-Validated evidence -> optional LLM explanation -> claim/citation validator
+HR text question -> scoped dialogue state -> JD/CV passage retrieval
+Validated evidence -> Qwen conversational QA -> claim/citation validator
 Session/report store -> resumable review + immutable report/package versions
 Confirmed department handoff -> outbox -> mail gateway -> delivery receipt
 ```
 
-The LLM is optional for completion of the guided workflow. Menus, identity,
+Qwen supplies conversational answers; missing inference is an explicitly limited
+fallback, not a completed LLM release. The guided workflow remains usable. Menus, identity,
 permissions, ranking order, selected attachments and mail actions are deterministic
 application responsibilities. Generated text cannot create an action, recipient,
 candidate ID or score. Missing inference falls back to a short evidence-based
@@ -27,7 +34,7 @@ message without losing the current review. Source documents are untrusted data.
 
 Review the scripts, state transitions, traceability and open questions in this
 folder. Resolve identity/database/event/storage/mail dependencies before dependent
-implementation. Confirm defaults: dropdown-only HR workspace, database top10,
+implementation. Confirm defaults: combined chat/dropdown HR workspace, database top10,
 unchanged ranks1–8 for the package, in-app alerts and directory-based recipients.
 Retain an explicit unresolved list rather than selecting an infrastructure vendor
 or assuming that existing local demo services are production integrations.
@@ -83,14 +90,14 @@ Acceptance: top10/top8 IDs agree with the same database snapshot; omitted/duplic
 rows fail explicitly; all evidence belongs to the selected candidate/JD/version;
 new applications make prior snapshots stale without editing historical reports.
 
-## Phase 3 — Guided controller and dropdown UI
+## Phase 3 — Conversational QA and guided action UI
 
-Replace free-form chat with the reviewed state machine in the HR workspace.
-Use fixed action IDs and server-validated dropdown values. Render one narrow
-question at a time; candidates and requirements appear only when authorized and
-valid for the current state. Streamlit remains a thin transport over tested
-services. The legacy upload/interview demonstration is isolated and not reachable
-as an HR workspace action.
+Combine typed questions and a persistent chat transcript with the reviewed
+action state machine. Follow amendment06 for scope resolution, retrieval, Qwen
+generation, validation, memory and evaluation. Use fixed action IDs and validated
+dropdown values for operations. Candidates and evidence must be authorized for
+the active snapshot. Streamlit remains a thin transport over tested services;
+the legacy upload/interview demonstration remains isolated.
 
 Use read-only dialogs for PDF/text previews. Display a redacted derivative using
 the project redaction contract; a raw PDF iframe is not an acceptable redaction
@@ -99,7 +106,7 @@ produced, offer redacted text and disclose lost layout/page information; if neit
 is available, show an unavailable state. Do not accept files through these dialogs.
 Candidate selection never changes ranking order.
 
-Acceptance: no free-text chat/uploader/camera/microphone controls in this workspace;
+Acceptance: typed HR QA coexists with dropdown actions; no uploader/camera/microphone;
 tampered action IDs and stale dropdown options are rejected server-side; previews
 cannot expose another candidate; one failed preview does not lose the job context.
 

@@ -15,10 +15,11 @@
 | C09 | No candidate email/calls | No such intent, recipient option or backend capability |
 | C10 | No direct appointment scheduling | No scheduling/calendar operation or department-head booking |
 | C11 | Store conversations | Server-side owner-scoped session storage and reauthenticated resume |
-| C12 | Dropdown-only, no images/video/files | No chat text entry/upload/media widgets in HR workspace; portal supplies documents |
+| C12 | Revised20October: chatbox alongside dropdowns; no images/video/files | Typed HR QA and persistent transcript; dropdown operational controls; no upload/media widgets |
 | C13 | Warm, on-brand, memorable | Proposed Hiring Desk persona; short formal copy and consistent recovery vocabulary |
 | C14 | Brief, relevant, narrow-focus turns | One decision/question per turn; detailed content in tables/previews/reports |
 | C15 | Happy paths and error flows | Mermaid state flow and scripted recovery scenarios in conversation design |
+| C16 | LLM communicates with HR | Qwen-grounded answers, follow-up resolution, authorized citations, explicit model-unavailable fallback; see amendment06 |
 
 ## Hard acceptance invariants
 
@@ -35,8 +36,12 @@
 - Every displayed/exported human-facing document follows the redaction contract.
   PDF rendering cannot bypass it. Citation offsets refer to their stated coordinate
   space; missing page information is not invented.
-- All HR conversation decisions, confirmations and recovery paths are dropdowns.
+- Typed HR questions and follow-ups share the dropdown-selected JD/snapshot.
+  Operational confirmation remains separate from generated prose and chat assent.
   Authentication is separate; tokens/passwords are not chat messages or history.
+- Qwen factual claims require validated authorized evidence; foreign citations,
+  invented ranks and unsupported tenure/credential claims cannot render as facts.
+  A deterministic fallback is labelled; it does not establish LLM availability.
 - Session writes and gateway acknowledgements determine “saved” and “sent”. LLM
   prose, a button/dropdown rerun or optimistic UI state cannot establish either.
 
@@ -71,8 +76,10 @@ and review method are confirmed; none is claimed as already measured.
 | O08 | Can HR replace one of ranks1–8 with rank9/10? | No substitution in initial design: user specified top8 ranked candidates. Additional curation needs a separate explicit rule. |
 | O09 | Hiring-department directory, mail gateway, size limits and attachment policy? | Recipient selected from job-linked permitted directory; package contains redacted artifacts. Blocks real sending. |
 | O10 | Brand name and approved voice examples? | Hiring Desk is a working name; warm, formal, evidence-conscious copy. |
-| O11 | Does dropdown-only permit dedicated authentication fields outside chat? | Proposed yes, through the portal/IdP screen; no credentials entered into conversation. |
+| O11 | Are typed HR questions allowed alongside dropdowns? | Resolved20October: yes. Dedicated authentication stays outside chat; no credentials in history. |
 | O12 | What production deployment, concurrency and response expectations apply? | Existing local prototype is not a production identity/storage/mail service. Measure before release. |
+| O13 | Which installed Qwen-Instruct checkpoint, endpoint and hardware support QA? | Inventory before implementation configuration; frozen existing runtime preferred. No assumed service, download or training. |
+| O14 | What human QA review rubric and latency target apply? | Freeze scenarios/rubric before final walkthrough; separate citation validity, claim support, usefulness and latency. |
 
 These are design/integration questions, not requests to approve individual emails.
 This task produces reviewable documentation only. Future interactive sends require

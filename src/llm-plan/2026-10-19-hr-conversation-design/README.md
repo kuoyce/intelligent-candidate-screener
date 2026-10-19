@@ -1,8 +1,9 @@
 # HR portal chatbot: conversation design and delivery plan
 
-19 October 2026. Status: requirements supplied by the user; detailed design and
-implementation sequence proposed for review. This change reorganizes documentation;
-it does not implement authentication, persistence, notifications or email delivery.
+19–20 October 2026. Status: guided local workflow implemented; conversational QA
+amendment drafted for review. Corporate identity/events/mail remain unavailable.
+See the [implementation record](05-implementation.md) for actual capabilities,
+input provenance and limits rather than treating planned integrations as delivered.
 
 ## Read in order
 
@@ -15,6 +16,10 @@ it does not implement authentication, persistence, notifications or email delive
 4. [Original prototype implementation record](04-prototype-history.md): preserved
    historical record from the October chatbot prototype, not a statement that the
    portal capabilities requested here exist.
+5. [Guided portal implementation record](05-implementation.md): current modules,
+   verification, supplied extraction/ranking inputs and unresolved dependencies.
+6. [HR conversational QA amendment](06-hr-conversational-qa-amendment.md): current
+   proposed scope for typed HR questions, Qwen answers, memory, citations and delivery.
 
 ## Product boundary
 
@@ -22,10 +27,11 @@ Audience: authenticated HR employees on the hiring team. The assistant helps the
 review an existing JD and its ranked applicants, inspect evidence, prepare a
 shortlist/report and hand the reviewed package to the hiring department.
 
-The conversational workspace is **dropdown-only**. It accepts no free-text chat,
-images, audio, video or file uploads. CV/JD content comes from the company portal,
-not from the conversation. Authentication occurs in the portal/identity-provider
-screen; passwords and tokens are never conversational inputs.
+The revised design combines **typed HR conversation and dropdown navigation**.
+The20October amendment supersedes the earlier dropdown-only restriction. It adds
+no image, audio, video or file uploads. CV/JD content comes from authorized sources;
+passwords and tokens remain outside conversation. The current implemented portal
+still uses dropdowns until the conversational amendment is approved and built.
 
 Default review set: database-ranked top10 CVs for one authorized JD. Default
 shortlist: ranks1–8 from that same ranking snapshot. The department package contains
@@ -42,8 +48,9 @@ recipients, modify scores, grant access or execute arbitrary actions.
 The original [October implementation entry point](../../../plan/2026-10-12-streamlit-llm-chatbot/03-implementation.md)
 now links here. The earlier [RAG implementation plan](../../../plan/2026-10-18-hr-conversational-rag/README.md)
 remains the technical history for retrieval and QA experiments. For the portal
-experience, the present requirements replace its free-form/local-session-only UI
-assumptions. Existing model/research restrictions and benchmark boundaries remain.
+experience, the amendment integrates scoped free-text QA with the authenticated
+portal rather than restoring the legacy upload UI. Existing model/research
+restrictions and benchmark boundaries remain.
 The production identity provider, ranking database, portal event feed, storage,
 mail gateway and retention policy are unresolved dependencies, listed explicitly.
 

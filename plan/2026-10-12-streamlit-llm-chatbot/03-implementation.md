@@ -13,7 +13,9 @@ The new planning subfolder is
 
 The new HR portal design specifies authentication, alerts, ranking-database top10,
 read-only CV previews, a top8 package with all10 comparison, saved sessions and
-confirmed internal department email through a dropdown-only conversation.
+confirmed internal department email. The20October refinement adds typed HR
+questions and Qwen-based evidence-grounded conversation alongside dropdown actions;
+see the [conversational QA amendment](../../src/llm-plan/2026-10-19-hr-conversation-design/06-hr-conversational-qa-amendment.md).
 It excludes candidate outreach, appointment scheduling and conversation uploads.
 
 These are proposed integrations, not delivered capabilities of the old local

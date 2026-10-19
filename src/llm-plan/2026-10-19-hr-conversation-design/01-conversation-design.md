@@ -43,16 +43,20 @@ being overly familiar, critical without dismissing applicants, and never claims
 certainty beyond the source material. Use job-related criteria and neutral
 candidate IDs in summaries.
 
-Every turn contains a short observation and one narrow question with a dropdown.
+The20October [conversational QA amendment](06-hr-conversational-qa-amendment.md)
+supersedes the original dropdown-only interaction. HR can type focused questions
+and follow-ups; dropdowns remain for context selection and operational actions.
+Answer directly and ask one narrow clarification only when necessary.
 Prefer one or two sentences; show lengthy comparisons in tables, previews or a
 report. Avoid monologues, speculative personality judgements, unsupported hiring
 recommendations and inflated language such as “perfect candidate”. State “ranked
 first in this snapshot” rather than promising the best employee.
 
-All chat actions, including confirmations, cancellations and recovery choices,
-are dropdown options. Preview controls may close/scroll a read-only dialog. No
-`st.chat_input`, open-ended clarification field or uploader appears in this portal
-workspace. The existing upload/interview demo is a separate legacy experience.
+Operational confirmations remain explicit UI choices. Add st.chat_input and a
+persistent two-sided transcript for QA. Preview controls may close/scroll a
+read-only dialog. No uploader or media input is added. The existing upload/interview
+demo remains a separate legacy experience. Earlier menu scripts describe guided
+actions; the amendment adds conversational examples and turn-processing flow.
 
 ## 4. Establish dialogue state and transitions
 
