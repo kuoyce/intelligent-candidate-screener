@@ -1062,6 +1062,23 @@ C2 + S1 0.464 (+0.010 [−0.019, +0.040] vs S1's order).
   now cached, so other fusions or cut-offs cost nothing to compute. Any of them would be chosen after
   seeing these figures, and so exploratory.
 
+### D55 cold run (21 Oct 2026): 3 of 4 pass; `rerank_chat` reproduces every figure, not two score digests
+
+`checks --cold rerank_chat feature_arms stage1_classifier stage1_threshold`, `logs/d55_cold.log`,
+6 h 51 min, peak RSS 6.1 GB. `feature_arms`, `stage1_classifier` and `stage1_threshold` pass.
+`rerank_chat` fails: its rebuild is not byte-identical to `chat-rerank-eval.json`.
+
+- **Diagnosis (warm rebuild + field diff, `logs/rerank_chat_warm_diff.log`):** the cold run re-scored
+  R1-R3 with their stored models and cached the new scores. A warm rebuild on those scores differs
+  from the record in exactly two fields, the `scores_sha256` of R1 and of R2 (the cross-encoders).
+  Every figure (Recall@10, nDCG@10, No Fits, CIs, deltas, the human check, the decisions) is
+  identical. R3 (a bi-encoder) re-scores bit for bit. So re-inference of R1 / R2 differs in the last
+  bits of the floats, too little to move a figure at the record's 6 decimals.
+- **Not verified:** whether L3's retrain (5 folds, ~6 h) reproduces. The check reports only pass or
+  fail, and it deletes the retrained scores.
+- **Side effect:** the R1 / R2 caches now hold the cold run's scores, so `rerank_chat --check --warm`
+  also fails, on the same two digests, until this is resolved.
+
 ## Assumptions (to confirm)
 
 - Stage 2 uses F12, the same features as stage 1 (owner, 18 Oct 2026). R1–R3 and L3 bring the
