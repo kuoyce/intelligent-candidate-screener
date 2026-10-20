@@ -955,6 +955,38 @@ judge's scores. So this pipeline uses `chat-1` only to score.
   record; L2 F9 reproduces 4b's A1; every listed CV has a chat score.
 - `evaluation/rerank_embed.py --s1-zero-shot` → `output/rerank/s1-zero-shot.json`. Exploratory.
 
+### Step 5c record (18 Oct 2026): not adopted
+
+`output/rerank/s1-zero-shot.json`, `logs/rerank_s1_zero_shot.log`. Lists: 1,657 pairs, median 30 per JD
+[1, 30]; 253 of the listed pairs take their score from `chat-2`. Scoring the 361 new C2 pairs took
+1,716 s; the run took 34 min end to end, peak RSS 6.1 GB. Every guard held.
+
+| Pipeline (folds 1-4, 48 JDs) | Trained on `chat-1`? | Ceiling | R@10 (gen / tar) | Δ vs S1 alone [CI] | Δ vs X2 top 100 → L2 [CI] | Chat No Fits |
+|---|---|---|---|---|---|---|
+| X2 alone | no | – | 0.405 | −0.031 [−0.066, +0.004] | −0.068 | 1.65 |
+| S1 alone (t = 0.3, top 30) | no | 0.724 | 0.436 (0.447 / 0.415) | – | −0.037 [−0.065, −0.008] | 1.21 |
+| S1 → C2 | no | 0.724 | 0.384 | −0.052 [−0.096, −0.008] | −0.089 | 1.48 |
+| **S1 → C2 + S1** | **no** | 0.724 | **0.446** (0.452 / 0.434) | **+0.009 [−0.016, +0.035]** | −0.027 [−0.056, +0.001] | 1.12 |
+| X2 top 100 → L2 F9 | yes | 0.959 | 0.473 (0.477 / 0.466) | +0.037 [+0.008, +0.065] | – | 1.40 |
+
+All 60 JDs: S1 alone 0.443, S1 → C2 + S1 0.454 (+0.011 [−0.012, +0.033]), X2 top 100 → L2 0.483, X2
+alone 0.417. These figures use step 4a's reference (`chat-1` + `chat-2`), so they differ slightly from
+step 5b's `chat-1`-only figures.
+
+- **Decision: not adopted.** The zero-shot stage 2 adds +0.009 over S1's own order, with the CI
+  across 0. Alone, C2 is worse than S1's order (−0.052).
+- **The fully chat-free pipeline (S1 → C2 + S1) is 0.027 below X2 top 100 → L2** (CI just reaching
+  0) and beats X2 alone by +0.040 [+0.001, +0.081]. About 0.03 Recall@10 is what training on `chat-1`
+  buys.
+- **The ceiling is where the loss is.** S1's capped list holds 0.72 of the chat's top 10; X2's top
+  100 holds 0.96. Within its list, S1's own order reaches 0.436 / 0.724 = 60% of its ceiling; L2
+  reaches 49% of a much larger one.
+- Chat No Fits are lowest for the S1 lists (1.12-1.21 against L2's 1.40). Part of that is shorter
+  lists: some JDs pass fewer than 10.
+- **Human check (exploratory; 269 judged CVs; 27 JDs for AUC, 44 for pairwise): no detectable
+  change.** S1 → C2 + S1 vs S1 alone: per-JD AUC +0.023 [−0.077, +0.110], pairwise on yc +0.038
+  [−0.033, +0.116].
+
 ## Assumptions (to confirm)
 
 - Stage 2 uses F12, the same features as stage 1 (owner, 18 Oct 2026). R1–R3 and L3 bring the
