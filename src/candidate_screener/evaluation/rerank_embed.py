@@ -13,10 +13,12 @@ Design fixed in the plan before scoring:
 - **Rule for a full run:** its instruction is the variant with the highest pilot AUC (total).
 
 The cross-encoder pilot (`--pilot-cross`) scores `rerank.cross.SYSTEMS` on the same pairs,
-beside X2, L2 and E1 I0, with the same metric.
+beside X2, L2 and E1 I0, with the same metric. `--coverage`, `--cascade` (5b), `--s1-zero-shot`
+(5c) and `--full-c2` (5d) are the later steps; their designs are in the plan.
 
     uv run python -m candidate_screener.evaluation.rerank_embed --pilot
     uv run python -m candidate_screener.evaluation.rerank_embed --pilot-cross
+    uv run python -m candidate_screener.evaluation.rerank_embed --full-c2
 """
 from __future__ import annotations
 
@@ -42,6 +44,10 @@ S1_RECORD = OUTPUT / "rerank" / "s1-zero-shot.json"
 S1_T, S1_CAP = 0.3, 30
 S1_ALONE, S1_C2, S1_FUSED = "S1 alone", "S1 -> C2", "S1 -> C2 + S1"
 X2_L2, X2_ALONE = "X2 top 100 -> L2 (F9)", "X2 alone"
+FULL_RECORD = OUTPUT / "rerank" / "full-c2.json"
+FULL_K = 100
+FULL_C2, FULL_C2_L2 = "X2 top 100 -> C2", "X2 top 100 -> C2 + L2"
+FULL_S1, FULL_C2_S1 = "X2 top 100 -> S1", "X2 top 100 -> C2 + S1"
 TEXT_VARIANT = "v2"
 PILOT_FOLD = 0
 N_OTHER = 8
@@ -480,6 +486,74 @@ def s1_zero_shot(seed: int = SEED, write=None) -> dict:
     return doc
 
 
+def full_c2(seed: int = SEED, write=None) -> dict:
+    """Step 5d: C2 on every pair of X2's top 100 (no cut), alone (replace L2) or + L2 (enhance);
+    exploratory, S1's order and C2 + S1 (nothing trained on `chat-1`). Guards run before scoring."""
+    from candidate_screener.evaluation import rerank_chat as rc, retrieval_pilot, stage1_classifier as sc, \
+        stage1_threshold as st
+    from candidate_screener.matching import learned
+    from candidate_screener.rerank import chat_targets as ct, chunked, cross
+    t_start = time.time()
+    chat_all = chunked.chat_frame()
+    chat = chat_all[chat_all.source == ct.TRAIN_SOURCE].reset_index(drop=True)
+    if chat.groupby("jd_id").size().max() > FULL_K:
+        raise ValueError(f"a JD has more than {FULL_K} chat pairs")
+    stratum = chat.drop_duplicates("jd_id").set_index("jd_id").stratum
+    fold_of = chat.drop_duplicates("jd_id").set_index("jd_id").fold
+    _log("X2 and L2 (F9) scores")
+    x2, l2 = _x2_and_l2(chat_all, seed)
+    _log("S1 probabilities")
+    pools = retrieval_pilot.build_pools(seed, TEXT_VARIANT)
+    feats = learned.Features()
+    p = sc.fit_arms(feats)[3][sc.PRIMARY].proba(feats(pools)).loc[pools.pair_id.to_numpy()]
+    n_full = pd.Series((p >= S1_T).to_numpy()).groupby(pools.jd_id.to_numpy()).sum()
+    if sc.sizes(n_full)["median"] != json.loads(st.RECORD.read_text(encoding="utf-8"))["arms"][f"t = {S1_T}"]["returned"]["median"]:
+        raise ValueError("S1's t = 0.3 list sizes differ from step 4a's record")
+
+    _log(f"stage 2: {len(chat)} pairs ({CASCADE_SYSTEM})")
+    t0 = time.time()
+    c2 = cross.score_pairs(chat, CASCADE_SYSTEM)
+    score_s = time.time() - t0
+    with_l2, _ = cascade_scores(chat, l2, c2, k=FULL_K)     # the whole list is the "top k"
+    with_s1, _ = cascade_scores(chat, p, c2, k=FULL_K)
+    systems = {"X2": x2, "L2 (F9)": l2, FULL_C2: c2, FULL_C2_L2: with_l2, FULL_S1: p, FULL_C2_S1: with_s1}
+    refs = ("L2 (F9)", "X2", FULL_S1)
+    per = {n: ct.per_jd(chat, s) for n, s in systems.items()}
+    held = fold_of.index[fold_of.isin(HELD_OUT_FOLDS)]
+
+    def scored(jds) -> dict:
+        res = {}
+        for n in systems:
+            q = per[n].loc[per[n].index.intersection(jds)]
+            res[n] = {"summary": rc.summary(q, stratum, seed)}
+            for ref in refs:
+                if n != ref:
+                    res[n][f"delta_vs_{ref}"] = rc.deltas(q, per[ref].loc[q.index], stratum, seed)
+        return res
+
+    held_res = scored(held)
+    decisions = {}
+    for arm in (FULL_C2, FULL_C2_L2):
+        d = held_res[arm]["delta_vs_L2 (F9)"]["recall"]["total"]
+        decisions[arm] = {"rule": f"{arm} Recall@10 delta vs L2 F9 (total, folds 1-4) > 0 with the CI above 0",
+                          "delta": d, "adopted": bool(d["value"] > 0 and d["ci"][0] > 0)}
+    doc = {"plan": "plan/2026-10-18-classifier-then-rerank (step 5d)", "status": "exploratory", "seed": seed,
+           "stage_2": cross.config(CASCADE_SYSTEM),
+           "pairs": {"chat": int(len(chat)), "scored": int(len(c2)), "jds": int(chat.jd_id.nunique()),
+                     "held_out_jds": int(len(held))},
+           "decisions": decisions, "no_rule": [FULL_S1, FULL_C2_S1],
+           "held_out_folds_1_4": held_res, "all_60": scored(fold_of.index),
+           "cost": {"stage_2_seconds": round(score_s, 1), "total_seconds": None}}
+    if write is not None:
+        write(doc)
+    _log("human check (exploratory)")
+    doc["human_check"] = _human(systems, chat, refs, seed)
+    doc["cost"]["total_seconds"] = round(time.time() - t_start, 1)
+    if write is not None:
+        write(doc)
+    return doc
+
+
 def render(doc: dict) -> str:
     return json.dumps(doc, indent=1, ensure_ascii=False) + "\n"
 
@@ -498,7 +572,21 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--coverage", action="store_true", help="the chat's top 10 inside L2's / X2's top k")
     ap.add_argument("--cascade", action="store_true", help="step 5b: L2 top 30 -> C2 (+ L2)")
     ap.add_argument("--s1-zero-shot", action="store_true", help="step 5c: S1 list -> C2 (+ S1)")
+    ap.add_argument("--full-c2", action="store_true", help="step 5d: C2 on all of X2's top 100")
     args = ap.parse_args(argv)
+    if args.full_c2:
+        def write(doc):
+            FULL_RECORD.write_text(render(doc), encoding="utf-8")
+            _log(f"wrote {FULL_RECORD}")
+        doc = full_c2(write=write)
+        for scope_name in ("held_out_folds_1_4", "all_60"):
+            for n, r in doc[scope_name].items():
+                t = r["summary"]["recall"]["total"]
+                dl = r.get("delta_vs_L2 (F9)", {}).get("recall", {}).get("total")
+                print(f"{scope_name:20s} {n:24s} R@10 {t['value']:.3f}"
+                      + (f"  vs L2 {dl['value']:+.3f} [{dl['ci'][0]:+.3f}, {dl['ci'][1]:+.3f}]" if dl else ""))
+        print("decisions:", doc["decisions"])
+        return 0
     if args.s1_zero_shot:
         def write(doc):
             S1_RECORD.write_text(render(doc), encoding="utf-8")

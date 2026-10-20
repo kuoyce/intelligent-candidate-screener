@@ -987,6 +987,41 @@ step 5b's `chat-1`-only figures.
   change.** S1 → C2 + S1 vs S1 alone: per-JD AUC +0.023 [−0.077, +0.110], pairwise on yc +0.038
   [−0.033, +0.116].
 
+### Step 5d: C2 on all of X2's top 100 (owner, 20 Oct 2026: "start the full job for C2"; fixed before scoring)
+
+5b let L2 pick the 30 that C2 saw (ceiling 0.819), and 5c let S1 pick them (0.724). Here C2 scores
+every pair `chat-1` scored, so the ceiling is 1.0 and C2's order is tested on the whole list.
+
+- **Pairs:** all of `chat-1`, 60 JDs × 100 = 6,000. Counted 20 Oct 2026: 2,181 already have C2
+  scores (pilot, 5b, 5c), 3,819 are new.
+- **Stage 2:** C2 (Qwen3-Reranker-0.6B, the fit instruction, the pilot's config and cache).
+- **Arms, each over the full 100 of a JD:**
+  - **"X2 top 100 → C2"** (replace: C2's order alone);
+  - **"X2 top 100 → C2 + L2"** (enhance: the sum of per-JD min-max L2 F9 and min-max C2 over the
+    100);
+  - exploratory, nothing trained on `chat-1`: "X2 top 100 → S1" (S1's probability order) and "X2
+    top 100 → C2 + S1" (min-max sum). They test whether 5c lost on S1's cap or on the order.
+  - Beside them: X2's order and L2 F9.
+- **Reference and metrics:** `chat-1` (as 5b). S3's Recall@10 against the chat's tie-aware top 10,
+  nDCG@10, chat No Fits; generic / targeted / total, JD-resampled CIs; paired deltas vs L2 F9, X2,
+  and S1's order. Human check exploratory, as 5b.
+- **Decisions, on folds 1-4 (48 JDs), both fixed now:**
+  - replace: "X2 top 100 → C2" is adopted over L2 if its Recall@10 Δ vs L2 F9 (total) is > 0 with
+    the CI above 0;
+  - enhance: the same rule for "X2 top 100 → C2 + L2".
+  - The S1 arms carry no rule. Which decision leads the write-up is the owner's open question
+    (review notes comment, 20 Oct 2026); both rules are fixed before scoring, so that choice cannot
+    change an outcome.
+- **What is not fresh:** folds 1-4 had C2 scores on L2's top 30 in 5b. The new information is C2 on
+  the other 70 CVs of each JD. Expected from 5b, recorded before scoring: C2 alone loses to L2 (−0.067
+  inside the same 30).
+- **Guards (before scoring):** X2's pool scores match the stage-1 record; L2 F9 reproduces 4b's A1;
+  S1's uncapped t = 0.3 list sizes match 4a's record; no JD has more than 100 chat pairs.
+- **Cost:** 3,819 pairs at ~5.0 s ≈ 5.3 h, one background process, ~6 GB peak. `cross.score_pairs`
+  now writes every 100 pairs and logs progress, so an interruption keeps what was scored (batch 1,
+  so scores are unchanged).
+- `evaluation/rerank_embed.py --full-c2` → `output/rerank/full-c2.json`. Exploratory: no `--check`.
+
 ## Assumptions (to confirm)
 
 - Stage 2 uses F12, the same features as stage 1 (owner, 18 Oct 2026). R1–R3 and L3 bring the

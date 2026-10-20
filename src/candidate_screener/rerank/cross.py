@@ -7,7 +7,8 @@ tokens). Scores are the raw logit (Qwen3-Reranker: the "yes" minus the "no" logi
 same reason as `embedder` (bfloat16 is slow on this AVX2 CPU).
 
 Scores are cached per system under `data/processed/rerank/cross/<fingerprint>/`, keyed by pair id
-and a digest of the pair's text. Nothing here reads a human label.
+and a digest of the pair's text, one file per `CHUNK` pairs so an interrupted run keeps what it
+scored (batch 1, so chunking leaves every score unchanged). Nothing here reads a human label.
 """
 from __future__ import annotations
 
@@ -24,7 +25,8 @@ from candidate_screener.rerank.embedder import TASK_FIT, text_digest
 ROOT = PROCESSED / "rerank" / "cross"
 COMMON = {"dtype": "float32", "max_length": 8192, "batch": 1, "threads": 6, "score": "raw logit",
           "text_variant": "v2"}
-QWEN = {"model": "Qwen/Qwen3-Reranker-0.6B", "revision": "e61197ed45024b0ed8a2d74b80b4d909f1255473"}
+CHUNK = 100   # pairs per cache file
+QWEN ={"model": "Qwen/Qwen3-Reranker-0.6B", "revision": "e61197ed45024b0ed8a2d74b80b4d909f1255473"}
 #: Fixed in the plan before scoring. `instruction` None = the checkpoint's own (or none at all).
 SYSTEMS = {
     "C1 gte-reranker": {"model": "Alibaba-NLP/gte-reranker-modernbert-base",
@@ -52,9 +54,9 @@ def load(cfg: dict):
                         max_length=cfg["max_length"], model_kwargs={"dtype": getattr(torch, cfg["dtype"])})
 
 
-def score_pairs(pairs: pd.DataFrame, name: str, root: Path = ROOT) -> pd.Series:
+def score_pairs(pairs: pd.DataFrame, name: str, root: Path = ROOT, chunk: int = CHUNK) -> pd.Series:
     """Raw scores for `pairs` (`pair_id`, `jd_text`, `cv_text`) by pair id; scores only what the
-    cache lacks."""
+    cache lacks, writing every `chunk` pairs."""
     cfg = config(name)
     out = root / neural.fingerprint(cfg)
     want = pairs.drop_duplicates("pair_id").assign(
@@ -68,15 +70,20 @@ def score_pairs(pairs: pd.DataFrame, name: str, root: Path = ROOT) -> pd.Series:
         import torch
         model = load(cfg)
         _log(f"{name}: scoring {len(todo)} pairs ({len(want) - len(todo)} cached)")
-        t0 = time.time()
-        s = model.predict(list(zip(todo.jd_text, todo.cv_text)), batch_size=cfg["batch"],
-                          prompt=cfg["instruction"], activation_fn=torch.nn.Identity(), show_progress_bar=False)
-        _log(f"{name}: {len(todo)} pairs in {time.time() - t0:.0f} s")
-        new = pd.DataFrame({"pair_id": todo.pair_id.to_numpy(), "digest": todo.digest.to_numpy(),
-                            "score": np.asarray(s, dtype=float).reshape(-1)})
         out.mkdir(parents=True, exist_ok=True)
-        new.to_parquet(out / f"scores-{time.strftime('%Y%m%d-%H%M%S')}.parquet", index=False)
-        have = pd.concat([have, new], ignore_index=True)
+        stamp, new, t0 = time.strftime("%Y%m%d-%H%M%S"), [], time.time()
+        for i, start in enumerate(range(0, len(todo), chunk)):
+            part = todo.iloc[start:start + chunk]
+            s = model.predict(list(zip(part.jd_text, part.cv_text)), batch_size=cfg["batch"],
+                              prompt=cfg["instruction"], activation_fn=torch.nn.Identity(), show_progress_bar=False)
+            frame = pd.DataFrame({"pair_id": part.pair_id.to_numpy(), "digest": part.digest.to_numpy(),
+                                  "score": np.asarray(s, dtype=float).reshape(-1)})
+            frame.to_parquet(out / f"scores-{stamp}-{i:04d}.parquet", index=False)
+            new.append(frame)
+            done = start + len(part)
+            _log(f"{name}: {done}/{len(todo)} pairs, {(time.time() - t0) / done:.1f} s/pair")
+        _log(f"{name}: {len(todo)} pairs in {time.time() - t0:.0f} s")
+        have = pd.concat([have, *new], ignore_index=True)
         del model
     got = want[["pair_id", "digest"]].merge(have, on=["pair_id", "digest"], how="left", validate="one_to_one")
     return pd.Series(got.score.to_numpy(dtype=float), index=got.pair_id.to_numpy())

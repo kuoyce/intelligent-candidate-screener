@@ -89,6 +89,26 @@ def test_cascade_reorders_only_the_first_stage_top_k():
     assert np.allclose(fused.loc[ids[:3]].to_numpy(), [11.0, 11.0, 11.0])  # min-max sums tie here
 
 
+def test_cross_scores_are_cached_per_chunk(tmp_path, monkeypatch):
+    pytest.importorskip("torch")
+    from candidate_screener.rerank import cross
+    calls = []
+
+    class Fake:
+        def predict(self, pairs, **kw):
+            calls.append(len(pairs))
+            return [float(len(j) + len(c)) for j, c in pairs]
+    monkeypatch.setattr(cross, "load", lambda cfg: Fake())
+    pairs = pd.DataFrame({"pair_id": [f"p{i}" for i in range(5)], "jd_text": ["jd"] * 5,
+                          "cv_text": ["c" * i for i in range(5)]})
+    name = "C2 Qwen3-Reranker, fit"
+    got = cross.score_pairs(pairs, name, root=tmp_path, chunk=2)
+    assert calls == [2, 2, 1] and got.tolist() == [2.0, 3.0, 4.0, 5.0, 6.0]
+    assert len(list(tmp_path.rglob("scores-*.parquet"))) == 3
+    pd.testing.assert_series_equal(cross.score_pairs(pairs, name, root=tmp_path, chunk=2), got)
+    assert calls == [2, 2, 1]                                   # all cached: no model call
+
+
 def test_capped_list_applies_threshold_then_cap():
     chat = _chat(n_jd=2, n_cv=6)
     p = pd.Series([0.9, 0.8, 0.7, 0.35, 0.2, 0.1] * 2, index=chat.pair_id.to_numpy())
