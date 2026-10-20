@@ -1022,6 +1022,46 @@ every pair `chat-1` scored, so the ceiling is 1.0 and C2's order is tested on th
   so scores are unchanged).
 - `evaluation/rerank_embed.py --full-c2` → `output/rerank/full-c2.json`. Exploratory: no `--check`.
 
+### Step 5d record (20 Oct 2026): neither rule adopted
+
+`output/rerank/full-c2.json`, `logs/rerank_full_c2.log`. 3,819 new pairs scored. All 6,000 of X2's
+top 100 now have C2 scores. The run took 11 h 51 min of wall clock, but the machine slept for about
+6 h 24 min. Active time was about 5 h 27 min, with stage 2 at about 5.1 s per pair. Peak RSS was
+6.0 GB, every guard held, and the run exited 0.
+
+| Pipeline (folds 1-4, 48 JDs) | Trained on `chat-1`? | R@10 (gen / tar) | Δ vs L2 F9 [CI] | Δ vs S1's order [CI] | nDCG@10 | Chat No Fits |
+|---|---|---|---|---|---|---|
+| X2's order | no | 0.410 | −0.079 [−0.114, −0.045] | −0.039 [−0.071, −0.006] | 0.776 | 1.60 |
+| L2 F9 | yes | 0.489 (0.498 / 0.471) | – | +0.040 [+0.013, +0.067] | 0.819 | 1.38 |
+| **X2 top 100 → C2** (replace) | no | 0.371 (0.376 / 0.362) | **−0.118 [−0.156, −0.077]** | −0.078 [−0.126, −0.030] | 0.737 | 1.77 |
+| **X2 top 100 → C2 + L2** (enhance) | yes (L2 part) | 0.485 (0.488 / 0.479) | **−0.004 [−0.029, +0.023]** | +0.036 [+0.003, +0.071] | 0.828 | 1.29 |
+| X2 top 100 → S1 (no rule) | no | 0.449 (0.463 / 0.421) | −0.040 [−0.067, −0.013] | – | 0.805 | 1.46 |
+| X2 top 100 → C2 + S1 (no rule) | no | 0.452 (0.465 / 0.424) | −0.038 [−0.068, −0.007] | +0.002 [−0.033, +0.039] | 0.808 | 1.31 |
+
+On all 60 JDs: C2 alone 0.379, C2 + L2 0.501 (+0.004 [−0.018, +0.026] vs L2), S1's order 0.454 and
+C2 + S1 0.464 (+0.010 [−0.019, +0.040] vs S1's order).
+
+- **Replace: not adopted.** Over the whole list, C2 alone is 0.118 below L2 and below X2's own order
+  (−0.039 [−0.087, +0.008]). This was the outcome expected before scoring.
+- **Enhance: not adopted.** C2 + L2 over all 100 CVs is level with L2 (−0.004). It is also below
+  5b's top-30 cascade (0.502 on the same reference). Restricting C2 to L2's top 30 kept its errors in
+  the tail from lifting weak CVs. That comparison is exploratory, because 5b's figure had been seen.
+  nDCG@10 is +0.010 [−0.010, +0.033] and chat No Fits 0.09 fewer, both within noise.
+- **The S1 arms correct 5c's reading.** Given the whole of X2's top 100 (ceiling 1.0), S1's own
+  order still trails L2 by 0.040. That is the same gap 5c found with S1's capped list (0.037). So
+  most of the gap comes from S1's order against L2's, not from S1's cap: the ~0.04 Recall@10 is what
+  training stage 2 on `chat-1` buys. C2 adds nothing measurable to S1's order (+0.002).
+- **Human check (exploratory; 422 judged CVs; 48 JDs for AUC on the final label, 55 for pairwise on
+  yc).**
+  - C2 alone vs L2: AUC −0.063 [−0.155, +0.031], pairwise −0.066 [−0.133, +0.006].
+  - C2 + L2 vs L2: AUC −0.002 [−0.067, +0.061], pairwise −0.002 [−0.045, +0.044].
+  - C2 + S1 vs S1's order: AUC +0.050 [−0.022, +0.120], pairwise +0.041 [−0.009, +0.094].
+  - L2 vs S1's order: pairwise +0.061 [+0.021, +0.104]. The humans prefer L2's order too.
+- **Reading:** a zero-shot Qwen3-Reranker-0.6B does not replace a learned stage 2, and adds nothing
+  measurable to one. That holds with the top-30 cut (5b, 5c) and without it (5d). Every C2 score is
+  now cached, so other fusions or cut-offs cost nothing to compute. Any of them would be chosen after
+  seeing these figures, and so exploratory.
+
 ## Assumptions (to confirm)
 
 - Stage 2 uses F12, the same features as stage 1 (owner, 18 Oct 2026). R1–R3 and L3 bring the
