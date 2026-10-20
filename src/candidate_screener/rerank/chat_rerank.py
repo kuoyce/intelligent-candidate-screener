@@ -44,6 +44,11 @@ FRESH_RUN, FRESH_PREFIX, FRESH_BATCH0, MIN_ANCHORS = "chat-2", "F", 100, 5
 AGENT = PROJECT_ROOT / ".claude" / "agents" / "a1-judge.md"
 PLAN = DATA / "interim" / "chat-rerank-plan.csv"
 REPLIES = OUTPUT / "rerank" / "chat-rerank-replies.csv"
+#: D62 (plan 2026-10-21-chat3-holdout): `chat-3`, 48 train-region JDs, same instrument and model.
+#: Its own plan and replies, so nothing that reads `chat-1` / `chat-2` ever sees a chat-3 row.
+CHAT3_RUN = "chat-3"
+CHAT3_PLAN = DATA / "interim" / "chat3-plan.csv"
+CHAT3_REPLIES = OUTPUT / "rerank" / "chat3-replies.csv"
 LABELS = ("Good Fit", "Potential Fit", "No Fit")
 #: Curly double quotes a phone or chat app substitutes for JSON's straight ones.
 SMART_QUOTES = str.maketrans({"“": '"', "”": '"', "„": '"', "″": '"'})
@@ -263,9 +268,20 @@ def build(seed: int = SEED) -> pd.DataFrame:
     return plan
 
 
+def paths(chat3: bool = False) -> tuple[Path, Path]:
+    """(plan, replies) of a collection: `chat-3`'s own files, or the 60 final-set JDs' ones."""
+    return (CHAT3_PLAN, CHAT3_REPLIES) if chat3 else (PLAN, REPLIES)
+
+
 def texts(plan: pd.DataFrame) -> pd.DataFrame:
-    from candidate_screener.evaluation import retrieval_pilot, stage1
-    pools = retrieval_pilot.build_pools(SEED, stage1.TEXT_VARIANT).set_index("pair_id")
+    if "run" in plan and plan.run.eq(CHAT3_RUN).any():
+        if not plan.run.eq(CHAT3_RUN).all():
+            raise ValueError("a plan mixes chat-3 with other runs")
+        from candidate_screener.evaluation import chat3
+        pools = chat3.pairs().set_index("pair_id")
+    else:
+        from candidate_screener.evaluation import retrieval_pilot, stage1
+        pools = retrieval_pilot.build_pools(SEED, stage1.TEXT_VARIANT).set_index("pair_id")
     return plan.assign(jd_text=plan.pair_id.map(pools.jd_text), cv_text=plan.pair_id.map(pools.cv_text))
 
 

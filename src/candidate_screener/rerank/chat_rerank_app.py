@@ -1,25 +1,31 @@
 """Thin Streamlit page over `chat_rerank`: copy a batch's prompt, paste the chat's reply, next.
 
     uv run --group app streamlit run src/candidate_screener/rerank/chat_rerank_app.py
+    uv run --group app streamlit run src/candidate_screener/rerank/chat_rerank_app.py -- --chat3   # D62
 """
+import sys
+
 import pandas as pd
 import streamlit as st
 
 from candidate_screener.rerank import chat_rerank as cr
 
-st.set_page_config(page_title="Chat rerank", layout="wide")
-if not cr.PLAN.exists():
-    st.error("No plan yet. Run `uv run python -m candidate_screener.rerank.chat_rerank --build`.")
+CHAT3 = "--chat3" in sys.argv
+PLAN, REPLIES = cr.paths(CHAT3)
+st.set_page_config(page_title="Chat rerank" + (" · chat-3" if CHAT3 else ""), layout="wide")
+if not PLAN.exists():
+    st.error("No plan yet. Run `uv run python -m candidate_screener."
+             + ("evaluation.chat3 --build`." if CHAT3 else "rerank.chat_rerank --build`."))
     st.stop()
 
 
 @st.cache_data
-def plan_with_text() -> pd.DataFrame:
-    return cr.texts(pd.read_csv(cr.PLAN))
+def plan_with_text(path) -> pd.DataFrame:
+    return cr.texts(pd.read_csv(path))
 
 
-plan = plan_with_text()
-done = cr.latest()
+plan = plan_with_text(PLAN)
+done = cr.latest(REPLIES)
 done_batches = set(zip(done.jd_id, done.batch))
 order = plan[["jd_order", "jd_id", "stratum"]].drop_duplicates().sort_values("jd_order")
 batches = [(r.jd_order, r.jd_id, r.stratum, b) for r in order.itertuples()
@@ -53,7 +59,7 @@ if (jd_id, b) in done_batches:
              "the next unsaved batch, unless you mean to re-score this one.")
 if i_b == 1:
     st.warning("**Start a new chat** for this JD"
-               + (" (a fresh one, not the JD's chat-1 chat)" if run != cr.RUN else "")
+               + (" (a fresh one, not the JD's chat-1 chat)" if run == cr.FRESH_RUN else "")
                + ", then paste the prompt below.")
 elif "source" in plan and plan[(plan.jd_id == jd_id) & (plan.batch == b)].source.eq("s1_passed").all():
     st.info("**Extension batch** (S1 passed CVs outside X2's top 100): paste into the **same chat** "
@@ -76,7 +82,7 @@ with st.form(f"reply-{jd_id}-{b}", clear_on_submit=True):
         except ValueError as e:
             st.error(f"Refused: {e}. Ask the chat to resend the JSON for exactly these ids.")
         else:
-            cr.save_reply(jd_id, b, raw, parsed, plan)
+            cr.save_reply(jd_id, b, raw, parsed, plan, path=REPLIES)
             # the next *unsaved* batch, never merely the next position: a saved batch after a
             # fresh chat's last one was re-scored by mistake on 18 Oct 2026 (JDs 2-6)
             done_batches.add((jd_id, b))

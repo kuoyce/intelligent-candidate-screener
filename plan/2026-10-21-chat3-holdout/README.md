@@ -132,3 +132,19 @@ Whatever the result, it is reported as the result: no retuning, no second test o
 - The chat-3 judge behaves like `chat-1`'s. A drift in the scale between sessions (`chat-2` ran
   +3.4) matters little, since L2 ranks CVs within a JD.
 - 48 JDs are enough, since L2 trained on 48 per fold before. The choice in §4 sees ~38 per fold.
+
+## Build record (21 Oct 2026)
+
+`evaluation/chat3.py --build` → `output/rerank/chat3-pools.json`, `data/interim/chat3-plan.csv`,
+`logs/chat3_build.log`. 2 min 29 s, peak RSS 3.9 GB.
+
+- 48 JDs (32 `generic`, 16 `targeted`: Business Analyst 6, Data Science 5, Data Engineer 4, Data
+  Analyst 1) from 9,380 eligible dev JDs, 405 of them excluded (dev pools and D50).
+- 24,000 pool pairs; X2's top 100 = 4,800 pairs in 240 batches. X2 reproduced the stage-1 record
+  first.
+- No overlap with the eval region, the final set, the weak pairs, D50's JDs or the dev-pool JDs
+  (all 0, checked in code).
+- The text builders for train-region documents give exactly what `chat-1` read: on the final set,
+  60 / 60 JD texts and 600 / 600 CV texts are equal (checked 21 Oct 2026).
+- chat-3 keeps its own plan and replies (`chat_rerank.CHAT3_*`); the app takes `-- --chat3`.
+  Prompts are about the size of `chat-1`'s (~65,000 characters for a batch of 20).
