@@ -14,9 +14,12 @@ on the 60 final-set JDs (`chat-1` as the reference).
 - **Shortlist:** X2 (digest-guarded against the stage-1 record), top 100 per JD, as a
   `chat_rerank` plan with its own run label and files (`chat_rerank.CHAT3_*`).
 
-Ids and digests go to the record; texts stay in `data/` (git-ignored). Nothing here reads a label.
+Ids and digests go to the record; texts stay in `data/` (git-ignored). `--build` and `--select`
+read no human label; `--test` reads the final set only to score (rule 3), after the fit.
 
     uv run python -m candidate_screener.evaluation.chat3 --build
+    uv run python -m candidate_screener.evaluation.chat3 --select   # §4, once chat-3 is complete
+    uv run python -m candidate_screener.evaluation.chat3 --test     # §5, once
 """
 from __future__ import annotations
 
@@ -181,13 +184,167 @@ def pairs() -> pd.DataFrame:
     return pd.read_parquet(path)
 
 
+# --- choose and fit stage 2 on chat-3 (plan §4) ----------------------------------------------
+
+SELECT_RECORD = OUTPUT / "rerank" / "chat3-select.json"
+TEST_RECORD = OUTPUT / "rerank" / "chat3-test.json"
+#: §4's menu, in tie order: a tie (3 dp) goes to the earlier arm (F9 before F12, L1 before L2).
+MENU = (("L1", "F9"), ("L2", "F9"), ("L1", "F12"), ("L2", "F12"))
+BAR = 0.05          # rule 1: S3's bar vs X2's order (owner, 18 Oct 2026)
+STAGE2 = "X2 top 100 -> stage 2 (chat-3)"
+S1_ORDER, OLD_L2 = "X2 top 100 -> S1", "X2 top 100 -> L2 (chat-1, out of fold)"
+
+
+def join_scores(plan: pd.DataFrame, replies: pd.DataFrame, instrument: str) -> pd.DataFrame:
+    """`plan`'s pairs with their chat-3 `score` and `label`. Refuses another run's or another
+    instrument's rows, and an incomplete collection. Pure."""
+    from candidate_screener.rerank import chat_rerank as cr
+    d = replies[replies.run == cr.CHAT3_RUN]
+    if set(d.instrument_sha256) != {instrument}:
+        raise ValueError("chat-3 replies are not all from the build's instrument")
+    out = plan[["pair_id", "jd_id", "cv_id", "stratum", "source"]].merge(
+        d[["pair_id", "score", "label"]], on="pair_id", how="inner", validate="one_to_one")
+    missing = set(plan.pair_id) - set(out.pair_id)
+    if missing:
+        raise ValueError(f"{len(missing)} of {len(plan)} chat-3 pairs have no score yet")
+    return out.sort_values("pair_id").reset_index(drop=True)
+
+
+def choose(totals: Mapping[tuple, float], menu=MENU) -> tuple:
+    """The arm with the highest out-of-fold Recall@10 (total, 3 dp); a tie goes to the earlier arm."""
+    return max(menu, key=lambda a: (round(totals[a], 3), -menu.index(a)))
+
+
+def targets() -> pd.DataFrame:
+    """chat-3, complete: one row per planned pair with its score, label and JD fold."""
+    from candidate_screener.rerank import chat_rerank as cr, chat_targets as ct
+    chat = join_scores(pd.read_csv(cr.CHAT3_PLAN), cr.latest(cr.CHAT3_REPLIES),
+                       json.loads(RECORD.read_text())["instrument_sha256"])
+    stratum = chat.drop_duplicates("jd_id").set_index("jd_id").stratum
+    return chat.assign(fold=chat.jd_id.map(ct.folds(stratum)))
+
+
+def _kind(learner: str) -> str:
+    from candidate_screener.rerank import learners
+    return {"L1": learners.L1, "L2": learners.L2}[learner]
+
+
+def select(seed: int = SEED) -> dict:
+    """§4: each menu arm out of fold on chat-3 (5 JD folds), Recall@10 against chat-3's top 10."""
+    from candidate_screener.evaluation import rerank_chat as rc
+    from candidate_screener.matching import learned
+    from candidate_screener.rerank import chat_rerank as cr, chat_targets as ct, learners
+    chat = targets()
+    stratum = chat.drop_duplicates("jd_id").set_index("jd_id").stratum
+    _log(f"chat-3: {len(chat)} pairs, {chat.jd_id.nunique()} JDs; features on the pools")
+    X = learned.Features()(pairs()).loc[chat.pair_id.to_numpy()]
+    x2 = pd.read_csv(cr.CHAT3_PLAN).set_index("pair_id").x2
+    arms = {"X2's order": ct.per_jd(chat, x2)}
+    for learner, fs in MENU:
+        s, _ = learners.out_of_fold(_kind(learner), X, chat, list(learned.FEATURE_SETS[fs]))
+        arms[f"{learner} {fs}"] = ct.per_jd(chat, s)
+    win = choose({a: rc.summary(arms[f"{a[0]} {a[1]}"], stratum, seed)["recall"]["total"]["value"]
+                  for a in MENU})
+    return {"plan": "plan/2026-10-21-chat3-holdout (§4)", "seed": seed,
+            "chat_3": {"pairs": int(len(chat)), "jds": int(chat.jd_id.nunique()),
+                       "by_stratum": {k: int(v) for k, v in stratum.value_counts().sort_index().items()},
+                       "mean_score": round(float(chat.score.mean()), 3),
+                       "labels": {k: int(v) for k, v in chat.label.value_counts().sort_index().items()}},
+            "menu": [f"{a} {b}" for a, b in MENU],
+            "rule": "highest out-of-fold Recall@10 (total, 3 dp); a tie goes to the earlier menu arm",
+            "arms": {n: {"summary": rc.summary(p, stratum, seed)} for n, p in arms.items()},
+            "winner": {"learner": win[0], "features": win[1]}}
+
+
+def fit_stage2(chat: pd.DataFrame, X: pd.DataFrame, learner: str, features: str):
+    """The winner, fitted once on every chat-3 pair. Reads nothing but its arguments."""
+    from candidate_screener.matching import learned
+    from candidate_screener.rerank import learners
+    return learners.LEARNERS[_kind(learner)](list(learned.FEATURE_SETS[features])).fit(
+        X.loc[chat.pair_id.to_numpy()], chat.score.to_numpy())
+
+
+def rules(results: dict, human: dict) -> dict:
+    """The three rules of plan §5, fixed before the test was scored. Pure."""
+    d1 = results[STAGE2]["delta_vs_X2"]["recall"]["total"]
+    d2 = results[STAGE2][f"delta_vs_{S1_ORDER}"]["recall"]["total"]
+    d3 = next(f for f in human["systems"][STAGE2]["auc_delta_vs_X2"]
+              if f["scope"] == "total" and f["subset"] == "all")
+    return {"1 headline: Recall@10 vs X2 >= +0.05, CI above 0":
+                {"delta": d1, "passes": bool(d1["value"] >= BAR and d1["ci"][0] > 0)},
+            "2 chat vs chat-free: Recall@10 vs S1's order > 0, CI above 0":
+                {"delta": d2, "passes": bool(d2["value"] > 0 and d2["ci"][0] > 0)},
+            "3 humans: per-JD AUC (final label, all) vs X2 > 0, CI above 0":
+                {"delta": {"value": d3["delta"], "ci": d3["ci"], "n_jd": d3["n_jd"]},
+                 "passes": bool(d3["delta"] > 0 and d3["ci"][0] > 0)}}
+
+
+def test(seed: int = SEED, write=None) -> dict:
+    """§5: fit §4's winner on chat-3, then score the 60 final-set JDs once against `chat-1`."""
+    from candidate_screener.evaluation import rerank_chat as rc, rerank_embed, retrieval_pilot, \
+        stage1_classifier as sc
+    from candidate_screener.matching import learned
+    from candidate_screener.rerank import chat_targets as ct, chunked
+    win = json.loads(SELECT_RECORD.read_text(encoding="utf-8"))["winner"]
+    feats = learned.Features()
+    chat3 = targets()
+    model = fit_stage2(chat3, feats(pairs()), win["learner"], win["features"])
+    _log(f"stage 2 = {win['learner']} {win['features']}, fitted on {len(chat3)} chat-3 pairs; the test")
+    chat_all = chunked.chat_frame()
+    chat = chat_all[chat_all.source == ct.TRAIN_SOURCE].reset_index(drop=True)
+    stratum = chat.drop_duplicates("jd_id").set_index("jd_id").stratum
+    ids = chat.pair_id.to_numpy()
+    x2, old_l2 = rerank_embed._x2_and_l2(chat_all, seed)       # both digest-guarded
+    pools = retrieval_pilot.build_pools(seed, rerank_embed.TEXT_VARIANT)
+    Xp = feats(pools)
+    stage2 = pd.Series(model.predict(Xp.loc[ids]), index=ids)
+    p = sc.fit_arms(feats)[3][sc.PRIMARY].proba(Xp).loc[pools.pair_id.to_numpy()]
+    systems = {"X2": x2, STAGE2: stage2, S1_ORDER: p, OLD_L2: old_l2}
+    per = {n: ct.per_jd(chat, s) for n, s in systems.items()}
+    results = {}
+    for n in systems:
+        results[n] = {"summary": rc.summary(per[n], stratum, seed)}
+        for ref in ("X2", S1_ORDER, STAGE2):
+            if n != ref:
+                results[n][f"delta_vs_{ref}"] = rc.deltas(per[n], per[ref].loc[per[n].index], stratum, seed)
+    _log("human check")
+    human = rerank_embed._human(systems, chat, ("X2", S1_ORDER), seed)
+    doc = {"plan": "plan/2026-10-21-chat3-holdout (§5)", "seed": seed,
+           "stage_2": {**win, "fitted_on": f"chat-3, {len(chat3)} pairs, {chat3.jd_id.nunique()} JDs"},
+           "reference": "chat-1 (X2's top 100 of the 60 final-set JDs)", "jds": int(chat.jd_id.nunique()),
+           "rules": rules(results, human), "results": results, "human": human}
+    if write is not None:
+        write(doc)
+    return doc
+
+
 def main(argv: list[str] | None = None) -> int:
     from candidate_screener.rerank import chat_rerank as cr
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     ap.add_argument("--build", action="store_true", help="draw the 48 JDs, pools, X2 top 100, the chat-3 plan")
+    ap.add_argument("--select", action="store_true", help="§4: choose stage 2 on chat-3 (needs all of it)")
+    ap.add_argument("--test", action="store_true", help="§5: fit the winner, score the 60 JDs once")
     args = ap.parse_args(argv)
+    if args.select:
+        if TEST_RECORD.exists():
+            raise SystemExit(f"{TEST_RECORD} exists: the choice was tested, never re-choose")
+        doc = select()
+        SELECT_RECORD.write_text(json.dumps(doc, indent=1) + "\n", encoding="utf-8")
+        for n, r in doc["arms"].items():
+            print(f"{n:12s} R@10 {r['summary']['recall']['total']['value']:.3f}")
+        print("winner:", doc["winner"])
+        return 0
+    if args.test:
+        if TEST_RECORD.exists():
+            raise SystemExit(f"{TEST_RECORD} exists: the test is scored once")
+        doc = test(write=lambda d: TEST_RECORD.write_text(json.dumps(d, indent=1) + "\n", encoding="utf-8"))
+        for n, r in doc["results"].items():
+            print(f"{n:42s} R@10 {r['summary']['recall']['total']['value']:.3f}")
+        for rule, r in doc["rules"].items():
+            print(f"{'PASS' if r['passes'] else 'FAIL'}  {rule}: {r['delta']}")
+        return 0
     if not args.build:
-        ap.error("--build")
+        ap.error("--build, --select or --test")
     if cr.CHAT3_REPLIES.exists():
         raise SystemExit(f"{cr.CHAT3_REPLIES} exists: chat-3 is being collected, never rebuild its plan")
     frame, plan, record = build()

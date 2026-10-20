@@ -65,3 +65,42 @@ def test_chat3_keeps_its_own_files_and_never_mixes_runs():
     mixed = pd.DataFrame({"pair_id": ["p1", "p2"], "run": [cr.CHAT3_RUN, cr.RUN]})
     with pytest.raises(ValueError, match="mixes"):
         cr.texts(mixed)
+
+
+def _plan_and_replies():
+    plan = pd.DataFrame({"pair_id": ["p1", "p2", "p3"], "jd_id": ["j", "j", "k"], "cv_id": ["a", "b", "c"],
+                         "stratum": ["generic", "generic", "targeted"], "source": ["x2_top100"] * 3})
+    replies = pd.DataFrame({"pair_id": ["p1", "p2", "p3", "p1"], "score": [80, 40, 60, 10],
+                            "label": ["Good Fit", "No Fit", "Potential Fit", "No Fit"],
+                            "run": [cr.CHAT3_RUN] * 3 + [cr.RUN], "instrument_sha256": ["i"] * 4})
+    return plan, replies
+
+
+def test_join_scores_takes_chat3_only_and_refuses_gaps_or_another_instrument():
+    plan, replies = _plan_and_replies()
+    got = chat3.join_scores(plan, replies, "i")
+    assert got.set_index("pair_id").score.to_dict() == {"p1": 80, "p2": 40, "p3": 60}   # chat-1's p1 ignored
+    with pytest.raises(ValueError, match="no score yet"):
+        chat3.join_scores(plan, replies[replies.pair_id != "p3"], "i")
+    with pytest.raises(ValueError, match="instrument"):
+        chat3.join_scores(plan, replies, "other")
+
+
+def test_choose_takes_the_best_and_breaks_ties_by_menu_order():
+    t = {("L1", "F9"): 0.4501, ("L2", "F9"): 0.4504, ("L1", "F12"): 0.44, ("L2", "F12"): 0.46}
+    assert chat3.choose(t) == ("L2", "F12")
+    t[("L2", "F12")] = 0.4499                                   # 0.450 all round: the first arm wins
+    assert chat3.choose(t) == ("L1", "F9")
+
+
+def test_rules_apply_the_preset_bars():
+    def d(v, lo):
+        return {"recall": {"total": {"value": v, "ci": [lo, v + 0.03], "n_jd": 60}}}
+    results = {chat3.STAGE2: {"delta_vs_X2": d(0.06, 0.02), f"delta_vs_{chat3.S1_ORDER}": d(0.01, -0.01)}}
+    human = {"systems": {chat3.STAGE2: {"auc_delta_vs_X2": [
+        {"scope": "generic", "subset": "all", "delta": -1, "ci": [-2, 0], "n_jd": 40},
+        {"scope": "total", "subset": "all", "delta": 0.05, "ci": [0.01, 0.09], "n_jd": 48}]}}}
+    got = [r["passes"] for r in chat3.rules(results, human).values()]
+    assert got == [True, False, True]
+    results[chat3.STAGE2]["delta_vs_X2"] = d(0.049, 0.01)        # under the +0.05 bar
+    assert not next(iter(chat3.rules(results, human).values()))["passes"]
