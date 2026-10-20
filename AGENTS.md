@@ -121,9 +121,10 @@ No runnable scripts under `plan/`; code that outlives a decision goes in the pac
 - **The LLM is a secondary annotator** (D43). Exactly one series enters the final set:
   instrument `5d986c82`, `claude-haiku-4-5`, runs 9/10. Only a reranker or the stage-1
   classifier may train on LLM output: on the D50 batch (D51, D61), and, for the stage-2
-  reranker, on `chat-1` (D61). **For the stage-2 top-10 task only, `chat-1` is the target
-  and the reference** (folds by JD); everywhere else the human grades are the only
-  reference. Ordering figures and any LLM scored as a system are reported on the `llm_free`
+  reranker, on `chat-3` (48 train-region JDs, D62). **For the stage-2 top-10 task only,
+  `chat-1` is the test reference** and is never trained or tuned on (D62; steps 3-5d of plan
+  2026-10-18 trained on it under D61, out of fold by JD); everywhere else the human grades
+  are the only reference. Ordering figures and any LLM scored as a system are reported on the `llm_free`
   subset beside `full`.
 - **LLM labels never enter `judgements.csv`.** They live in `llm-*.csv`, keyed by
   (`agent_sha256`, model, run, draw). Never pool across those axes.
