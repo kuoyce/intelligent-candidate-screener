@@ -121,10 +121,13 @@ REGISTRY: tuple[Check, ...] = (
     # feature_arms (step 4b): first full run 18 Oct 2026, 12.6 min, peak 5.1 GB (needs the MiniLM
     # tagger cache, `feature_arms --tag-n2`, ~60 min once).
     Check("feature_arms", "evaluation.feature_arms", ("--check",), run_alone=True, cold_s=755.0),
-    # rerank_chat: cold retrains L3's five folds one after another at 5 threads (estimate from the
-    # 18 Oct 2026 parallel run; L3 workers ran two folds at a time). Warm replays R1-R3 and L3.
+    # rerank_chat: cold retrains L3's five folds one after another at 5 threads; measured 21 Oct
+    # 2026 (two cold runs, 6.3 h and 6.5 h, peak 6.2 GB). Warm replays R1-R3 and L3.
     Check("rerank_chat", "evaluation.rerank_chat", ("--check",), W, run_alone=True,
-          cold_s=32400.0, warm_s=600.0),
+          cold_s=23400.0, warm_s=600.0),
+    # chat3 (plan 2026-10-21, D62): rebuilds the chat-3 plan, §4's choice and §5's test; estimate
+    # from its parts' runs (2.5 + 2.8 + 7.2 min), peak 5.6 GB.
+    Check("chat3", "evaluation.chat3", ("--check",), run_alone=True, cold_s=800.0),
     Check("stage2", "evaluation.stage2", ("--check",), W, run_alone=True, cold_s=12609.0,
           warm_s=251.5),
 )

@@ -446,6 +446,70 @@ def stage1_coverage(seed: int = SEED) -> dict:
             "k": list(COVERAGE_K), "systems": out}
 
 
+L1_POOL_RECORD = OUTPUT / "rerank" / "chat3-l1-pool.json"
+CUT = 30
+L1_POOL, L1_C2 = "stage 2 (chat-3) on all 500", "stage 2 (chat-3) top 30 -> C2 + stage 2"
+
+
+def l1_pool(seed: int = SEED) -> dict:
+    """Owner, 22 Oct 2026: the system is §4's winner over the whole 500-CV pool (one stage), X2 the
+    reported baseline. (a) Is its top 10 the tested pipeline's (X2 top 100 -> stage 2), JD by JD?
+    (b) Exploratory: its top 30 reordered by C2 + it (5b's design, the min-max sum), paired against
+    it. Recall@10 with unscored CVs as misses, against `chat-1` and against `chat-1` + `chat-2`."""
+    from candidate_screener.evaluation import rerank_embed as re_, retrieval_pilot, stage1_classifier as sc
+    from candidate_screener.matching import learned
+    from candidate_screener.rerank import chat_targets as ct, chunked, cross
+    win = json.loads(SELECT_RECORD.read_text(encoding="utf-8"))["winner"]
+    tested = json.loads(TEST_RECORD.read_text(encoding="utf-8"))["results"][STAGE2]["summary"]["recall"]["total"]["value"]
+    feats = learned.Features()
+    model = fit_stage2(targets(), feats(pairs()), win["learner"], win["features"])
+    pools = retrieval_pilot.build_pools(seed, re_.TEXT_VARIANT)
+    ids = pools.pair_id.to_numpy()
+    x2 = sc._x2().score(pools)
+    l1 = pd.Series(model.predict(feats(pools).loc[ids]), index=ids)
+    pipeline = _shortlist_then(pools, x2, l1)
+    same = {}
+    for jd, g in pools.sort_values("pair_id").groupby("jd_id", sort=True):
+        p = g.pair_id.to_numpy()
+        a = set(p[ct.top_k_mask(p, l1.loc[p].to_numpy(dtype=float))])
+        b = set(p[ct.top_k_mask(p, pipeline.loc[p].to_numpy(dtype=float))])
+        same[jd] = a == b
+    top = pd.concat([g[ct.top_k_mask(g.pair_id.to_numpy(), l1.loc[g.pair_id.to_numpy()].to_numpy(dtype=float), CUT)]
+                     for _, g in pools.sort_values("pair_id").groupby("jd_id", sort=True)])
+    _log(f"C2 on {len(top)} top-{CUT} pairs (cached where X2's top 100 had them)")
+    c2 = cross.score_pairs(top[["pair_id", "jd_text", "cv_text"]], re_.CASCADE_SYSTEM)
+    fused = re_.cascade_scores(pools, l1, c2, k=CUT)[0]
+    chat = chunked.chat_frame()
+    refs = {"chat-1": chat[chat.source == ct.TRAIN_SOURCE], "chat-1 + chat-2": ct.load_latest()}
+    stratum = refs["chat-1"].drop_duplicates("jd_id").set_index("jd_id").stratum
+    out = {}
+    for rname, ref in refs.items():
+        a, b = pool_coverage(pools, ref, l1, 10), pool_coverage(pools, ref, fused, 10)
+        out[rname] = {L1_POOL: {"recall": re_.block(a.coverage, stratum, seed), "scored": round(float(a.scored.mean()), 4)},
+                      L1_C2: {"recall": re_.block(b.coverage, stratum, seed), "scored": round(float(b.scored.mean()), 4),
+                              "delta": re_.block(b.coverage - a.coverage, stratum, seed)}}
+    n_same = int(sum(same.values()))
+    if n_same == len(same) and round(out["chat-1"][L1_POOL]["recall"]["total"]["value"], 6) != tested:
+        raise ValueError("identical top 10s but a different Recall@10 from §5")
+    return {"plan": "plan/2026-10-21-chat3-holdout (owner 22 Oct: L1 over the pool; exploratory C2 cut)",
+            "seed": seed, "stage_2": win,
+            "a_top10_identical_to_tested_pipeline": {"jds": n_same, "of": len(same), "tested_recall_at_10": tested},
+            "b_status": "exploratory: the 60 JDs had their one test (§5); C2's fold-0 scores were seen in 5a",
+            "cut": CUT, "c2_pairs": int(len(top)), "results": out}
+
+
+def check() -> dict[str, bool]:
+    """D55: rebuild the plan, §4's choice and §5's test from the committed replies; compare byte for
+    byte with what is on disk. Writes nothing."""
+    from candidate_screener.rerank import chat_rerank as cr
+    _, plan, record = build()
+    out = {RECORD.name: RECORD.read_text(encoding="utf-8") == json.dumps(record, indent=1) + "\n",
+           cr.CHAT3_PLAN.name: cr.CHAT3_PLAN.read_text(encoding="utf-8") == plan.to_csv(index=False)}
+    out[SELECT_RECORD.name] = SELECT_RECORD.read_text(encoding="utf-8") == json.dumps(select(), indent=1) + "\n"
+    out[TEST_RECORD.name] = TEST_RECORD.read_text(encoding="utf-8") == json.dumps(test(), indent=1) + "\n"
+    return out
+
+
 def main(argv: list[str] | None = None) -> int:
     from candidate_screener.rerank import chat_rerank as cr
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
@@ -454,7 +518,24 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--test", action="store_true", help="§5: fit the winner, score the 60 JDs once")
     ap.add_argument("--compare-c2", action="store_true", help="exploratory: §5 beside the C2 arms of steps 5b-5d")
     ap.add_argument("--stage1-coverage", action="store_true", help="exploratory: stage-1 variants over the pool")
+    ap.add_argument("--l1-pool", action="store_true", help="the winner over the pool; exploratory top-30 C2 cut")
+    ap.add_argument("--check", action="store_true", help="rebuild build / select / test and diff, write nothing")
     args = ap.parse_args(argv)
+    if args.check:
+        same = check()
+        for name, ok in same.items():
+            print(f"[{'PASS' if ok else 'FAIL'}] rebuild reproduces {name}")
+        return 0 if all(same.values()) else 1
+    if args.l1_pool:
+        doc = l1_pool()
+        L1_POOL_RECORD.write_text(json.dumps(doc, indent=1) + "\n", encoding="utf-8")
+        print("top 10 identical:", doc["a_top10_identical_to_tested_pipeline"])
+        for rname, r in doc["results"].items():
+            d = r[L1_C2]["delta"]["total"]
+            print(f"{rname:16s} {L1_POOL} {r[L1_POOL]['recall']['total']['value']:.3f} | {L1_C2} "
+                  f"{r[L1_C2]['recall']['total']['value']:.3f} (scored {r[L1_C2]['scored']:.2f}) "
+                  f"delta {d['value']:+.3f} [{d['ci'][0]:+.3f}, {d['ci'][1]:+.3f}]")
+        return 0
     if args.stage1_coverage:
         doc = stage1_coverage()
         COVERAGE_RECORD.write_text(json.dumps(doc, indent=1) + "\n", encoding="utf-8")

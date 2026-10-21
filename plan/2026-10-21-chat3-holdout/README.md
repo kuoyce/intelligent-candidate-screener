@@ -289,3 +289,18 @@ Unscored CVs count as misses; "scored" is the share of the top k with a chat sco
   so stage 1's recall is not where the loss is.
 - `chat-1`'s L2 holds a little more at k = 30-50 (+0.02, CI touching 0). That is the room 5b's
   top-30 C2 cascade used; it comes from stage 2, not from stage 1.
+
+## The reported system: L1 over the whole pool (owner, 22 Oct 2026; D63)
+
+Owner: "since L1 is almost the same, I would prefer to have the baseline as L1, X2 as the reported"
+(read back and confirmed: the system is L1 F12 trained on chat-3, ranking all 500 CVs in one stage;
+X2 is reported as the baseline). `chat3 --l1-pool` → `output/rerank/chat3-l1-pool.json`, 11 min.
+
+- **(a) Same result as the tested pipeline.** L1's top 10 over the 500 equals X2 top 100 → L1's
+  in 59 of 60 JDs. In the other, one lower-ranked CV differs, and Recall@10 against `chat-1` is the
+  tested **0.484413** to the last digit. §5's figures and rules therefore hold for the one-stage
+  system.
+- **(b) L1 top 30 → C2 + L1 (5b's design; exploratory, the 60 JDs had their test): no gain.**
+  Against `chat-1`: 0.483 vs 0.484, Δ −0.002 [−0.026, +0.024]. Against `chat-1` + `chat-2`: +0.004
+  [−0.020, +0.029]. 50 of the 1,800 top-30 pairs were new to C2's cache (7.2 s/pair). C2 stays out
+  of the system, as in steps 5b-5d.

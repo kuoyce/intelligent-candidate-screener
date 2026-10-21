@@ -1,0 +1,190 @@
+{
+ "plan": "plan/2026-10-21-chat3-holdout (owner 22 Oct: L1 over the pool; exploratory C2 cut)",
+ "seed": 0,
+ "stage_2": {
+  "learner": "L1",
+  "features": "F12"
+ },
+ "a_top10_identical_to_tested_pipeline": {
+  "jds": 59,
+  "of": 60,
+  "tested_recall_at_10": 0.484413
+ },
+ "b_status": "exploratory: the 60 JDs had their one test (\u00a75); C2's fold-0 scores were seen in 5a",
+ "cut": 30,
+ "c2_pairs": 1800,
+ "results": {
+  "chat-1": {
+   "stage 2 (chat-3) on all 500": {
+    "recall": {
+     "generic": {
+      "value": 0.496952,
+      "ci": [
+       0.447569,
+       0.546429
+      ],
+      "n_jd": 40
+     },
+     "targeted": {
+      "value": 0.459333,
+      "ci": [
+       0.379331,
+       0.539095
+      ],
+      "n_jd": 20
+     },
+     "total": {
+      "value": 0.484413,
+      "ci": [
+       0.441777,
+       0.526052
+      ],
+      "n_jd": 60
+     }
+    },
+    "scored": 0.9983
+   },
+   "stage 2 (chat-3) top 30 -> C2 + stage 2": {
+    "recall": {
+     "generic": {
+      "value": 0.494149,
+      "ci": [
+       0.442622,
+       0.546691
+      ],
+      "n_jd": 40
+     },
+     "targeted": {
+      "value": 0.460286,
+      "ci": [
+       0.37983,
+       0.539789
+      ],
+      "n_jd": 20
+     },
+     "total": {
+      "value": 0.482861,
+      "ci": [
+       0.438266,
+       0.525315
+      ],
+      "n_jd": 60
+     }
+    },
+    "scored": 0.9917,
+    "delta": {
+     "generic": {
+      "value": -0.002804,
+      "ci": [
+       -0.034804,
+       0.030686
+      ],
+      "n_jd": 40
+     },
+     "targeted": {
+      "value": 0.000952,
+      "ci": [
+       -0.035714,
+       0.040238
+      ],
+      "n_jd": 20
+     },
+     "total": {
+      "value": -0.001552,
+      "ci": [
+       -0.02627,
+       0.023676
+      ],
+      "n_jd": 60
+     }
+    }
+   }
+  },
+  "chat-1 + chat-2": {
+   "stage 2 (chat-3) on all 500": {
+    "recall": {
+     "generic": {
+      "value": 0.484288,
+      "ci": [
+       0.435263,
+       0.534039
+      ],
+      "n_jd": 40
+     },
+     "targeted": {
+      "value": 0.456333,
+      "ci": [
+       0.3755,
+       0.538342
+      ],
+      "n_jd": 20
+     },
+     "total": {
+      "value": 0.47497,
+      "ci": [
+       0.432106,
+       0.516524
+      ],
+      "n_jd": 60
+     }
+    },
+    "scored": 1.0
+   },
+   "stage 2 (chat-3) top 30 -> C2 + stage 2": {
+    "recall": {
+     "generic": {
+      "value": 0.486079,
+      "ci": [
+       0.433007,
+       0.539506
+      ],
+      "n_jd": 40
+     },
+     "targeted": {
+      "value": 0.466167,
+      "ci": [
+       0.386,
+       0.546333
+      ],
+      "n_jd": 20
+     },
+     "total": {
+      "value": 0.479442,
+      "ci": [
+       0.433638,
+       0.522935
+      ],
+      "n_jd": 60
+     }
+    },
+    "scored": 0.9983,
+    "delta": {
+     "generic": {
+      "value": 0.001792,
+      "ci": [
+       -0.029729,
+       0.034263
+      ],
+      "n_jd": 40
+     },
+     "targeted": {
+      "value": 0.009833,
+      "ci": [
+       -0.025,
+       0.045833
+      ],
+      "n_jd": 20
+     },
+     "total": {
+      "value": 0.004472,
+      "ci": [
+       -0.019909,
+       0.02852
+      ],
+      "n_jd": 60
+     }
+    }
+   }
+  }
+ }
+}
