@@ -1085,7 +1085,10 @@ C2 + S1 0.464 (+0.010 [−0.019, +0.040] vs S1's order).
   by the score (`rerank_chat._top10_sha`), the thing Recall@10 reads; every other candidate keeps
   `scores_sha256`. Rounding before hashing was not used: some of 6,000 scores always sit near a
   rounding edge. The record was rewritten from the cold run's R1-R3 scores; exactly three lines
-  changed (those fingerprints), no figure. The cold `rerank_chat` check is re-run to confirm.
+  changed (those fingerprints), no figure.
+- **Cold re-run after the fix (21 Oct 2026): PASS.** `checks --cold rerank_chat`,
+  `logs/d55_cold_rerank_chat.log`, 6 h 51 min, peak RSS 6.2 GB. With today's other three passes,
+  every record of this plan with a `--check` now reproduces from scratch (D55).
 
 ## Assumptions (to confirm)
 
