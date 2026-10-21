@@ -231,3 +231,35 @@ once on the 4,800 chat-3 pairs. 60 final-set JDs, reference `chat-1`, nothing fi
 **Still owed before this plan is complete:** a `--check` for `chat3` (rebuild the selection and the
 test from the committed replies, diff the records) and its cold run (D55); the rest of the cold
 suite (`stage2` ~3.5 h and the superseded records) before the write-up.
+
+## Comparison with the C2 arms of steps 5b-5d (22 Oct 2026; exploratory)
+
+Owner: "compare this against the C2 results". `chat3 --compare-c2` → `output/rerank/chat3-vs-c2.json`,
+`logs/chat3_compare_c2.log`, 7 min 36 s. Same 60 JDs, `chat-1` reference, cached C2 scores only;
+the refitted stage 2 reproduces §5's 0.484. Paired against stage 2 (chat-3). "C2 + stage 2 (chat-3)"
+is new. C2's fold-0 scores were seen in the 5a pilot; folds 1-4 give the same picture.
+
+| Pipeline (60 JDs) | Trained on the test JDs' chat scores? | R@10 | Δ vs stage 2 (chat-3) [CI] | nDCG@10 | Chat No Fits | Human AUC vs X2 |
+|---|---|---|---|---|---|---|
+| X2 top 100 → C2 alone (5d) | no | 0.379 | −0.106 [−0.144, −0.067] | 0.751 | 1.63 | +0.057 |
+| X2's order | no | 0.419 | −0.065 [−0.096, −0.036] | 0.776 | 1.70 | – |
+| X2 top 100 → S1's order | no | 0.454 | −0.031 [−0.056, −0.007] | 0.801 | 1.55 | +0.044 |
+| X2 top 100 → C2 + S1 (5d) | no | 0.464 | −0.021 [−0.050, +0.009] | 0.813 | 1.30 | +0.094 |
+| X2 top 100 → C2 + stage 2 (chat-3) (new) | no | 0.480 | −0.005 [−0.033, +0.025] | 0.826 | 1.23 | +0.084 |
+| **X2 top 100 → stage 2 (chat-3)** | **no** | **0.484** | – | 0.822 | 1.35 | +0.068 |
+| X2 top 100 → L2 (`chat-1`, OOF) | yes | 0.497 | +0.012 [−0.011, +0.036] | 0.826 | 1.30 | +0.120 |
+| X2 top 100 → C2 + L2 (5d) | yes | 0.501 | +0.016 [−0.009, +0.041] | 0.840 | 1.18 | +0.118 |
+| L2 top 30 → C2 + L2 (5b) | yes | 0.522 | +0.037 [+0.013, +0.061] | 0.849 | 1.17 | +0.117 |
+
+- Among pipelines that never trained on these JDs' chat scores, stage 2 (chat-3) is the best. It is
+  +0.106 over C2 alone and +0.021 over the best zero-shot pipeline (C2 + S1; CI crosses 0).
+- C2 adds nothing to stage 2 (chat-3) (−0.005), as it added ≤ +0.02 to S1 and L2 in 5b-5d. It does
+  cut chat No Fits (1.35 → 1.23).
+- Only 5b's cascade is clearly above stage 2 (chat-3) (+0.037). It reranks with L2 trained on
+  `chat-1`, and its top-30 cut was set from `chat-1` coverage on these JDs. The clean analogue,
+  stage 2 (chat-3) top 30 → C2 + stage 2, was not computed: it would be one more arm chosen after
+  seeing these figures.
+- On the human labels, the `chat-1`-trained arms lead stage 2 (chat-3) (L2: AUC +0.052 [+0.011,
+  +0.091]; pairwise +0.021, CI across 0). `chat-1` cannot explain that, since the humans never saw
+  it. More likely causes are that L2's training JDs were drawn like the test JDs, or L2 on F9. This
+  is exploratory.

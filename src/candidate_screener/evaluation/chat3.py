@@ -318,13 +318,78 @@ def test(seed: int = SEED, write=None) -> dict:
     return doc
 
 
+COMPARE_RECORD = OUTPUT / "rerank" / "chat3-vs-c2.json"
+C2_ALONE, C2_S1, C2_STAGE2 = "X2 top 100 -> C2", "X2 top 100 -> C2 + S1", "X2 top 100 -> C2 + stage 2 (chat-3)"
+C2_L2, C2_CASCADE = "X2 top 100 -> C2 + L2 (chat-1)", "L2 (chat-1) top 30 -> C2 + L2"
+
+
+def compare_c2(seed: int = SEED) -> dict:
+    """Exploratory (owner, 22 Oct 2026: "compare this against the C2 results"): §5's arms beside the
+    zero-shot C2 arms of plan 2026-10-18 steps 5b and 5d, on the same 60 JDs and `chat-1`
+    reference, paired against stage 2 (chat-3). C2 + stage 2 (chat-3) is new and decides nothing.
+    Uses only cached C2 scores; refits §4's winner exactly as `test` did and checks it reproduces."""
+    from candidate_screener.evaluation import rerank_chat as rc, rerank_embed as re_, retrieval_pilot, \
+        stage1_classifier as sc
+    from candidate_screener.matching import learned
+    from candidate_screener.rerank import chat_targets as ct, chunked, cross
+    win = json.loads(SELECT_RECORD.read_text(encoding="utf-8"))["winner"]
+    tested = json.loads(TEST_RECORD.read_text(encoding="utf-8"))
+    feats = learned.Features()
+    chat3 = targets()
+    model = fit_stage2(chat3, feats(pairs()), win["learner"], win["features"])
+    chat_all = chunked.chat_frame()
+    chat = chat_all[chat_all.source == ct.TRAIN_SOURCE].reset_index(drop=True)
+    stratum = chat.drop_duplicates("jd_id").set_index("jd_id").stratum
+    fold_of = chat.drop_duplicates("jd_id").set_index("jd_id").fold
+    ids = chat.pair_id.to_numpy()
+    x2, l2 = re_._x2_and_l2(chat_all, seed)
+    pools = retrieval_pilot.build_pools(seed, re_.TEXT_VARIANT)
+    Xp = feats(pools)
+    stage2 = pd.Series(model.predict(Xp.loc[ids]), index=ids)
+    p = sc.fit_arms(feats)[3][sc.PRIMARY].proba(Xp).loc[pools.pair_id.to_numpy()]
+    c2 = cross.score_pairs(chat, re_.CASCADE_SYSTEM, cached_only=True)
+    systems = {"X2": x2, C2_ALONE: c2, S1_ORDER: p, C2_S1: re_.cascade_scores(chat, p, c2, k=K)[0],
+               STAGE2: stage2, C2_STAGE2: re_.cascade_scores(chat, stage2, c2, k=K)[0],
+               OLD_L2: l2, C2_L2: re_.cascade_scores(chat, l2, c2, k=K)[0],
+               C2_CASCADE: re_.cascade_scores(chat, l2, c2, k=re_.CASCADE_K)[0]}
+    per = {n: ct.per_jd(chat, s) for n, s in systems.items()}
+    if round(per[STAGE2].recall.mean(), 6) != tested["results"][STAGE2]["summary"]["recall"]["total"]["value"]:
+        raise ValueError("the refitted stage 2 does not reproduce §5's Recall@10")
+
+    def scored(jds) -> dict:
+        res = {}
+        for n in systems:
+            q = per[n].loc[per[n].index.intersection(jds)]
+            res[n] = {"summary": rc.summary(q, stratum, seed)}
+            for ref in (STAGE2, "X2"):
+                if n != ref:
+                    res[n][f"delta_vs_{ref}"] = rc.deltas(q, per[ref].loc[q.index], stratum, seed)
+        return res
+    held = fold_of.index[fold_of.isin(re_.HELD_OUT_FOLDS)]
+    _log("human check (exploratory)")
+    return {"plan": "plan/2026-10-21-chat3-holdout (exploratory comparison with steps 5b-5d)",
+            "status": "exploratory", "seed": seed, "stage_2": win, "reference": "chat-1",
+            "note": "C2's fold-0 scores were seen in the 5a pilot; C2 + stage 2 (chat-3) is new",
+            "all_60": scored(fold_of.index), "folds_1_4": scored(held),
+            "human": re_._human(systems, chat, ("X2", STAGE2), seed)}
+
+
 def main(argv: list[str] | None = None) -> int:
     from candidate_screener.rerank import chat_rerank as cr
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     ap.add_argument("--build", action="store_true", help="draw the 48 JDs, pools, X2 top 100, the chat-3 plan")
     ap.add_argument("--select", action="store_true", help="§4: choose stage 2 on chat-3 (needs all of it)")
     ap.add_argument("--test", action="store_true", help="§5: fit the winner, score the 60 JDs once")
+    ap.add_argument("--compare-c2", action="store_true", help="exploratory: §5 beside the C2 arms of steps 5b-5d")
     args = ap.parse_args(argv)
+    if args.compare_c2:
+        doc = compare_c2()
+        COMPARE_RECORD.write_text(json.dumps(doc, indent=1) + "\n", encoding="utf-8")
+        for n, r in doc["all_60"].items():
+            d = r.get(f"delta_vs_{STAGE2}", {}).get("recall", {}).get("total")
+            print(f"{n:40s} R@10 {r['summary']['recall']['total']['value']:.3f}"
+                  + (f"  vs stage 2 {d['value']:+.3f} [{d['ci'][0]:+.3f}, {d['ci'][1]:+.3f}]" if d else ""))
+        return 0
     if args.select:
         if TEST_RECORD.exists():
             raise SystemExit(f"{TEST_RECORD} exists: the choice was tested, never re-choose")

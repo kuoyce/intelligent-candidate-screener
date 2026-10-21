@@ -54,9 +54,10 @@ def load(cfg: dict):
                         max_length=cfg["max_length"], model_kwargs={"dtype": getattr(torch, cfg["dtype"])})
 
 
-def score_pairs(pairs: pd.DataFrame, name: str, root: Path = ROOT, chunk: int = CHUNK) -> pd.Series:
+def score_pairs(pairs: pd.DataFrame, name: str, root: Path = ROOT, chunk: int = CHUNK,
+                cached_only: bool = False) -> pd.Series:
     """Raw scores for `pairs` (`pair_id`, `jd_text`, `cv_text`) by pair id; scores only what the
-    cache lacks, writing every `chunk` pairs."""
+    cache lacks, writing every `chunk` pairs. `cached_only` refuses to score anything."""
     cfg = config(name)
     out = root / neural.fingerprint(cfg)
     want = pairs.drop_duplicates("pair_id").assign(
@@ -66,6 +67,8 @@ def score_pairs(pairs: pd.DataFrame, name: str, root: Path = ROOT, chunk: int = 
             else pd.DataFrame(columns=["pair_id", "digest", "score"])).drop_duplicates(["pair_id", "digest"])
     todo = want.merge(have[["pair_id", "digest"]], on=["pair_id", "digest"], how="left", indicator=True)
     todo = todo[todo._merge == "left_only"]
+    if len(todo) and cached_only:
+        raise ValueError(f"{name}: {len(todo)} of {len(want)} pairs are not cached")
     if len(todo):
         import torch
         model = load(cfg)

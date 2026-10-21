@@ -107,6 +107,10 @@ def test_cross_scores_are_cached_per_chunk(tmp_path, monkeypatch):
     assert len(list(tmp_path.rglob("scores-*.parquet"))) == 3
     pd.testing.assert_series_equal(cross.score_pairs(pairs, name, root=tmp_path, chunk=2), got)
     assert calls == [2, 2, 1]                                   # all cached: no model call
+    more = pd.concat([pairs, pd.DataFrame({"pair_id": ["p9"], "jd_text": ["jd"], "cv_text": ["new"]})])
+    with pytest.raises(ValueError, match="not cached"):
+        cross.score_pairs(more, name, root=tmp_path, cached_only=True)
+    assert calls == [2, 2, 1]
 
 
 def test_capped_list_applies_threshold_then_cap():
