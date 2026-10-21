@@ -166,3 +166,26 @@ owner. Checked before use:
   81-100) scores every CV 2-32 with reasons naming a different role each, i.e. noise among
   near-zero scores; the JD with 99 Fits is a React Native posting whose pool is mostly JavaScript
   developers (96 Potential Fit, mean 44). Neither changes anything.
+
+## §4 record (21 Oct 2026): stage 2 = L1 on F12
+
+`chat3 --select` → `output/rerank/chat3-select.json`, `logs/chat3_select.log`, 2 min 46 s. Out of fold
+on chat-3 (5 JD folds, 48 JDs), Recall@10 against chat-3's tie-aware top 10:
+
+| Arm | R@10 total [CI] | generic / targeted | nDCG@10 |
+|---|---|---|---|
+| X2's order (context) | 0.472 [0.412, 0.530] | 0.414 / 0.588 | 0.794 |
+| **L1 F12** | **0.513** [0.450, 0.575] | 0.468 / 0.605 | 0.818 |
+| L1 F9 | 0.511 [0.450, 0.570] | 0.468 / 0.599 | 0.815 |
+| L2 F12 | 0.507 [0.445, 0.565] | 0.477 / 0.568 | 0.809 |
+| L2 F9 | 0.502 [0.441, 0.558] | 0.465 / 0.574 | 0.809 |
+
+The rule picks L1 F12 (0.513; no tie at 3 dp). The four arms lie within 0.011 of each other, well
+inside their CIs: on chat-3 the menu barely matters. Steps 3-4b had picked L2 F9 on `chat-1`; the
+linear model is also the one whose weights can be read.
+
+**Before §5:** the cold checks of what the test reads (D55, any final-set score): `stage1` (X2),
+`role_family`, `extraction`, `dev_pools`, `final_set`, `ordering`, `indomain_v2`, ~35 min; today's
+`rerank_chat`, `feature_arms`, `stage1_classifier` and `stage1_threshold` passed already. The rest
+of the cold suite (`stage2` ~3.5 h, superseded records) is not read by the test and runs before the
+write-up.
