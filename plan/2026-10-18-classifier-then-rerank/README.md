@@ -1078,6 +1078,14 @@ C2 + S1 0.464 (+0.010 [−0.019, +0.040] vs S1's order).
   fail, and it deletes the retrained scores.
 - **Side effect:** the R1 / R2 caches now hold the cold run's scores, so `rerank_chat --check --warm`
   also fails, on the same two digests, until this is resolved.
+- **L3 reproduces (21 Oct 2026, owner-approved check):** fold 0 retrained into a temporary root is
+  bit-identical to the stored fold (1,204 pairs, max |Δ| 0.0, epoch loss 0.066877 both;
+  `logs/l3_fold0_repro.log`, 1 h 26 min).
+- **Fix (owner-approved):** R1-R3's fingerprint is now `top10_sha256`, a digest of each JD's top 10
+  by the score (`rerank_chat._top10_sha`), the thing Recall@10 reads; every other candidate keeps
+  `scores_sha256`. Rounding before hashing was not used: some of 6,000 scores always sit near a
+  rounding edge. The record was rewritten from the cold run's R1-R3 scores; exactly three lines
+  changed (those fingerprints), no figure. The cold `rerank_chat` check is re-run to confirm.
 
 ## Assumptions (to confirm)
 

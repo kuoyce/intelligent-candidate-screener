@@ -519,7 +519,7 @@
           }
         }
       },
-      "scores_sha256": "9dafed89f73ace2ffe0f808a7b18ddfe6a6406e00da47cbfa9f38c8388a5449a",
+      "top10_sha256": "4323e644804dc17279c464d53575f8b5debe15486b4cc474b88dca8febc709ff",
       "passes_bar": false
     },
     "R2 cross-encoder (LLM batch, pairwise)": {
@@ -683,7 +683,7 @@
           }
         }
       },
-      "scores_sha256": "980764fd9eddaee9bdcee22f4bbe5874345897a929c6f7f71fb4c0d4db208946",
+      "top10_sha256": "051a01f903dc5c78982c8fbbf0481b85ce172af1fc54faaf86a244ae815227c1",
       "passes_bar": false
     },
     "R3 bi-encoder (LLM batch)": {
@@ -847,7 +847,7 @@
           }
         }
       },
-      "scores_sha256": "b8857c5c452103c9bacd3f55f371906aa16f0509054f3375416767586bc163a3",
+      "top10_sha256": "44a6724fa88f269f1a554daff86f28e3def3cf3821aecd83401794772d83f296",
       "passes_bar": false
     },
     "L1 linear (ridge, non-negative match signals)": {

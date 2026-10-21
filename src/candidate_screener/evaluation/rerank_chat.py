@@ -82,6 +82,22 @@ def _sha(s: pd.Series) -> str:
     return hashlib.sha256(np.round(s.to_numpy(dtype=float), 9).tobytes()).hexdigest()
 
 
+#: R1-R3 are re-scored by stored models, and re-scoring moves the last bits of R1's and R2's floats
+#: (D55 cold run, 21 Oct 2026: every figure equal, the score digests not). Their fingerprint is
+#: each JD's top 10, which is what Recall@10 reads; every other candidate keeps `_sha`.
+REINFERRED = ("R1", "R2", "R3")
+
+
+def _top10_sha(frame: pd.DataFrame, s: pd.Series) -> str:
+    """Digest of each JD's top 10 by `s` (ties by pair id): `frame`'s pairs, JD by JD."""
+    from candidate_screener.rerank.chat_targets import top_k_mask
+    ids = []
+    for _, g in frame.sort_values("pair_id").groupby("jd_id", sort=True):
+        p = g.pair_id.to_numpy()
+        ids.extend(sorted(p[top_k_mask(p, s.loc[p].to_numpy(dtype=float))]))
+    return hashlib.sha256("\n".join(ids).encode()).hexdigest()
+
+
 # --- summaries (pure) -----------------------------------------------------------------------
 
 def summary(per: pd.DataFrame, stratum: pd.Series, seed: int = 0) -> dict:
@@ -188,12 +204,14 @@ def evaluate(seed: int = 0, warm: bool = True, l3_root: Path | None = None) -> t
         return ct.per_jd(frame, scores[name], returned)
 
     base = per(stage1.X2)
+    reinferred = {names[k] for k in REINFERRED}
     rows = {}
     for name in scores:
         p = per(name)
         rows[name] = {"summary": summary(p, stratum, seed),
                       "delta_vs_x2": None if name == stage1.X2 else deltas(p, base, stratum, seed),
-                      "scores_sha256": _sha(scores[name])}
+                      **({"top10_sha256": _top10_sha(train, scores[name])} if name in reinferred
+                         else {"scores_sha256": _sha(scores[name])})}
         if name != stage1.X2:
             rows[name]["passes_bar"] = passes(rows[name]["delta_vs_x2"])
     better = pick_best({n: rows[names[n]]["summary"]["recall"]["total"]["value"] for n in ("L1", "L2")},

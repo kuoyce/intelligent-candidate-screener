@@ -234,3 +234,18 @@ def test_d50_folds_hold_each_jd_once_and_are_balanced():
     from candidate_screener.evaluation import feature_arms as fa
     f = fa.jd_folds([f"j{i:03d}" for i in range(100)] * 10)
     assert len(f) == 100 and f.value_counts().eq(20).all() and f.equals(fa.jd_folds(list(f.index)))
+
+
+def test_top10_digest_ignores_last_bit_noise_but_not_a_changed_top10():
+    # D55 cold run, 21 Oct 2026: re-scoring R1 / R2 moved their floats in the last bits only
+    rng = np.random.default_rng(0)
+    frame = pd.DataFrame({"pair_id": [f"j{j}-c{c:02d}" for j in range(3) for c in range(30)],
+                          "jd_id": [f"j{j}" for j in range(3) for _ in range(30)]})
+    s = pd.Series(rng.normal(size=90), index=frame.pair_id.to_numpy())
+    noisy = s * (1 + 1e-7 * rng.normal(size=90))
+    assert rc._sha(s) != rc._sha(noisy)
+    assert rc._top10_sha(frame, s) == rc._top10_sha(frame, noisy)
+    g = s.loc[[p for p in s.index if p.startswith("j0-")]].sort_values(ascending=False)
+    swapped = s.copy()
+    swapped[g.index[9]], swapped[g.index[10]] = g.iloc[10], g.iloc[9]   # ranks 10 and 11 trade places
+    assert rc._top10_sha(frame, swapped) != rc._top10_sha(frame, s)
