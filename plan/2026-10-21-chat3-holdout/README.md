@@ -148,3 +148,21 @@ Whatever the result, it is reported as the result: no retuning, no second test o
   60 / 60 JD texts and 600 / 600 CV texts are equal (checked 21 Oct 2026).
 - chat-3 keeps its own plan and replies (`chat_rerank.CHAT3_*`); the app takes `-- --chat3`.
   Prompts are about the size of `chat-1`'s (~65,000 characters for a batch of 20).
+
+## Collection record (chat-3 complete, 21 Oct 2026)
+
+`output/rerank/chat3-replies.csv` (+ `.raw.jsonl`), saved 20 Oct 17:00 to 21 Oct 15:42 UTC by the
+owner. Checked before use:
+
+- 240 of 240 batches, 4,800 pairs, one latest score each; every row run `chat-3` and the build's
+  instrument; no batch saved twice; no pair outside the plan; no chat-3 row in `chat-1`'s file.
+- Scores are integers 0-100. Labels agree with scores: Good Fit 60-95 (mean 79.6), Potential Fit
+  8-78 (44.6), No Fit 1-35 (8.9); none is a No Fit ≥ 60 or a Good Fit < 50.
+- Close to `chat-1`: mean score 28.4 vs 30.3; No Fit / Potential / Good 57.5 / 30.1 / 12.4% vs
+  57.2 / 29.0 / 13.8%.
+- Per JD: score SD 10.2 to 23.6 (median), at least 12 distinct scores, Spearman with X2 0.12 to
+  0.51 (median), never below 0. Folds (5, by JD, stratified): 11 / 10 / 9 / 9 / 9 JDs.
+- Looked at by hand: the one batch running against X2 (ρ −0.33, a Data Science JD's X2 ranks
+  81-100) scores every CV 2-32 with reasons naming a different role each, i.e. noise among
+  near-zero scores; the JD with 99 Fits is a React Native posting whose pool is mostly JavaScript
+  developers (96 Potential Fit, mean 44). Neither changes anything.
