@@ -1,6 +1,7 @@
 # chat-3: train stage 2 on new train-region JDs; the final set becomes test-only
 
-Status: **approved by the owner, 21 Oct 2026** (open questions 1-4 answered below). Follows
+Status: **approved by the owner, 21 Oct 2026; chat-3 collected, §4 chose L1 on F12, §5 tested on
+22 Oct 2026: all three rules pass.** Owed: a `chat3 --check` and the remaining cold checks. Follows
 `plan/2026-10-18-classifier-then-rerank` (steps 1-5d). Decision D62 below. Branch `exp/chat3-holdout`, from
 `exp/classifier-then-rerank`.
 
@@ -189,3 +190,44 @@ linear model is also the one whose weights can be read.
 `rerank_chat`, `feature_arms`, `stage1_classifier` and `stage1_threshold` passed already. The rest
 of the cold suite (`stage2` ~3.5 h, superseded records) is not read by the test and runs before the
 write-up.
+
+## §5 record (22 Oct 2026): all three rules pass
+
+`chat3 --test` → `output/rerank/chat3-test.json`, `logs/chat3_test.log`, 7 min 12 s, peak RSS 5.6 GB.
+Run once, after the cold checks of everything it reads passed (`logs/d55_cold_pretest.log`: `stage1`,
+`role_family`, `extraction`, `dev_pools`, `final_set`, `ordering`, `indomain_v2`; with 21 Oct's
+`rerank_chat`, `feature_arms`, `stage1_classifier`, `stage1_threshold`). Stage 2 = L1 on F12, fitted
+once on the 4,800 chat-3 pairs. 60 final-set JDs, reference `chat-1`, nothing fitted on them.
+
+| Pipeline (60 JDs) | Trained on | R@10 (gen / tar) | Δ vs X2 [CI] | Δ vs S1's order [CI] | nDCG@10 | Chat No Fits |
+|---|---|---|---|---|---|---|
+| X2's order | nothing | 0.419 (0.421 / 0.416) | – | −0.034 [−0.063, −0.005] | 0.776 | 1.70 |
+| X2 top 100 → S1's order | D50 | 0.454 (0.464 / 0.432) | +0.034 [+0.005, +0.063] | – | 0.801 | 1.55 |
+| **X2 top 100 → stage 2 (chat-3)** | **chat-3** | **0.484** (0.497 / 0.459) | **+0.065 [+0.036, +0.096]** | **+0.031 [+0.007, +0.056]** | 0.822 | 1.35 |
+| X2 top 100 → L2 (`chat-1`, out of fold; no rule) | `chat-1` | 0.497 (0.503 / 0.485) | +0.078 [+0.046, +0.110] | +0.043 [+0.019, +0.068] | 0.826 | 1.30 |
+
+1. **Headline: pass.** +0.065 Recall@10 over X2's order, CI above 0 and above the +0.05 bar
+   (generic +0.076, targeted +0.044).
+2. **Chat vs chat-free: pass.** +0.031 over S1's order (stage 2 trained on D50 labels), CI above 0.
+3. **Humans: pass, narrowly.** Per-JD AUC on the final label vs X2, `all`: +0.068 [+0.002, +0.143],
+   48 JDs (generic +0.073, targeted +0.061). Beside it, not part of the rule: `llm_free` +0.040
+   [−0.046, +0.135] (36 JDs; targeted −0.106 [−0.213, −0.018], 11 JDs); pairwise on yc's grades
+   +0.104 [+0.049, +0.165] (55 JDs), `llm_free` +0.109 [+0.044, +0.183] (52 JDs).
+
+**Reading.**
+
+- On JDs it never saw, a stage 2 trained on chat scores of other JDs beats X2's order by more than
+  the bar and beats the chat-free order. Owner's question of 18 Oct ("is L2 just tuned to
+  `chat-1`?"): mostly no.
+- The old L2 (trained and chosen on these 60 JDs) is only +0.012 [−0.011, +0.036] above the clean
+  stage 2. That is the optimism of training and choosing on the reference: about 0.01 Recall@10,
+  not significant.
+- What training on chat scores buys over the chat-free S1 order is +0.031 on untouched JDs (steps
+  5c-5d estimated 0.03-0.04 on seen ones).
+- The human evidence is weaker than the chat evidence: rule 3 passes on `all` by a CI edge of
+  +0.002, and the `llm_free` AUC is not above 0 (pairwise on grades is, in both subsets). Report
+  both.
+
+**Still owed before this plan is complete:** a `--check` for `chat3` (rebuild the selection and the
+test from the committed replies, diff the records) and its cold run (D55); the rest of the cold
+suite (`stage2` ~3.5 h and the superseded records) before the write-up.
