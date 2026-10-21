@@ -263,3 +263,29 @@ is new. C2's fold-0 scores were seen in the 5a pilot; folds 1-4 give the same pi
   +0.091]; pairwise +0.021, CI across 0). `chat-1` cannot explain that, since the humans never saw
   it. More likely causes are that L2's training JDs were drawn like the test JDs, or L2 on F9. This
   is exploratory.
+
+## Stage-1 variants: coverage over the 500-CV pool (22 Oct 2026; exploratory)
+
+Owner: "should we replace stage 1 with one of the linear models?" `chat3 --stage1-coverage` →
+`output/rerank/chat3-stage1-coverage.json`, 7 min 36 s. The share of the chat's tie-aware top 10
+(reference `chat-1` + `chat-2`, step 4a's) inside each ranking's top k of the whole pool, 60 JDs.
+Unscored CVs count as misses; "scored" is the share of the top k with a chat score.
+
+| Ranking of the 500 | k = 10 | k = 20 | k = 30 | k = 50 | k = 100 (scored) |
+|---|---|---|---|---|---|
+| X2 | 0.417 | 0.632 | 0.744 | 0.838 | 0.964 (1.00) |
+| S1 (D50) | 0.448 | 0.668 | 0.763 | 0.847 | 0.944 (0.79) |
+| L1 F12 (chat-3), on all 500 | 0.475 | 0.683 | 0.774 | 0.860 | 0.960 (0.78) |
+| **X2 top 100 → stage 2 (chat-3)** (the pipeline) | **0.475** | **0.689** | **0.770** | **0.862** | **0.964** (1.00) |
+| X2 top 100 → L2 (`chat-1`, OOF), context | 0.483 | 0.687 | 0.791 | 0.880 | 0.964 (1.00) |
+
+- **Replacing X2 with L1 (chat-3) over the whole pool changes nothing.** At every k it is within
+  0.006 of the pipeline, CIs across 0; its top 10 is the pipeline's. It trained only on X2's top
+  100, but its best picks all lie inside that list anyway. One linear model over the pool would be
+  a simpler pipeline of equal quality, not a better one. Beyond k = 50, 22% of its picks are
+  unscored, so there it is a lower bound.
+- S1 over the pool is below the pipeline at k = 10 (−0.027 [−0.054, −0.002]) and level from k = 30.
+- X2's own order is the weak part at small k (−0.058 at k = 10). Its top 100 already holds 0.964,
+  so stage 1's recall is not where the loss is.
+- `chat-1`'s L2 holds a little more at k = 30-50 (+0.02, CI touching 0). That is the room 5b's
+  top-30 C2 cascade used; it comes from stage 2, not from stage 1.

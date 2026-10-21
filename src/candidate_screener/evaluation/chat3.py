@@ -374,6 +374,78 @@ def compare_c2(seed: int = SEED) -> dict:
             "human": re_._human(systems, chat, ("X2", STAGE2), seed)}
 
 
+COVERAGE_RECORD = OUTPUT / "rerank" / "chat3-stage1-coverage.json"
+COVERAGE_K = (10, 20, 30, 50, 100)
+PIPELINE = "X2 top 100 -> stage 2 (chat-3)"
+
+
+def pool_coverage(pool: pd.DataFrame, ref: pd.DataFrame, system: pd.Series, k: int) -> pd.DataFrame:
+    """Per JD: `coverage`, the share of the chat's tie-aware top 10 (over `ref`'s scored CVs) inside
+    `system`'s top `k` of the **whole pool** (ties by pair id); `scored`, the share of that top `k`
+    with a chat score. Unscored CVs count as misses, so a ranking that reaches past the scored set
+    gets a lower bound. Pure."""
+    from candidate_screener.rerank.chat_targets import K as TOP, chat_weights, top_k_mask
+    refs = {jd: g for jd, g in ref.groupby("jd_id", sort=True)}
+    out = {}
+    for jd, g in pool.sort_values("pair_id").groupby("jd_id", sort=True):
+        ids = g.pair_id.to_numpy()
+        top = set(ids[top_k_mask(ids, system.loc[ids].to_numpy(dtype=float), k)])
+        r = refs[jd].sort_values("pair_id")
+        w = chat_weights(r.score.to_numpy())
+        out[jd] = {"coverage": float(w[r.pair_id.isin(top).to_numpy()].sum() / min(TOP, len(r))),
+                   "scored": float(len(top & set(r.pair_id)) / len(top))}
+    return pd.DataFrame.from_dict(out, orient="index")
+
+
+def _shortlist_then(pool: pd.DataFrame, first: pd.Series, second: pd.Series, k: int = K) -> pd.Series:
+    """A pool-wide order: `first`'s top `k` per JD ordered by `second`, above the rest in `first`'s order."""
+    from candidate_screener.evaluation.rerank_embed import cascade_scores
+    return cascade_scores(pool, first, second, k=k)[1]
+
+
+def stage1_coverage(seed: int = SEED) -> dict:
+    """Exploratory (owner, 22 Oct 2026): candidate stage-1 rankings over the 500-CV pool, against the
+    current pipeline. X2; S1 (D50); L1 F12 trained on chat-3 applied to all 500 (it saw only X2's top
+    100 in training); X2 top 100 -> stage 2 (chat-3), and -> L2 (`chat-1`, out of fold) for context.
+    Reference: `chat-1` + `chat-2`, the latest score per pair (step 4a's)."""
+    from candidate_screener.evaluation import rerank_embed as re_, retrieval_pilot, stage1_classifier as sc
+    from candidate_screener.matching import learned
+    from candidate_screener.rerank import chat_targets as ct, chunked
+    win = json.loads(SELECT_RECORD.read_text(encoding="utf-8"))["winner"]
+    feats = learned.Features()
+    model = fit_stage2(targets(), feats(pairs()), win["learner"], win["features"])
+    ref = ct.load_latest()
+    stratum = ref.drop_duplicates("jd_id").set_index("jd_id").stratum
+    pools = retrieval_pilot.build_pools(seed, re_.TEXT_VARIANT)
+    x2_chat, l2 = re_._x2_and_l2(chunked.chat_frame(), seed)
+    x2 = sc._x2().score(pools)
+    Xp = feats(pools)
+    ids = pools.pair_id.to_numpy()
+    l1_pool = pd.Series(model.predict(Xp.loc[ids]), index=ids)
+    p = sc.fit_arms(feats)[3][sc.PRIMARY].proba(Xp).loc[ids]
+    systems = {"X2 (500)": x2, "S1 (500)": p, f"{win['learner']} {win['features']} chat-3 (500)": l1_pool,
+               PIPELINE: _shortlist_then(pools, x2, l1_pool),
+               "X2 top 100 -> L2 (chat-1, out of fold)": _shortlist_then(pools, x2, l2.reindex(ids).fillna(-1e9))}
+    if not (x2.loc[x2_chat.index] == x2_chat).all():
+        raise ValueError("X2's pool scores and the guarded chat scores disagree")
+    per = {n: {k: pool_coverage(pools, ref, s, k) for k in COVERAGE_K} for n, s in systems.items()}
+    out = {}
+    for n in systems:
+        out[n] = {}
+        for k in COVERAGE_K:
+            c = per[n][k]
+            out[n][str(k)] = {"coverage": re_.block(c.coverage, stratum, seed),
+                              "scored_share": round(float(c.scored.mean()), 4)}
+            if n != PIPELINE:
+                out[n][str(k)]["delta_vs_pipeline"] = re_.block(c.coverage - per[PIPELINE][k].coverage, stratum, seed)
+    return {"plan": "plan/2026-10-21-chat3-holdout (exploratory: stage-1 variants)", "status": "exploratory",
+            "seed": seed, "reference": "chat-1 + chat-2, latest score per pair (step 4a)",
+            "pairs": {"pool": int(len(pools)), "scored": int(len(ref)), "jds": int(ref.jd_id.nunique())},
+            "metric": "share of the chat's tie-aware top 10 inside the system's top k of the 500-CV pool; "
+                      "unscored CVs count as misses (a lower bound for rankings that reach past the scored set)",
+            "k": list(COVERAGE_K), "systems": out}
+
+
 def main(argv: list[str] | None = None) -> int:
     from candidate_screener.rerank import chat_rerank as cr
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
@@ -381,7 +453,15 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--select", action="store_true", help="§4: choose stage 2 on chat-3 (needs all of it)")
     ap.add_argument("--test", action="store_true", help="§5: fit the winner, score the 60 JDs once")
     ap.add_argument("--compare-c2", action="store_true", help="exploratory: §5 beside the C2 arms of steps 5b-5d")
+    ap.add_argument("--stage1-coverage", action="store_true", help="exploratory: stage-1 variants over the pool")
     args = ap.parse_args(argv)
+    if args.stage1_coverage:
+        doc = stage1_coverage()
+        COVERAGE_RECORD.write_text(json.dumps(doc, indent=1) + "\n", encoding="utf-8")
+        for n, by_k in doc["systems"].items():
+            print(f"{n:42s} " + "  ".join(f"k={k}: {v['coverage']['total']['value']:.3f} ({v['scored_share']:.2f})"
+                                          for k, v in by_k.items()))
+        return 0
     if args.compare_c2:
         doc = compare_c2()
         COMPARE_RECORD.write_text(json.dumps(doc, indent=1) + "\n", encoding="utf-8")

@@ -1,4 +1,5 @@
 """chat-3 (D62): the JD draw, the pools and the guards (no data, no model)."""
+import numpy as np
 import pandas as pd
 import pytest
 
@@ -104,3 +105,15 @@ def test_rules_apply_the_preset_bars():
     assert got == [True, False, True]
     results[chat3.STAGE2]["delta_vs_X2"] = d(0.049, 0.01)        # under the +0.05 bar
     assert not next(iter(chat3.rules(results, human).values()))["passes"]
+
+
+def test_pool_coverage_ranks_the_whole_pool_and_counts_unscored_cvs_as_misses():
+    pool = pd.DataFrame({"pair_id": [f"p{i:02d}" for i in range(30)], "jd_id": ["j"] * 30})
+    ref = pd.DataFrame({"pair_id": [f"p{i:02d}" for i in range(20)], "jd_id": ["j"] * 20,
+                        "score": list(range(100, 0, -5))})                 # chat top 10 = p00..p09
+    best_first = pd.Series(-np.arange(30, dtype=float), index=pool.pair_id.to_numpy())
+    got = chat3.pool_coverage(pool, ref, best_first, 10).loc["j"]
+    assert got.coverage == 1.0 and got.scored == 1.0
+    unscored_first = pd.Series(np.arange(30, dtype=float), index=pool.pair_id.to_numpy())  # p29.. on top
+    got = chat3.pool_coverage(pool, ref, unscored_first, 20).loc["j"]
+    assert got.coverage == 0.0 and got.scored == 0.5                       # p10..p29: none of the top 10
