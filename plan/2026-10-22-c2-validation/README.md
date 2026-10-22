@@ -109,3 +109,34 @@ Records hold ids, digests and metrics only. New code lives in its own module.
 - On chat-3, X2's top 100 → L1 stands in for L1 over all 500 (D63's equivalence). It is the only
   ranking chat-3 can score fully.
 - The C2 weight is relative to L1 after min-max scaling within the top k, as in step 5b.
+
+## Step B record (22 Oct 2026)
+
+`c2_validation --score`, `logs/c2_validation_score.log`: C2 on 2,400 chat-3 pairs (48 JDs × the
+out-of-fold L1 top 50), none cached. 13,657 s of scoring (5.7 s per pair), 3 h 50 min end to end,
+peak RSS 5.1 GB.
+
+## Selection record (22 Oct 2026): winner k = 50, w = 0.25; the gate passes
+
+`c2_validation --select` → `output/rerank/c2-validation-select.json`, 2 min 51 s. Out of fold on
+chat-3, 48 JDs, Recall@10 against chat-3's tie-aware top 10:
+
+| Option | R@10 [CI] | generic / targeted | Δ vs L1 alone [CI] | nDCG@10 | Chat No Fits |
+|---|---|---|---|---|---|
+| L1 alone | 0.513 [0.450, 0.575] | 0.468 / 0.605 | – | 0.818 | 1.12 |
+| top 20, w 0.25 | 0.526 | 0.474 / 0.630 | +0.013 [−0.000, +0.027] | 0.828 | 1.02 |
+| top 20, w 0.5 | 0.518 | 0.471 / 0.611 | +0.004 [−0.015, +0.023] | 0.826 | 1.00 |
+| top 20, w 1.0 | 0.508 | 0.451 / 0.621 | −0.005 [−0.034, +0.023] | 0.825 | 0.94 |
+| top 30, w 0.25 | 0.531 | 0.482 / 0.630 | +0.018 [+0.003, +0.033] | 0.830 | 1.02 |
+| top 30, w 0.5 | 0.505 | 0.456 / 0.605 | −0.008 [−0.029, +0.013] | 0.826 | 1.00 |
+| top 30, w 1.0 | 0.504 | 0.446 / 0.621 | −0.009 [−0.040, +0.022] | 0.822 | 0.94 |
+| **top 50, w 0.25** | **0.532** [0.468, 0.593] | 0.483 / 0.630 | **+0.019 [+0.003, +0.034]** | 0.830 | 1.02 |
+| top 50, w 0.5 | 0.503 | 0.449 / 0.611 | −0.010 [−0.032, +0.013] | 0.825 | 0.96 |
+| top 50, w 1.0 | 0.506 | 0.451 / 0.615 | −0.008 [−0.040, +0.025] | 0.821 | 0.96 |
+
+- **Winner: top 50, w = 0.25** (0.532; top 30, w 0.25 is 0.531, so no tie at 3 dp). **Gate: passes**
+  (+0.019 > 0). The test on the 60 JDs goes ahead (owner's decision 1).
+- C2 helps only as a light second opinion. At w = 0.25 it adds +0.013 to +0.019 at every k; at w ≥ 0.5
+  it does not help at any k. Every option cuts chat No Fits (1.12 → 0.94-1.02).
+- Read with care: the winner is the best of nine, so its +0.019 is optimistic. It sits just under the
+  test bar (+0.02); the test has to find at least the CV gain to meet it.
