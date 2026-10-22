@@ -319,3 +319,5 @@ The exception, `entity_weighted`, is not this plan's: its committed record
 Here the prerequisites exist, so the pilot runs to `pilot_complete` and the rebuild differs (24
 fields, plus the matching-code digest). Whether to commit the completed pilot is for its owner;
 nothing in plans 2026-10-18 or 2026-10-21 reads it.
+
+Report: `notebooks/26-chat3-holdout-and-c2.ipynb` (executed 22 Oct 2026; reads only the committed records).

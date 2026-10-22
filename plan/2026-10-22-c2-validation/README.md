@@ -203,3 +203,5 @@ L1 + 0.25 × C2 (the option chosen on chat-3, unchanged).
 - Cost in the system: ~50 C2 calls per JD, ~5 min of CPU per JD at 5-7 s per pair.
 - Not done: the recruiter app (`pipeline.py`) still runs its own TF-IDF draft ranker; wiring the
   reported system into it is a separate task.
+
+Report: `notebooks/26-chat3-holdout-and-c2.ipynb` (executed 22 Oct 2026; reads only the committed records).
