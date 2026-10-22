@@ -127,8 +127,9 @@ REGISTRY: tuple[Check, ...] = (
           cold_s=23400.0, warm_s=600.0),
     # chat3 (plan 2026-10-21, D62): rebuilds the chat-3 plan, §4's choice and §5's test; estimate
     # from its parts' runs (2.5 + 2.8 + 7.2 min), peak 5.6 GB.
-    Check("chat3", "evaluation.chat3", ("--check",), run_alone=True, cold_s=800.0),
-    Check("stage2", "evaluation.stage2", ("--check",), W, run_alone=True, cold_s=12609.0,
+    Check("chat3", "evaluation.chat3", ("--check",), run_alone=True, cold_s=608.2),
+    # stage2: cold measured 22 Oct 2026, 6.2 h (12 grid points, R3 slowest).
+    Check("stage2", "evaluation.stage2", ("--check",), W, run_alone=True, cold_s=22389.5,
           warm_s=251.5),
 )
 BY_NAME = {c.name: c for c in REGISTRY}

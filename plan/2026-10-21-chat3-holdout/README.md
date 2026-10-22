@@ -304,3 +304,18 @@ X2 is reported as the baseline). `chat3 --l1-pool` → `output/rerank/chat3-l1-p
   Against `chat-1`: 0.483 vs 0.484, Δ −0.002 [−0.026, +0.024]. Against `chat-1` + `chat-2`: +0.004
   [−0.020, +0.029]. 50 of the 1,800 top-30 pairs were new to C2's cache (7.2 s/pair). C2 stays out
   of the system, as in steps 5b-5d.
+
+## D55: the whole cold suite (21-22 Oct 2026)
+
+Every registered check was run cold in three batches: `logs/d55_cold.log` with
+`logs/d55_cold_rerank_chat.log` (the old plan's four), `logs/d55_cold_pretest.log` (seven, before
+§5), and `logs/d55_cold_rest.log` (the other 19, `chat3` included; 7 h 37 min, peak 6.9 GB).
+**29 of 30 pass**, `chat3` among them: the chat-3 plan, §4's choice and §5's test rebuild byte for
+byte from the committed replies.
+
+The exception, `entity_weighted`, is not this plan's: its committed record
+(`output/matching/entity-weighted-dev.json`, `714fdcb`, 11 Oct 2026, a teammate) has status
+`blocked` with `missing_prerequisites`, written on a machine without the dev pools and role model.
+Here the prerequisites exist, so the pilot runs to `pilot_complete` and the rebuild differs (24
+fields, plus the matching-code digest). Whether to commit the completed pilot is for its owner;
+nothing in plans 2026-10-18 or 2026-10-21 reads it.
