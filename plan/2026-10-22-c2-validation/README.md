@@ -1,6 +1,7 @@
 # C2 validation: stage 2's top k → C2, chosen on chat-3; the reference's coverage gap
 
-Status: **registered 22 Oct 2026, before any scoring.** Owner's task of 22 Oct 2026, with the owner's
+Status: **registered 22 Oct 2026, before any scoring; tested 22 Oct 2026 (bar not met); C2 then
+adopted by the owner (D64, post hoc).** Owner's task of 22 Oct 2026, with the owner's
 answers of the same day (below). Branch `exp/chat3-holdout`. Follows
 `plan/2026-10-21-chat3-holdout` (D62, D63).
 
@@ -185,3 +186,20 @@ top 10); reference B = `chat-1` alone.
 - chat-4: 0 CVs on every JD (all pooled top-10 CVs were already scored); no batch, no decision entry.
 - Owner decisions used: reuse of the 60 JDs (yes, gated), pooling for chat-4, no C2-as-feature option,
   the tie order (smaller k, then smaller w).
+
+## Owner's decision after the test (22 Oct 2026): adopt C2 (D64)
+
+Owner: "lets make the decision to use C2 (based on the fact that both recall and ndcg is better)."
+Recorded as **D64**: the reported system is L1 (chat-3) over the pool → its top 50 reordered by
+L1 + 0.25 × C2 (the option chosen on chat-3, unchanged).
+
+- This **overrides the registered bar**, which the test did not meet; the decision was made after
+  seeing the test, so it is post hoc. Every report gives the bar and the miss beside the result.
+- The evidence as it stands: nDCG@10 +0.012 [+0.005, +0.019] (CI above 0); Recall@10 +0.005
+  [−0.010, +0.021] (point estimate higher, CI across 0); chat No Fits 1.38 → 1.28; human check
+  unchanged (AUC −0.003, pairwise −0.006, both CIs across 0).
+- Nothing is retuned: k = 50 and w = 0.25 stay as chosen on chat-3, although top 30 (0.531 on
+  chat-3, ~40% fewer C2 calls) was within 0.001.
+- Cost in the system: ~50 C2 calls per JD, ~5 min of CPU per JD at 5-7 s per pair.
+- Not done: the recruiter app (`pipeline.py`) still runs its own TF-IDF draft ranker; wiring the
+  reported system into it is a separate task.
