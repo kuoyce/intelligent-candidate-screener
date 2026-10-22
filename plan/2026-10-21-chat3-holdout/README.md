@@ -321,3 +321,10 @@ fields, plus the matching-code digest). Whether to commit the completed pilot is
 nothing in plans 2026-10-18 or 2026-10-21 reads it.
 
 Report: `notebooks/26-chat3-holdout-and-c2.ipynb` (executed 22 Oct 2026; reads only the committed records).
+
+## Warm pass after the chat-4 plumbing (22 Oct 2026)
+
+`checks --warm --all`, `logs/checks_warm_all.log`, 1 h 17 min: 25 of 26 pass (superseded records run
+cold only). The one failure, `entity_weighted`, was the teammate's `blocked` placeholder; its record
+was regenerated on the owner's instruction (note in `plan/2026-10-11-entity-weighted-matching/
+03-implementation.md`) and its check passes. Every registered check now passes.
