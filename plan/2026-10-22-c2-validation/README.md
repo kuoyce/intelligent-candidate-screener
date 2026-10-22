@@ -154,3 +154,34 @@ reproduced the chat-3 test's 0.484413 over the pools. No metric of the options w
   every top 10 compared.
 - Gap 2 of the task, for this comparison: closed by `chat-2` already. CVs beyond the top 10 (e.g.
   L1's ranks 31-50) remain partly unscored, but no compared option puts one in its top 10.
+
+## Test record (22 Oct 2026; exploratory): bar not met, C2 retired
+
+`c2_validation --test` → `output/rerank/c2-validation-test.json`, `logs/c2_validation_test.log`,
+6 min. Run once. 60 final-set JDs; reference A = `chat-1` + `chat-2` (complete for every compared
+top 10); reference B = `chat-1` alone.
+
+| Option (60 JDs) | R@10, ref A (gen / tar) | Δ vs L1 alone [CI] | nDCG@10 | Chat No Fits | R@10, ref B |
+|---|---|---|---|---|---|
+| X2's order | 0.417 (0.419 / 0.414) | −0.058 [−0.088, −0.029] | 0.775 | 1.73 | 0.419 |
+| L1 alone (D63) | 0.475 (0.484 / 0.456) | – | 0.820 | 1.38 | 0.484 |
+| **L1 top 50 → L1 + 0.25 C2** | 0.480 (0.487 / 0.467) | **+0.005 [−0.010, +0.021]** | 0.832 (Δ +0.012 [+0.005, +0.019]) | 1.28 | 0.490 (Δ +0.006 [−0.010, +0.022]) |
+
+- **Bar (Δ ≥ +0.02 with the CI above 0): not met.** +0.005 is a quarter of the bar, CI across 0 (generic
+  +0.003, targeted +0.011). As registered: **C2 is retired**. No retuning.
+- What C2 does do, on both chat-3 and the test, is order the top 10 a little better: nDCG@10
+  +0.012 (CI above 0), and 0.1 fewer chat No Fits. It does not bring more of the chat's top 10 in.
+- Human check (exploratory, 422 judged CVs): no change. Per-JD AUC vs L1 −0.003 [−0.021, +0.013]
+  (`llm_free` −0.003); pairwise on yc −0.006 [−0.018, +0.006].
+- On chat-3 the same option was +0.019 (the best of nine, so optimistic); on the test it is +0.005.
+  That is the same pattern as steps 5b-5d: C2 adds 0 to +0.02, within noise, at ~5-7 s per pair.
+
+## Report to the owner (task of 22 Oct 2026)
+
+- Plan: this file, registered at `523cfeb` before any scoring.
+- First C2 batch (step B): 2,400 chat-3 pairs, 3 h 50 min, 5.7 s per pair, peak 5.1 GB.
+- CV table: the selection record above (winner k = 50, w = 0.25, +0.019 [+0.003, +0.034]; gate passed).
+- Test: +0.005 [−0.010, +0.021] vs L1 alone; bar not met; C2 retired.
+- chat-4: 0 CVs on every JD (all pooled top-10 CVs were already scored); no batch, no decision entry.
+- Owner decisions used: reuse of the 60 JDs (yes, gated), pooling for chat-4, no C2-as-feature option,
+  the tie order (smaller k, then smaller w).

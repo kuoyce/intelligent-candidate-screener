@@ -1,0 +1,1452 @@
+{
+ "plan": "plan/2026-10-22-c2-validation (test; exploratory: the 60 JDs had the chat-3 plan's \u00a75)",
+ "status": "exploratory",
+ "seed": 0,
+ "winner": {
+  "k": 50,
+  "w": 0.25,
+  "name": "L1 top 50 -> L1 + 0.25 C2"
+ },
+ "reference_A": "chat-1 + chat-2, latest score per pair (chat-4 empty)",
+ "reference_B": "chat-1 alone, unscored CVs as misses",
+ "bar": {
+  "rule": "winner Recall@10 delta vs L1 alone (total, reference A) >= +0.02, CI above 0",
+  "delta": {
+   "value": 0.0055,
+   "ci": [
+    -0.010111,
+    0.021056
+   ],
+   "n_jd": 60
+  },
+  "met": false
+ },
+ "results": {
+  "winner": {
+   "reference_A": {
+    "summary": {
+     "recall": {
+      "generic": {
+       "value": 0.487204,
+       "ci": [
+        0.434241,
+        0.538283
+       ],
+       "n_jd": 40
+      },
+      "targeted": {
+       "value": 0.467,
+       "ci": [
+        0.385829,
+        0.547167
+       ],
+       "n_jd": 20
+      },
+      "total": {
+       "value": 0.48047,
+       "ci": [
+        0.435522,
+        0.523279
+       ],
+       "n_jd": 60
+      }
+     },
+     "ndcg": {
+      "generic": {
+       "value": 0.846024,
+       "ci": [
+        0.805043,
+        0.881181
+       ],
+       "n_jd": 40
+      },
+      "targeted": {
+       "value": 0.803379,
+       "ci": [
+        0.740518,
+        0.859919
+       ],
+       "n_jd": 20
+      },
+      "total": {
+       "value": 0.831809,
+       "ci": [
+        0.797436,
+        0.862746
+       ],
+       "n_jd": 60
+      }
+     },
+     "no_fits": {
+      "generic": {
+       "value": 1.1,
+       "ci": [
+        0.425,
+        1.925
+       ],
+       "n_jd": 40
+      },
+      "targeted": {
+       "value": 1.65,
+       "ci": [
+        0.7,
+        2.75
+       ],
+       "n_jd": 20
+      },
+      "total": {
+       "value": 1.283333,
+       "ci": [
+        0.716667,
+        1.933333
+       ],
+       "n_jd": 60
+      }
+     }
+    },
+    "delta_vs_L1": {
+     "recall": {
+      "generic": {
+       "value": 0.002917,
+       "ci": [
+        -0.0175,
+        0.024167
+       ],
+       "n_jd": 40
+      },
+      "targeted": {
+       "value": 0.010667,
+       "ci": [
+        -0.011,
+        0.033
+       ],
+       "n_jd": 20
+      },
+      "total": {
+       "value": 0.0055,
+       "ci": [
+        -0.010111,
+        0.021056
+       ],
+       "n_jd": 60
+      }
+     },
+     "ndcg": {
+      "generic": {
+       "value": 0.007558,
+       "ci": [
+        0.000743,
+        0.014316
+       ],
+       "n_jd": 40
+      },
+      "targeted": {
+       "value": 0.020509,
+       "ci": [
+        0.006996,
+        0.035682
+       ],
+       "n_jd": 20
+      },
+      "total": {
+       "value": 0.011875,
+       "ci": [
+        0.0053,
+        0.018627
+       ],
+       "n_jd": 60
+      }
+     },
+     "no_fits": {
+      "generic": {
+       "value": -0.025,
+       "ci": [
+        -0.125,
+        0.075
+       ],
+       "n_jd": 40
+      },
+      "targeted": {
+       "value": -0.25,
+       "ci": [
+        -0.5,
+        0.0
+       ],
+       "n_jd": 20
+      },
+      "total": {
+       "value": -0.1,
+       "ci": [
+        -0.216667,
+        0.016667
+       ],
+       "n_jd": 60
+      }
+     }
+    }
+   },
+   "reference_B_recall": {
+    "generic": {
+     "value": 0.501143,
+     "ci": [
+      0.447869,
+      0.552525
+     ],
+     "n_jd": 40
+    },
+    "targeted": {
+     "value": 0.468,
+     "ci": [
+      0.385,
+      0.548859
+     ],
+     "n_jd": 20
+    },
+    "total": {
+     "value": 0.490095,
+     "ci": [
+      0.445241,
+      0.533441
+     ],
+     "n_jd": 60
+    }
+   },
+   "reference_B_delta_vs_L1": {
+    "generic": {
+     "value": 0.00419,
+     "ci": [
+      -0.016786,
+      0.026167
+     ],
+     "n_jd": 40
+    },
+    "targeted": {
+     "value": 0.008667,
+     "ci": [
+      -0.014333,
+      0.032
+     ],
+     "n_jd": 20
+    },
+    "total": {
+     "value": 0.005683,
+     "ci": [
+      -0.010413,
+      0.022349
+     ],
+     "n_jd": 60
+    }
+   }
+  },
+  "L1 alone": {
+   "reference_A": {
+    "summary": {
+     "recall": {
+      "generic": {
+       "value": 0.484288,
+       "ci": [
+        0.435263,
+        0.534039
+       ],
+       "n_jd": 40
+      },
+      "targeted": {
+       "value": 0.456333,
+       "ci": [
+        0.3755,
+        0.538342
+       ],
+       "n_jd": 20
+      },
+      "total": {
+       "value": 0.47497,
+       "ci": [
+        0.432106,
+        0.516524
+       ],
+       "n_jd": 60
+      }
+     },
+     "ndcg": {
+      "generic": {
+       "value": 0.838466,
+       "ci": [
+        0.797915,
+        0.873603
+       ],
+       "n_jd": 40
+      },
+      "targeted": {
+       "value": 0.78287,
+       "ci": [
+        0.713489,
+        0.847048
+       ],
+       "n_jd": 20
+      },
+      "total": {
+       "value": 0.819934,
+       "ci": [
+        0.784013,
+        0.852911
+       ],
+       "n_jd": 60
+      }
+     },
+     "no_fits": {
+      "generic": {
+       "value": 1.125,
+       "ci": [
+        0.45,
+        1.95
+       ],
+       "n_jd": 40
+      },
+      "targeted": {
+       "value": 1.9,
+       "ci": [
+        0.9,
+        3.05
+       ],
+       "n_jd": 20
+      },
+      "total": {
+       "value": 1.383333,
+       "ci": [
+        0.783333,
+        2.033333
+       ],
+       "n_jd": 60
+      }
+     }
+    }
+   },
+   "reference_B_recall": {
+    "generic": {
+     "value": 0.496952,
+     "ci": [
+      0.447569,
+      0.546429
+     ],
+     "n_jd": 40
+    },
+    "targeted": {
+     "value": 0.459333,
+     "ci": [
+      0.379331,
+      0.539095
+     ],
+     "n_jd": 20
+    },
+    "total": {
+     "value": 0.484413,
+     "ci": [
+      0.441777,
+      0.526052
+     ],
+     "n_jd": 60
+    }
+   }
+  },
+  "X2": {
+   "reference_A": {
+    "summary": {
+     "recall": {
+      "generic": {
+       "value": 0.418683,
+       "ci": [
+        0.359054,
+        0.477929
+       ],
+       "n_jd": 40
+      },
+      "targeted": {
+       "value": 0.413833,
+       "ci": [
+        0.317333,
+        0.5055
+       ],
+       "n_jd": 20
+      },
+      "total": {
+       "value": 0.417066,
+       "ci": [
+        0.365878,
+        0.466711
+       ],
+       "n_jd": 60
+      }
+     },
+     "ndcg": {
+      "generic": {
+       "value": 0.790929,
+       "ci": [
+        0.728631,
+        0.844097
+       ],
+       "n_jd": 40
+      },
+      "targeted": {
+       "value": 0.74227,
+       "ci": [
+        0.653183,
+        0.818361
+       ],
+       "n_jd": 20
+      },
+      "total": {
+       "value": 0.774709,
+       "ci": [
+        0.724675,
+        0.820323
+       ],
+       "n_jd": 60
+      }
+     },
+     "no_fits": {
+      "generic": {
+       "value": 1.525,
+       "ci": [
+        0.7,
+        2.475
+       ],
+       "n_jd": 40
+      },
+      "targeted": {
+       "value": 2.15,
+       "ci": [
+        1.05,
+        3.4
+       ],
+       "n_jd": 20
+      },
+      "total": {
+       "value": 1.733333,
+       "ci": [
+        1.05,
+        2.483333
+       ],
+       "n_jd": 60
+      }
+     }
+    },
+    "delta_vs_L1": {
+     "recall": {
+      "generic": {
+       "value": -0.065605,
+       "ci": [
+        -0.096825,
+        -0.035635
+       ],
+       "n_jd": 40
+      },
+      "targeted": {
+       "value": -0.0425,
+       "ci": [
+        -0.11,
+        0.015
+       ],
+       "n_jd": 20
+      },
+      "total": {
+       "value": -0.057903,
+       "ci": [
+        -0.088242,
+        -0.029378
+       ],
+       "n_jd": 60
+      }
+     },
+     "ndcg": {
+      "generic": {
+       "value": -0.047537,
+       "ci": [
+        -0.076624,
+        -0.022806
+       ],
+       "n_jd": 40
+      },
+      "targeted": {
+       "value": -0.0406,
+       "ci": [
+        -0.093006,
+        0.000528
+       ],
+       "n_jd": 20
+      },
+      "total": {
+       "value": -0.045225,
+       "ci": [
+        -0.070755,
+        -0.023082
+       ],
+       "n_jd": 60
+      }
+     },
+     "no_fits": {
+      "generic": {
+       "value": 0.4,
+       "ci": [
+        0.125,
+        0.725
+       ],
+       "n_jd": 40
+      },
+      "targeted": {
+       "value": 0.25,
+       "ci": [
+        -0.3,
+        0.9
+       ],
+       "n_jd": 20
+      },
+      "total": {
+       "value": 0.35,
+       "ci": [
+        0.083333,
+        0.65
+       ],
+       "n_jd": 60
+      }
+     }
+    }
+   },
+   "reference_B_recall": {
+    "generic": {
+     "value": 0.421179,
+     "ci": [
+      0.358607,
+      0.484173
+     ],
+     "n_jd": 40
+    },
+    "targeted": {
+     "value": 0.41569,
+     "ci": [
+      0.319236,
+      0.50686
+     ],
+     "n_jd": 20
+    },
+    "total": {
+     "value": 0.419349,
+     "ci": [
+      0.365975,
+      0.471163
+     ],
+     "n_jd": 60
+    }
+   }
+  }
+ },
+ "human": {
+  "reference": "yc",
+  "judged_pairs": 422,
+  "systems": {
+   "winner": {
+    "auc": [
+     {
+      "system": "winner",
+      "metric": "auc",
+      "scope": "generic",
+      "subset": "all",
+      "value": 0.758889,
+      "ci_low": 0.646425,
+      "ci_high": 0.859288,
+      "n_jd": 30,
+      "n_pairs": 213,
+      "rule_version": 1
+     },
+     {
+      "system": "winner",
+      "metric": "auc",
+      "scope": "targeted",
+      "subset": "all",
+      "value": 0.68858,
+      "ci_low": 0.577835,
+      "ci_high": 0.793327,
+      "n_jd": 18,
+      "n_pairs": 125,
+      "rule_version": 1
+     },
+     {
+      "system": "winner",
+      "metric": "auc",
+      "scope": "total",
+      "subset": "all",
+      "value": 0.732523,
+      "ci_low": 0.65119,
+      "ci_high": 0.808905,
+      "n_jd": 48,
+      "n_pairs": 338,
+      "rule_version": 1
+     },
+     {
+      "system": "winner",
+      "metric": "within_family_auc",
+      "scope": "generic",
+      "subset": "all",
+      "value": 0.700242,
+      "ci_low": 0.564764,
+      "ci_high": 0.824261,
+      "n_jd": 23,
+      "n_pairs": 159,
+      "rule_version": 1
+     },
+     {
+      "system": "winner",
+      "metric": "within_family_auc",
+      "scope": "targeted",
+      "subset": "all",
+      "value": 0.619947,
+      "ci_low": 0.513757,
+      "ci_high": 0.73059,
+      "n_jd": 15,
+      "n_pairs": 99,
+      "rule_version": 1
+     },
+     {
+      "system": "winner",
+      "metric": "within_family_auc",
+      "scope": "total",
+      "subset": "all",
+      "value": 0.668546,
+      "ci_low": 0.575981,
+      "ci_high": 0.756668,
+      "n_jd": 38,
+      "n_pairs": 258,
+      "rule_version": 1
+     },
+     {
+      "system": "winner",
+      "metric": "auc",
+      "scope": "generic",
+      "subset": "llm_free",
+      "value": 0.778349,
+      "ci_low": 0.664821,
+      "ci_high": 0.884921,
+      "n_jd": 25,
+      "n_pairs": 165,
+      "rule_version": 1
+     },
+     {
+      "system": "winner",
+      "metric": "auc",
+      "scope": "targeted",
+      "subset": "llm_free",
+      "value": 0.765368,
+      "ci_low": 0.629004,
+      "ci_high": 0.895238,
+      "n_jd": 11,
+      "n_pairs": 54,
+      "rule_version": 1
+     },
+     {
+      "system": "winner",
+      "metric": "auc",
+      "scope": "total",
+      "subset": "llm_free",
+      "value": 0.774383,
+      "ci_low": 0.683418,
+      "ci_high": 0.857873,
+      "n_jd": 36,
+      "n_pairs": 219,
+      "rule_version": 1
+     },
+     {
+      "system": "winner",
+      "metric": "within_family_auc",
+      "scope": "generic",
+      "subset": "llm_free",
+      "value": 0.70582,
+      "ci_low": 0.566221,
+      "ci_high": 0.840922,
+      "n_jd": 18,
+      "n_pairs": 117,
+      "rule_version": 1
+     },
+     {
+      "system": "winner",
+      "metric": "within_family_auc",
+      "scope": "targeted",
+      "subset": "llm_free",
+      "value": 0.583598,
+      "ci_low": 0.340728,
+      "ci_high": 0.805833,
+      "n_jd": 9,
+      "n_pairs": 43,
+      "rule_version": 1
+     },
+     {
+      "system": "winner",
+      "metric": "within_family_auc",
+      "scope": "total",
+      "subset": "llm_free",
+      "value": 0.665079,
+      "ci_low": 0.536683,
+      "ci_high": 0.784245,
+      "n_jd": 27,
+      "n_pairs": 160,
+      "rule_version": 1
+     }
+    ],
+    "pairwise_yc": {
+     "full": {
+      "generic": {
+       "value": 0.727715,
+       "ci": [
+        0.656395,
+        0.795062
+       ],
+       "n_jd": 37
+      },
+      "targeted": {
+       "value": 0.751928,
+       "ci": [
+        0.650684,
+        0.845304
+       ],
+       "n_jd": 18
+      },
+      "total": {
+       "value": 0.735639,
+       "ci": [
+        0.679483,
+        0.790905
+       ],
+       "n_jd": 55
+      }
+     },
+     "llm_free": {
+      "generic": {
+       "value": 0.723487,
+       "ci": [
+        0.65075,
+        0.792715
+       ],
+       "n_jd": 37
+      },
+      "targeted": {
+       "value": 0.714474,
+       "ci": [
+        0.568401,
+        0.84686
+       ],
+       "n_jd": 15
+      },
+      "total": {
+       "value": 0.720887,
+       "ci": [
+        0.655169,
+        0.783682
+       ],
+       "n_jd": 52
+      }
+     }
+    },
+    "auc_delta_vs_L1 alone": [
+     {
+      "metric": "auc",
+      "scope": "generic",
+      "subset": "all",
+      "delta": 0.003373,
+      "ci": [
+       -0.0125,
+       0.02004
+      ],
+      "half_width": 0.01627,
+      "n_jd": 30
+     },
+     {
+      "metric": "auc",
+      "scope": "targeted",
+      "subset": "all",
+      "delta": -0.013492,
+      "ci": [
+       -0.053175,
+       0.015873
+      ],
+      "half_width": 0.034524,
+      "n_jd": 18
+     },
+     {
+      "metric": "auc",
+      "scope": "total",
+      "subset": "all",
+      "delta": -0.002951,
+      "ci": [
+       -0.020933,
+       0.012773
+      ],
+      "half_width": 0.016853,
+      "n_jd": 48
+     },
+     {
+      "metric": "auc",
+      "scope": "generic",
+      "subset": "llm_free",
+      "delta": 0.001825,
+      "ci": [
+       -0.021667,
+       0.022143
+      ],
+      "half_width": 0.021905,
+      "n_jd": 25
+     },
+     {
+      "metric": "auc",
+      "scope": "targeted",
+      "subset": "llm_free",
+      "delta": -0.012987,
+      "ci": [
+       -0.077922,
+       0.038961
+      ],
+      "half_width": 0.058442,
+      "n_jd": 11
+     },
+     {
+      "metric": "auc",
+      "scope": "total",
+      "subset": "llm_free",
+      "delta": -0.002701,
+      "ci": [
+       -0.028219,
+       0.018849
+      ],
+      "half_width": 0.023534,
+      "n_jd": 36
+     }
+    ],
+    "pairwise_delta_vs_L1 alone": [
+     {
+      "reference": "yc",
+      "subset": "full",
+      "metric": "pairwise",
+      "scope": "generic",
+      "delta": -0.011031,
+      "ci": [
+       -0.028264,
+       0.005881
+      ],
+      "n_jd": 37
+     },
+     {
+      "reference": "yc",
+      "subset": "full",
+      "metric": "pairwise",
+      "scope": "targeted",
+      "delta": 0.005683,
+      "ci": [
+       0.0,
+       0.014635
+      ],
+      "n_jd": 18
+     },
+     {
+      "reference": "yc",
+      "subset": "full",
+      "metric": "pairwise",
+      "scope": "total",
+      "delta": -0.005561,
+      "ci": [
+       -0.017791,
+       0.006051
+      ],
+      "n_jd": 55
+     },
+     {
+      "reference": "yc",
+      "subset": "llm_free",
+      "metric": "pairwise",
+      "scope": "generic",
+      "delta": -0.015155,
+      "ci": [
+       -0.035514,
+       0.004092
+      ],
+      "n_jd": 37
+     },
+     {
+      "reference": "yc",
+      "subset": "llm_free",
+      "metric": "pairwise",
+      "scope": "targeted",
+      "delta": 0.008366,
+      "ci": [
+       0.0,
+       0.021176
+      ],
+      "n_jd": 15
+     },
+     {
+      "reference": "yc",
+      "subset": "llm_free",
+      "metric": "pairwise",
+      "scope": "total",
+      "delta": -0.00837,
+      "ci": [
+       -0.024084,
+       0.005637
+      ],
+      "n_jd": 52
+     }
+    ]
+   },
+   "L1 alone": {
+    "auc": [
+     {
+      "system": "L1 alone",
+      "metric": "auc",
+      "scope": "generic",
+      "subset": "all",
+      "value": 0.755516,
+      "ci_low": 0.645313,
+      "ci_high": 0.853339,
+      "n_jd": 30,
+      "n_pairs": 213,
+      "rule_version": 1
+     },
+     {
+      "system": "L1 alone",
+      "metric": "auc",
+      "scope": "targeted",
+      "subset": "all",
+      "value": 0.702072,
+      "ci_low": 0.596008,
+      "ci_high": 0.80205,
+      "n_jd": 18,
+      "n_pairs": 125,
+      "rule_version": 1
+     },
+     {
+      "system": "L1 alone",
+      "metric": "auc",
+      "scope": "total",
+      "subset": "all",
+      "value": 0.735475,
+      "ci_low": 0.656271,
+      "ci_high": 0.80998,
+      "n_jd": 48,
+      "n_pairs": 338,
+      "rule_version": 1
+     },
+     {
+      "system": "L1 alone",
+      "metric": "within_family_auc",
+      "scope": "generic",
+      "subset": "all",
+      "value": 0.701277,
+      "ci_low": 0.56756,
+      "ci_high": 0.823535,
+      "n_jd": 23,
+      "n_pairs": 159,
+      "rule_version": 1
+     },
+     {
+      "system": "L1 alone",
+      "metric": "within_family_auc",
+      "scope": "targeted",
+      "subset": "all",
+      "value": 0.642804,
+      "ci_low": 0.543967,
+      "ci_high": 0.746508,
+      "n_jd": 15,
+      "n_pairs": 99,
+      "rule_version": 1
+     },
+     {
+      "system": "L1 alone",
+      "metric": "within_family_auc",
+      "scope": "total",
+      "subset": "all",
+      "value": 0.678195,
+      "ci_low": 0.587943,
+      "ci_high": 0.763035,
+      "n_jd": 38,
+      "n_pairs": 258,
+      "rule_version": 1
+     },
+     {
+      "system": "L1 alone",
+      "metric": "auc",
+      "scope": "generic",
+      "subset": "llm_free",
+      "value": 0.776524,
+      "ci_low": 0.665331,
+      "ci_high": 0.879526,
+      "n_jd": 25,
+      "n_pairs": 165,
+      "rule_version": 1
+     },
+     {
+      "system": "L1 alone",
+      "metric": "auc",
+      "scope": "targeted",
+      "subset": "llm_free",
+      "value": 0.778355,
+      "ci_low": 0.660173,
+      "ci_high": 0.895238,
+      "n_jd": 11,
+      "n_pairs": 54,
+      "rule_version": 1
+     },
+     {
+      "system": "L1 alone",
+      "metric": "auc",
+      "scope": "total",
+      "subset": "llm_free",
+      "value": 0.777083,
+      "ci_low": 0.690212,
+      "ci_high": 0.856086,
+      "n_jd": 36,
+      "n_pairs": 219,
+      "rule_version": 1
+     },
+     {
+      "system": "L1 alone",
+      "metric": "within_family_auc",
+      "scope": "generic",
+      "subset": "llm_free",
+      "value": 0.710229,
+      "ci_low": 0.571424,
+      "ci_high": 0.84224,
+      "n_jd": 18,
+      "n_pairs": 117,
+      "rule_version": 1
+     },
+     {
+      "system": "L1 alone",
+      "metric": "within_family_auc",
+      "scope": "targeted",
+      "subset": "llm_free",
+      "value": 0.599471,
+      "ci_low": 0.357143,
+      "ci_high": 0.812698,
+      "n_jd": 9,
+      "n_pairs": 43,
+      "rule_version": 1
+     },
+     {
+      "system": "L1 alone",
+      "metric": "within_family_auc",
+      "scope": "total",
+      "subset": "llm_free",
+      "value": 0.67331,
+      "ci_low": 0.545031,
+      "ci_high": 0.790301,
+      "n_jd": 27,
+      "n_pairs": 160,
+      "rule_version": 1
+     }
+    ],
+    "pairwise_yc": {
+     "full": {
+      "generic": {
+       "value": 0.738746,
+       "ci": [
+        0.667004,
+        0.80644
+       ],
+       "n_jd": 37
+      },
+      "targeted": {
+       "value": 0.746245,
+       "ci": [
+        0.6454,
+        0.840052
+       ],
+       "n_jd": 18
+      },
+      "total": {
+       "value": 0.7412,
+       "ci": [
+        0.684462,
+        0.795888
+       ],
+       "n_jd": 55
+      }
+     },
+     "llm_free": {
+      "generic": {
+       "value": 0.738642,
+       "ci": [
+        0.666232,
+        0.806813
+       ],
+       "n_jd": 37
+      },
+      "targeted": {
+       "value": 0.706108,
+       "ci": [
+        0.562154,
+        0.837599
+       ],
+       "n_jd": 15
+      },
+      "total": {
+       "value": 0.729257,
+       "ci": [
+        0.663382,
+        0.791381
+       ],
+       "n_jd": 52
+      }
+     }
+    }
+   },
+   "X2": {
+    "auc": [
+     {
+      "system": "X2",
+      "metric": "auc",
+      "scope": "generic",
+      "subset": "all",
+      "value": 0.682698,
+      "ci_low": 0.55599,
+      "ci_high": 0.797501,
+      "n_jd": 30,
+      "n_pairs": 213,
+      "rule_version": 1
+     },
+     {
+      "system": "X2",
+      "metric": "auc",
+      "scope": "targeted",
+      "subset": "all",
+      "value": 0.64106,
+      "ci_low": 0.489217,
+      "ci_high": 0.782579,
+      "n_jd": 18,
+      "n_pairs": 125,
+      "rule_version": 1
+     },
+     {
+      "system": "X2",
+      "metric": "auc",
+      "scope": "total",
+      "subset": "all",
+      "value": 0.667084,
+      "ci_low": 0.56852,
+      "ci_high": 0.756661,
+      "n_jd": 48,
+      "n_pairs": 338,
+      "rule_version": 1
+     },
+     {
+      "system": "X2",
+      "metric": "within_family_auc",
+      "scope": "generic",
+      "subset": "all",
+      "value": 0.665045,
+      "ci_low": 0.520427,
+      "ci_high": 0.797173,
+      "n_jd": 23,
+      "n_pairs": 159,
+      "rule_version": 1
+     },
+     {
+      "system": "X2",
+      "metric": "within_family_auc",
+      "scope": "targeted",
+      "subset": "all",
+      "value": 0.609153,
+      "ci_low": 0.473122,
+      "ci_high": 0.751746,
+      "n_jd": 15,
+      "n_pairs": 99,
+      "rule_version": 1
+     },
+     {
+      "system": "X2",
+      "metric": "within_family_auc",
+      "scope": "total",
+      "subset": "all",
+      "value": 0.642982,
+      "ci_low": 0.539593,
+      "ci_high": 0.739352,
+      "n_jd": 38,
+      "n_pairs": 258,
+      "rule_version": 1
+     },
+     {
+      "system": "X2",
+      "metric": "auc",
+      "scope": "generic",
+      "subset": "llm_free",
+      "value": 0.672476,
+      "ci_low": 0.519329,
+      "ci_high": 0.817337,
+      "n_jd": 25,
+      "n_pairs": 165,
+      "rule_version": 1
+     },
+     {
+      "system": "X2",
+      "metric": "auc",
+      "scope": "targeted",
+      "subset": "llm_free",
+      "value": 0.884848,
+      "ci_low": 0.763636,
+      "ci_high": 0.984848,
+      "n_jd": 11,
+      "n_pairs": 54,
+      "rule_version": 1
+     },
+     {
+      "system": "X2",
+      "metric": "auc",
+      "scope": "total",
+      "subset": "llm_free",
+      "value": 0.737368,
+      "ci_low": 0.619907,
+      "ci_high": 0.848218,
+      "n_jd": 36,
+      "n_pairs": 219,
+      "rule_version": 1
+     },
+     {
+      "system": "X2",
+      "metric": "within_family_auc",
+      "scope": "generic",
+      "subset": "llm_free",
+      "value": 0.668563,
+      "ci_low": 0.497569,
+      "ci_high": 0.830032,
+      "n_jd": 18,
+      "n_pairs": 117,
+      "rule_version": 1
+     },
+     {
+      "system": "X2",
+      "metric": "within_family_auc",
+      "scope": "targeted",
+      "subset": "llm_free",
+      "value": 0.785185,
+      "ci_low": 0.551852,
+      "ci_high": 0.962963,
+      "n_jd": 9,
+      "n_pairs": 43,
+      "rule_version": 1
+     },
+     {
+      "system": "X2",
+      "metric": "within_family_auc",
+      "scope": "total",
+      "subset": "llm_free",
+      "value": 0.707437,
+      "ci_low": 0.569131,
+      "ci_high": 0.834774,
+      "n_jd": 27,
+      "n_pairs": 160,
+      "rule_version": 1
+     }
+    ],
+    "pairwise_yc": {
+     "full": {
+      "generic": {
+       "value": 0.629536,
+       "ci": [
+        0.53807,
+        0.714003
+       ],
+       "n_jd": 37
+      },
+      "targeted": {
+       "value": 0.652866,
+       "ci": [
+        0.531628,
+        0.755974
+       ],
+       "n_jd": 18
+      },
+      "total": {
+       "value": 0.637171,
+       "ci": [
+        0.565907,
+        0.703852
+       ],
+       "n_jd": 55
+      }
+     },
+     "llm_free": {
+      "generic": {
+       "value": 0.610825,
+       "ci": [
+        0.513495,
+        0.699718
+       ],
+       "n_jd": 37
+      },
+      "targeted": {
+       "value": 0.644851,
+       "ci": [
+        0.473722,
+        0.799619
+       ],
+       "n_jd": 15
+      },
+      "total": {
+       "value": 0.62064,
+       "ci": [
+        0.538552,
+        0.702284
+       ],
+       "n_jd": 52
+      }
+     }
+    },
+    "auc_delta_vs_L1 alone": [
+     {
+      "metric": "auc",
+      "scope": "generic",
+      "subset": "all",
+      "delta": -0.072817,
+      "ci": [
+       -0.159722,
+       0.005357
+      ],
+      "half_width": 0.08254,
+      "n_jd": 30
+     },
+     {
+      "metric": "auc",
+      "scope": "targeted",
+      "subset": "all",
+      "delta": -0.061012,
+      "ci": [
+       -0.210322,
+       0.057639
+      ],
+      "half_width": 0.133981,
+      "n_jd": 18
+     },
+     {
+      "metric": "auc",
+      "scope": "total",
+      "subset": "all",
+      "delta": -0.06839,
+      "ci": [
+       -0.142734,
+       -0.001761
+      ],
+      "half_width": 0.070487,
+      "n_jd": 48
+     },
+     {
+      "metric": "auc",
+      "scope": "generic",
+      "subset": "llm_free",
+      "delta": -0.104048,
+      "ci": [
+       -0.22572,
+       0.002381
+      ],
+      "half_width": 0.114051,
+      "n_jd": 25
+     },
+     {
+      "metric": "auc",
+      "scope": "targeted",
+      "subset": "llm_free",
+      "delta": 0.106494,
+      "ci": [
+       0.018182,
+       0.212987
+      ],
+      "half_width": 0.097403,
+      "n_jd": 11
+     },
+     {
+      "metric": "auc",
+      "scope": "total",
+      "subset": "llm_free",
+      "delta": -0.039716,
+      "ci": [
+       -0.135417,
+       0.046266
+      ],
+      "half_width": 0.090842,
+      "n_jd": 36
+     }
+    ],
+    "pairwise_delta_vs_L1 alone": [
+     {
+      "reference": "yc",
+      "subset": "full",
+      "metric": "pairwise",
+      "scope": "generic",
+      "delta": -0.10921,
+      "ci": [
+       -0.175578,
+       -0.047077
+      ],
+      "n_jd": 37
+     },
+     {
+      "reference": "yc",
+      "subset": "full",
+      "metric": "pairwise",
+      "scope": "targeted",
+      "delta": -0.093379,
+      "ci": [
+       -0.226778,
+       0.010331
+      ],
+      "n_jd": 18
+     },
+     {
+      "reference": "yc",
+      "subset": "full",
+      "metric": "pairwise",
+      "scope": "total",
+      "delta": -0.104029,
+      "ci": [
+       -0.164593,
+       -0.048575
+      ],
+      "n_jd": 55
+     },
+     {
+      "reference": "yc",
+      "subset": "llm_free",
+      "metric": "pairwise",
+      "scope": "generic",
+      "delta": -0.127817,
+      "ci": [
+       -0.21093,
+       -0.054837
+      ],
+      "n_jd": 37
+     },
+     {
+      "reference": "yc",
+      "subset": "llm_free",
+      "metric": "pairwise",
+      "scope": "targeted",
+      "delta": -0.061257,
+      "ci": [
+       -0.223183,
+       0.064147
+      ],
+      "n_jd": 15
+     },
+     {
+      "reference": "yc",
+      "subset": "llm_free",
+      "metric": "pairwise",
+      "scope": "total",
+      "delta": -0.108617,
+      "ci": [
+       -0.182553,
+       -0.043623
+      ],
+      "n_jd": 52
+     }
+    ]
+   }
+  },
+  "unscoreable": [],
+  "status": "exploratory"
+ }
+}
