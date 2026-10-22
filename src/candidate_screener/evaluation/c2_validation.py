@@ -132,11 +132,86 @@ def select(seed: int = SEED) -> dict:
                      "passes": bool(d["value"] > 0)}}
 
 
+POOL_RECORD = OUTPUT / "rerank" / "c2-validation-pool.json"
+#: The options compared on the test, whose top 10s are pooled for chat-4 (owner, decision 2).
+POOLED = ("winner", L1_ALONE, "X2")
+
+
+def compared_scores(seed: int = SEED) -> tuple[pd.DataFrame, dict[str, pd.Series], dict]:
+    """The 60 final-set JDs' pools and the compared options' scores over all 500 CVs: L1 fitted once
+    on all of chat-3 (checked against §5's 0.484413 of the chat-3 plan), the winner on its top k
+    (C2 scored where not cached), X2. Reads `chat-1` only for that check."""
+    from candidate_screener.evaluation import chat3, rerank_embed as re_, retrieval_pilot
+    from candidate_screener.matching import learned
+    from candidate_screener.rerank import chat_targets as ct, chunked, cross
+    win = json.loads(SELECT_RECORD.read_text(encoding="utf-8"))["winner"]
+    feats = learned.Features()
+    model = chat3.fit_stage2(chat3.targets(), feats(chat3.pairs()), "L1", "F12")
+    pools = retrieval_pilot.build_pools(seed, re_.TEXT_VARIANT)
+    ids = pools.pair_id.to_numpy()
+    x2 = chat3._x2(pools)
+    l1 = pd.Series(model.predict(feats(pools).loc[ids]), index=ids)
+    chat = chunked.chat_frame()
+    tested = json.loads(chat3.TEST_RECORD.read_text(encoding="utf-8"))["results"][chat3.STAGE2]
+    got = round(float(chat3.pool_coverage(pools, chat[chat.source == ct.TRAIN_SOURCE], l1, 10).coverage.mean()), 6)
+    if got != tested["summary"]["recall"]["total"]["value"]:
+        raise ValueError(f"L1 over the pools gives {got}, not the chat-3 test's figure")
+    top = top_lists(pools, l1, win["k"])
+    _log(f"C2 on the test's top {win['k']} lists ({len(top)} pairs; scored where not cached)")
+    c2 = cross.score_pairs(top[["pair_id", "jd_text", "cv_text"]], re_.CASCADE_SYSTEM)
+    scores = {"winner": fused_order(pools, l1, c2, win["k"], win["w"]), L1_ALONE: l1, "X2": x2}
+    return pools, scores, win
+
+
+def pool(seed: int = SEED) -> tuple[pd.DataFrame, dict]:
+    """Decision 2: pool the compared options' top 10s; the CVs without a `chat-1` / `chat-2` score
+    become `chat-4`, a fresh chat per JD with anchors. Computes no metric of the options."""
+    import hashlib
+    from candidate_screener.rerank import chat_rerank as cr, chat_targets as ct
+    pools, scores, win = compared_scores(seed)
+    scored = ct.load_latest()
+    have = set(scored.pair_id)
+    tops = {n: top_lists(pools, scores[n], 10) for n in POOLED}
+    pooled = pd.concat(tops.values()).drop_duplicates("pair_id")
+    new = pooled[~pooled.pair_id.isin(have)]
+    order = pd.read_csv(cr.PLAN).drop_duplicates("jd_id").set_index("jd_id").jd_order
+    stratum = pools.drop_duplicates("jd_id").set_index("jd_id").stratum
+    plan = cr.fresh_plan(scored[["pair_id", "jd_id", "cv_id", "score"]], new, cr.CHAT4_RUN, cr.CHAT4_PREFIX,
+                         order, stratum, seed) if len(new) else pd.DataFrame()
+    per_jd = (plan.groupby("jd_id").agg(new=("source", lambda s: int((s == "pooled").sum())),
+                                        anchors=("source", lambda s: int((s == "anchor").sum())),
+                                        batches=("batch", "nunique")) if len(plan) else pd.DataFrame())
+    sha = lambda ids: hashlib.sha256("\n".join(sorted(ids)).encode()).hexdigest()
+    record = {"plan": "plan/2026-10-22-c2-validation (test lists and chat-4; no metric computed)",
+              "seed": seed, "winner": win, "pooled_options": list(POOLED),
+              "unscored_in_top10": {n: int((~t.pair_id.isin(have)).sum()) for n, t in tops.items()},
+              "chat_4": {"new_pairs": int(len(new)), "jds": int(new.jd_id.nunique()),
+                         "anchors": int((plan.source == "anchor").sum()) if len(plan) else 0,
+                         "batches": int(per_jd.batches.sum()) if len(plan) else 0,
+                         "per_jd": {str(j): {k: int(v) for k, v in r.items()} for j, r in per_jd.iterrows()},
+                         "new_pair_ids_sha256": sha(new.pair_id), "plan_ids_sha256": sha(plan.pair_id) if len(plan) else None},
+              "instrument_sha256": cr.instrument_sha256(), "run": cr.CHAT4_RUN}
+    return plan, record
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     ap.add_argument("--score", action="store_true", help="step B: C2 on chat-3's out-of-fold top-50 lists")
     ap.add_argument("--select", action="store_true", help="the menu out of fold on chat-3, the winner, the gate")
+    ap.add_argument("--pool", action="store_true", help="test lists and the chat-4 plan (no metric)")
     args = ap.parse_args(argv)
+    if args.pool:
+        from candidate_screener.rerank import chat_rerank as cr
+        if not json.loads(SELECT_RECORD.read_text(encoding="utf-8"))["gate"]["passes"]:
+            raise SystemExit("the chat-3 gate failed: C2 is retired, the test JDs are not touched")
+        if cr.CHAT4_REPLIES.exists():
+            raise SystemExit(f"{cr.CHAT4_REPLIES} exists: chat-4 is being collected, never rebuild its plan")
+        plan, record = pool()
+        if len(plan):
+            plan.to_csv(cr.CHAT4_PLAN, index=False)
+        POOL_RECORD.write_text(json.dumps(record, indent=1) + "\n", encoding="utf-8")
+        print(json.dumps({k: record[k] for k in ("unscored_in_top10", "chat_4")}, indent=1)[:3000])
+        return 0
     if args.score:
         s = score()
         _log(f"C2 scores: {len(s)} pairs, none missing: {bool(s.notna().all())}")

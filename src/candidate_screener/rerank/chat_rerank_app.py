@@ -10,12 +10,14 @@ import streamlit as st
 
 from candidate_screener.rerank import chat_rerank as cr
 
-CHAT3 = "--chat3" in sys.argv
-PLAN, REPLIES = cr.paths(CHAT3)
-st.set_page_config(page_title="Chat rerank" + (" · chat-3" if CHAT3 else ""), layout="wide")
+CHAT3, CHAT4 = "--chat3" in sys.argv, "--chat4" in sys.argv
+PLAN, REPLIES = cr.paths(CHAT3, CHAT4)
+st.set_page_config(page_title="Chat rerank" + (" · chat-3" if CHAT3 else " · chat-4" if CHAT4 else ""),
+                   layout="wide")
 if not PLAN.exists():
     st.error("No plan yet. Run `uv run python -m candidate_screener."
-             + ("evaluation.chat3 --build`." if CHAT3 else "rerank.chat_rerank --build`."))
+             + ("evaluation.chat3 --build`." if CHAT3 else "evaluation.c2_validation --pool`." if CHAT4
+                else "rerank.chat_rerank --build`."))
     st.stop()
 
 
@@ -59,7 +61,7 @@ if (jd_id, b) in done_batches:
              "the next unsaved batch, unless you mean to re-score this one.")
 if i_b == 1:
     st.warning("**Start a new chat** for this JD"
-               + (" (a fresh one, not the JD's chat-1 chat)" if run == cr.FRESH_RUN else "")
+               + (" (a fresh one, not the JD's chat-1 chat)" if run in (cr.FRESH_RUN, cr.CHAT4_RUN) else "")
                + ", then paste the prompt below.")
 elif "source" in plan and plan[(plan.jd_id == jd_id) & (plan.batch == b)].source.eq("s1_passed").all():
     st.info("**Extension batch** (S1 passed CVs outside X2's top 100): paste into the **same chat** "

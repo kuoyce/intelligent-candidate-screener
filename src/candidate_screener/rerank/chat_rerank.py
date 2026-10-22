@@ -49,6 +49,11 @@ REPLIES = OUTPUT / "rerank" / "chat-rerank-replies.csv"
 CHAT3_RUN = "chat-3"
 CHAT3_PLAN = DATA / "interim" / "chat3-plan.csv"
 CHAT3_REPLIES = OUTPUT / "rerank" / "chat3-replies.csv"
+#: Plan 2026-10-22-c2-validation: `chat-4`, the pooled unscored top-10 CVs of the 60 final-set
+#: JDs, fresh chats with anchors; evaluation only. Its own files, as chat-3.
+CHAT4_RUN, CHAT4_PREFIX = "chat-4", "H"
+CHAT4_PLAN = DATA / "interim" / "chat4-plan.csv"
+CHAT4_REPLIES = OUTPUT / "rerank" / "chat4-replies.csv"
 LABELS = ("Good Fit", "Potential Fit", "No Fit")
 #: Curly double quotes a phone or chat app substitutes for JSON's straight ones.
 SMART_QUOTES = str.maketrans({"“": '"', "”": '"', "„": '"', "″": '"'})
@@ -268,9 +273,29 @@ def build(seed: int = SEED) -> pd.DataFrame:
     return plan
 
 
-def paths(chat3: bool = False) -> tuple[Path, Path]:
-    """(plan, replies) of a collection: `chat-3`'s own files, or the 60 final-set JDs' ones."""
-    return (CHAT3_PLAN, CHAT3_REPLIES) if chat3 else (PLAN, REPLIES)
+def paths(chat3: bool = False, chat4: bool = False) -> tuple[Path, Path]:
+    """(plan, replies) of a collection: `chat-3`'s or `chat-4`'s own files, or `chat-1` / `chat-2`'s."""
+    if chat3 and chat4:
+        raise ValueError("one collection at a time")
+    return (CHAT3_PLAN, CHAT3_REPLIES) if chat3 else (CHAT4_PLAN, CHAT4_REPLIES) if chat4 else (PLAN, REPLIES)
+
+
+def fresh_plan(scored: pd.DataFrame, new: pd.DataFrame, run: str, prefix: str, order: pd.Series,
+               stratum: pd.Series, seed: int = SEED) -> pd.DataFrame:
+    """A collection of fresh chats, one per JD with `new` pairs: those pairs plus `n_anchors` of the
+    JD's `scored` ones (`pair_id`, `jd_id`, `cv_id`, `score`), shuffled, ids `{prefix}001`...,
+    batches of `BATCH` from 1. `order` and `stratum` map JD -> `jd_order` / stratum. Ids only."""
+    rows = []
+    for jd, g in new.sort_values("pair_id").groupby("jd_id", sort=True):
+        rng = np.random.default_rng([seed, int(order[jd])])
+        a = anchors(scored[scored.jd_id == jd], n_anchors(len(g)), rng)
+        both = pd.concat([g[["jd_id", "cv_id", "pair_id"]].assign(source="pooled"),
+                          a[["jd_id", "cv_id", "pair_id"]].assign(source="anchor")], ignore_index=True)
+        both = both.iloc[rng.permutation(len(both))].reset_index(drop=True)
+        rows.append(both.assign(stratum=stratum[jd], jd_order=int(order[jd]), run=run,
+                                short_id=[f"{prefix}{i + 1:03d}" for i in range(len(both))],
+                                batch=1 + both.index // BATCH))
+    return pd.concat(rows, ignore_index=True)
 
 
 def texts(plan: pd.DataFrame) -> pd.DataFrame:

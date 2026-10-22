@@ -36,3 +36,19 @@ def test_top_lists_cuts_each_jd():
     s = pd.Series(np.arange(10, dtype=float), index=f.pair_id.to_numpy())
     got = cv.top_lists(f, s, 2)
     assert sorted(got.pair_id) == ["a3", "a4", "b3", "b4"]
+
+
+def test_fresh_plan_pads_each_jd_with_anchors_to_whole_batches():
+    from candidate_screener.rerank import chat_rerank as cr
+    scored = pd.DataFrame({"pair_id": [f"{j}-s{i:02d}" for j in "ab" for i in range(40)],
+                           "jd_id": [j for j in "ab" for _ in range(40)], "cv_id": [f"c{i}" for i in range(80)],
+                           "score": list(range(40)) * 2})
+    new = pd.DataFrame({"pair_id": ["a-n1", "a-n2", "b-n1"], "jd_id": ["a", "a", "b"], "cv_id": ["x", "y", "z"]})
+    plan = cr.fresh_plan(scored, new, cr.CHAT4_RUN, cr.CHAT4_PREFIX, pd.Series({"a": 1, "b": 2}),
+                         pd.Series({"a": "generic", "b": "targeted"}), seed=0)
+    for jd, g in plan.groupby("jd_id"):
+        assert len(g) % cr.BATCH == 0 and (g.source == "anchor").sum() >= cr.MIN_ANCHORS
+        assert set(g[g.source == "pooled"].pair_id) == set(new[new.jd_id == jd].pair_id)
+        assert g.short_id.str.startswith("H").all() and g.short_id.is_unique and g.batch.eq(1).all()
+    assert set(plan.run) == {cr.CHAT4_RUN} and plan.pair_id.is_unique
+    assert cr.paths(chat4=True) == (cr.CHAT4_PLAN, cr.CHAT4_REPLIES)
