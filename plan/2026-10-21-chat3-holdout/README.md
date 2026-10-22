@@ -1,7 +1,9 @@
 # chat-3: train stage 2 on new train-region JDs; the final set becomes test-only
 
-Status: **approved by the owner, 21 Oct 2026; chat-3 collected, §4 chose L1 on F12, §5 tested on
-22 Oct 2026: all three rules pass.** Owed: a `chat3 --check` and the remaining cold checks. Follows
+Status: **complete (owner, 22 Oct 2026).** Approved 21 Oct 2026; chat-3 collected, §4 chose L1 on
+F12, §5 tested on 22 Oct 2026: all three rules pass; D63 made L1 over the pool the system.
+`chat3 --check` registered and passing cold; every registered check passes (22 Oct 2026). C2 work
+continues in plan `2026-10-22-c2-validation` (D64). Follows
 `plan/2026-10-18-classifier-then-rerank` (steps 1-5d). Decision D62 below. Branch `exp/chat3-holdout`, from
 `exp/classifier-then-rerank`.
 

@@ -1,8 +1,8 @@
 # Two-stage screening: a learned stage-1 classifier, then a reranker trained on `chat-1`
 
-Status: **approved by the owner, 18 Oct 2026. Steps 1-4 done (18 Oct 2026); step 5 is findings;
-step 5a (an instruction-tuned embedder) is proposed and awaits approval.
-D55 cold run of `rerank_chat` deferred to the end of the branch.** Decision D61 below. Branch
+Status: **complete (owner, 22 Oct 2026).** Steps 1-4 done 18 Oct 2026; steps 5-5d (zero-shot
+rerankers) recorded, none adopted; D55: all four of its checks pass cold (21 Oct 2026). Its stage 2
+(trained on `chat-1`) is superseded by plan `2026-10-21-chat3-holdout` (D62, D63). Decision D61 below. Branch
 `exp/classifier-then-rerank`, from `exp/stage2-llm-rerank`.
 
 ## Vision (owner, 18 Oct 2026)
