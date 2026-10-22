@@ -79,7 +79,7 @@ Nine options, beside **L1 alone** (no C2).
   built on `chat-1` / `chat-2` changes.
 - **Draft decision (not in `docs/decisions.md` until the owner approves):**
 
-  > D64. D42 reopened once more, for evaluation only: **`chat-4`**, the owner's claude.ai scoring of
+  > (Number assigned when logged.) D42 reopened once more, for evaluation only: **`chat-4`**, the owner's claude.ai scoring of
   > the CVs pooled from the top 10s of the C2-validation test's options (plan 2026-10-22) that lack a
   > `chat-1` or `chat-2` score, on the 60 final-set JDs. Fresh chat per JD, ≥ 5 anchors, the
   > `chat-1` instrument and model; no Claude subprocess. `chat-4` is never a training target and is
