@@ -12,17 +12,22 @@ Nothing here reads a human label or `chat-1`.
 
     uv run python -m candidate_screener.evaluation.c2_validation --score    # step B (~3-5 h)
     uv run python -m candidate_screener.evaluation.c2_validation --select   # minutes
+    uv run python -m candidate_screener.evaluation.c2_validation --check --warm  # minutes, cached C2
+    uv run python -m candidate_screener.evaluation.c2_validation --check    # cold: re-scores every C2 pair
 """
 from __future__ import annotations
 
 import argparse
 import json
+import shutil
+import tempfile
 import time
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
 
-from candidate_screener.config import OUTPUT
+from candidate_screener.config import OUTPUT, PROCESSED
 
 SELECT_RECORD = OUTPUT / "rerank" / "c2-validation-select.json"
 KS = (20, 30, 50)
@@ -97,22 +102,23 @@ def c2_pairs(chat: pd.DataFrame, l1: pd.Series) -> pd.DataFrame:
     return top.assign(jd_text=top.pair_id.map(text.jd_text), cv_text=top.pair_id.map(text.cv_text))
 
 
-def score(chat=None, l1=None) -> pd.Series:
+def score(chat=None, l1=None, root: Path | None = None) -> pd.Series:
     from candidate_screener.evaluation import rerank_embed as re_
     from candidate_screener.rerank import cross
     if chat is None:
         chat, l1 = oof_l1()
     pairs = c2_pairs(chat, l1)
     _log(f"C2 on {len(pairs)} chat-3 pairs ({pairs.jd_id.nunique()} JDs x top {max(KS)})")
-    return cross.score_pairs(pairs[["pair_id", "jd_text", "cv_text"]], re_.CASCADE_SYSTEM)
+    return cross.score_pairs(pairs[["pair_id", "jd_text", "cv_text"]], re_.CASCADE_SYSTEM, root or cross.ROOT)
 
 
-def select(seed: int = SEED) -> dict:
+def select(seed: int = SEED, root: Path | None = None) -> dict:
     from candidate_screener.evaluation import rerank_chat as rc, rerank_embed as re_
     from candidate_screener.rerank import chat_targets as ct, cross
     chat, l1 = oof_l1()
     pairs = c2_pairs(chat, l1)
-    c2 = cross.score_pairs(pairs[["pair_id", "jd_text", "cv_text"]], re_.CASCADE_SYSTEM, cached_only=True)
+    c2 = cross.score_pairs(pairs[["pair_id", "jd_text", "cv_text"]], re_.CASCADE_SYSTEM, root or cross.ROOT,
+                           cached_only=True)
     stratum = chat.drop_duplicates("jd_id").set_index("jd_id").stratum
     per = {L1_ALONE: ct.per_jd(chat, l1)}
     for k in KS:
@@ -137,7 +143,7 @@ POOL_RECORD = OUTPUT / "rerank" / "c2-validation-pool.json"
 POOLED = ("winner", L1_ALONE, "X2")
 
 
-def compared_scores(seed: int = SEED) -> tuple[pd.DataFrame, dict[str, pd.Series], dict]:
+def compared_scores(seed: int = SEED, root: Path | None = None, cached_only: bool = False) -> tuple[pd.DataFrame, dict[str, pd.Series], dict]:
     """The 60 final-set JDs' pools and the compared options' scores over all 500 CVs: L1 fitted once
     on all of chat-3 (checked against §5's 0.484413 of the chat-3 plan), the winner on its top k
     (C2 scored where not cached), X2. Reads `chat-1` only for that check."""
@@ -158,17 +164,18 @@ def compared_scores(seed: int = SEED) -> tuple[pd.DataFrame, dict[str, pd.Series
         raise ValueError(f"L1 over the pools gives {got}, not the chat-3 test's figure")
     top = top_lists(pools, l1, win["k"])
     _log(f"C2 on the test's top {win['k']} lists ({len(top)} pairs; scored where not cached)")
-    c2 = cross.score_pairs(top[["pair_id", "jd_text", "cv_text"]], re_.CASCADE_SYSTEM)
+    c2 = cross.score_pairs(top[["pair_id", "jd_text", "cv_text"]], re_.CASCADE_SYSTEM, root or cross.ROOT,
+                           cached_only=cached_only)
     scores = {"winner": fused_order(pools, l1, c2, win["k"], win["w"]), L1_ALONE: l1, "X2": x2}
     return pools, scores, win
 
 
-def pool(seed: int = SEED) -> tuple[pd.DataFrame, dict]:
+def pool(seed: int = SEED, root: Path | None = None, cached_only: bool = False) -> tuple[pd.DataFrame, dict]:
     """Decision 2: pool the compared options' top 10s; the CVs without a `chat-1` / `chat-2` score
     become `chat-4`, a fresh chat per JD with anchors. Computes no metric of the options."""
     import hashlib
     from candidate_screener.rerank import chat_rerank as cr, chat_targets as ct
-    pools, scores, win = compared_scores(seed)
+    pools, scores, win = compared_scores(seed, root, cached_only)
     scored = ct.load_latest()
     have = set(scored.pair_id)
     tops = {n: top_lists(pools, scores[n], 10) for n in POOLED}
@@ -198,7 +205,7 @@ TEST_RECORD = OUTPUT / "rerank" / "c2-validation-test.json"
 BAR = 0.02
 
 
-def test(seed: int = SEED) -> dict:
+def test(seed: int = SEED, root: Path | None = None, cached_only: bool = False) -> dict:
     """The exploratory test (owner's decision 1): the winner vs L1 alone (and X2's order) on the 60
     final-set JDs. Reference A: `chat-1` + `chat-2` (+ `chat-4`, empty: the pooled top 10s were all
     scored), the latest score per pair; reference B: `chat-1` alone, unscored CVs as misses."""
@@ -206,7 +213,7 @@ def test(seed: int = SEED) -> dict:
     from candidate_screener.rerank import chat_targets as ct, chunked
     if json.loads(POOL_RECORD.read_text(encoding="utf-8"))["chat_4"]["new_pairs"]:
         raise NotImplementedError("chat-4 has pairs: merge its replies into reference A first")
-    pools, scores, win = compared_scores(seed)
+    pools, scores, win = compared_scores(seed, root, cached_only)
     ref = ct.load_latest()
     stratum = ref.drop_duplicates("jd_id").set_index("jd_id").stratum
     chat = chunked.chat_frame()
@@ -238,13 +245,47 @@ def test(seed: int = SEED) -> dict:
             "human": re_._human({n: scores[n] for n in POOLED}, chat1, (L1_ALONE,), seed)}
 
 
+def _render(doc: dict) -> str:
+    return json.dumps(doc, indent=1) + "\n"
+
+
+def check(cold: bool = False, seed: int = SEED) -> dict[str, bool]:
+    """D55: rebuild the selection, pooling and test records and compare byte for byte with disk;
+    writes nothing. Warm uses the C2 cache and refuses to score; cold re-scores every C2 pair into
+    a temporary cache (hours), then removes it."""
+    from candidate_screener.rerank import chat_rerank as cr
+    root = Path(tempfile.mkdtemp(prefix="c2-validation-cold-", dir=PROCESSED / "rerank")) if cold else None
+    try:
+        if cold:
+            score(root=root)
+        sel = select(seed, root)
+        plan, pooled = pool(seed, root, cached_only=not cold)
+        tested = test(seed, root, cached_only=not cold)
+    finally:
+        if root is not None:
+            shutil.rmtree(root, ignore_errors=True)
+    return {SELECT_RECORD.name: SELECT_RECORD.read_text(encoding="utf-8") == _render(sel),
+            POOL_RECORD.name: POOL_RECORD.read_text(encoding="utf-8") == _render(pooled),
+            "chat-4 plan (empty: none on disk)": len(plan) == 0 and not cr.CHAT4_PLAN.exists(),
+            TEST_RECORD.name: TEST_RECORD.read_text(encoding="utf-8") == _render(tested)}
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     ap.add_argument("--score", action="store_true", help="step B: C2 on chat-3's out-of-fold top-50 lists")
     ap.add_argument("--select", action="store_true", help="the menu out of fold on chat-3, the winner, the gate")
     ap.add_argument("--pool", action="store_true", help="test lists and the chat-4 plan (no metric)")
     ap.add_argument("--test", action="store_true", help="the exploratory test, once")
+    ap.add_argument("--check", action="store_true", help="rebuild select / pool / test and diff, write nothing")
+    ap.add_argument("--warm", action="store_true", help="with --check: use the cached C2 scores (D55 warm tier)")
     args = ap.parse_args(argv)
+    if args.warm and not args.check:
+        ap.error("--warm is only valid with --check")
+    if args.check:
+        same = check(cold=not args.warm)
+        for name, ok in same.items():
+            print(f"[{'PASS' if ok else 'FAIL'}] rebuild reproduces {name}")
+        return 0 if all(same.values()) else 1
     if args.test:
         if TEST_RECORD.exists():
             raise SystemExit(f"{TEST_RECORD} exists: the test is scored once")
@@ -280,7 +321,7 @@ def main(argv: list[str] | None = None) -> int:
             print(f"{n:28s} R@10 {t['value']:.3f}" + (f"  vs L1 {d['value']:+.3f} [{d['ci'][0]:+.3f}, {d['ci'][1]:+.3f}]" if d else ""))
         print("winner:", doc["winner"], "gate:", doc["gate"]["passes"])
         return 0
-    ap.error("--score or --select")
+    ap.error("--score, --select, --pool, --test or --check")
     return 2
 
 

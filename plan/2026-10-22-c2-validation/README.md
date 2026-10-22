@@ -205,3 +205,11 @@ L1 + 0.25 × C2 (the option chosen on chat-3, unchanged).
   reported system into it is a separate task.
 
 Report: `notebooks/26-chat3-holdout-and-c2.ipynb` (executed 22 Oct 2026; reads only the committed records).
+
+## Cold check record (22 Oct 2026)
+
+`c2_validation --check` (registered as `c2_validation`; `logs/c2_validation_cold.log`) rebuilds the
+selection, pooling and test records and diffs them byte for byte. Cold, it re-scored all 5,400 C2
+pairs (2,400 chat-3 + 3,000 test top-50, none cached) into a temporary cache: **4 h 20 min, peak
+6.2 GB, all four comparisons PASS** (select, pool, empty chat-4 plan, test). D55 satisfied; the plan
+is complete.
