@@ -1,0 +1,30 @@
+{
+ "plan": "plan/2026-10-22-c2-validation (test lists and chat-4; no metric computed)",
+ "seed": 0,
+ "winner": {
+  "k": 50,
+  "w": 0.25,
+  "name": "L1 top 50 -> L1 + 0.25 C2"
+ },
+ "pooled_options": [
+  "winner",
+  "L1 alone",
+  "X2"
+ ],
+ "unscored_in_top10": {
+  "winner": 0,
+  "L1 alone": 0,
+  "X2": 0
+ },
+ "chat_4": {
+  "new_pairs": 0,
+  "jds": 0,
+  "anchors": 0,
+  "batches": 0,
+  "per_jd": {},
+  "new_pair_ids_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "plan_ids_sha256": null
+ },
+ "instrument_sha256": "c64578dd228b95f97e3f9b4312f802c9afe2cb87d1704e70bfe21fb0583b0970",
+ "run": "chat-4"
+}

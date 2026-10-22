@@ -194,12 +194,67 @@ def pool(seed: int = SEED) -> tuple[pd.DataFrame, dict]:
     return plan, record
 
 
+TEST_RECORD = OUTPUT / "rerank" / "c2-validation-test.json"
+BAR = 0.02
+
+
+def test(seed: int = SEED) -> dict:
+    """The exploratory test (owner's decision 1): the winner vs L1 alone (and X2's order) on the 60
+    final-set JDs. Reference A: `chat-1` + `chat-2` (+ `chat-4`, empty: the pooled top 10s were all
+    scored), the latest score per pair; reference B: `chat-1` alone, unscored CVs as misses."""
+    from candidate_screener.evaluation import chat3, rerank_chat as rc, rerank_embed as re_
+    from candidate_screener.rerank import chat_targets as ct, chunked
+    if json.loads(POOL_RECORD.read_text(encoding="utf-8"))["chat_4"]["new_pairs"]:
+        raise NotImplementedError("chat-4 has pairs: merge its replies into reference A first")
+    pools, scores, win = compared_scores(seed)
+    ref = ct.load_latest()
+    stratum = ref.drop_duplicates("jd_id").set_index("jd_id").stratum
+    chat = chunked.chat_frame()
+    chat1 = chat[chat.source == ct.TRAIN_SOURCE]
+    per, by_pool = {}, {}
+    for n in POOLED:
+        per[n] = ct.per_jd(ref, scores[n])
+        by_pool[n] = chat3.pool_coverage(pools, ref, scores[n], 10)
+        if not np.allclose(per[n].recall.loc[by_pool[n].index], by_pool[n].coverage):
+            raise ValueError(f"{n}: a top-10 CV lies outside reference A")
+    res = {}
+    for n in POOLED:
+        res[n] = {"reference_A": {"summary": rc.summary(per[n], stratum, seed)},
+                  "reference_B_recall": re_.block(chat3.pool_coverage(pools, chat1, scores[n], 10).coverage,
+                                                  stratum, seed)}
+        if n != L1_ALONE:
+            res[n]["reference_A"]["delta_vs_L1"] = rc.deltas(per[n], per[L1_ALONE], stratum, seed)
+    b = {n: chat3.pool_coverage(pools, chat1, scores[n], 10).coverage for n in POOLED}
+    res["winner"]["reference_B_delta_vs_L1"] = re_.block(b["winner"] - b[L1_ALONE], stratum, seed)
+    d = res["winner"]["reference_A"]["delta_vs_L1"]["recall"]["total"]
+    _log("human check (exploratory)")
+    return {"plan": "plan/2026-10-22-c2-validation (test; exploratory: the 60 JDs had the chat-3 plan's §5)",
+            "status": "exploratory", "seed": seed, "winner": win,
+            "reference_A": "chat-1 + chat-2, latest score per pair (chat-4 empty)",
+            "reference_B": "chat-1 alone, unscored CVs as misses",
+            "bar": {"rule": f"winner Recall@10 delta vs L1 alone (total, reference A) >= +{BAR}, CI above 0",
+                    "delta": d, "met": bool(d["value"] >= BAR and d["ci"][0] > 0)},
+            "results": res,
+            "human": re_._human({n: scores[n] for n in POOLED}, chat1, (L1_ALONE,), seed)}
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     ap.add_argument("--score", action="store_true", help="step B: C2 on chat-3's out-of-fold top-50 lists")
     ap.add_argument("--select", action="store_true", help="the menu out of fold on chat-3, the winner, the gate")
     ap.add_argument("--pool", action="store_true", help="test lists and the chat-4 plan (no metric)")
+    ap.add_argument("--test", action="store_true", help="the exploratory test, once")
     args = ap.parse_args(argv)
+    if args.test:
+        if TEST_RECORD.exists():
+            raise SystemExit(f"{TEST_RECORD} exists: the test is scored once")
+        doc = test()
+        TEST_RECORD.write_text(json.dumps(doc, indent=1) + "\n", encoding="utf-8")
+        for n, r in doc["results"].items():
+            print(f"{n:10s} R@10 A {r['reference_A']['summary']['recall']['total']['value']:.3f}  "
+                  f"B {r['reference_B_recall']['total']['value']:.3f}")
+        print("bar:", doc["bar"])
+        return 0
     if args.pool:
         from candidate_screener.rerank import chat_rerank as cr
         if not json.loads(SELECT_RECORD.read_text(encoding="utf-8"))["gate"]["passes"]:

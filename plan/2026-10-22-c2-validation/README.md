@@ -140,3 +140,17 @@ chat-3, 48 JDs, Recall@10 against chat-3's tie-aware top 10:
   it does not help at any k. Every option cuts chat No Fits (1.12 → 0.94-1.02).
 - Read with care: the winner is the best of nine, so its +0.019 is optimistic. It sits just under the
   test bar (+0.02); the test has to find at least the CV gain to meet it.
+
+## Pooling record (22 Oct 2026): chat-4 is empty
+
+`c2_validation --pool` → `output/rerank/c2-validation-pool.json`, `logs/c2_validation_pool.log`,
+30 min (C2 on the 216 test top-50 pairs not yet cached, 6.8 s per pair). L1 fitted on all of chat-3
+reproduced the chat-3 test's 0.484413 over the pools. No metric of the options was computed.
+
+- The top 10s of the winner (L1 top 50 → L1 + 0.25 C2), L1 alone and X2's order, pooled over the 60
+  JDs: **every CV already has a `chat-1` or `chat-2` score.** Unscored per option: 0 / 0 / 0.
+- So **chat-4 has no pairs**. Nothing needs scoring, and the draft decision reopening D42 is not
+  needed (withdrawn; never logged). Reference A of the test is `chat-1` + `chat-2`, complete for
+  every top 10 compared.
+- Gap 2 of the task, for this comparison: closed by `chat-2` already. CVs beyond the top 10 (e.g.
+  L1's ranks 31-50) remain partly unscored, but no compared option puts one in its top 10.
