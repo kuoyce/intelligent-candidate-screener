@@ -83,8 +83,36 @@ def test_identical_cvs_tie_and_break_by_cv_id():
 
 
 def test_pool_of_one_gives_a_finite_score():
-    res = screener().rank(JD, cvs(1))
+    res = screener().rank(JD, cvs(1), scaling="pool")
     assert len(res.ranked) == 1 and np.isfinite(res.ranked[0].score) and res.pool_size == 1
+
+
+def test_default_scaling_is_background():
+    """Owner, 23 Oct 2026: option B (pad to 500 with background CVs) unless the caller asks."""
+    s = screener()
+    res = s.rank(JD, cvs(4))
+    assert res.scaling == "background" and res.pool_size == 4 + len(BACKGROUND)
+    explicit = s.rank(JD, cvs(4), scaling="background")
+    assert [(r.cv_id, r.score) for r in res.ranked] == [(r.cv_id, r.score) for r in explicit.ranked]
+    assert s.features(JD, cvs(4)).equals(s.features(JD, cvs(4), scaling="background"))
+
+
+def test_pair_ids_follow_jd_id_when_given_else_text_digests():
+    """With `jd_id` the C2 pairs carry the evaluation's ids (`jd_id__cv_id`), so cached C2 scores
+    are reused; without it (uploads) they are digests of the texts."""
+    seen = []
+
+    def c2(pairs, progress=None):
+        seen.append(list(pairs.pair_id))
+        return pd.Series(0.0, index=pairs.pair_id.to_numpy())
+    s = screener(c2=c2, c2_k=50)
+    s.rank(JD, cvs(4), rerank=True, jd_id="J1")
+    assert sorted(seen[-1]) == ["J1__c0", "J1__c1", "J1__c2", "J1__c3"]
+    s.rank(JD, cvs(4), rerank=True)
+    assert all(p.startswith("jd-") and "__cv-" in p for p in seen[-1])
+    assert not set(seen[-1]) & set(seen[-2])
+    res = s.rank(JD, cvs(4), jd_id="J1")
+    assert res.jd.jd_id == "J1"
 
 
 def test_d64_reorders_only_l1s_top_k_and_scores_only_those():
@@ -189,7 +217,8 @@ def test_real_load_and_rank_on_new_texts_never_fit(monkeypatch, tmp_path):
     monkeypatch.setattr(entity_weighted.DocumentFrequency, "fit", boom)
     monkeypatch.setattr(sbert, "EMBED_CACHE", tmp_path)          # new texts do not touch data/
     s = Screener.load()
+    # scaling="pool": background padding would re-encode 490 CVs into the temporary cache each run.
     res = s.rank("Senior Go engineer: Kubernetes, PostgreSQL, 5+ years.",
                  [{"cv_id": "a", "cv_text": "Go developer, 6 years. Kubernetes, PostgreSQL, gRPC."},
-                  {"cv_id": "b", "cv_text": "Accountant. Excel, SAP. 2015 - present."}])
+                  {"cv_id": "b", "cv_text": "Accountant. Excel, SAP. 2015 - present."}], scaling="pool")
     assert [r.cv_id for r in res.ranked] == ["a", "b"] and res.system == "D63"

@@ -1,7 +1,7 @@
 # Inference API: the reported system as plain functions a Streamlit app can call
 
-Status: **draft v3, 23 Oct 2026, owner's answers folded in (below); awaiting approval.** Nothing
-implemented. Branch to be created on approval (`feat/inference-api`, off `exp/chat3-holdout`).
+Status: **implemented, pending review (23 Oct 2026).** Approved by the owner 23 Oct 2026 (draft
+v3); branch `feat/inference-api`, off `exp/chat3-holdout`. Implementation record at the end.
 Follows D63/D64 (`docs/decisions.md`); covers the entry-point half of the on-hold plan
 `2026-10-22-model-bundle-and-hosting`.
 
@@ -218,3 +218,95 @@ measuring accuracy on non-Djinni documents.
 
 About a day of agent work. `--freeze` needs chat-3's F12 features (as `chat3 --select`); the pool
 measurement needs dev-pool features; both timed in step 2 before the full run.
+
+## Implementation record
+
+### Commits (branch `feat/inference-api`)
+
+| Commit | What |
+|---|---|
+| `42460ce` | Step 0: the owner's first cut (`evaluation/a2_export.py`, its test, four `output/matching/a2-*.csv`) |
+| `f371e42` | This plan, approved |
+| `d228790` | Step 1: `inference/model.py` (`L1Model`, `--freeze` → `output/rerank/l1-chat3-model.json`), `inference/parts.py` (`--cache-parts`) |
+| `0dc294b` | Step 2: the pool-scaling measurement, `evaluation/pool_scaling.py` → `output/inference/pool-scaling.json` |
+| `a86c954` | Steps 3-4: `inference/schema.py`, `profiles.py`, `screener.py` |
+| (this commit) | The owner's two decisions below; step 5 (`--check`, `--demo`, registered); step 6 docs |
+
+### What was done
+
+1. **Frozen L1.** `--freeze` fits chat-3's winner (L1 on F12) exactly as `chat3.l1_pool` does,
+   on features of the full 500-CV chat-3 pools, and writes columns, means, SDs, coefficients,
+   intercept, alpha and provenance (4,800 pairs, 48 JDs, training-id SHA-256, commit). The frozen
+   model's predictions equal the fit's (max gap 0). `coverage`, `coverage_unweighted` and
+   `skill_overlap` sit at their non-negative bound (0). 2 min 16 s, peak 1.75 GB.
+2. **Saved parts.** `--cache-parts` writes the concept document frequencies (18,721 train CVs,
+   554 concepts) and the TF-IDF vocabulary + IDF (5,000 terms) as parquet / json / npy under
+   `data/processed/inference/parts/d5af7cc967d9/`, SHA-256 checked on load (2.3 s). Reloaded, they
+   reproduce `coverage`, `coverage_unweighted` and `tfidf_scaled` of `a2-features.csv` exactly.
+   37 s, peak 1.58 GB.
+3. **Pool-scaling measurement** (exploratory, 50 A2 train-region dev JDs, never the final set):
+   option A (scale over the CVs given) vs B (over 500). L1's top-1 agreement A vs B: 0.80 (5
+   CVs), 0.86 (10), 0.89-0.90 (20), 0.92-0.94 (50), 0.94 (100); Kendall tau 0.74-0.77 at 5, 0.95-0.97
+   from 50; "relevant" sub-pools (from the L1 top 50) slightly more sensitive. X2 is less sensitive
+   (tau 0.87-0.93 at 5). Full table with CIs over JDs: `output/inference/pool-scaling.json`.
+   2 min 50 s, peak 3.44 GB. **Owner, 23 Oct 2026: B is the default** (`scaling="background"`), A an
+   option.
+4. **`Screener`.** `load()` wires the saved parts, the role model, the vocabulary matcher, SBERT
+   weak and the frozen L1 into `matching.learned.Features` (one definition of the F12 maths), and
+   never fits (a test patches every fit to raise). `rank` (D63 default, `rerank=True` = D64 with
+   k = 50, w = 0.25 from `c2-validation-select.json`, `system="X2"`), `features`, `extract_jd`,
+   `extract_cv`, `explain` (recruiter-first: reasons, role, matched / missing skills, years; then
+   L1 feature shares), `a2_pool`, `a2_jds`, `labels`. `reference_date` threads into every
+   experience feature through a keyword whose default keeps every committed record unchanged
+   (`a2_export --extract` re-run byte-identical).
+5. **`jd_id`** (owner, 23 Oct 2026): `rank` / `features` take an optional `jd_id`; with it pair ids
+   are `jd_id__cv_id`, as the evaluation builds them, so a final-set JD reuses the cached C2 scores;
+   without it (uploads) they are text digests. `rerank/cross.py`'s keying is unchanged.
+6. **Check and demo.** `python -m candidate_screener.inference --check` (registered as `inference`
+   in `checks.py`) and `--demo JD_ID`. Results below.
+
+### Timings (measured 23 Oct 2026, 22 cores)
+
+| Call | Wall |
+|---|---:|
+| `Screener.load()` | 4.4 s |
+| `rank` D63, 500-CV pool | 4.0 s cold, 1.25 s warm |
+| `rank` D63, 10 CVs, `scaling="pool"` | 0.05-0.14 s |
+| `rank` D63, 10 CVs, `scaling="background"` | 18.1 s first call (500 background CVs embedded, cached on disk), 1.24 s after |
+| `rank` D64, 500-CV pool | ~2.5 s per uncached C2 pair (126 s for 50); 1.5 s cached |
+| `explain` | ~0 s on a warm screening |
+
+### Check results
+
+`python -m candidate_screener.inference --check`, 23 Oct 2026: **14 of 14 pass**, 9 min 16 s,
+peak 2.2 GB, C2 from cache only. Registered in `checks.py` as `inference` (no separate warm mode:
+it never scores C2, whose cold proof is `c2_validation`'s).
+
+| Item | Result |
+|---|---|
+| API (per JD over its 10 labelled CVs, `scaling="pool"`, 2023-09-01) = `a2-features.csv` (F12), `a2-x2-scores.csv`, `a2-jd-extraction.csv`, `a2-cv-extraction.csv` | pass ×4, exact at 6 dp / byte-identical |
+| L1 refitted from chat-3 = `l1-chat3-model.json` | pass (1e-9) |
+| D63 over the 60 final-set 500-CV pools = `chat3-l1-pool.json` "on all 500", against `chat-1` and `chat-1 + chat-2` (blocks with CIs) | pass ×2; Recall@10 0.484413 pass |
+| D63's top 10 = the evaluation path's (`learned.Features` + frozen L1), every JD | pass (60/60) |
+| D64 (`jd_id`, cached C2) and D63 = `c2-validation-test.json`: winner and L1 reference A and B, winner delta vs L1 | pass ×5 (e.g. winner Recall@10 0.48047, nDCG@10 0.831809) |
+
+The check can fail: with the reference date set to today, the F12 table and the CV extraction
+table both fail. `--demo 00909f22-…` (a QA JD) prints its top 10 (all QA) and the first CV's
+reasons and L1 shares, with no CV text.
+
+### Deviations from the plan
+
+1. **No disk document cache.** Per-document work does not dominate (a warm 500-CV `rank` is
+   1.25 s): the existing per-text caches (role probabilities, concepts, SBERT embeddings on disk)
+   plus an in-memory profile cache suffice.
+2. **Duplicate CV texts are allowed** (ids must be unique): scored once, tied, broken by `cv_id`.
+3. **`a2_pool` returns a fourth value**, the A2 reference date (2023-09-01).
+4. **C2's cut breaks an exact tie at L1's 50th place by pair id** (`top_k_mask`), as the
+   evaluation does; the returned order breaks ties by `cv_id`.
+5. **The first timing calls wrote to caches under `data/`**: SBERT embeddings of the background
+   CVs and 50 new C2 scores (an uploads-style pair id). Harmless; both caches are keyed by text.
+6. **The pool-scaling measurement is a package module**, `evaluation/pool_scaling.py` (no
+   `--check`: exploratory), not a script under `plan/`.
+7. **`Screener.load(c2_cached_only=True)`** was added for the check, so it can refuse to score C2.
+8. **Step order.** The plan put the measurement (step 2) before the `Screener`; both ran in
+   parallel, with both scalings implemented, and the owner chose B afterwards.

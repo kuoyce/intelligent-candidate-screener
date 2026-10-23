@@ -18,10 +18,15 @@ Inputs (D53, D54): JD text, an optional JD title, and CVs as `cv_id` + `cv_text`
 never enter (`labels()` is separate, for checking a demo JD, D46).
 
 **`tfidf_scaled` depends on the pool**: it is the TF-IDF cosine min-max scaled over the CVs
-scored together. `scaling="pool"` (option A, the default **until the owner chooses after the
-step-2 measurement**) scales over the CVs passed in; `scaling="background"` (option B) pads them
-to 500 with a fixed sample of A2 train-region CVs, as the system was trained and tested, and
-returns only the CVs passed in.
+scored together. `scaling="background"` (option B, **the default**, owner 23 Oct 2026) pads the
+CVs passed in to 500 with a fixed sample of A2 train-region CVs, as the system was trained and
+tested, and returns only the CVs passed in; `scaling="pool"` (option A) scales over the CVs passed
+in. On small pools A reorders noticeably (`output/inference/pool-scaling.json`: at 10 CVs the top
+candidate differs from B's about 1 time in 7); on a 500-CV pool the two coincide.
+
+Pair ids: with `jd_id` given they are `f"{jd_id}__{cv_id}"`, as the evaluation builds them, so a
+final-set JD reuses the C2 scores already cached (`a2_pool` callers pass it); without it (uploads)
+they derive from text digests, so the C2 cache never confuses two documents.
 
 "present" in a CV date range is `reference_date`: today by default (uploads), A2's 2023-09-01
 (`experience.REFERENCE_DATE`) for A2 documents (`a2_pool` returns it).
@@ -102,8 +107,9 @@ class Screener:
         self._cv_cache: dict = {}
 
     @classmethod
-    def load(cls, parts_fingerprint: str | None = None) -> "Screener":
-        """The real parts, loaded, never refitted (needs `--cache-parts` and `--freeze` once)."""
+    def load(cls, parts_fingerprint: str | None = None, c2_cached_only: bool = False) -> "Screener":
+        """The real parts, loaded, never refitted (needs `--cache-parts` and `--freeze` once).
+        `c2_cached_only` makes D64 refuse to score a C2 pair that is not cached (`--check`)."""
         from candidate_screener.extraction import role_family, rules
         from candidate_screener.inference import parts, profiles
         from candidate_screener.inference.model import L1Model
@@ -133,7 +139,8 @@ class Screener:
         def c2(pairs, progress=None):
             from candidate_screener.evaluation.rerank_embed import CASCADE_SYSTEM
             from candidate_screener.rerank import cross
-            return cross.score_pairs(pairs, CASCADE_SYSTEM, chunk=C2_CHUNK, progress=progress)
+            return cross.score_pairs(pairs, CASCADE_SYSTEM, chunk=C2_CHUNK, progress=progress,
+                                     cached_only=c2_cached_only)
 
         win = json.loads(C2_RECORD.read_text(encoding="utf-8"))["winner"]
         return cls(featurize, L1Model.load(),
@@ -164,15 +171,20 @@ class Screener:
 
     # --- features and ranking --------------------------------------------------------------
 
-    def _pairs(self, jd_text, jd_title, cvs: pd.DataFrame, scaling: str) -> tuple[pd.DataFrame, pd.DataFrame]:
-        """(pairs of the CVs passed in, one per distinct text; every pair scored together)."""
+    def _pairs(self, jd_text, jd_title, cvs: pd.DataFrame, scaling: str,
+               jd_id: str | None = None) -> tuple[pd.DataFrame, pd.DataFrame]:
+        """(pairs of the CVs passed in, one per distinct text; every pair scored together).
+        Pair ids are `jd_id__cv_id` when `jd_id` is given (a duplicate text keeps its first
+        `cv_id`), else built from text digests."""
         if scaling not in SCALINGS:
             raise ValueError(f"scaling must be one of {SCALINGS}")
         if not isinstance(jd_text, str) or not jd_text.strip():
             raise ValueError("a non-empty JD text is required")
-        jd_id = "jd-" + _digest(jd_text)
         uniq = cvs.drop_duplicates("cv_text")
-        keys = "cv-" + uniq.cv_text.map(_digest)
+        if jd_id is None:
+            jd_id, keys = "jd-" + _digest(jd_text), "cv-" + uniq.cv_text.map(_digest)
+        else:
+            jd_id, keys = str(jd_id), uniq.cv_id
         own = pd.DataFrame({"pair_id": (jd_id + "__" + keys).to_numpy(), "jd_id": jd_id,
                             "cv_id": keys.to_numpy(), "jd_text": jd_text, "jd_title": jd_title,
                             "cv_text": uniq.cv_text.to_numpy()})
@@ -185,6 +197,8 @@ class Screener:
                     "pair_id": (jd_id + "__" + ids).to_numpy(), "jd_id": jd_id, "cv_id": ids.to_numpy(),
                     "jd_text": jd_text, "jd_title": jd_title, "cv_text": bg.cv_text.to_numpy()})],
                     ignore_index=True)
+                if scored.pair_id.duplicated().any():
+                    raise ValueError("a cv_id collides with a background id ('bg-…')")
         return own, scored
 
     def background_cvs(self, n_own: int) -> pd.DataFrame:
@@ -194,28 +208,30 @@ class Screener:
         bg = self._background()
         return bg.iloc[:max(0, BACKGROUND_SIZE - n_own)]
 
-    def _features(self, jd_text, jd_title, cvs, scaling, reference):
-        own, scored = self._pairs(jd_text, jd_title, cvs, scaling)
+    def _features(self, jd_text, jd_title, cvs, scaling, reference, jd_id=None):
+        own, scored = self._pairs(jd_text, jd_title, cvs, scaling, jd_id)
         X = self.featurize(scored, reference)
         X = X.loc[own.pair_id.to_numpy()]
         if len(X) != len(own) or X.isna().any().any():
             raise ValueError("a CV has no complete feature row")
         return own, X, len(scored)
 
-    def features(self, jd_text: str, cvs, jd_title: str | None = None, scaling: str = "pool",
-                 reference_date: dt.date | None = None) -> pd.DataFrame:
+    def features(self, jd_text: str, cvs, jd_title: str | None = None, scaling: str = "background",
+                 reference_date: dt.date | None = None, jd_id: str | None = None) -> pd.DataFrame:
         """F12 per CV passed in, indexed by `cv_id`."""
         cvs = _cvs_frame(cvs)
-        own, X, _ = self._features(jd_text, jd_title, cvs, scaling, reference_date or dt.date.today())
+        own, X, _ = self._features(jd_text, jd_title, cvs, scaling, reference_date or dt.date.today(), jd_id)
         key = dict(zip(own.cv_text, own.pair_id))
         return X.loc[cvs.cv_text.map(key).to_numpy()].set_axis(cvs.cv_id.to_numpy())
 
     def rank(self, jd_text: str, cvs, jd_title: str | None = None, top_k: int = 10,
-             system: str = "D63", rerank: bool = False, scaling: str = "pool",
-             reference_date: dt.date | None = None, progress=None) -> Screening:
+             system: str = "D63", rerank: bool = False, scaling: str = "background",
+             reference_date: dt.date | None = None, progress=None,
+             jd_id: str | None = None) -> Screening:
         """Every CV passed in, best first. `system` "D63" (L1) or "X2"; `rerank=True` is D64
-        (C2 on L1's top 50, ~5-7 s per pair; `progress(done, total)` reports it). Ties by cv_id.
-        `scaling`: "pool" (default until the owner's choice) or "background"; see the module doc."""
+        (C2 on L1's top 50, ~2.5-7 s per uncached pair; `progress(done, total)` reports it). Ties
+        by cv_id. `scaling`: "background" (default) or "pool"; `jd_id`: only to reuse cached C2
+        scores of a known JD; see the module doc."""
         if system not in SYSTEMS:
             raise ValueError(f"system must be one of {SYSTEMS}")
         if rerank and system != "D63":
@@ -224,7 +240,7 @@ class Screener:
             raise ValueError("top_k must be >= 1")
         cvs = _cvs_frame(cvs)
         reference = reference_date or dt.date.today()
-        own, X, pool_size = self._features(jd_text, jd_title, cvs, scaling, reference)
+        own, X, pool_size = self._features(jd_text, jd_title, cvs, scaling, reference, jd_id)
         ids = own.pair_id.to_numpy()
         l1 = pd.Series(self.l1.predict(X), index=ids)
         x2 = pd.Series(2 * X.role_match.to_numpy() + X.experience_compatible.to_numpy()
@@ -256,7 +272,7 @@ class Screener:
             for i, r in enumerate(rows.itertuples(index=False), start=1))
         profiles = self._cv_profiles(cvs.cv_text.tolist(), reference)
         return Screening(
-            jd=dataclasses.replace(self.extract_jd(jd_text, jd_title), jd_id=None),
+            jd=dataclasses.replace(self.extract_jd(jd_text, jd_title), jd_id=jd_id),
             cvs={i: dataclasses.replace(p, cv_id=i) for i, p in zip(cvs.cv_id, profiles)},
             ranked=ranked, system=name, scaling=scaling, pool_size=pool_size, top_k=top_k,
             reference_date=reference)
@@ -320,7 +336,8 @@ class Screener:
     @staticmethod
     def a2_pool(jd_id: str) -> tuple[str, str | None, pd.DataFrame, dt.date]:
         """(JD text, JD title, its 500-CV pool as `cv_id`/`cv_text`, reference date) for one of
-        the 60 final-set JDs, ready for `rank`. A2 documents, so the date is 2023-09-01."""
+        the 60 final-set JDs, ready for `rank` (pass `jd_id` too, so cached C2 scores are reused).
+        A2 documents, so the date is 2023-09-01."""
         from candidate_screener.extraction.experience import REFERENCE_DATE
         pools, titles = _a2_pools()
         g = pools[pools.jd_id == jd_id]
