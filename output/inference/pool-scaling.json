@@ -1,0 +1,677 @@
+{
+  "plan": "plan/2026-10-23-inference-api (step 2, pool scaling)",
+  "status": "exploratory",
+  "question": "A (tfidf_scaled min-maxed over the uploads) vs B (over a 500-CV pool): how different is the order of the same CVs?",
+  "config": {
+    "seed": 0,
+    "n_jds": 50,
+    "sizes": [
+      5,
+      10,
+      20,
+      50,
+      100
+    ],
+    "reps": 20,
+    "relevant_from_top": 50,
+    "n_boot": 1000,
+    "text_variant": "v2",
+    "data": "A2 train-region dev pools (dev_pools.build), 500 CVs per JD; no final-set JD"
+  },
+  "strata": "none: dev pools have no generic/targeted split",
+  "jd_ids_sha256": "de60c1d99f3630792a610ee1de5a4dfbad00bbc93725847b3899250554b31bae",
+  "pairs": 25000,
+  "l1_record_sha256": "bad1cfea2eb46093761ca4a565c5bc04df11385138565c018af0c01e980f83e6",
+  "per_pair_check": {
+    "random_10": {
+      "max_diff_other_features": 0.0,
+      "max_diff_tfidf_scaled_vs_500_pool": 0.41851998292086634,
+      "max_diff_tfidf_scaled_vs_rescale": 0.0
+    },
+    "relevant_5": {
+      "max_diff_other_features": 0.0,
+      "max_diff_tfidf_scaled_vs_500_pool": 0.4406239694783278,
+      "max_diff_tfidf_scaled_vs_rescale": 0.0
+    }
+  },
+  "notes": [
+    "relevant: no n = 100 (top 50 only); at n = 50 every draw is the whole top 50",
+    "Kendall tau-b; a sub-pool with a constant score counts as tau 1"
+  ],
+  "results": [
+    {
+      "system": "L1",
+      "scenario": "random",
+      "n": 5,
+      "jds": 50,
+      "reps_per_jd": 20,
+      "kendall_tau": {
+        "value": 0.7694,
+        "ci": [
+          0.7492,
+          0.7884
+        ]
+      },
+      "top1_agree": {
+        "value": 0.802,
+        "ci": [
+          0.775,
+          0.825
+        ]
+      },
+      "topk_overlap": {
+        "value": 0.8495,
+        "ci": [
+          0.8345,
+          0.864
+        ]
+      },
+      "mean_abs_delta": {
+        "value": 5.2717,
+        "ci": [
+          5.0337,
+          5.5127
+        ]
+      }
+    },
+    {
+      "system": "L1",
+      "scenario": "random",
+      "n": 10,
+      "jds": 50,
+      "reps_per_jd": 20,
+      "kendall_tau": {
+        "value": 0.8618,
+        "ci": [
+          0.8495,
+          0.8729
+        ]
+      },
+      "top1_agree": {
+        "value": 0.863,
+        "ci": [
+          0.838,
+          0.885
+        ]
+      },
+      "topk_overlap": {
+        "value": 0.9168,
+        "ci": [
+          0.9084,
+          0.9246
+        ]
+      },
+      "mean_abs_delta": {
+        "value": 3.9504,
+        "ci": [
+          3.745,
+          4.1758
+        ]
+      }
+    },
+    {
+      "system": "L1",
+      "scenario": "random",
+      "n": 20,
+      "jds": 50,
+      "reps_per_jd": 20,
+      "kendall_tau": {
+        "value": 0.905,
+        "ci": [
+          0.8971,
+          0.9125
+        ]
+      },
+      "top1_agree": {
+        "value": 0.89,
+        "ci": [
+          0.87,
+          0.91
+        ]
+      },
+      "topk_overlap": {
+        "value": 0.943,
+        "ci": [
+          0.9377,
+          0.9476
+        ]
+      },
+      "mean_abs_delta": {
+        "value": 2.9028,
+        "ci": [
+          2.7241,
+          3.0869
+        ]
+      }
+    },
+    {
+      "system": "L1",
+      "scenario": "random",
+      "n": 50,
+      "jds": 50,
+      "reps_per_jd": 20,
+      "kendall_tau": {
+        "value": 0.9447,
+        "ci": [
+          0.9393,
+          0.9502
+        ]
+      },
+      "top1_agree": {
+        "value": 0.919,
+        "ci": [
+          0.898,
+          0.94
+        ]
+      },
+      "topk_overlap": {
+        "value": 0.9509,
+        "ci": [
+          0.9435,
+          0.9575
+        ]
+      },
+      "mean_abs_delta": {
+        "value": 1.8157,
+        "ci": [
+          1.6642,
+          1.9785
+        ]
+      }
+    },
+    {
+      "system": "L1",
+      "scenario": "random",
+      "n": 100,
+      "jds": 50,
+      "reps_per_jd": 20,
+      "kendall_tau": {
+        "value": 0.9686,
+        "ci": [
+          0.9649,
+          0.9721
+        ]
+      },
+      "top1_agree": {
+        "value": 0.944,
+        "ci": [
+          0.923,
+          0.963
+        ]
+      },
+      "topk_overlap": {
+        "value": 0.9696,
+        "ci": [
+          0.9644,
+          0.9746
+        ]
+      },
+      "mean_abs_delta": {
+        "value": 1.101,
+        "ci": [
+          0.9718,
+          1.2309
+        ]
+      }
+    },
+    {
+      "system": "L1",
+      "scenario": "relevant",
+      "n": 5,
+      "jds": 50,
+      "reps_per_jd": 20,
+      "kendall_tau": {
+        "value": 0.7406,
+        "ci": [
+          0.7124,
+          0.7684
+        ]
+      },
+      "top1_agree": {
+        "value": 0.823,
+        "ci": [
+          0.792,
+          0.853
+        ]
+      },
+      "topk_overlap": {
+        "value": 0.843,
+        "ci": [
+          0.816,
+          0.8665
+        ]
+      },
+      "mean_abs_delta": {
+        "value": 4.0541,
+        "ci": [
+          3.9,
+          4.2044
+        ]
+      }
+    },
+    {
+      "system": "L1",
+      "scenario": "relevant",
+      "n": 10,
+      "jds": 50,
+      "reps_per_jd": 20,
+      "kendall_tau": {
+        "value": 0.8318,
+        "ci": [
+          0.8112,
+          0.8528
+        ]
+      },
+      "top1_agree": {
+        "value": 0.862,
+        "ci": [
+          0.833,
+          0.893
+        ]
+      },
+      "topk_overlap": {
+        "value": 0.9102,
+        "ci": [
+          0.8974,
+          0.9236
+        ]
+      },
+      "mean_abs_delta": {
+        "value": 2.8216,
+        "ci": [
+          2.6986,
+          2.9545
+        ]
+      }
+    },
+    {
+      "system": "L1",
+      "scenario": "relevant",
+      "n": 20,
+      "jds": 50,
+      "reps_per_jd": 20,
+      "kendall_tau": {
+        "value": 0.8914,
+        "ci": [
+          0.8767,
+          0.9058
+        ]
+      },
+      "top1_agree": {
+        "value": 0.897,
+        "ci": [
+          0.864,
+          0.927
+        ]
+      },
+      "topk_overlap": {
+        "value": 0.9461,
+        "ci": [
+          0.9365,
+          0.9549
+        ]
+      },
+      "mean_abs_delta": {
+        "value": 2.0557,
+        "ci": [
+          1.9025,
+          2.2154
+        ]
+      }
+    },
+    {
+      "system": "L1",
+      "scenario": "relevant",
+      "n": 50,
+      "jds": 50,
+      "reps_per_jd": 20,
+      "kendall_tau": {
+        "value": 0.9464,
+        "ci": [
+          0.9321,
+          0.959
+        ]
+      },
+      "top1_agree": {
+        "value": 0.94,
+        "ci": [
+          0.86,
+          1.0
+        ]
+      },
+      "topk_overlap": {
+        "value": 0.966,
+        "ci": [
+          0.952,
+          0.98
+        ]
+      },
+      "mean_abs_delta": {
+        "value": 1.5906,
+        "ci": [
+          1.4024,
+          1.7974
+        ]
+      }
+    },
+    {
+      "system": "X2",
+      "scenario": "random",
+      "n": 5,
+      "jds": 50,
+      "reps_per_jd": 20,
+      "kendall_tau": {
+        "value": 0.9282,
+        "ci": [
+          0.913,
+          0.941
+        ]
+      },
+      "top1_agree": {
+        "value": 0.919,
+        "ci": [
+          0.899,
+          0.938
+        ]
+      },
+      "topk_overlap": {
+        "value": 0.9435,
+        "ci": [
+          0.9305,
+          0.9565
+        ]
+      },
+      "mean_abs_delta": {
+        "value": 0.2872,
+        "ci": [
+          0.2742,
+          0.3003
+        ]
+      }
+    },
+    {
+      "system": "X2",
+      "scenario": "random",
+      "n": 10,
+      "jds": 50,
+      "reps_per_jd": 20,
+      "kendall_tau": {
+        "value": 0.945,
+        "ci": [
+          0.9355,
+          0.9541
+        ]
+      },
+      "top1_agree": {
+        "value": 0.914,
+        "ci": [
+          0.893,
+          0.935
+        ]
+      },
+      "topk_overlap": {
+        "value": 0.9652,
+        "ci": [
+          0.9574,
+          0.9722
+        ]
+      },
+      "mean_abs_delta": {
+        "value": 0.2152,
+        "ci": [
+          0.204,
+          0.2275
+        ]
+      }
+    },
+    {
+      "system": "X2",
+      "scenario": "random",
+      "n": 20,
+      "jds": 50,
+      "reps_per_jd": 20,
+      "kendall_tau": {
+        "value": 0.9578,
+        "ci": [
+          0.9516,
+          0.9638
+        ]
+      },
+      "top1_agree": {
+        "value": 0.915,
+        "ci": [
+          0.896,
+          0.933
+        ]
+      },
+      "topk_overlap": {
+        "value": 0.9728,
+        "ci": [
+          0.9676,
+          0.9777
+        ]
+      },
+      "mean_abs_delta": {
+        "value": 0.1581,
+        "ci": [
+          0.1484,
+          0.1682
+        ]
+      }
+    },
+    {
+      "system": "X2",
+      "scenario": "random",
+      "n": 50,
+      "jds": 50,
+      "reps_per_jd": 20,
+      "kendall_tau": {
+        "value": 0.9717,
+        "ci": [
+          0.9661,
+          0.9764
+        ]
+      },
+      "top1_agree": {
+        "value": 0.931,
+        "ci": [
+          0.905,
+          0.951
+        ]
+      },
+      "topk_overlap": {
+        "value": 0.9643,
+        "ci": [
+          0.9571,
+          0.9706
+        ]
+      },
+      "mean_abs_delta": {
+        "value": 0.0989,
+        "ci": [
+          0.0907,
+          0.1078
+        ]
+      }
+    },
+    {
+      "system": "X2",
+      "scenario": "random",
+      "n": 100,
+      "jds": 50,
+      "reps_per_jd": 20,
+      "kendall_tau": {
+        "value": 0.982,
+        "ci": [
+          0.9782,
+          0.985
+        ]
+      },
+      "top1_agree": {
+        "value": 0.96,
+        "ci": [
+          0.944,
+          0.974
+        ]
+      },
+      "topk_overlap": {
+        "value": 0.9725,
+        "ci": [
+          0.9672,
+          0.9777
+        ]
+      },
+      "mean_abs_delta": {
+        "value": 0.06,
+        "ci": [
+          0.0529,
+          0.067
+        ]
+      }
+    },
+    {
+      "system": "X2",
+      "scenario": "relevant",
+      "n": 5,
+      "jds": 50,
+      "reps_per_jd": 20,
+      "kendall_tau": {
+        "value": 0.8686,
+        "ci": [
+          0.8462,
+          0.8896
+        ]
+      },
+      "top1_agree": {
+        "value": 0.892,
+        "ci": [
+          0.86,
+          0.92
+        ]
+      },
+      "topk_overlap": {
+        "value": 0.9085,
+        "ci": [
+          0.8925,
+          0.9235
+        ]
+      },
+      "mean_abs_delta": {
+        "value": 0.2208,
+        "ci": [
+          0.2124,
+          0.229
+        ]
+      }
+    },
+    {
+      "system": "X2",
+      "scenario": "relevant",
+      "n": 10,
+      "jds": 50,
+      "reps_per_jd": 20,
+      "kendall_tau": {
+        "value": 0.9152,
+        "ci": [
+          0.9014,
+          0.9274
+        ]
+      },
+      "top1_agree": {
+        "value": 0.898,
+        "ci": [
+          0.869,
+          0.924
+        ]
+      },
+      "topk_overlap": {
+        "value": 0.9504,
+        "ci": [
+          0.9414,
+          0.9592
+        ]
+      },
+      "mean_abs_delta": {
+        "value": 0.1537,
+        "ci": [
+          0.147,
+          0.1609
+        ]
+      }
+    },
+    {
+      "system": "X2",
+      "scenario": "relevant",
+      "n": 20,
+      "jds": 50,
+      "reps_per_jd": 20,
+      "kendall_tau": {
+        "value": 0.9483,
+        "ci": [
+          0.9387,
+          0.9569
+        ]
+      },
+      "top1_agree": {
+        "value": 0.946,
+        "ci": [
+          0.918,
+          0.968
+        ]
+      },
+      "topk_overlap": {
+        "value": 0.9687,
+        "ci": [
+          0.9625,
+          0.9742
+        ]
+      },
+      "mean_abs_delta": {
+        "value": 0.112,
+        "ci": [
+          0.1036,
+          0.1207
+        ]
+      }
+    },
+    {
+      "system": "X2",
+      "scenario": "relevant",
+      "n": 50,
+      "jds": 50,
+      "reps_per_jd": 20,
+      "kendall_tau": {
+        "value": 0.9776,
+        "ci": [
+          0.9722,
+          0.9828
+        ]
+      },
+      "top1_agree": {
+        "value": 0.98,
+        "ci": [
+          0.94,
+          1.0
+        ]
+      },
+      "topk_overlap": {
+        "value": 0.974,
+        "ci": [
+          0.962,
+          0.986
+        ]
+      },
+      "mean_abs_delta": {
+        "value": 0.0866,
+        "ci": [
+          0.0764,
+          0.0979
+        ]
+      }
+    }
+  ],
+  "seconds": {
+    "features": 139.8,
+    "total": 167.5
+  }
+}
