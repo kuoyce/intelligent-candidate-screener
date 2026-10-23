@@ -1,6 +1,6 @@
 # Inference API: the reported system as plain functions a Streamlit app can call
 
-Status: **implemented, pending review (23 Oct 2026).** Approved by the owner 23 Oct 2026 (draft
+Status: **implemented and reviewed (23 Oct 2026); warm run of the other affected checks pending (owner to schedule).** Approved by the owner 23 Oct 2026 (draft
 v3); branch `feat/inference-api`, off `exp/chat3-holdout`. Implementation record at the end.
 Follows D63/D64 (`docs/decisions.md`); covers the entry-point half of the on-hold plan
 `2026-10-22-model-bundle-and-hosting`.
@@ -205,8 +205,7 @@ is an artifact, not training code (owner), so warm is enough.
 
 ## Open questions (owner)
 
-1. **Pool scaling A or B**, after step 2. With uploads only, A means scaling over a handful of CVs;
-   B pads them with background A2 CVs (needs `data/`, which the local setup has).
+None. Pool scaling: **B** (owner, 23 Oct 2026, after step 2); `jd_id` reuse of the C2 cache: yes (owner).
 
 ## Out of scope
 
@@ -230,7 +229,9 @@ measurement needs dev-pool features; both timed in step 2 before the full run.
 | `d228790` | Step 1: `inference/model.py` (`L1Model`, `--freeze` → `output/rerank/l1-chat3-model.json`), `inference/parts.py` (`--cache-parts`) |
 | `0dc294b` | Step 2: the pool-scaling measurement, `evaluation/pool_scaling.py` → `output/inference/pool-scaling.json` |
 | `a86c954` | Steps 3-4: `inference/schema.py`, `profiles.py`, `screener.py` |
-| (this commit) | The owner's two decisions below; step 5 (`--check`, `--demo`, registered); step 6 docs |
+| `997dcb6` | The owner's two decisions below; step 5 (`--check`, `--demo`, registered); step 6 docs |
+| `06a6a4e` | Review fix: `Screener` calls serialised by a lock (below) |
+| (next commit) | Step 7: `docs/project-overview.md` §2.6, §7, §8 |
 
 ### What was done
 
@@ -310,3 +311,21 @@ reasons and L1 shares, with no CV text.
 7. **`Screener.load(c2_cached_only=True)`** was added for the check, so it can refuse to score C2.
 8. **Step order.** The plan put the measurement (step 2) before the `Screener`; both ran in
    parallel, with both scalings implemented, and the owner chose B afterwards.
+9. **Review fix (step 4 of the workflow): `Screener` calls are serialised.** Streamlit shares one
+   `Screener` across sessions; `learned.Features` sets the CV reference date on shared state for
+   the length of a call, and the per-text caches are shared, so two overlapping calls (one A2, one
+   upload) could swap reference dates. An `RLock` runs `extract_*`, `features`, `rank`, `explain`
+   one at a time; `test_concurrent_calls_on_one_screener_run_one_at_a_time` fails without it.
+10. **Upload embeddings persist** in the SBERT weak cache under `data/processed/embeddings/` (keyed
+    by text SHA-256, no text); the whole ~64 MB file is rewritten when new texts arrive (well
+    under a second). `data/` is git-ignored.
+
+### Review (23 Oct 2026)
+
+Diff `b300943..06a6a4e` read in full for `inference/` and the shared-code edits. The shared edits
+(`learned.Features`, `ExtractedRule`, `a1_weights.extra_features`: a `reference` argument;
+`cross.score_pairs`: `progress`) keep their defaults, and the `inference --check` reproduces the
+chat-3 and C2 records through them. `uv run pytest`: 955 passed. Still to run (AGENTS testing
+rule 4, owner to confirm the time): `checks` warm over the 32 checks the branch affects. D55
+cold is not required (owner: the frozen L1 is an artifact, not training code).
+
