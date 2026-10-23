@@ -26,7 +26,6 @@ RECORD = OUTPUT / "matching" / "a2-x2-scores.csv"
 FEATURES_RECORD = OUTPUT / "matching" / "a2-features.csv"
 JD_EXTRACT_RECORD = OUTPUT / "matching" / "a2-jd-extraction.csv"
 CV_EXTRACT_RECORD = OUTPUT / "matching" / "a2-cv-extraction.csv"
-TOP_ROLES = 3
 TEXT_VARIANT = "v2"
 DECIMALS = 6
 COLUMNS = ["pair_id", "stratum", "jd_id", "cv_id", "x2_score", "x2_rank", "final_label"]
@@ -68,53 +67,37 @@ def build_features() -> pd.DataFrame:
     return out
 
 
-def _skills(text: str, matcher) -> tuple[str, str]:
-    """(affirmative, qualified) canonical skills of `text`, distinct, in order, ';'-joined."""
-    from candidate_screener.extraction.rules import _context
-    yes: dict[str, None] = {}
-    no: dict[str, None] = {}
-    for m in matcher.find(text):
-        (yes if _context(text, m.start, m.end, "text") == "unqualified" else no)[m.canonical] = None
-    return ";".join(yes), ";".join(k for k in no if k not in yes)
-
-
-def _roles(texts: list[str], side: str, model) -> pd.DataFrame:
-    """Top roles by calibrated probability: `role`, `role_prob`, `top_roles` ('label:p;...')."""
-    import numpy as np
-    from candidate_screener.extraction import role_family
-    proba = role_family.predict_proba(texts, side, model)
-    top = np.argsort(-proba, axis=1)[:, :TOP_ROLES]
-    return pd.DataFrame({
-        "role": [model.labels[i[0]] for i in top],
-        "role_prob": proba[np.arange(len(top)), top[:, 0]].round(DECIMALS),
-        "top_roles": [";".join(f"{model.labels[j]}:{row[j]:.3f}" for j in i)
-                      for i, row in zip(top, proba)]})
-
-
 def build_extraction() -> tuple[pd.DataFrame, pd.DataFrame]:
-    """(JD table, CV table): role family, vocabulary skills, years and seniority per document."""
-    from candidate_screener.extraction import experience, role_family, rules
+    """(JD table, CV table): role family, vocabulary skills, years and seniority per document.
+
+    One definition with inference: `inference.profiles` (A2 documents, so "present" in CV date
+    ranges is `experience.REFERENCE_DATE`)."""
+    from candidate_screener.extraction import role_family, rules
+    from candidate_screener.inference import profiles
     from candidate_screener.matching import corpus
     pairs = corpus.a2_pairs(text_variant=TEXT_VARIANT)
     model, matcher = role_family.load_role_model(), rules.default_matcher()
     jds = pairs.drop_duplicates("jd_id").reset_index(drop=True)
     cvs = pairs.drop_duplicates("cv_id").reset_index(drop=True)
 
-    jd = pd.concat([jds[["jd_id", "stratum", "jd_position"]].rename(columns={"jd_position": "jd_title"}),
-                    _roles(jds.jd_text.tolist(), "jd", model)], axis=1)
-    sk = [_skills(t, matcher) for t in jds.jd_text]
-    jd["skills"], jd["skills_qualified"] = [a for a, _ in sk], [b for _, b in sk]
-    exp = [experience.jd_experience(t) for t in jds.jd_text]
-    jd["min_years"], jd["max_years"] = [e.min_years for e in exp], [e.max_years for e in exp]
-    jd["seniority"] = [experience.position_seniority(t) for t in jd.jd_title]
+    jp = profiles.extract_jds(jds.jd_text, jds.jd_position, model, matcher, ids=jds.jd_id)
+    jd = pd.DataFrame({
+        "jd_id": jds.jd_id, "stratum": jds.stratum, "jd_title": jds.jd_position,
+        "role": [p.role for p in jp], "role_prob": [p.role_prob for p in jp],
+        "top_roles": [profiles.roles_text(p.top_roles) for p in jp],
+        "skills": [";".join(p.skills) for p in jp],
+        "skills_qualified": [";".join(p.skills_qualified) for p in jp],
+        "min_years": [p.min_years for p in jp], "max_years": [p.max_years for p in jp],
+        "seniority": [p.seniority for p in jp]})
 
-    cv = pd.concat([cvs[["cv_id"]], _roles(cvs.cv_text.tolist(), "cv", model)], axis=1)
-    sk = [_skills(t, matcher) for t in cvs.cv_text]
-    cv["skills"], cv["skills_qualified"] = [a for a, _ in sk], [b for _, b in sk]
-    exp = [experience.cv_experience(t) for t in cvs.cv_text]
-    cv["years"], cv["years_source"] = [e.years for e in exp], [e.source for e in exp]
-    lvl = [experience.text_seniority(t, e.years) for t, e in zip(cvs.cv_text, exp)]
-    cv["seniority"], cv["seniority_source"] = [a for a, _ in lvl], [b for _, b in lvl]
+    cp = profiles.extract_cvs(cvs.cv_text, model, matcher, ids=cvs.cv_id)
+    cv = pd.DataFrame({
+        "cv_id": cvs.cv_id, "role": [p.role for p in cp], "role_prob": [p.role_prob for p in cp],
+        "top_roles": [profiles.roles_text(p.top_roles) for p in cp],
+        "skills": [";".join(p.skills) for p in cp],
+        "skills_qualified": [";".join(p.skills_qualified) for p in cp],
+        "years": [p.years for p in cp], "years_source": [p.years_source for p in cp],
+        "seniority": [p.seniority for p in cp], "seniority_source": [p.seniority_source for p in cp]})
     if len(jd) != 60 or jd.role.isna().any() or cv.role.isna().any():
         raise SystemExit("expected 60 JDs with a role, and a role for every CV")
     return jd, cv
