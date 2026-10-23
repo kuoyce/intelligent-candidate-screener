@@ -222,3 +222,31 @@ def test_real_load_and_rank_on_new_texts_never_fit(monkeypatch, tmp_path):
                  [{"cv_id": "a", "cv_text": "Go developer, 6 years. Kubernetes, PostgreSQL, gRPC."},
                   {"cv_id": "b", "cv_text": "Accountant. Excel, SAP. 2015 - present."}], scaling="pool")
     assert [r.cv_id for r in res.ranked] == ["a", "b"] and res.system == "D63"
+
+
+def test_concurrent_calls_on_one_screener_run_one_at_a_time():
+    """Streamlit shares one Screener across sessions; the real feature path sets the reference
+    date on shared state for a call, so two calls must never overlap."""
+    import threading
+    import time
+    active, overlaps = [0], []
+    inner = featurize([])
+
+    def slow(pairs, reference):
+        active[0] += 1
+        if active[0] > 1:
+            overlaps.append(reference)
+        time.sleep(0.05)
+        try:
+            return inner(pairs, reference)
+        finally:
+            active[0] -= 1
+    s = Screener(slow, L1, extract_jds, extract_cvs, background=lambda: BACKGROUND)
+    days = [dt.date(2023, 9, 1), dt.date(2026, 10, 23)] * 3
+    threads = [threading.Thread(target=s.rank, args=(JD, cvs(3)), kwargs={"reference_date": d})
+               for d in days]
+    for t in threads:
+        t.start()
+    for t in threads:
+        t.join()
+    assert overlaps == []

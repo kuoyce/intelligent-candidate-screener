@@ -37,7 +37,8 @@ import dataclasses
 import datetime as dt
 import hashlib
 import json
-from functools import lru_cache
+import threading
+from functools import lru_cache, wraps
 
 import numpy as np
 import pandas as pd
@@ -85,6 +86,17 @@ def _years(lo, hi) -> str:
     return f"at least {n(lo)}" if lo is not None else "no number of years"
 
 
+def _serialised(method):
+    """One call at a time per `Screener`: Streamlit shares one instance across sessions, and the
+    feature path sets the CV reference date on shared state for the length of a call
+    (`learned.Features`), as the per-text caches are shared too."""
+    @wraps(method)
+    def call(self, *args, **kwargs):
+        with self._lock:
+            return method(self, *args, **kwargs)
+    return call
+
+
 def _list(items, n: int = 5) -> str:
     items = list(items)
     return ", ".join(items[:n]) + (f" and {len(items) - n} more" if len(items) > n else "")
@@ -105,6 +117,7 @@ class Screener:
         self.c2, self._background, self.c2_k, self.c2_w = c2, background, c2_k, c2_w
         self._jd_cache: dict = {}
         self._cv_cache: dict = {}
+        self._lock = threading.RLock()
 
     @classmethod
     def load(cls, parts_fingerprint: str | None = None, c2_cached_only: bool = False) -> "Screener":
@@ -150,6 +163,7 @@ class Screener:
 
     # --- documents -----------------------------------------------------------------------
 
+    @_serialised
     def extract_jd(self, jd_text: str, jd_title: str | None = None) -> JDProfile:
         key = (_digest(jd_text), jd_title)
         if key not in self._jd_cache:
@@ -164,6 +178,7 @@ class Screener:
                 self._cv_cache[k] = prof
         return [self._cv_cache[k] for k in keys]
 
+    @_serialised
     def extract_cv(self, cv_text: str, cv_id: str | None = None,
                    reference_date: dt.date | None = None) -> CVProfile:
         prof = self._cv_profiles([cv_text], reference_date or dt.date.today())[0]
@@ -216,6 +231,7 @@ class Screener:
             raise ValueError("a CV has no complete feature row")
         return own, X, len(scored)
 
+    @_serialised
     def features(self, jd_text: str, cvs, jd_title: str | None = None, scaling: str = "background",
                  reference_date: dt.date | None = None, jd_id: str | None = None) -> pd.DataFrame:
         """F12 per CV passed in, indexed by `cv_id`."""
@@ -224,6 +240,7 @@ class Screener:
         key = dict(zip(own.cv_text, own.pair_id))
         return X.loc[cvs.cv_text.map(key).to_numpy()].set_axis(cvs.cv_id.to_numpy())
 
+    @_serialised
     def rank(self, jd_text: str, cvs, jd_title: str | None = None, top_k: int = 10,
              system: str = "D63", rerank: bool = False, scaling: str = "background",
              reference_date: dt.date | None = None, progress=None,
@@ -279,6 +296,7 @@ class Screener:
 
     # --- explanation for the recruiter -------------------------------------------------------
 
+    @_serialised
     def explain(self, screening: Screening, cv_id: str) -> dict:
         """Why this CV sits where it does, in the recruiter's terms first: role, skills, years,
         then `reasons` (plain sentences); the L1 feature shares come last, for debugging. No
