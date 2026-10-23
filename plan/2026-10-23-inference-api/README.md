@@ -1,6 +1,6 @@
 # Inference API: the reported system as plain functions a Streamlit app can call
 
-Status: **implemented and reviewed (23 Oct 2026); warm run of the other affected checks pending (owner to schedule).** Approved by the owner 23 Oct 2026 (draft
+Status: **complete (24 Oct 2026).** Implemented, reviewed, and every affected check passes warm. Approved by the owner 23 Oct 2026 (draft
 v3); branch `feat/inference-api`, off `exp/chat3-holdout`. Implementation record at the end.
 Follows D63/D64 (`docs/decisions.md`); covers the entry-point half of the on-hold plan
 `2026-10-22-model-bundle-and-hosting`.
@@ -325,7 +325,9 @@ reasons and L1 shares, with no CV text.
 Diff `b300943..06a6a4e` read in full for `inference/` and the shared-code edits. The shared edits
 (`learned.Features`, `ExtractedRule`, `a1_weights.extra_features`: a `reference` argument;
 `cross.score_pairs`: `progress`) keep their defaults, and the `inference --check` reproduces the
-chat-3 and C2 records through them. `uv run pytest`: 955 passed. Still to run (AGENTS testing
-rule 4, owner to confirm the time): `checks` warm over the 32 checks the branch affects. D55
-cold is not required (owner: the frozen L1 is an artifact, not training code).
+chat-3 and C2 records through them. `uv run pytest`: 955 passed. Then (owner approved, 23-24 Oct
+2026) `checks --warm --affected b300943`: **32 passed, 0 failed**, 1 h 10 min wall (`-j 2`; the
+estimate of 15-20 min was low: `feature_arms`, `c2_validation`, `inference` and `chat3` take
+9-11 min each warm), peak RSS 7.5 GB. D55 cold is not required (owner: the frozen L1 is an
+artifact, not training code).
 

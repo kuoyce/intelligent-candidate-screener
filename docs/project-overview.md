@@ -484,7 +484,6 @@ The §1.2 table uses `chat-1` + `chat-2` instead, because L1 ranks all 500 CVs a
 | Ceiling-check results | Not found in records |
 | Reference covers X2's top 100 (+ partial `chat-2`) | Fine for compared top 10s (chat-4 empty); a wider comparison would need more scoring |
 | Hosting / packaging the system | The local entry point exists (§2.6); portability (no-pickle role model, HF Hub bundle, PII filter on vocabularies) is still the on-hold plan `2026-10-22-model-bundle-and-hosting`. The old recruiter app (`app/`) still runs its own TF-IDF draft ranker |
-| Inference API: warm checks of the shared code | `learned.py`, `extracted.py`, `a1_weights.py`, `cross.py` gained default-preserving arguments; the `inference` check passes, the other affected checks still need a warm run (owner to schedule) |
 | `entity_weighted` record | A teammate's `blocked` placeholder was regenerated (pilot_complete, not adopted); the author may want to confirm |
 | Cross-encoder fine-tuning from a reranker checkpoint | Literature suggests it; not tried |
 | Replicate of the D50 batch (Q-A1b) | Score noise unknown |
