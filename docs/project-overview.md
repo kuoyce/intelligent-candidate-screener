@@ -228,6 +228,11 @@ D64 reproduces `c2-validation-test.json` (Recall@10 0.48047, nDCG@10 0.831809).
 **Caveats.** Uploaded PDFs differ from Djinni text (`text_v2`) and nothing measures accuracy on them; a non-IT JD is still
 forced into one of the 60 IT role families (low `role_prob` is the tell); skills outside the vocabulary are not seen.
 
+**In the Hiring Desk (24 Oct 2026, plan `2026-10-24-hiring-desk-inference-api`).** New JDs rank through
+`app/portal_inference.py` over the 600 A2 final-set CVs (the owner's choice; 2023-09-01): D63 within the request (26.8 s
+for the first, including the model load), D64 opt-in on a worker thread (210 s for a new JD, uncached C2), and
+`explain`'s reasons shown per candidate. The 60 benchmark JDs stay on the CSV export (X2 over their 10 labelled CVs).
+
 ---
 
 ## 3. Data sources, in the order the design uses them
@@ -483,7 +488,7 @@ The §1.2 table uses `chat-1` + `chat-2` instead, because L1 ranks all 500 CVs a
 | Span precision/recall on a hand-checked sample (Q-B2) | Never done; role-family validation uses metadata labels |
 | Ceiling-check results | Not found in records |
 | Reference covers X2's top 100 (+ partial `chat-2`) | Fine for compared top 10s (chat-4 empty); a wider comparison would need more scoring |
-| Hosting / packaging the system | The local entry point exists (§2.6); portability (no-pickle role model, HF Hub bundle, PII filter on vocabularies) is still the on-hold plan `2026-10-22-model-bundle-and-hosting`. The old recruiter app (`app/`) still runs its own TF-IDF draft ranker |
+| Hosting / packaging the system | The local entry point exists (§2.6); portability (no-pickle role model, HF Hub bundle, PII filter on vocabularies) is still the on-hold plan `2026-10-22-model-bundle-and-hosting`. The old recruiter app (`app/`) still runs its own TF-IDF draft ranker; the Hiring Desk ranks new JDs through the API (24 Oct 2026) |
 | `entity_weighted` record | A teammate's `blocked` placeholder was regenerated (pilot_complete, not adopted); the author may want to confirm |
 | Cross-encoder fine-tuning from a reranker checkpoint | Literature suggests it; not tried |
 | Replicate of the D50 batch (Q-A1b) | Score noise unknown |

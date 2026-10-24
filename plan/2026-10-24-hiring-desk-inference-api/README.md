@@ -1,8 +1,9 @@
 # Hiring Desk on the inference API: merge `feat/inference-api` and rank new JDs through it
 
-Status: **approved by the owner (24 Oct 2026, draft v2); implementation in progress.** Branch
-`feat/hiring-desk-inference-2026-10-24`, off `feat/hiring-desk-v1-2026-10-23`; step 1 (the merge)
-is `f6a1dc8`.
+Status: **implemented and verified end to end (24 Oct 2026); approved by the owner 24 Oct 2026
+(draft v2).** Marking it complete is the owner's call (D55: no committed record is affected, so
+there is no cold check to run). Branch `feat/hiring-desk-inference-2026-10-24`, off
+`feat/hiring-desk-v1-2026-10-23`. Implementation record at the end.
 
 Builds on `plan/2026-10-23-hiring-desk-v1/` (the app and its live-ranking contract,
 `05-live-ranking-contract.md`) and `plan/2026-10-23-inference-api/` (the `inference.Screener` API).
@@ -196,3 +197,97 @@ None open.
 Retraining or retuning; extending the skill vocabulary; an HTTP service; hosting and the portable
 bundle (`plan/2026-10-22-model-bundle-and-hosting`); CV upload; moving the benchmark JDs to the API;
 Fit calls; progress bars for D64 (the contract has no progress field).
+
+## Implementation record
+
+### Commits (branch `feat/hiring-desk-inference-2026-10-24`)
+
+| Commit | What |
+|---|---|
+| `f6a1dc8` | Step 1: merge `feat/inference-api` (two doc rows resolved, both sides kept) |
+| `fb5c594` | Step 2: this plan, approved |
+| `dbb6ab4` | Steps 3-5: the adapter, the app changes, their tests, `AGENTS.md` / `README.md` |
+| (next commit) | Steps 6-7: the browser run, docs and this record |
+
+### What was done
+
+1. **Adapter** `app/portal_inference.py` (sub-agent A): `InferenceAdapter` and the module-level
+   `adapter`, as designed: pool registry `a2-final-cvs`, one worker thread in request order, D63
+   waits up to 45 s when nothing is ahead of it, D64 returns at once, dedupe and restart recovery by
+   `request_id`, CRLF normalisation, plain-typed `explain()` provenance, failures logged to
+   `logs/hiring-desk-adapter.log` without document text.
+2. **App** (sub-agent B): `RankingService.rank(system=…)` and `ranking_system` in the payload (the
+   contract docstring says so); the reranker checkbox and a queued/running caption; one
+   `Experience: …` line in `render_jd`; "Why #k" expanders for live rankings.
+3. **Docs:** `AGENTS.md` (Hiring Desk paragraph, "Where code goes"), `README.md` (launching with
+   the adapter, its limits), `docs/project-overview.md` §2.6 and §7, hiring-desk plan `README.md`,
+   `03-open-questions.md` (Q1 resolved) and `06-implementation.md` (binding done).
+
+### Deviations from the plan
+
+1. **`source_ref` drops the UUID's hyphens** (`a2-final-cvs/<cv_id without hyphens>`): the app
+   redacts source references, and a UUID whose groups are digits reads as `[NUMBER]` or a phone
+   number (53 of the 600 A2 ids). `candidate_id` is unchanged (it passes `_opaque_identity`, which
+   bypasses redaction).
+2. **Dates in provenance read "1 Sep 2023"**: the app's redaction takes an ISO date for a phone
+   number.
+3. **D64 takes a few minutes, not ~2**: 210 s (sub-agent run) and 175 s (browser run) for a new
+   JD with 50 uncached C2 pairs (3.5-5.3 s per pair, the reranker reloaded per call; peak RSS
+   4.56 GB), 2.9 s once cached. The UI and docs say "a few minutes".
+4. **The experience line** reads back exactly for min-max, "at least" and none; "up to 6 years"
+   reads as 0-6; equal bounds render "3-3 years"; the extractor ignores JD requirements above 20
+   years (`JD_MAX_YEARS`), so the model sees none, while the app accepts 0-100.
+5. **The tests' unknown-system value is "X2"**, not the next decision-style number:
+   `test_decisions` reads any such number as a citation of a missing decision.
+6. The queued/running caption mentions D64's few minutes whichever system the request used.
+
+### Verification
+
+- **Unit tests** (no `data/`): adapter 11 tests, each guarding one shown failing against a broken
+  copy (13 mutations, `logs/hiring-desk-adapter-mutant-*.log`); app tests for `ranking_system`, the
+  checkbox, the years round trip (64 cases) and "Why #k", each shown failing against the old code
+  (`logs/hiring-desk-app-mutant-*.log`).
+- **`uv run pytest`** (final run, after the docs): 1801 passed, 38 skipped, 1 failed
+  (`test_decisions`, deviation 5, tripped once by a test value and once by this record's wording);
+  after the fix `test_decisions` passes, the only test that reads these files. Logs:
+  `logs/hiring-desk-inference-pytest-final.log`, `logs/hiring-desk-inference-pytest-decisions.log`.
+- **Checks:** none. The affected-check selector over the changed files selects none; the merged
+  research code equals `feat/inference-api`'s (Testing rule 3).
+- **Real data, adapter alone** (sub-agent A; the owner's published JD read-only): D63 ready on
+  submit in 29.5 s cold including the model load; D64 queued at once and ready at 210 s; every
+  ready response passed the app's `_ready_snapshot`. Model `D63 frozen L1 (l1-chat3-model.json
+  bad1cfea2eb4)`; pool version `a2-final-cvs:520cfe4a65dba359`, 600 eligible.
+- **Browser, end to end** (24 Oct 2026; an isolated worktree with its own empty
+  `data/processed/hr-portal/` and a throwaway account; nothing written to the real workspace): sign
+  in; the 60 CSV reviews load as before; a new "Data Scientist" JD built through the guided
+  questions renders `Experience: 2-6 years`; published; **Rank candidates** returned ready within
+  the request (26.8 s, 16.1 s of it the model load). The review shows "Live ranking · 10
+  applicants", the JD's recognised skills (machine learning, Python, SQL, tensorflow, computer
+  science; "statistics" is outside the vocabulary) and "2-6 years"; "Ranking details" shows the
+  model id and score meaning; **Why #1** lists the role match, 3 of 5 skills, the missing ones and
+  the years; **Open CV** shows the redacted text; **Compare candidates** renders its table;
+  **Prepare top10 package** reports ten applicants. **Re-rank** with the reranker ticked returned
+  `queued` at once with "Refresh ranking status"; the worker finished D64 in 175.3 s (50 uncached C2
+  pairs). **Refresh ranking status** then marked the open D63 review historical (the app binds a
+  saved review to its snapshot) and **Refresh rankings** opened the D64 one: model `D64 frozen L1 +
+  C2 on its top 50, w 0.25`, its score meaning, and **Why #1** adding "Its place within the top 50
+  was refined by the reranker (C2)" and "Ranked 1 of 600 (D64)". Server peak RSS over the 13.8-min
+  session: 4.64 GB. The server log holds 202 harmless "Examining the path of transformers.models…
+  raised" tracebacks (Streamlit's file watcher probing `transformers`' lazy image modules, which
+  need `torchvision`, once a transformers model is loaded); `--server.fileWatcherType none` would
+  silence them. Afterwards the worktree and its throwaway account were removed.
+
+### Still lacking (for the owner)
+
+- **No CV intake.** The pool is fixed to the 600 A2 final-set CVs; uploads (the API's intended
+  path) would need a Hiring Desk upload step.
+- **What the model can read:** vocabulary skills only; required and preferred count alike;
+  experience above 20 years is ignored; nothing measures accuracy on app-authored JD text.
+- **D64 cost:** minutes per new JD and a 4.6 GB peak, because `cross.score_pairs` reloads the
+  reranker on every call; no progress reaches the UI (the contract has no field for it).
+- **Jobs live in memory:** a restart loses an in-flight job; it reruns on the next status refresh
+  (cached C2 scores make that fast).
+- **App rules can still fail a whole ranking** for other pools: a CV over 60,000 characters, or one
+  containing "Bearer <word>". No A2 CV does either.
+- **The owner's existing JD** ("Data Scientist", revision 11) keeps its old text: edit and re-publish
+  it for the new experience line, then rank.
