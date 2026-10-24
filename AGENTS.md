@@ -46,6 +46,10 @@ uv run python -m candidate_screener.evaluation.stage1_classifier --check  # S1/S
 uv run python -m candidate_screener.evaluation.rerank_chat --check --warm  # S3: rerankers on chat-1 (cold ~9 h: retrains L3)
 uv run python -m candidate_screener.evaluation.stage1_threshold --check  # step 4a: stage-1 threshold end to end (~4 min)
 uv run python -m candidate_screener.evaluation.feature_arms --check  # step 4b: feature arms, both stages (~13 min)
+uv run python -m candidate_screener.inference --cache-parts  # saved concept df + TF-IDF space for the API (~40 s)
+uv run python -m candidate_screener.inference --freeze       # L1 -> output/rerank/l1-chat3-model.json (done; ~2 min)
+uv run python -m candidate_screener.inference --check        # the inference API vs the committed records (~12 min)
+uv run python -m candidate_screener.inference --demo JD_ID   # a final-set JD's top 10 through the API (no CV text)
 uv run pytest                                                   # the suite (no data needed)
 uv run python -m candidate_screener.checks                      # warm checks your uncommitted changes affect
 uv run python -m candidate_screener.checks --warm --all         # every live record, warm (D55)
@@ -71,6 +75,7 @@ base `uv run pytest` must pass without the `ml` and `app` groups: model-dependen
 | Matching systems (ladder rungs) | `matching/`: every rung implements `matching.base.System` |
 | Extraction (vocabulary, rules, NER) | `extraction/` |
 | Evidence layer and end-to-end pipeline | `evidence/`, `pipeline.py` |
+| The reported system's inference API for apps (D63/D64, uploads only, loads and never fits) | `inference/`: `Screener` |
 | Recruiter UI | `app/`: tested screening/QA services, `intents.py` fallback, Streamlit as thin transport |
 | Conversational inference | `llm/`: frozen local extractive QA/runtime; historical Qwen service; never annotation or training |
 | Frozen annotation instrument | `annotation/`: read-only (D42) |

@@ -55,9 +55,10 @@ def load(cfg: dict):
 
 
 def score_pairs(pairs: pd.DataFrame, name: str, root: Path = ROOT, chunk: int = CHUNK,
-                cached_only: bool = False) -> pd.Series:
+                cached_only: bool = False, progress=None) -> pd.Series:
     """Raw scores for `pairs` (`pair_id`, `jd_text`, `cv_text`) by pair id; scores only what the
-    cache lacks, writing every `chunk` pairs. `cached_only` refuses to score anything."""
+    cache lacks, writing every `chunk` pairs. `cached_only` refuses to score anything.
+    `progress(done, total)`, if given, is called with the pairs ready so far (cached included)."""
     cfg = config(name)
     out = root / neural.fingerprint(cfg)
     want = pairs.drop_duplicates("pair_id").assign(
@@ -69,6 +70,8 @@ def score_pairs(pairs: pd.DataFrame, name: str, root: Path = ROOT, chunk: int = 
     todo = todo[todo._merge == "left_only"]
     if len(todo) and cached_only:
         raise ValueError(f"{name}: {len(todo)} of {len(want)} pairs are not cached")
+    if progress is not None:
+        progress(len(want) - len(todo), len(want))
     if len(todo):
         import torch
         model = load(cfg)
@@ -85,6 +88,8 @@ def score_pairs(pairs: pd.DataFrame, name: str, root: Path = ROOT, chunk: int = 
             new.append(frame)
             done = start + len(part)
             _log(f"{name}: {done}/{len(todo)} pairs, {(time.time() - t0) / done:.1f} s/pair")
+            if progress is not None:
+                progress(len(want) - len(todo) + done, len(want))
         _log(f"{name}: {len(todo)} pairs in {time.time() - t0:.0f} s")
         have = pd.concat([have, *new], ignore_index=True)
         del model

@@ -72,14 +72,21 @@ class Features:
             self.sbert = sbert.SbertWeak(TEXT_VARIANT)
             self.sbert.fit(None)
 
-    def __call__(self, pairs: pd.DataFrame, columns=F12) -> pd.DataFrame:
+    def __call__(self, pairs: pd.DataFrame, columns=F12, reference=None) -> pd.DataFrame:
+        """`reference`: "present" in CV date ranges (None = `experience.REFERENCE_DATE`)."""
         self._load()
         if self.strip_negated:
             from candidate_screener.evaluation.score_defects import strip_negated
             pairs = pairs.assign(cv_text=pairs.cv_text.map(strip_negated))
-        x = aw.features(self.scorer, pairs)
+        rule, before = self.scorer.rule, self.scorer.rule.reference
+        reference = before if reference is None else reference
+        rule.reference = reference
+        try:
+            x = aw.features(self.scorer, pairs)
+        finally:
+            rule.reference = before
         if set(columns) - set(aw.FEATURES):
-            x = x.join(aw.extra_features(self.scorer, pairs))
+            x = x.join(aw.extra_features(self.scorer, pairs, reference=reference))
         text = pairs[["pair_id", "jd_id", "cv_id", "jd_text", "cv_text"]]
         if "sbert" in columns:
             x["sbert"] = self.sbert.score(text).loc[x.index].to_numpy()

@@ -81,8 +81,10 @@ def llm_labels() -> pd.Series:
     return d.set_index("pair_id").label.isin(final_set.FIT_CLASSES).astype(int)
 
 
-def extra_features(model, pairs: pd.DataFrame) -> pd.DataFrame:
-    """Concept, skill and experience terms for `pairs`, from text alone (D53)."""
+def extra_features(model, pairs: pd.DataFrame, reference=None) -> pd.DataFrame:
+    """Concept, skill and experience terms for `pairs`, from text alone (D53).
+
+    `reference`: "present" in CV date ranges; None = `experience.REFERENCE_DATE`."""
     from candidate_screener.extraction import experience
     from candidate_screener.extraction.rules import default_matcher
     matcher, ex, freq = default_matcher(), model.extractor, model.frequencies
@@ -91,7 +93,7 @@ def extra_features(model, pairs: pd.DataFrame) -> pd.DataFrame:
         j, c = ex.concepts(jd, "jd"), ex.concepts(cv, "cv")
         sj, sc = matcher.canonicals(jd), matcher.canonicals(cv)
         jd_years = experience.jd_experience(jd).min_years
-        cv_years = experience.cv_experience(cv).years
+        cv_years = experience.cv_experience(cv, reference or experience.REFERENCE_DATE).years
         known = jd_years is not None and cv_years is not None
         rows.append({
             "coverage_unweighted": freq.coverage(j, c, False),
