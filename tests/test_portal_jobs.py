@@ -226,7 +226,7 @@ def test_guided_flow_skip_and_full_deterministic_render(service, fields):
     text = render_jd(fields)
     assert text == render_jd(dict(reversed(list(fields.items()))))
     assert "Required:\n- Python\nPreferred:\n- SQL" in text
-    assert "Minimum years: 0" in text and "Maximum years: Not specified" in text
+    assert "Experience: at least 0 years" in text and "Minimum years" not in text
     assert "Relevant degree" in text and "Work arrangement: Hybrid" in text
     assert validate_fields({"skills": ["Python"]})["skills"]["required"] == ["Python"]
     assert "Not specified" in render_jd({})
@@ -286,3 +286,19 @@ def test_jobs_v2_additive_migration_preserves_original_reads_and_legacy_store(se
         assert db.execute("SELECT read_at FROM operational_events WHERE event_id=?", (publication,)).fetchone() == (old_read_at,)
     assert store.load_session(principal, legacy["session_id"])["revision"] == 0
     assert store.list_events(principal)[0]["read_at"] is not None
+
+
+@pytest.mark.parametrize("low", [None, 0, 0.5, 1, 1.5, 2, 3, 10, 20, 100])
+@pytest.mark.parametrize("high", [None, 0, 0.5, 1, 1.5, 2, 3, 10, 20, 100])
+def test_rendered_experience_reads_back_through_the_ranking_extractor(fields, low, high):
+    """The model reads the JD text only (D53), so the entered years must survive as text.
+    Its extractor ignores requirements above JD_MAX_YEARS and reads "up to" as from zero."""
+    from candidate_screener.extraction.experience import JD_MAX_YEARS, jd_experience
+    if low is not None and high is not None and low > high:
+        pytest.skip("validate_fields refuses a minimum above the maximum")
+    found = jd_experience(render_jd({**fields, "min_years": low, "max_years": high}))
+    if any(value is not None and value > JD_MAX_YEARS for value in (low, high)):
+        expected = (None, None)
+    else:
+        expected = (0 if low is None and high is not None else low, high)
+    assert (found.min_years, found.max_years) == expected

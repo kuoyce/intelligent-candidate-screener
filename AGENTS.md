@@ -76,7 +76,7 @@ base `uv run pytest` must pass without the `ml` and `app` groups: model-dependen
 | Extraction (vocabulary, rules, NER) | `extraction/` |
 | Evidence layer and end-to-end pipeline | `evidence/`, `pipeline.py` |
 | The reported system's inference API for apps (D63/D64, uploads only, loads and never fits) | `inference/`: `Screener` |
-| Recruiter UI | `app/`: tested screening/QA services, `intents.py` fallback, Streamlit as thin transport |
+| Recruiter UI | `app/`: tested screening/QA services, `intents.py` fallback, Streamlit as thin transport; `portal_inference.py` binds new JDs to `inference.Screener` |
 | Conversational inference | `llm/`: frozen local extractive QA/runtime; historical Qwen service; never annotation or training |
 | Frozen annotation instrument | `annotation/`: read-only (D42) |
 | Tests | `tests/`, run as `uv run pytest` |
@@ -98,6 +98,14 @@ ranking adapter. Operational JD revisions and live ranking records stay outside
 benchmark labels/training. New handoff packages contain ten redacted CVs;
 historical eight-CV packages remain readable. Department email captures are local
 demonstrations, never reported as mailbox delivery (D60 (entity/app)).
+
+New JDs rank through the inference API (plan `2026-10-24-hiring-desk-inference-api`):
+`HR_PORTAL_RANKING_ADAPTER=candidate_screener.app.portal_inference:adapter` with
+`HR_PORTAL_CANDIDATE_POOL=a2-final-cvs`, the 600 A2 final-set CVs (the owner's choice). D63
+answers in seconds; D64 is opt-in and runs on the adapter's worker thread (a few minutes, then
+**Refresh ranking status**). The adapter passes the model only the JD text and title and
+each CV's id and text (D53, D54), reads no labels, and logs failures to
+`logs/hiring-desk-adapter.log`. The 60 benchmark JDs stay on the CSV export.
 
 Primary v1 chat uses the existing RoBERTa-SQuAD2 span extractor and private
 GLiNER-medium entity caches. Comparisons are assembled from validated source

@@ -343,22 +343,30 @@ saved locally. Resume/edit a draft, confirm the preview, then publish and reques
 candidate ranking. Operational JDs and ranking snapshots live separately from
 benchmark labels and training data in the local workspace database.
 
-Connect the teammate's live model with trusted runtime configuration:
+New JDs rank through the inference API (`inference.Screener`, plan
+[2026-10-24-hiring-desk-inference-api](plan/2026-10-24-hiring-desk-inference-api/README.md)).
+Once per machine, `uv run python -m candidate_screener.inference --cache-parts`; then launch with:
 
 ```bash
-export HR_PORTAL_RANKING_ADAPTER=your_package.your_module:rank_adapter
-export HR_PORTAL_CANDIDATE_POOL=your-authorized-pool
+export HR_PORTAL_RANKING_ADAPTER=candidate_screener.app.portal_inference:adapter
+export HR_PORTAL_CANDIDATE_POOL=a2-final-cvs
+uv run streamlit run src/candidate_screener/app/streamlit_app.py --server.address 127.0.0.1 --server.port 8503
 ```
 
-The adapter implements `adapter(operation, payload) -> dict` for `submit` and
-`status`, with request/revision identity, model/pool provenance and validated
-candidate results. Long inference returns a queued/running handle promptly; use
-**Refresh ranking status** to check completion. See the
-[adapter contract](plan/2026-10-23-hiring-desk-v1/05-live-ranking-contract.md) and
-the detailed schema in `app/portal_ranking.py`. Until connected, new JDs remain
-saved with an explicit unavailable state; existing CSV reviews still work. No
-model is trained at startup. A real run with the teammate's interface remains
-necessary to verify live integration.
+The pool is the 600 A2 final-set CVs (reference date 2023-09-01); no labels are read. **Rank
+candidates** runs D63 and usually returns within the click (the first request also loads the model,
+about half a minute). Tick **Refine the top 50 with the reranker** for D64: it runs in the
+background for a few minutes (210 s for a new JD on 24 Oct 2026; seconds once its C2 scores are
+cached, peak RSS 4.6 GB while the reranker loads); use **Refresh ranking status** to fetch it. **Top10 ranked CVs**
+then shows a **Why #k** panel per applicant: the model's own reasons (role family, matched and
+missing JD skills, years), not a Fit decision. The model reads the JD text only: skills outside its
+vocabulary (ESCO ICT + data_jobs) are invisible to it, required and preferred count alike, and it
+ignores experience requirements above 20 years. Failures show in the app as a generic message; the
+cause is in `logs/hiring-desk-adapter.log`. Any other adapter implementing the
+[contract](plan/2026-10-23-hiring-desk-v1/05-live-ranking-contract.md) (`adapter(operation,
+payload) -> dict`, schema in `app/portal_ranking.py`) can be configured instead. Without an
+adapter, new JDs stay saved with an explicit unavailable state; existing CSV reviews still work. No
+model is trained at startup.
 
 **Alerts** records JD publication, ranking ready/failed and local email
 captured/failed events. Read/unread controls and Open job preserve access checks.

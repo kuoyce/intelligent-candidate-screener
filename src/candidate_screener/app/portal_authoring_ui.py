@@ -153,6 +153,7 @@ def _ranking_controls(controller, job):
     if request_id:
         request = service.get(request_id)
         if request["status"] in {"queued", "running"}:
+            st.caption("Ranking runs in the background; the D64 reranker takes a few minutes. Use Refresh ranking status to fetch the result.")
             if st.button("Refresh ranking status", key="portal_refresh_rank_" + job["job_id"]):
                 with st.spinner("Checking the ranking service…"):
                     service.refresh(request_id)
@@ -161,9 +162,10 @@ def _ranking_controls(controller, job):
             st.warning(request.get("error") or "The ranking request could not complete. Retry when the service is available.")
     if not request_id or job["ranking_status"] in {"ready", "failed", "service_unavailable"}:
         label = "Rank candidates" if not request_id else "Re-rank candidates" if job["ranking_status"] == "ready" else "Retry ranking"
+        refine = st.checkbox("Refine the top 50 with the reranker (D64, a few minutes)", key="portal_rank_d64_" + job["job_id"])
         if st.button(label, key="portal_rank_" + job["job_id"], type="primary"):
             with st.spinner("Submitting the confirmed JD for ranking…"):
-                service.rank(job["job_id"], job["revision"], rerank=bool(request_id))
+                service.rank(job["job_id"], job["revision"], rerank=bool(request_id), system="D64" if refine else "D63")
             st.rerun()
 
 

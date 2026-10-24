@@ -361,6 +361,15 @@ def _review(controller, session_id):
         st.dataframe(pd.DataFrame([{"Rank": c["rank"], "Applicant": c["cv_id"], "Ranking score": c["score"],
                                    "CV preview": "Available" if c["preview_status"] != "unavailable" else "Unavailable"} for c in candidates]), hide_index=True)
         st.caption("Scores are copied from the backend. See Ranking details for their meaning; inspect source evidence for context.")
+        if snapshot.source_flags.get("source_type") == "operational_live":
+            reasons = [(c, (c.get("evidence_provenance") or {}).get("reasons")) for c in candidates]
+            if any(isinstance(lines, list) and lines for _, lines in reasons):
+                st.caption("Why each applicant ranks here: the ranking model's own reasons (role, skills, years), not a Fit decision.")
+            for candidate, lines in reasons:
+                if isinstance(lines, list) and lines:
+                    with st.expander(f"Why #{candidate['rank']} · {candidate['cv_id']}"):
+                        for line in lines:
+                            st.write(redact_text(str(line)))
     elif action == "Requirement evidence":
         category = st.selectbox("Which requirement category?", CATEGORIES, key="portal_category_" + session_id)
         st.write("**JD mentions:** " + evidence_text(snapshot.jd_entities[category]))
