@@ -46,7 +46,8 @@ class ConceptExtractor:
             self.matcher = SkillMatcher(pd.DataFrame(
                 [(v, k) for k, v in self.aliases.items()], columns=["canonical", "alias"]))
 
-    def concepts(self, text: str, side: str = "cv") -> frozenset[str]:
+    def _mention_list(self, text: str, side: str) -> tuple[str, ...]:
+        """One concept id per unqualified mention, in reading order."""
         if side not in {"cv", "jd"}:
             raise ValueError("side must be jd or cv")
         key = (str(text), side)
@@ -54,29 +55,46 @@ class ConceptExtractor:
             self._prepare()
             if self.entities is None:
                 from candidate_screener.extraction.rules import _context
-                self._cache[key] = frozenset(
-                    match.canonical for match in self.matcher.find(str(text))
-                    if _context(str(text), match.start, match.end, "text") == "unqualified")
-                return self._cache[key]
+                out = [match.canonical for match in self.matcher.find(str(text))
+                       if _context(str(text), match.start, match.end, "text") == "unqualified"]
             else:
-                rows = self.entities(str(text), side)
-            out = set()
-            for row in rows:
-                if row.get("label") not in {"SKILL", "KNOWLEDGE"}:
-                    continue
-                if row.get("context_status") != "unqualified":
-                    continue
-                phrase = normalized_phrase(row.get("surface", row.get("text", "")))
-                if phrase:
-                    out.add(self.aliases.get(phrase, "unknown:" + phrase))
-            self._cache[key] = frozenset(out)
+                out = []
+                for row in self.entities(str(text), side):
+                    if row.get("label") not in {"SKILL", "KNOWLEDGE"}:
+                        continue
+                    if row.get("context_status") != "unqualified":
+                        continue
+                    phrase = normalized_phrase(row.get("surface", row.get("text", "")))
+                    if phrase:
+                        out.append(self.aliases.get(phrase, "unknown:" + phrase))
+            self._cache[key] = tuple(out)
         return self._cache[key]
+
+    def concepts(self, text: str, side: str = "cv") -> frozenset[str]:
+        return frozenset(self._mention_list(text, side))
+
+    def mentions(self, text: str, side: str = "cv") -> Counter:
+        """How often each concept is mentioned (unqualified) in the text."""
+        return Counter(self._mention_list(text, side))
 
 
 class DocumentFrequency:
     """Train-only CV document frequency; repeated rows and mentions count once."""
 
-    def __init__(self, extractor: ConceptExtractor):
+    def __init__(self, extractor: ConceptExtractor, unknown: str = "flat",
+                 min_df: int = 0, top_k: int | None = None, mention_ties: bool = False):
+        """Weighting variants (plan 2026-10-13-coverage-weighting-variants); defaults are W0.
+
+        ``unknown="idf"`` weights unknown phrases by train df (W1); ``min_df`` keeps an unknown
+        phrase seen in fewer train CVs at weight 1 (W3); ``top_k`` keeps only the JD's k
+        heaviest concepts in numerator and denominator (W2); ``mention_ties`` breaks weight ties by
+        the JD's mention count before the lexical order (W2b)."""
+        if unknown not in {"flat", "idf"}:
+            raise ValueError("unknown must be 'flat' or 'idf'")
+        if min_df < 0 or (top_k is not None and top_k < 1):
+            raise ValueError("min_df must be >= 0 and top_k >= 1")
+        self.unknown, self.min_df, self.top_k = unknown, min_df, top_k
+        self.mention_ties = mention_ties
         self.extractor = extractor
         self.df = Counter()
         self.n_documents = 0
@@ -100,18 +118,30 @@ class DocumentFrequency:
         self.df, self.n_documents, self.fitted = counts, len(unique), True
         return self
 
+    def variant(self, unknown: str = "flat", min_df: int = 0, top_k: int | None = None,
+                mention_ties: bool = False):
+        """A view with another weighting mode over the same fitted counts."""
+        v = DocumentFrequency(self.extractor, unknown, min_df, top_k, mention_ties)
+        v.df, v.n_documents, v.fitted = self.df, self.n_documents, self.fitted
+        return v
+
     def weight(self, concept: str) -> float:
         if not self.fitted:
             raise ValueError("IDF has not been fitted on training CVs")
-        if concept.startswith("unknown:"):
+        if concept.startswith("unknown:") and (self.unknown == "flat" or self.df[concept] < self.min_df):
             return 1.0
         return min(5.0, 1 + math.log((self.n_documents + 1) / (self.df[concept] + 1)))
 
-    def coverage(self, jd_concepts, cv_concepts, weighted=True) -> float:
+    def coverage(self, jd_concepts, cv_concepts, weighted=True, jd_mentions=None) -> float:
         wanted, held = set(jd_concepts), set(cv_concepts)
         if not wanted:
             return 0.0
         weights = {s: self.weight(s) if weighted else 1.0 for s in wanted}
+        if self.top_k is not None and len(weights) > self.top_k:
+            counts = jd_mentions if (self.mention_ties and jd_mentions) else {}
+            keep = sorted(weights, key=lambda s: (-weights[s], -counts.get(s, 0), s))[:self.top_k]
+            weights = {s: weights[s] for s in keep}
+            wanted = set(keep)
         return sum(weights[s] for s in wanted & held) / sum(weights.values())
 
 

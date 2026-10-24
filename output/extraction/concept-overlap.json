@@ -1,0 +1,227 @@
+{
+  "gate_passed_on_a2_final": [
+    "R+N"
+  ],
+  "gate_pp": 5.0,
+  "sets": {
+    "A1 LLM-labelled": {
+      "gate": {
+        "base_no_overlap_share": 0.4726134585289515,
+        "cut_pp": {
+          "G": -31.768388106416275,
+          "N": -7.824726134585286,
+          "R+G": 0.1564945226917025,
+          "R+N": 7.981220657276994
+        },
+        "passing": [
+          "R+N"
+        ]
+      },
+      "jaccard_G_N_cv": 0.0686524690654957,
+      "jaccard_G_N_jd": 0.060573385122461104,
+      "stats": {
+        "G": {
+          "cv_zero_share": 0.17834394904458598,
+          "cvs": 157,
+          "jd_le3_share": 0.69,
+          "jd_zero_share": 0.25,
+          "jds": 100,
+          "median_cv_concepts": 7.0,
+          "median_jd_concepts": 2.0,
+          "no_overlap_share": 0.7902973395931142,
+          "pairs": 639
+        },
+        "N": {
+          "cv_zero_share": 0.0,
+          "cvs": 157,
+          "jd_le3_share": 0.01,
+          "jd_zero_share": 0.0,
+          "jds": 100,
+          "median_cv_concepts": 83.0,
+          "median_jd_concepts": 34.0,
+          "no_overlap_share": 0.5508607198748043,
+          "pairs": 639
+        },
+        "R": {
+          "cv_zero_share": 0.01910828025477707,
+          "cvs": 157,
+          "jd_le3_share": 0.47,
+          "jd_zero_share": 0.16,
+          "jds": 100,
+          "median_cv_concepts": 10.0,
+          "median_jd_concepts": 4.0,
+          "no_overlap_share": 0.4726134585289515,
+          "pairs": 639
+        },
+        "R+G": {
+          "cv_zero_share": 0.01910828025477707,
+          "cvs": 157,
+          "jd_le3_share": 0.38,
+          "jd_zero_share": 0.1,
+          "jds": 100,
+          "median_cv_concepts": 13.0,
+          "median_jd_concepts": 5.0,
+          "no_overlap_share": 0.47104851330203446,
+          "pairs": 639
+        },
+        "R+N": {
+          "cv_zero_share": 0.0,
+          "cvs": 157,
+          "jd_le3_share": 0.01,
+          "jd_zero_share": 0.0,
+          "jds": 100,
+          "median_cv_concepts": 89.0,
+          "median_jd_concepts": 37.0,
+          "no_overlap_share": 0.39280125195618154,
+          "pairs": 639
+        }
+      }
+    },
+    "A2 final": {
+      "gate": {
+        "base_no_overlap_share": 0.5333333333333333,
+        "cut_pp": {
+          "G": -24.33333333333333,
+          "N": -11.16666666666667,
+          "R+G": 0.33333333333332993,
+          "R+N": 5.833333333333335
+        },
+        "passing": [
+          "R+N"
+        ]
+      },
+      "jaccard_G_N_cv": 0.15358880752994264,
+      "jaccard_G_N_jd": 0.11863000200284105,
+      "stats": {
+        "G": {
+          "cv_zero_share": 0.185,
+          "cvs": 600,
+          "jd_le3_share": 0.36666666666666664,
+          "jd_zero_share": 0.06666666666666667,
+          "jds": 60,
+          "median_cv_concepts": 4.0,
+          "median_jd_concepts": 5.0,
+          "no_overlap_share": 0.7766666666666666,
+          "pairs": 600
+        },
+        "N": {
+          "cv_zero_share": 0.01,
+          "cvs": 600,
+          "jd_le3_share": 0.016666666666666666,
+          "jd_zero_share": 0.0,
+          "jds": 60,
+          "median_cv_concepts": 18.0,
+          "median_jd_concepts": 28.0,
+          "no_overlap_share": 0.645,
+          "pairs": 600
+        },
+        "R": {
+          "cv_zero_share": 0.12833333333333333,
+          "cvs": 600,
+          "jd_le3_share": 0.3333333333333333,
+          "jd_zero_share": 0.03333333333333333,
+          "jds": 60,
+          "median_cv_concepts": 5.0,
+          "median_jd_concepts": 6.0,
+          "no_overlap_share": 0.5333333333333333,
+          "pairs": 600
+        },
+        "R+G": {
+          "cv_zero_share": 0.07333333333333333,
+          "cvs": 600,
+          "jd_le3_share": 0.2,
+          "jd_zero_share": 0.0,
+          "jds": 60,
+          "median_cv_concepts": 7.0,
+          "median_jd_concepts": 8.0,
+          "no_overlap_share": 0.53,
+          "pairs": 600
+        },
+        "R+N": {
+          "cv_zero_share": 0.0033333333333333335,
+          "cvs": 600,
+          "jd_le3_share": 0.016666666666666666,
+          "jd_zero_share": 0.0,
+          "jds": 60,
+          "median_cv_concepts": 21.0,
+          "median_jd_concepts": 30.5,
+          "no_overlap_share": 0.475,
+          "pairs": 600
+        }
+      }
+    },
+    "D50": {
+      "gate": {
+        "base_no_overlap_share": 0.562,
+        "cut_pp": {
+          "G": -18.699999999999996,
+          "N": -10.599999999999998,
+          "R+G": 0.30000000000000027,
+          "R+N": 6.300000000000006
+        },
+        "passing": [
+          "R+N"
+        ]
+      },
+      "jaccard_G_N_cv": 0.17081343357154255,
+      "jaccard_G_N_jd": 0.12493202104203567,
+      "stats": {
+        "G": {
+          "cv_zero_share": 0.181,
+          "cvs": 1000,
+          "jd_le3_share": 0.44,
+          "jd_zero_share": 0.1,
+          "jds": 100,
+          "median_cv_concepts": 3.0,
+          "median_jd_concepts": 4.5,
+          "no_overlap_share": 0.749,
+          "pairs": 1000
+        },
+        "N": {
+          "cv_zero_share": 0.009,
+          "cvs": 1000,
+          "jd_le3_share": 0.0,
+          "jd_zero_share": 0.0,
+          "jds": 100,
+          "median_cv_concepts": 16.0,
+          "median_jd_concepts": 23.5,
+          "no_overlap_share": 0.668,
+          "pairs": 1000
+        },
+        "R": {
+          "cv_zero_share": 0.142,
+          "cvs": 1000,
+          "jd_le3_share": 0.39,
+          "jd_zero_share": 0.12,
+          "jds": 100,
+          "median_cv_concepts": 4.0,
+          "median_jd_concepts": 5.0,
+          "no_overlap_share": 0.562,
+          "pairs": 1000
+        },
+        "R+G": {
+          "cv_zero_share": 0.068,
+          "cvs": 1000,
+          "jd_le3_share": 0.25,
+          "jd_zero_share": 0.03,
+          "jds": 100,
+          "median_cv_concepts": 6.0,
+          "median_jd_concepts": 8.0,
+          "no_overlap_share": 0.559,
+          "pairs": 1000
+        },
+        "R+N": {
+          "cv_zero_share": 0.007,
+          "cvs": 1000,
+          "jd_le3_share": 0.0,
+          "jd_zero_share": 0.0,
+          "jds": 100,
+          "median_cv_concepts": 18.0,
+          "median_jd_concepts": 26.5,
+          "no_overlap_share": 0.499,
+          "pairs": 1000
+        }
+      }
+    }
+  }
+}

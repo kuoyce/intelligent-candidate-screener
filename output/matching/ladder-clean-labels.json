@@ -1,0 +1,3900 @@
+{
+  "a": "extracted rule + TF-IDF",
+  "b": "extracted rule + SBERT (weak fine-tuned)",
+  "comparison": "extracted rule + SBERT (weak fine-tuned) vs extracted rule + TF-IDF",
+  "decides": "nothing",
+  "deltas": [
+    {
+      "ci": [
+        0.000738,
+        0.057744
+      ],
+      "delta": 0.027719,
+      "half_width": 0.028503,
+      "metric": "auc",
+      "n_jd": 39,
+      "scope": "generic",
+      "subset": "all"
+    },
+    {
+      "ci": [
+        -0.107673,
+        0.019561
+      ],
+      "delta": -0.041006,
+      "half_width": 0.063617,
+      "metric": "auc",
+      "n_jd": 20,
+      "scope": "targeted",
+      "subset": "all"
+    },
+    {
+      "ci": [
+        -0.025934,
+        0.032969
+      ],
+      "delta": 0.004422,
+      "half_width": 0.029451,
+      "metric": "auc",
+      "n_jd": 59,
+      "scope": "total",
+      "subset": "all"
+    },
+    {
+      "ci": [
+        -0.009049,
+        0.050089
+      ],
+      "delta": 0.019659,
+      "half_width": 0.029569,
+      "metric": "auc",
+      "n_jd": 38,
+      "scope": "generic",
+      "subset": "llm_free"
+    },
+    {
+      "ci": [
+        -0.189811,
+        0.037115
+      ],
+      "delta": -0.072129,
+      "half_width": 0.113463,
+      "metric": "auc",
+      "n_jd": 17,
+      "scope": "targeted",
+      "subset": "llm_free"
+    },
+    {
+      "ci": [
+        -0.053644,
+        0.032119
+      ],
+      "delta": -0.008712,
+      "half_width": 0.042881,
+      "metric": "auc",
+      "n_jd": 55,
+      "scope": "total",
+      "subset": "llm_free"
+    }
+  ],
+  "ordering_vs_x2": {
+    "deltas": [
+      {
+        "a": "extracted rule + TF-IDF",
+        "b": "R1",
+        "ci": [
+          -0.143364,
+          -0.031764
+        ],
+        "delta": -0.085456,
+        "metric": "ndcg",
+        "n_jd": 38,
+        "reference": "yc",
+        "scope": "generic",
+        "subset": "full"
+      },
+      {
+        "a": "extracted rule + TF-IDF",
+        "b": "R1",
+        "ci": [
+          -0.169082,
+          -0.083324
+        ],
+        "delta": -0.12565,
+        "metric": "ndcg",
+        "n_jd": 18,
+        "reference": "yc",
+        "scope": "targeted",
+        "subset": "full"
+      },
+      {
+        "a": "extracted rule + TF-IDF",
+        "b": "R1",
+        "ci": [
+          -0.138616,
+          -0.059065
+        ],
+        "delta": -0.098375,
+        "metric": "ndcg",
+        "n_jd": 56,
+        "reference": "yc",
+        "scope": "total",
+        "subset": "full"
+      },
+      {
+        "a": "extracted rule + TF-IDF",
+        "b": "R1",
+        "ci": [
+          -0.238586,
+          -0.092721
+        ],
+        "delta": -0.162662,
+        "metric": "pairwise",
+        "n_jd": 38,
+        "reference": "yc",
+        "scope": "generic",
+        "subset": "full"
+      },
+      {
+        "a": "extracted rule + TF-IDF",
+        "b": "R1",
+        "ci": [
+          -0.335208,
+          -0.203577
+        ],
+        "delta": -0.268978,
+        "metric": "pairwise",
+        "n_jd": 18,
+        "reference": "yc",
+        "scope": "targeted",
+        "subset": "full"
+      },
+      {
+        "a": "extracted rule + TF-IDF",
+        "b": "R1",
+        "ci": [
+          -0.250958,
+          -0.142899
+        ],
+        "delta": -0.196835,
+        "metric": "pairwise",
+        "n_jd": 56,
+        "reference": "yc",
+        "scope": "total",
+        "subset": "full"
+      },
+      {
+        "a": "extracted rule + TF-IDF",
+        "b": "R1",
+        "ci": [
+          -0.128565,
+          -0.022393
+        ],
+        "delta": -0.073823,
+        "metric": "ndcg",
+        "n_jd": 38,
+        "reference": "yc",
+        "scope": "generic",
+        "subset": "llm_free"
+      },
+      {
+        "a": "extracted rule + TF-IDF",
+        "b": "R1",
+        "ci": [
+          -0.144717,
+          0.022046
+        ],
+        "delta": -0.061328,
+        "metric": "ndcg",
+        "n_jd": 17,
+        "reference": "yc",
+        "scope": "targeted",
+        "subset": "llm_free"
+      },
+      {
+        "a": "extracted rule + TF-IDF",
+        "b": "R1",
+        "ci": [
+          -0.114966,
+          -0.027091
+        ],
+        "delta": -0.069961,
+        "metric": "ndcg",
+        "n_jd": 55,
+        "reference": "yc",
+        "scope": "total",
+        "subset": "llm_free"
+      },
+      {
+        "a": "extracted rule + TF-IDF",
+        "b": "R1",
+        "ci": [
+          -0.239266,
+          -0.086541
+        ],
+        "delta": -0.160618,
+        "metric": "pairwise",
+        "n_jd": 38,
+        "reference": "yc",
+        "scope": "generic",
+        "subset": "llm_free"
+      },
+      {
+        "a": "extracted rule + TF-IDF",
+        "b": "R1",
+        "ci": [
+          -0.357314,
+          -0.077065
+        ],
+        "delta": -0.217749,
+        "metric": "pairwise",
+        "n_jd": 17,
+        "reference": "yc",
+        "scope": "targeted",
+        "subset": "llm_free"
+      },
+      {
+        "a": "extracted rule + TF-IDF",
+        "b": "R1",
+        "ci": [
+          -0.247505,
+          -0.110781
+        ],
+        "delta": -0.178276,
+        "metric": "pairwise",
+        "n_jd": 55,
+        "reference": "yc",
+        "scope": "total",
+        "subset": "llm_free"
+      },
+      {
+        "a": "extracted rule + TF-IDF",
+        "b": "R1",
+        "ci": [
+          -0.112246,
+          -0.0042
+        ],
+        "delta": -0.05527,
+        "metric": "ndcg",
+        "n_jd": 33,
+        "reference": "mean",
+        "scope": "generic",
+        "subset": "full"
+      },
+      {
+        "a": "extracted rule + TF-IDF",
+        "b": "R1",
+        "ci": [
+          -0.109411,
+          -0.019097
+        ],
+        "delta": -0.06497,
+        "metric": "ndcg",
+        "n_jd": 20,
+        "reference": "mean",
+        "scope": "targeted",
+        "subset": "full"
+      },
+      {
+        "a": "extracted rule + TF-IDF",
+        "b": "R1",
+        "ci": [
+          -0.097634,
+          -0.022687
+        ],
+        "delta": -0.05893,
+        "metric": "ndcg",
+        "n_jd": 53,
+        "reference": "mean",
+        "scope": "total",
+        "subset": "full"
+      },
+      {
+        "a": "extracted rule + TF-IDF",
+        "b": "R1",
+        "ci": [
+          -0.301305,
+          0.037804
+        ],
+        "delta": -0.130598,
+        "metric": "pairwise",
+        "n_jd": 33,
+        "reference": "mean",
+        "scope": "generic",
+        "subset": "full"
+      },
+      {
+        "a": "extracted rule + TF-IDF",
+        "b": "R1",
+        "ci": [
+          -0.212404,
+          -0.024182
+        ],
+        "delta": -0.125135,
+        "metric": "pairwise",
+        "n_jd": 20,
+        "reference": "mean",
+        "scope": "targeted",
+        "subset": "full"
+      },
+      {
+        "a": "extracted rule + TF-IDF",
+        "b": "R1",
+        "ci": [
+          -0.240337,
+          -0.016657
+        ],
+        "delta": -0.128537,
+        "metric": "pairwise",
+        "n_jd": 53,
+        "reference": "mean",
+        "scope": "total",
+        "subset": "full"
+      },
+      {
+        "a": "extracted rule + TF-IDF",
+        "b": "R1",
+        "ci": [
+          -0.110214,
+          0.002221
+        ],
+        "delta": -0.049507,
+        "metric": "ndcg",
+        "n_jd": 23,
+        "reference": "mean",
+        "scope": "generic",
+        "subset": "llm_free"
+      },
+      {
+        "a": "extracted rule + TF-IDF",
+        "b": "R1",
+        "ci": [
+          -0.158137,
+          0.013033
+        ],
+        "delta": -0.073173,
+        "metric": "ndcg",
+        "n_jd": 17,
+        "reference": "mean",
+        "scope": "targeted",
+        "subset": "llm_free"
+      },
+      {
+        "a": "extracted rule + TF-IDF",
+        "b": "R1",
+        "ci": [
+          -0.109929,
+          -0.011107
+        ],
+        "delta": -0.059565,
+        "metric": "ndcg",
+        "n_jd": 40,
+        "reference": "mean",
+        "scope": "total",
+        "subset": "llm_free"
+      },
+      {
+        "a": "extracted rule + TF-IDF",
+        "b": "R1",
+        "ci": [
+          -0.318841,
+          0.089855
+        ],
+        "delta": -0.107246,
+        "metric": "pairwise",
+        "n_jd": 23,
+        "reference": "mean",
+        "scope": "generic",
+        "subset": "llm_free"
+      },
+      {
+        "a": "extracted rule + TF-IDF",
+        "b": "R1",
+        "ci": [
+          -0.364711,
+          -0.079813
+        ],
+        "delta": -0.223399,
+        "metric": "pairwise",
+        "n_jd": 17,
+        "reference": "mean",
+        "scope": "targeted",
+        "subset": "llm_free"
+      },
+      {
+        "a": "extracted rule + TF-IDF",
+        "b": "R1",
+        "ci": [
+          -0.290802,
+          -0.025416
+        ],
+        "delta": -0.156611,
+        "metric": "pairwise",
+        "n_jd": 40,
+        "reference": "mean",
+        "scope": "total",
+        "subset": "llm_free"
+      },
+      {
+        "a": "extracted rule + TF-IDF",
+        "b": "R2",
+        "ci": [
+          -0.134481,
+          -0.015322
+        ],
+        "delta": -0.072657,
+        "metric": "ndcg",
+        "n_jd": 38,
+        "reference": "yc",
+        "scope": "generic",
+        "subset": "full"
+      },
+      {
+        "a": "extracted rule + TF-IDF",
+        "b": "R2",
+        "ci": [
+          -0.1702,
+          -0.035021
+        ],
+        "delta": -0.100855,
+        "metric": "ndcg",
+        "n_jd": 18,
+        "reference": "yc",
+        "scope": "targeted",
+        "subset": "full"
+      },
+      {
+        "a": "extracted rule + TF-IDF",
+        "b": "R2",
+        "ci": [
+          -0.127923,
+          -0.037294
+        ],
+        "delta": -0.081721,
+        "metric": "ndcg",
+        "n_jd": 56,
+        "reference": "yc",
+        "scope": "total",
+        "subset": "full"
+      },
+      {
+        "a": "extracted rule + TF-IDF",
+        "b": "R2",
+        "ci": [
+          -0.24366,
+          -0.089781
+        ],
+        "delta": -0.165112,
+        "metric": "pairwise",
+        "n_jd": 38,
+        "reference": "yc",
+        "scope": "generic",
+        "subset": "full"
+      },
+      {
+        "a": "extracted rule + TF-IDF",
+        "b": "R2",
+        "ci": [
+          -0.386883,
+          -0.175341
+        ],
+        "delta": -0.277269,
+        "metric": "pairwise",
+        "n_jd": 18,
+        "reference": "yc",
+        "scope": "targeted",
+        "subset": "full"
+      },
+      {
+        "a": "extracted rule + TF-IDF",
+        "b": "R2",
+        "ci": [
+          -0.265932,
+          -0.137324
+        ],
+        "delta": -0.201162,
+        "metric": "pairwise",
+        "n_jd": 56,
+        "reference": "yc",
+        "scope": "total",
+        "subset": "full"
+      },
+      {
+        "a": "extracted rule + TF-IDF",
+        "b": "R2",
+        "ci": [
+          -0.113161,
+          -0.002317
+        ],
+        "delta": -0.056416,
+        "metric": "ndcg",
+        "n_jd": 38,
+        "reference": "yc",
+        "scope": "generic",
+        "subset": "llm_free"
+      },
+      {
+        "a": "extracted rule + TF-IDF",
+        "b": "R2",
+        "ci": [
+          -0.218931,
+          -0.0546
+        ],
+        "delta": -0.135075,
+        "metric": "ndcg",
+        "n_jd": 17,
+        "reference": "yc",
+        "scope": "targeted",
+        "subset": "llm_free"
+      },
+      {
+        "a": "extracted rule + TF-IDF",
+        "b": "R2",
+        "ci": [
+          -0.129009,
+          -0.035145
+        ],
+        "delta": -0.080729,
+        "metric": "ndcg",
+        "n_jd": 55,
+        "reference": "yc",
+        "scope": "total",
+        "subset": "llm_free"
+      },
+      {
+        "a": "extracted rule + TF-IDF",
+        "b": "R2",
+        "ci": [
+          -0.243099,
+          -0.078979
+        ],
+        "delta": -0.159296,
+        "metric": "pairwise",
+        "n_jd": 38,
+        "reference": "yc",
+        "scope": "generic",
+        "subset": "llm_free"
+      },
+      {
+        "a": "extracted rule + TF-IDF",
+        "b": "R2",
+        "ci": [
+          -0.526887,
+          -0.208409
+        ],
+        "delta": -0.361555,
+        "metric": "pairwise",
+        "n_jd": 17,
+        "reference": "yc",
+        "scope": "targeted",
+        "subset": "llm_free"
+      },
+      {
+        "a": "extracted rule + TF-IDF",
+        "b": "R2",
+        "ci": [
+          -0.302576,
+          -0.144461
+        ],
+        "delta": -0.221812,
+        "metric": "pairwise",
+        "n_jd": 55,
+        "reference": "yc",
+        "scope": "total",
+        "subset": "llm_free"
+      },
+      {
+        "a": "extracted rule + TF-IDF",
+        "b": "R2",
+        "ci": [
+          -0.092616,
+          0.00446
+        ],
+        "delta": -0.041799,
+        "metric": "ndcg",
+        "n_jd": 33,
+        "reference": "mean",
+        "scope": "generic",
+        "subset": "full"
+      },
+      {
+        "a": "extracted rule + TF-IDF",
+        "b": "R2",
+        "ci": [
+          -0.128953,
+          -0.030671
+        ],
+        "delta": -0.080022,
+        "metric": "ndcg",
+        "n_jd": 20,
+        "reference": "mean",
+        "scope": "targeted",
+        "subset": "full"
+      },
+      {
+        "a": "extracted rule + TF-IDF",
+        "b": "R2",
+        "ci": [
+          -0.093023,
+          -0.02067
+        ],
+        "delta": -0.056223,
+        "metric": "ndcg",
+        "n_jd": 53,
+        "reference": "mean",
+        "scope": "total",
+        "subset": "full"
+      },
+      {
+        "a": "extracted rule + TF-IDF",
+        "b": "R2",
+        "ci": [
+          -0.312592,
+          0.027588
+        ],
+        "delta": -0.140344,
+        "metric": "pairwise",
+        "n_jd": 33,
+        "reference": "mean",
+        "scope": "generic",
+        "subset": "full"
+      },
+      {
+        "a": "extracted rule + TF-IDF",
+        "b": "R2",
+        "ci": [
+          -0.251682,
+          -0.042473
+        ],
+        "delta": -0.147812,
+        "metric": "pairwise",
+        "n_jd": 20,
+        "reference": "mean",
+        "scope": "targeted",
+        "subset": "full"
+      },
+      {
+        "a": "extracted rule + TF-IDF",
+        "b": "R2",
+        "ci": [
+          -0.257428,
+          -0.029731
+        ],
+        "delta": -0.143162,
+        "metric": "pairwise",
+        "n_jd": 53,
+        "reference": "mean",
+        "scope": "total",
+        "subset": "full"
+      },
+      {
+        "a": "extracted rule + TF-IDF",
+        "b": "R2",
+        "ci": [
+          -0.092672,
+          0.018524
+        ],
+        "delta": -0.033503,
+        "metric": "ndcg",
+        "n_jd": 23,
+        "reference": "mean",
+        "scope": "generic",
+        "subset": "llm_free"
+      },
+      {
+        "a": "extracted rule + TF-IDF",
+        "b": "R2",
+        "ci": [
+          -0.229161,
+          -0.082438
+        ],
+        "delta": -0.153722,
+        "metric": "ndcg",
+        "n_jd": 17,
+        "reference": "mean",
+        "scope": "targeted",
+        "subset": "llm_free"
+      },
+      {
+        "a": "extracted rule + TF-IDF",
+        "b": "R2",
+        "ci": [
+          -0.134147,
+          -0.03641
+        ],
+        "delta": -0.084596,
+        "metric": "ndcg",
+        "n_jd": 40,
+        "reference": "mean",
+        "scope": "total",
+        "subset": "llm_free"
+      },
+      {
+        "a": "extracted rule + TF-IDF",
+        "b": "R2",
+        "ci": [
+          -0.311594,
+          0.112319
+        ],
+        "delta": -0.097826,
+        "metric": "pairwise",
+        "n_jd": 23,
+        "reference": "mean",
+        "scope": "generic",
+        "subset": "llm_free"
+      },
+      {
+        "a": "extracted rule + TF-IDF",
+        "b": "R2",
+        "ci": [
+          -0.493282,
+          -0.205065
+        ],
+        "delta": -0.344899,
+        "metric": "pairwise",
+        "n_jd": 17,
+        "reference": "mean",
+        "scope": "targeted",
+        "subset": "llm_free"
+      },
+      {
+        "a": "extracted rule + TF-IDF",
+        "b": "R2",
+        "ci": [
+          -0.34436,
+          -0.059592
+        ],
+        "delta": -0.202832,
+        "metric": "pairwise",
+        "n_jd": 40,
+        "reference": "mean",
+        "scope": "total",
+        "subset": "llm_free"
+      },
+      {
+        "a": "extracted rule + TF-IDF",
+        "b": "R3",
+        "ci": [
+          0.007194,
+          0.080171
+        ],
+        "delta": 0.042527,
+        "metric": "ndcg",
+        "n_jd": 38,
+        "reference": "yc",
+        "scope": "generic",
+        "subset": "full"
+      },
+      {
+        "a": "extracted rule + TF-IDF",
+        "b": "R3",
+        "ci": [
+          -0.067094,
+          0.049576
+        ],
+        "delta": -0.009831,
+        "metric": "ndcg",
+        "n_jd": 18,
+        "reference": "yc",
+        "scope": "targeted",
+        "subset": "full"
+      },
+      {
+        "a": "extracted rule + TF-IDF",
+        "b": "R3",
+        "ci": [
+          -0.00569,
+          0.058967
+        ],
+        "delta": 0.025698,
+        "metric": "ndcg",
+        "n_jd": 56,
+        "reference": "yc",
+        "scope": "total",
+        "subset": "full"
+      },
+      {
+        "a": "extracted rule + TF-IDF",
+        "b": "R3",
+        "ci": [
+          -0.021703,
+          0.070819
+        ],
+        "delta": 0.025129,
+        "metric": "pairwise",
+        "n_jd": 38,
+        "reference": "yc",
+        "scope": "generic",
+        "subset": "full"
+      },
+      {
+        "a": "extracted rule + TF-IDF",
+        "b": "R3",
+        "ci": [
+          -0.149484,
+          0.003584
+        ],
+        "delta": -0.07583,
+        "metric": "pairwise",
+        "n_jd": 18,
+        "reference": "yc",
+        "scope": "targeted",
+        "subset": "full"
+      },
+      {
+        "a": "extracted rule + TF-IDF",
+        "b": "R3",
+        "ci": [
+          -0.050153,
+          0.035167
+        ],
+        "delta": -0.007322,
+        "metric": "pairwise",
+        "n_jd": 56,
+        "reference": "yc",
+        "scope": "total",
+        "subset": "full"
+      },
+      {
+        "a": "extracted rule + TF-IDF",
+        "b": "R3",
+        "ci": [
+          0.009393,
+          0.08292
+        ],
+        "delta": 0.045203,
+        "metric": "ndcg",
+        "n_jd": 38,
+        "reference": "yc",
+        "scope": "generic",
+        "subset": "llm_free"
+      },
+      {
+        "a": "extracted rule + TF-IDF",
+        "b": "R3",
+        "ci": [
+          -0.087485,
+          0.075535
+        ],
+        "delta": -0.002189,
+        "metric": "ndcg",
+        "n_jd": 17,
+        "reference": "yc",
+        "scope": "targeted",
+        "subset": "llm_free"
+      },
+      {
+        "a": "extracted rule + TF-IDF",
+        "b": "R3",
+        "ci": [
+          -0.006637,
+          0.066879
+        ],
+        "delta": 0.030554,
+        "metric": "ndcg",
+        "n_jd": 55,
+        "reference": "yc",
+        "scope": "total",
+        "subset": "llm_free"
+      },
+      {
+        "a": "extracted rule + TF-IDF",
+        "b": "R3",
+        "ci": [
+          -0.025211,
+          0.074903
+        ],
+        "delta": 0.025165,
+        "metric": "pairwise",
+        "n_jd": 38,
+        "reference": "yc",
+        "scope": "generic",
+        "subset": "llm_free"
+      },
+      {
+        "a": "extracted rule + TF-IDF",
+        "b": "R3",
+        "ci": [
+          -0.192933,
+          0.064851
+        ],
+        "delta": -0.059721,
+        "metric": "pairwise",
+        "n_jd": 17,
+        "reference": "yc",
+        "scope": "targeted",
+        "subset": "llm_free"
+      },
+      {
+        "a": "extracted rule + TF-IDF",
+        "b": "R3",
+        "ci": [
+          -0.058018,
+          0.051005
+        ],
+        "delta": -0.001072,
+        "metric": "pairwise",
+        "n_jd": 55,
+        "reference": "yc",
+        "scope": "total",
+        "subset": "llm_free"
+      },
+      {
+        "a": "extracted rule + TF-IDF",
+        "b": "R3",
+        "ci": [
+          -0.023414,
+          0.038683
+        ],
+        "delta": 0.006719,
+        "metric": "ndcg",
+        "n_jd": 33,
+        "reference": "mean",
+        "scope": "generic",
+        "subset": "full"
+      },
+      {
+        "a": "extracted rule + TF-IDF",
+        "b": "R3",
+        "ci": [
+          -0.056044,
+          0.023643
+        ],
+        "delta": -0.016933,
+        "metric": "ndcg",
+        "n_jd": 20,
+        "reference": "mean",
+        "scope": "targeted",
+        "subset": "full"
+      },
+      {
+        "a": "extracted rule + TF-IDF",
+        "b": "R3",
+        "ci": [
+          -0.026224,
+          0.022967
+        ],
+        "delta": -0.002206,
+        "metric": "ndcg",
+        "n_jd": 53,
+        "reference": "mean",
+        "scope": "total",
+        "subset": "full"
+      },
+      {
+        "a": "extracted rule + TF-IDF",
+        "b": "R3",
+        "ci": [
+          -0.133698,
+          0.121786
+        ],
+        "delta": -0.001084,
+        "metric": "pairwise",
+        "n_jd": 33,
+        "reference": "mean",
+        "scope": "generic",
+        "subset": "full"
+      },
+      {
+        "a": "extracted rule + TF-IDF",
+        "b": "R3",
+        "ci": [
+          -0.106444,
+          0.037926
+        ],
+        "delta": -0.036519,
+        "metric": "pairwise",
+        "n_jd": 20,
+        "reference": "mean",
+        "scope": "targeted",
+        "subset": "full"
+      },
+      {
+        "a": "extracted rule + TF-IDF",
+        "b": "R3",
+        "ci": [
+          -0.099869,
+          0.067739
+        ],
+        "delta": -0.014456,
+        "metric": "pairwise",
+        "n_jd": 53,
+        "reference": "mean",
+        "scope": "total",
+        "subset": "full"
+      },
+      {
+        "a": "extracted rule + TF-IDF",
+        "b": "R3",
+        "ci": [
+          -0.007613,
+          0.054269
+        ],
+        "delta": 0.02007,
+        "metric": "ndcg",
+        "n_jd": 23,
+        "reference": "mean",
+        "scope": "generic",
+        "subset": "llm_free"
+      },
+      {
+        "a": "extracted rule + TF-IDF",
+        "b": "R3",
+        "ci": [
+          -0.09831,
+          0.062162
+        ],
+        "delta": -0.015597,
+        "metric": "ndcg",
+        "n_jd": 17,
+        "reference": "mean",
+        "scope": "targeted",
+        "subset": "llm_free"
+      },
+      {
+        "a": "extracted rule + TF-IDF",
+        "b": "R3",
+        "ci": [
+          -0.034789,
+          0.042563
+        ],
+        "delta": 0.004912,
+        "metric": "ndcg",
+        "n_jd": 40,
+        "reference": "mean",
+        "scope": "total",
+        "subset": "llm_free"
+      },
+      {
+        "a": "extracted rule + TF-IDF",
+        "b": "R3",
+        "ci": [
+          -0.101449,
+          0.188406
+        ],
+        "delta": 0.046377,
+        "metric": "pairwise",
+        "n_jd": 23,
+        "reference": "mean",
+        "scope": "generic",
+        "subset": "llm_free"
+      },
+      {
+        "a": "extracted rule + TF-IDF",
+        "b": "R3",
+        "ci": [
+          -0.206862,
+          0.051765
+        ],
+        "delta": -0.075273,
+        "metric": "pairwise",
+        "n_jd": 17,
+        "reference": "mean",
+        "scope": "targeted",
+        "subset": "llm_free"
+      },
+      {
+        "a": "extracted rule + TF-IDF",
+        "b": "R3",
+        "ci": [
+          -0.107743,
+          0.096182
+        ],
+        "delta": -0.005325,
+        "metric": "pairwise",
+        "n_jd": 40,
+        "reference": "mean",
+        "scope": "total",
+        "subset": "llm_free"
+      },
+      {
+        "a": "extracted rule + TF-IDF",
+        "b": "SBERT (weak fine-tuned)",
+        "ci": [
+          -0.019027,
+          0.05887
+        ],
+        "delta": 0.020513,
+        "metric": "ndcg",
+        "n_jd": 38,
+        "reference": "yc",
+        "scope": "generic",
+        "subset": "full"
+      },
+      {
+        "a": "extracted rule + TF-IDF",
+        "b": "SBERT (weak fine-tuned)",
+        "ci": [
+          -0.022801,
+          0.069751
+        ],
+        "delta": 0.02098,
+        "metric": "ndcg",
+        "n_jd": 18,
+        "reference": "yc",
+        "scope": "targeted",
+        "subset": "full"
+      },
+      {
+        "a": "extracted rule + TF-IDF",
+        "b": "SBERT (weak fine-tuned)",
+        "ci": [
+          -0.009107,
+          0.050995
+        ],
+        "delta": 0.020663,
+        "metric": "ndcg",
+        "n_jd": 56,
+        "reference": "yc",
+        "scope": "total",
+        "subset": "full"
+      },
+      {
+        "a": "extracted rule + TF-IDF",
+        "b": "SBERT (weak fine-tuned)",
+        "ci": [
+          -0.032793,
+          0.059754
+        ],
+        "delta": 0.014375,
+        "metric": "pairwise",
+        "n_jd": 38,
+        "reference": "yc",
+        "scope": "generic",
+        "subset": "full"
+      },
+      {
+        "a": "extracted rule + TF-IDF",
+        "b": "SBERT (weak fine-tuned)",
+        "ci": [
+          -0.107953,
+          -0.002691
+        ],
+        "delta": -0.057059,
+        "metric": "pairwise",
+        "n_jd": 18,
+        "reference": "yc",
+        "scope": "targeted",
+        "subset": "full"
+      },
+      {
+        "a": "extracted rule + TF-IDF",
+        "b": "SBERT (weak fine-tuned)",
+        "ci": [
+          -0.045781,
+          0.029082
+        ],
+        "delta": -0.008586,
+        "metric": "pairwise",
+        "n_jd": 56,
+        "reference": "yc",
+        "scope": "total",
+        "subset": "full"
+      },
+      {
+        "a": "extracted rule + TF-IDF",
+        "b": "SBERT (weak fine-tuned)",
+        "ci": [
+          -0.016057,
+          0.060909
+        ],
+        "delta": 0.022998,
+        "metric": "ndcg",
+        "n_jd": 38,
+        "reference": "yc",
+        "scope": "generic",
+        "subset": "llm_free"
+      },
+      {
+        "a": "extracted rule + TF-IDF",
+        "b": "SBERT (weak fine-tuned)",
+        "ci": [
+          -0.077782,
+          0.035135
+        ],
+        "delta": -0.017854,
+        "metric": "ndcg",
+        "n_jd": 17,
+        "reference": "yc",
+        "scope": "targeted",
+        "subset": "llm_free"
+      },
+      {
+        "a": "extracted rule + TF-IDF",
+        "b": "SBERT (weak fine-tuned)",
+        "ci": [
+          -0.022936,
+          0.04229
+        ],
+        "delta": 0.010371,
+        "metric": "ndcg",
+        "n_jd": 55,
+        "reference": "yc",
+        "scope": "total",
+        "subset": "llm_free"
+      },
+      {
+        "a": "extracted rule + TF-IDF",
+        "b": "SBERT (weak fine-tuned)",
+        "ci": [
+          -0.035383,
+          0.066741
+        ],
+        "delta": 0.017118,
+        "metric": "pairwise",
+        "n_jd": 38,
+        "reference": "yc",
+        "scope": "generic",
+        "subset": "llm_free"
+      },
+      {
+        "a": "extracted rule + TF-IDF",
+        "b": "SBERT (weak fine-tuned)",
+        "ci": [
+          -0.181197,
+          -0.001035
+        ],
+        "delta": -0.086393,
+        "metric": "pairwise",
+        "n_jd": 17,
+        "reference": "yc",
+        "scope": "targeted",
+        "subset": "llm_free"
+      },
+      {
+        "a": "extracted rule + TF-IDF",
+        "b": "SBERT (weak fine-tuned)",
+        "ci": [
+          -0.063217,
+          0.031096
+        ],
+        "delta": -0.014876,
+        "metric": "pairwise",
+        "n_jd": 55,
+        "reference": "yc",
+        "scope": "total",
+        "subset": "llm_free"
+      },
+      {
+        "a": "extracted rule + TF-IDF",
+        "b": "SBERT (weak fine-tuned)",
+        "ci": [
+          -0.038526,
+          0.034922
+        ],
+        "delta": -0.002332,
+        "metric": "ndcg",
+        "n_jd": 33,
+        "reference": "mean",
+        "scope": "generic",
+        "subset": "full"
+      },
+      {
+        "a": "extracted rule + TF-IDF",
+        "b": "SBERT (weak fine-tuned)",
+        "ci": [
+          -0.033459,
+          0.024076
+        ],
+        "delta": -0.004046,
+        "metric": "ndcg",
+        "n_jd": 20,
+        "reference": "mean",
+        "scope": "targeted",
+        "subset": "full"
+      },
+      {
+        "a": "extracted rule + TF-IDF",
+        "b": "SBERT (weak fine-tuned)",
+        "ci": [
+          -0.027954,
+          0.022724
+        ],
+        "delta": -0.002979,
+        "metric": "ndcg",
+        "n_jd": 53,
+        "reference": "mean",
+        "scope": "total",
+        "subset": "full"
+      },
+      {
+        "a": "extracted rule + TF-IDF",
+        "b": "SBERT (weak fine-tuned)",
+        "ci": [
+          -0.143989,
+          0.146689
+        ],
+        "delta": 0.003966,
+        "metric": "pairwise",
+        "n_jd": 33,
+        "reference": "mean",
+        "scope": "generic",
+        "subset": "full"
+      },
+      {
+        "a": "extracted rule + TF-IDF",
+        "b": "SBERT (weak fine-tuned)",
+        "ci": [
+          -0.088251,
+          0.007578
+        ],
+        "delta": -0.040016,
+        "metric": "pairwise",
+        "n_jd": 20,
+        "reference": "mean",
+        "scope": "targeted",
+        "subset": "full"
+      },
+      {
+        "a": "extracted rule + TF-IDF",
+        "b": "SBERT (weak fine-tuned)",
+        "ci": [
+          -0.10635,
+          0.081769
+        ],
+        "delta": -0.012631,
+        "metric": "pairwise",
+        "n_jd": 53,
+        "reference": "mean",
+        "scope": "total",
+        "subset": "full"
+      },
+      {
+        "a": "extracted rule + TF-IDF",
+        "b": "SBERT (weak fine-tuned)",
+        "ci": [
+          -0.036587,
+          0.04839
+        ],
+        "delta": 0.005042,
+        "metric": "ndcg",
+        "n_jd": 23,
+        "reference": "mean",
+        "scope": "generic",
+        "subset": "llm_free"
+      },
+      {
+        "a": "extracted rule + TF-IDF",
+        "b": "SBERT (weak fine-tuned)",
+        "ci": [
+          -0.09117,
+          0.005259
+        ],
+        "delta": -0.038764,
+        "metric": "ndcg",
+        "n_jd": 17,
+        "reference": "mean",
+        "scope": "targeted",
+        "subset": "llm_free"
+      },
+      {
+        "a": "extracted rule + TF-IDF",
+        "b": "SBERT (weak fine-tuned)",
+        "ci": [
+          -0.047282,
+          0.018866
+        ],
+        "delta": -0.013576,
+        "metric": "ndcg",
+        "n_jd": 40,
+        "reference": "mean",
+        "scope": "total",
+        "subset": "llm_free"
+      },
+      {
+        "a": "extracted rule + TF-IDF",
+        "b": "SBERT (weak fine-tuned)",
+        "ci": [
+          -0.149275,
+          0.201449
+        ],
+        "delta": 0.024638,
+        "metric": "pairwise",
+        "n_jd": 23,
+        "reference": "mean",
+        "scope": "generic",
+        "subset": "llm_free"
+      },
+      {
+        "a": "extracted rule + TF-IDF",
+        "b": "SBERT (weak fine-tuned)",
+        "ci": [
+          -0.203619,
+          -0.023727
+        ],
+        "delta": -0.109624,
+        "metric": "pairwise",
+        "n_jd": 17,
+        "reference": "mean",
+        "scope": "targeted",
+        "subset": "llm_free"
+      },
+      {
+        "a": "extracted rule + TF-IDF",
+        "b": "SBERT (weak fine-tuned)",
+        "ci": [
+          -0.139026,
+          0.081472
+        ],
+        "delta": -0.032424,
+        "metric": "pairwise",
+        "n_jd": 40,
+        "reference": "mean",
+        "scope": "total",
+        "subset": "llm_free"
+      },
+      {
+        "a": "extracted rule + TF-IDF",
+        "b": "extracted rule + SBERT (weak fine-tuned)",
+        "ci": [
+          -0.014759,
+          0.047694
+        ],
+        "delta": 0.01483,
+        "metric": "ndcg",
+        "n_jd": 38,
+        "reference": "yc",
+        "scope": "generic",
+        "subset": "full"
+      },
+      {
+        "a": "extracted rule + TF-IDF",
+        "b": "extracted rule + SBERT (weak fine-tuned)",
+        "ci": [
+          -0.002791,
+          0.088301
+        ],
+        "delta": 0.039156,
+        "metric": "ndcg",
+        "n_jd": 18,
+        "reference": "yc",
+        "scope": "targeted",
+        "subset": "full"
+      },
+      {
+        "a": "extracted rule + TF-IDF",
+        "b": "extracted rule + SBERT (weak fine-tuned)",
+        "ci": [
+          -0.002342,
+          0.049392
+        ],
+        "delta": 0.022649,
+        "metric": "ndcg",
+        "n_jd": 56,
+        "reference": "yc",
+        "scope": "total",
+        "subset": "full"
+      },
+      {
+        "a": "extracted rule + TF-IDF",
+        "b": "extracted rule + SBERT (weak fine-tuned)",
+        "ci": [
+          -0.008466,
+          0.04846
+        ],
+        "delta": 0.018771,
+        "metric": "pairwise",
+        "n_jd": 38,
+        "reference": "yc",
+        "scope": "generic",
+        "subset": "full"
+      },
+      {
+        "a": "extracted rule + TF-IDF",
+        "b": "extracted rule + SBERT (weak fine-tuned)",
+        "ci": [
+          -0.059613,
+          0.025923
+        ],
+        "delta": -0.014884,
+        "metric": "pairwise",
+        "n_jd": 18,
+        "reference": "yc",
+        "scope": "targeted",
+        "subset": "full"
+      },
+      {
+        "a": "extracted rule + TF-IDF",
+        "b": "extracted rule + SBERT (weak fine-tuned)",
+        "ci": [
+          -0.015794,
+          0.032471
+        ],
+        "delta": 0.007953,
+        "metric": "pairwise",
+        "n_jd": 56,
+        "reference": "yc",
+        "scope": "total",
+        "subset": "full"
+      },
+      {
+        "a": "extracted rule + TF-IDF",
+        "b": "extracted rule + SBERT (weak fine-tuned)",
+        "ci": [
+          -0.013789,
+          0.048543
+        ],
+        "delta": 0.015823,
+        "metric": "ndcg",
+        "n_jd": 38,
+        "reference": "yc",
+        "scope": "generic",
+        "subset": "llm_free"
+      },
+      {
+        "a": "extracted rule + TF-IDF",
+        "b": "extracted rule + SBERT (weak fine-tuned)",
+        "ci": [
+          -0.06794,
+          0.066038
+        ],
+        "delta": 0.000687,
+        "metric": "ndcg",
+        "n_jd": 17,
+        "reference": "yc",
+        "scope": "targeted",
+        "subset": "llm_free"
+      },
+      {
+        "a": "extracted rule + TF-IDF",
+        "b": "extracted rule + SBERT (weak fine-tuned)",
+        "ci": [
+          -0.018612,
+          0.041547
+        ],
+        "delta": 0.011145,
+        "metric": "ndcg",
+        "n_jd": 55,
+        "reference": "yc",
+        "scope": "total",
+        "subset": "llm_free"
+      },
+      {
+        "a": "extracted rule + TF-IDF",
+        "b": "extracted rule + SBERT (weak fine-tuned)",
+        "ci": [
+          -0.012523,
+          0.04885
+        ],
+        "delta": 0.016978,
+        "metric": "pairwise",
+        "n_jd": 38,
+        "reference": "yc",
+        "scope": "generic",
+        "subset": "llm_free"
+      },
+      {
+        "a": "extracted rule + TF-IDF",
+        "b": "extracted rule + SBERT (weak fine-tuned)",
+        "ci": [
+          -0.124374,
+          0.084189
+        ],
+        "delta": -0.017183,
+        "metric": "pairwise",
+        "n_jd": 17,
+        "reference": "yc",
+        "scope": "targeted",
+        "subset": "llm_free"
+      },
+      {
+        "a": "extracted rule + TF-IDF",
+        "b": "extracted rule + SBERT (weak fine-tuned)",
+        "ci": [
+          -0.033845,
+          0.045018
+        ],
+        "delta": 0.006419,
+        "metric": "pairwise",
+        "n_jd": 55,
+        "reference": "yc",
+        "scope": "total",
+        "subset": "llm_free"
+      },
+      {
+        "a": "extracted rule + TF-IDF",
+        "b": "extracted rule + SBERT (weak fine-tuned)",
+        "ci": [
+          -0.022194,
+          0.031932
+        ],
+        "delta": 0.004107,
+        "metric": "ndcg",
+        "n_jd": 33,
+        "reference": "mean",
+        "scope": "generic",
+        "subset": "full"
+      },
+      {
+        "a": "extracted rule + TF-IDF",
+        "b": "extracted rule + SBERT (weak fine-tuned)",
+        "ci": [
+          -0.031762,
+          0.022856
+        ],
+        "delta": -0.003606,
+        "metric": "ndcg",
+        "n_jd": 20,
+        "reference": "mean",
+        "scope": "targeted",
+        "subset": "full"
+      },
+      {
+        "a": "extracted rule + TF-IDF",
+        "b": "extracted rule + SBERT (weak fine-tuned)",
+        "ci": [
+          -0.017955,
+          0.021029
+        ],
+        "delta": 0.001196,
+        "metric": "ndcg",
+        "n_jd": 53,
+        "reference": "mean",
+        "scope": "total",
+        "subset": "full"
+      },
+      {
+        "a": "extracted rule + TF-IDF",
+        "b": "extracted rule + SBERT (weak fine-tuned)",
+        "ci": [
+          -0.156592,
+          0.060976
+        ],
+        "delta": -0.038999,
+        "metric": "pairwise",
+        "n_jd": 33,
+        "reference": "mean",
+        "scope": "generic",
+        "subset": "full"
+      },
+      {
+        "a": "extracted rule + TF-IDF",
+        "b": "extracted rule + SBERT (weak fine-tuned)",
+        "ci": [
+          -0.060946,
+          0.025113
+        ],
+        "delta": -0.017677,
+        "metric": "pairwise",
+        "n_jd": 20,
+        "reference": "mean",
+        "scope": "targeted",
+        "subset": "full"
+      },
+      {
+        "a": "extracted rule + TF-IDF",
+        "b": "extracted rule + SBERT (weak fine-tuned)",
+        "ci": [
+          -0.104621,
+          0.033415
+        ],
+        "delta": -0.030953,
+        "metric": "pairwise",
+        "n_jd": 53,
+        "reference": "mean",
+        "scope": "total",
+        "subset": "full"
+      },
+      {
+        "a": "extracted rule + TF-IDF",
+        "b": "extracted rule + SBERT (weak fine-tuned)",
+        "ci": [
+          -0.006905,
+          0.045518
+        ],
+        "delta": 0.013918,
+        "metric": "ndcg",
+        "n_jd": 23,
+        "reference": "mean",
+        "scope": "generic",
+        "subset": "llm_free"
+      },
+      {
+        "a": "extracted rule + TF-IDF",
+        "b": "extracted rule + SBERT (weak fine-tuned)",
+        "ci": [
+          -0.077273,
+          0.051574
+        ],
+        "delta": -0.012779,
+        "metric": "ndcg",
+        "n_jd": 17,
+        "reference": "mean",
+        "scope": "targeted",
+        "subset": "llm_free"
+      },
+      {
+        "a": "extracted rule + TF-IDF",
+        "b": "extracted rule + SBERT (weak fine-tuned)",
+        "ci": [
+          -0.028965,
+          0.035678
+        ],
+        "delta": 0.002572,
+        "metric": "ndcg",
+        "n_jd": 40,
+        "reference": "mean",
+        "scope": "total",
+        "subset": "llm_free"
+      },
+      {
+        "a": "extracted rule + TF-IDF",
+        "b": "extracted rule + SBERT (weak fine-tuned)",
+        "ci": [
+          -0.136232,
+          0.086957
+        ],
+        "delta": -0.013043,
+        "metric": "pairwise",
+        "n_jd": 23,
+        "reference": "mean",
+        "scope": "generic",
+        "subset": "llm_free"
+      },
+      {
+        "a": "extracted rule + TF-IDF",
+        "b": "extracted rule + SBERT (weak fine-tuned)",
+        "ci": [
+          -0.135736,
+          0.065203
+        ],
+        "delta": -0.033986,
+        "metric": "pairwise",
+        "n_jd": 17,
+        "reference": "mean",
+        "scope": "targeted",
+        "subset": "llm_free"
+      },
+      {
+        "a": "extracted rule + TF-IDF",
+        "b": "extracted rule + SBERT (weak fine-tuned)",
+        "ci": [
+          -0.102438,
+          0.049753
+        ],
+        "delta": -0.021944,
+        "metric": "pairwise",
+        "n_jd": 40,
+        "reference": "mean",
+        "scope": "total",
+        "subset": "llm_free"
+      }
+    ],
+    "names": {
+      "R1": "cross-encoder (LLM batch, pointwise)",
+      "R2": "cross-encoder (LLM batch, pairwise)",
+      "R3": "bi-encoder (LLM batch)"
+    },
+    "x2_x4_figures": {
+      "extracted rule + SBERT (weak fine-tuned)": [
+        {
+          "ci": [
+            0.881308,
+            0.940358
+          ],
+          "metric": "ndcg",
+          "n_jd": 38,
+          "n_jd_excluded": 2,
+          "n_pairs": 380,
+          "reference": "yc",
+          "scope": "generic",
+          "subset": "full",
+          "system": "extracted rule + SBERT (weak fine-tuned)",
+          "value": 0.913769
+        },
+        {
+          "ci": [
+            0.798279,
+            0.916129
+          ],
+          "metric": "ndcg",
+          "n_jd": 18,
+          "n_jd_excluded": 2,
+          "n_pairs": 180,
+          "reference": "yc",
+          "scope": "targeted",
+          "subset": "full",
+          "system": "extracted rule + SBERT (weak fine-tuned)",
+          "value": 0.861384
+        },
+        {
+          "ci": [
+            0.866897,
+            0.9235
+          ],
+          "metric": "ndcg",
+          "n_jd": 56,
+          "n_jd_excluded": 4,
+          "n_pairs": 560,
+          "reference": "yc",
+          "scope": "total",
+          "subset": "full",
+          "system": "extracted rule + SBERT (weak fine-tuned)",
+          "value": 0.896931
+        },
+        {
+          "ci": [
+            0.799935,
+            0.864489
+          ],
+          "metric": "pairwise",
+          "n_jd": 38,
+          "n_jd_excluded": 2,
+          "n_pairs": 380,
+          "reference": "yc",
+          "scope": "generic",
+          "subset": "full",
+          "system": "extracted rule + SBERT (weak fine-tuned)",
+          "value": 0.832465
+        },
+        {
+          "ci": [
+            0.749485,
+            0.867724
+          ],
+          "metric": "pairwise",
+          "n_jd": 18,
+          "n_jd_excluded": 2,
+          "n_pairs": 180,
+          "reference": "yc",
+          "scope": "targeted",
+          "subset": "full",
+          "system": "extracted rule + SBERT (weak fine-tuned)",
+          "value": 0.809622
+        },
+        {
+          "ci": [
+            0.795987,
+            0.854068
+          ],
+          "metric": "pairwise",
+          "n_jd": 56,
+          "n_jd_excluded": 4,
+          "n_pairs": 560,
+          "reference": "yc",
+          "scope": "total",
+          "subset": "full",
+          "system": "extracted rule + SBERT (weak fine-tuned)",
+          "value": 0.825123
+        },
+        {
+          "ci": [
+            0.88469,
+            0.944105
+          ],
+          "metric": "ndcg",
+          "n_jd": 38,
+          "n_jd_excluded": 2,
+          "n_pairs": 350,
+          "reference": "yc",
+          "scope": "generic",
+          "subset": "llm_free",
+          "system": "extracted rule + SBERT (weak fine-tuned)",
+          "value": 0.917349
+        },
+        {
+          "ci": [
+            0.840723,
+            0.940792
+          ],
+          "metric": "ndcg",
+          "n_jd": 17,
+          "n_jd_excluded": 3,
+          "n_pairs": 110,
+          "reference": "yc",
+          "scope": "targeted",
+          "subset": "llm_free",
+          "system": "extracted rule + SBERT (weak fine-tuned)",
+          "value": 0.893447
+        },
+        {
+          "ci": [
+            0.882603,
+            0.93407
+          ],
+          "metric": "ndcg",
+          "n_jd": 55,
+          "n_jd_excluded": 5,
+          "n_pairs": 460,
+          "reference": "yc",
+          "scope": "total",
+          "subset": "llm_free",
+          "system": "extracted rule + SBERT (weak fine-tuned)",
+          "value": 0.909961
+        },
+        {
+          "ci": [
+            0.792683,
+            0.862836
+          ],
+          "metric": "pairwise",
+          "n_jd": 38,
+          "n_jd_excluded": 2,
+          "n_pairs": 350,
+          "reference": "yc",
+          "scope": "generic",
+          "subset": "llm_free",
+          "system": "extracted rule + SBERT (weak fine-tuned)",
+          "value": 0.827914
+        },
+        {
+          "ci": [
+            0.725041,
+            0.896195
+          ],
+          "metric": "pairwise",
+          "n_jd": 17,
+          "n_jd_excluded": 3,
+          "n_pairs": 110,
+          "reference": "yc",
+          "scope": "targeted",
+          "subset": "llm_free",
+          "system": "extracted rule + SBERT (weak fine-tuned)",
+          "value": 0.817083
+        },
+        {
+          "ci": [
+            0.788122,
+            0.859416
+          ],
+          "metric": "pairwise",
+          "n_jd": 55,
+          "n_jd_excluded": 5,
+          "n_pairs": 460,
+          "reference": "yc",
+          "scope": "total",
+          "subset": "llm_free",
+          "system": "extracted rule + SBERT (weak fine-tuned)",
+          "value": 0.824566
+        },
+        {
+          "ci": [
+            0.919496,
+            0.955838
+          ],
+          "metric": "ndcg",
+          "n_jd": 32,
+          "n_jd_excluded": 7,
+          "n_pairs": 216,
+          "reference": "yc",
+          "scope": "generic",
+          "subset": "fit_only",
+          "system": "extracted rule + SBERT (weak fine-tuned)",
+          "value": 0.937866
+        },
+        {
+          "ci": [
+            0.807436,
+            0.93733
+          ],
+          "metric": "ndcg",
+          "n_jd": 17,
+          "n_jd_excluded": 3,
+          "n_pairs": 109,
+          "reference": "yc",
+          "scope": "targeted",
+          "subset": "fit_only",
+          "system": "extracted rule + SBERT (weak fine-tuned)",
+          "value": 0.878113
+        },
+        {
+          "ci": [
+            0.888349,
+            0.941672
+          ],
+          "metric": "ndcg",
+          "n_jd": 49,
+          "n_jd_excluded": 10,
+          "n_pairs": 325,
+          "reference": "yc",
+          "scope": "total",
+          "subset": "fit_only",
+          "system": "extracted rule + SBERT (weak fine-tuned)",
+          "value": 0.917135
+        },
+        {
+          "ci": [
+            0.631624,
+            0.774214
+          ],
+          "metric": "pairwise",
+          "n_jd": 32,
+          "n_jd_excluded": 7,
+          "n_pairs": 216,
+          "reference": "yc",
+          "scope": "generic",
+          "subset": "fit_only",
+          "system": "extracted rule + SBERT (weak fine-tuned)",
+          "value": 0.702813
+        },
+        {
+          "ci": [
+            0.612485,
+            0.833381
+          ],
+          "metric": "pairwise",
+          "n_jd": 17,
+          "n_jd_excluded": 3,
+          "n_pairs": 109,
+          "reference": "yc",
+          "scope": "targeted",
+          "subset": "fit_only",
+          "system": "extracted rule + SBERT (weak fine-tuned)",
+          "value": 0.731613
+        },
+        {
+          "ci": [
+            0.652144,
+            0.770873
+          ],
+          "metric": "pairwise",
+          "n_jd": 49,
+          "n_jd_excluded": 10,
+          "n_pairs": 325,
+          "reference": "yc",
+          "scope": "total",
+          "subset": "fit_only",
+          "system": "extracted rule + SBERT (weak fine-tuned)",
+          "value": 0.712805
+        },
+        {
+          "ci": [
+            0.931598,
+            0.976947
+          ],
+          "metric": "ndcg",
+          "n_jd": 31,
+          "n_jd_excluded": 8,
+          "n_pairs": 112,
+          "reference": "van",
+          "scope": "generic",
+          "subset": "full",
+          "system": "extracted rule + SBERT (weak fine-tuned)",
+          "value": 0.956141
+        },
+        {
+          "ci": [
+            0.726915,
+            0.869161
+          ],
+          "metric": "ndcg",
+          "n_jd": 20,
+          "n_jd_excluded": 0,
+          "n_pairs": 200,
+          "reference": "van",
+          "scope": "targeted",
+          "subset": "full",
+          "system": "extracted rule + SBERT (weak fine-tuned)",
+          "value": 0.803084
+        },
+        {
+          "ci": [
+            0.856198,
+            0.930628
+          ],
+          "metric": "ndcg",
+          "n_jd": 51,
+          "n_jd_excluded": 8,
+          "n_pairs": 312,
+          "reference": "van",
+          "scope": "total",
+          "subset": "full",
+          "system": "extracted rule + SBERT (weak fine-tuned)",
+          "value": 0.896119
+        },
+        {
+          "ci": [
+            0.607521,
+            0.855105
+          ],
+          "metric": "pairwise",
+          "n_jd": 31,
+          "n_jd_excluded": 8,
+          "n_pairs": 112,
+          "reference": "van",
+          "scope": "generic",
+          "subset": "full",
+          "system": "extracted rule + SBERT (weak fine-tuned)",
+          "value": 0.738388
+        },
+        {
+          "ci": [
+            0.518522,
+            0.71956
+          ],
+          "metric": "pairwise",
+          "n_jd": 20,
+          "n_jd_excluded": 0,
+          "n_pairs": 200,
+          "reference": "van",
+          "scope": "targeted",
+          "subset": "full",
+          "system": "extracted rule + SBERT (weak fine-tuned)",
+          "value": 0.625744
+        },
+        {
+          "ci": [
+            0.604197,
+            0.776816
+          ],
+          "metric": "pairwise",
+          "n_jd": 51,
+          "n_jd_excluded": 8,
+          "n_pairs": 312,
+          "reference": "van",
+          "scope": "total",
+          "subset": "full",
+          "system": "extracted rule + SBERT (weak fine-tuned)",
+          "value": 0.694214
+        },
+        {
+          "ci": [
+            0.962061,
+            0.996784
+          ],
+          "metric": "ndcg",
+          "n_jd": 21,
+          "n_jd_excluded": 14,
+          "n_pairs": 71,
+          "reference": "van",
+          "scope": "generic",
+          "subset": "llm_free",
+          "system": "extracted rule + SBERT (weak fine-tuned)",
+          "value": 0.982017
+        },
+        {
+          "ci": [
+            0.84309,
+            0.945139
+          ],
+          "metric": "ndcg",
+          "n_jd": 17,
+          "n_jd_excluded": 3,
+          "n_pairs": 110,
+          "reference": "van",
+          "scope": "targeted",
+          "subset": "llm_free",
+          "system": "extracted rule + SBERT (weak fine-tuned)",
+          "value": 0.897425
+        },
+        {
+          "ci": [
+            0.914132,
+            0.9706
+          ],
+          "metric": "ndcg",
+          "n_jd": 38,
+          "n_jd_excluded": 17,
+          "n_pairs": 181,
+          "reference": "van",
+          "scope": "total",
+          "subset": "llm_free",
+          "system": "extracted rule + SBERT (weak fine-tuned)",
+          "value": 0.944173
+        },
+        {
+          "ci": [
+            0.768254,
+            0.970635
+          ],
+          "metric": "pairwise",
+          "n_jd": 21,
+          "n_jd_excluded": 14,
+          "n_pairs": 71,
+          "reference": "van",
+          "scope": "generic",
+          "subset": "llm_free",
+          "system": "extracted rule + SBERT (weak fine-tuned)",
+          "value": 0.883333
+        },
+        {
+          "ci": [
+            0.645876,
+            0.87929
+          ],
+          "metric": "pairwise",
+          "n_jd": 17,
+          "n_jd_excluded": 3,
+          "n_pairs": 110,
+          "reference": "van",
+          "scope": "targeted",
+          "subset": "llm_free",
+          "system": "extracted rule + SBERT (weak fine-tuned)",
+          "value": 0.775511
+        },
+        {
+          "ci": [
+            0.750542,
+            0.907268
+          ],
+          "metric": "pairwise",
+          "n_jd": 38,
+          "n_jd_excluded": 17,
+          "n_pairs": 181,
+          "reference": "van",
+          "scope": "total",
+          "subset": "llm_free",
+          "system": "extracted rule + SBERT (weak fine-tuned)",
+          "value": 0.835097
+        },
+        {
+          "ci": [
+            0.942501,
+            0.991865
+          ],
+          "metric": "ndcg",
+          "n_jd": 14,
+          "n_jd_excluded": 20,
+          "n_pairs": 48,
+          "reference": "van",
+          "scope": "generic",
+          "subset": "fit_only",
+          "system": "extracted rule + SBERT (weak fine-tuned)",
+          "value": 0.970178
+        },
+        {
+          "ci": [
+            0.850314,
+            0.942699
+          ],
+          "metric": "ndcg",
+          "n_jd": 19,
+          "n_jd_excluded": 1,
+          "n_pairs": 115,
+          "reference": "van",
+          "scope": "targeted",
+          "subset": "fit_only",
+          "system": "extracted rule + SBERT (weak fine-tuned)",
+          "value": 0.903657
+        },
+        {
+          "ci": [
+            0.897157,
+            0.959492
+          ],
+          "metric": "ndcg",
+          "n_jd": 33,
+          "n_jd_excluded": 21,
+          "n_pairs": 163,
+          "reference": "van",
+          "scope": "total",
+          "subset": "fit_only",
+          "system": "extracted rule + SBERT (weak fine-tuned)",
+          "value": 0.931878
+        },
+        {
+          "ci": [
+            0.611905,
+            0.904762
+          ],
+          "metric": "pairwise",
+          "n_jd": 14,
+          "n_jd_excluded": 20,
+          "n_pairs": 48,
+          "reference": "van",
+          "scope": "generic",
+          "subset": "fit_only",
+          "system": "extracted rule + SBERT (weak fine-tuned)",
+          "value": 0.771429
+        },
+        {
+          "ci": [
+            0.458501,
+            0.726177
+          ],
+          "metric": "pairwise",
+          "n_jd": 19,
+          "n_jd_excluded": 1,
+          "n_pairs": 115,
+          "reference": "van",
+          "scope": "targeted",
+          "subset": "fit_only",
+          "system": "extracted rule + SBERT (weak fine-tuned)",
+          "value": 0.594136
+        },
+        {
+          "ci": [
+            0.563394,
+            0.770175
+          ],
+          "metric": "pairwise",
+          "n_jd": 33,
+          "n_jd_excluded": 21,
+          "n_pairs": 163,
+          "reference": "van",
+          "scope": "total",
+          "subset": "fit_only",
+          "system": "extracted rule + SBERT (weak fine-tuned)",
+          "value": 0.669351
+        },
+        {
+          "ci": [
+            0.933374,
+            0.975893
+          ],
+          "metric": "ndcg",
+          "n_jd": 33,
+          "n_jd_excluded": 6,
+          "n_pairs": 117,
+          "reference": "mean",
+          "scope": "generic",
+          "subset": "full",
+          "system": "extracted rule + SBERT (weak fine-tuned)",
+          "value": 0.956046
+        },
+        {
+          "ci": [
+            0.809359,
+            0.909134
+          ],
+          "metric": "ndcg",
+          "n_jd": 20,
+          "n_jd_excluded": 0,
+          "n_pairs": 200,
+          "reference": "mean",
+          "scope": "targeted",
+          "subset": "full",
+          "system": "extracted rule + SBERT (weak fine-tuned)",
+          "value": 0.861056
+        },
+        {
+          "ci": [
+            0.893066,
+            0.944996
+          ],
+          "metric": "ndcg",
+          "n_jd": 53,
+          "n_jd_excluded": 6,
+          "n_pairs": 317,
+          "reference": "mean",
+          "scope": "total",
+          "subset": "full",
+          "system": "extracted rule + SBERT (weak fine-tuned)",
+          "value": 0.920201
+        },
+        {
+          "ci": [
+            0.589586,
+            0.840961
+          ],
+          "metric": "pairwise",
+          "n_jd": 33,
+          "n_jd_excluded": 6,
+          "n_pairs": 117,
+          "reference": "mean",
+          "scope": "generic",
+          "subset": "full",
+          "system": "extracted rule + SBERT (weak fine-tuned)",
+          "value": 0.719146
+        },
+        {
+          "ci": [
+            0.623533,
+            0.778601
+          ],
+          "metric": "pairwise",
+          "n_jd": 20,
+          "n_jd_excluded": 0,
+          "n_pairs": 200,
+          "reference": "mean",
+          "scope": "targeted",
+          "subset": "full",
+          "system": "extracted rule + SBERT (weak fine-tuned)",
+          "value": 0.703404
+        },
+        {
+          "ci": [
+            0.624037,
+            0.795454
+          ],
+          "metric": "pairwise",
+          "n_jd": 53,
+          "n_jd_excluded": 6,
+          "n_pairs": 317,
+          "reference": "mean",
+          "scope": "total",
+          "subset": "full",
+          "system": "extracted rule + SBERT (weak fine-tuned)",
+          "value": 0.713205
+        },
+        {
+          "ci": [
+            0.958428,
+            0.988105
+          ],
+          "metric": "ndcg",
+          "n_jd": 23,
+          "n_jd_excluded": 12,
+          "n_pairs": 76,
+          "reference": "mean",
+          "scope": "generic",
+          "subset": "llm_free",
+          "system": "extracted rule + SBERT (weak fine-tuned)",
+          "value": 0.973963
+        },
+        {
+          "ci": [
+            0.857455,
+            0.955747
+          ],
+          "metric": "ndcg",
+          "n_jd": 17,
+          "n_jd_excluded": 3,
+          "n_pairs": 110,
+          "reference": "mean",
+          "scope": "targeted",
+          "subset": "llm_free",
+          "system": "extracted rule + SBERT (weak fine-tuned)",
+          "value": 0.909733
+        },
+        {
+          "ci": [
+            0.919388,
+            0.969333
+          ],
+          "metric": "ndcg",
+          "n_jd": 40,
+          "n_jd_excluded": 15,
+          "n_pairs": 186,
+          "reference": "mean",
+          "scope": "total",
+          "subset": "llm_free",
+          "system": "extracted rule + SBERT (weak fine-tuned)",
+          "value": 0.946665
+        },
+        {
+          "ci": [
+            0.628986,
+            0.905797
+          ],
+          "metric": "pairwise",
+          "n_jd": 23,
+          "n_jd_excluded": 12,
+          "n_pairs": 76,
+          "reference": "mean",
+          "scope": "generic",
+          "subset": "llm_free",
+          "system": "extracted rule + SBERT (weak fine-tuned)",
+          "value": 0.777536
+        },
+        {
+          "ci": [
+            0.714977,
+            0.89536
+          ],
+          "metric": "pairwise",
+          "n_jd": 17,
+          "n_jd_excluded": 3,
+          "n_pairs": 110,
+          "reference": "mean",
+          "scope": "targeted",
+          "subset": "llm_free",
+          "system": "extracted rule + SBERT (weak fine-tuned)",
+          "value": 0.810035
+        },
+        {
+          "ci": [
+            0.696453,
+            0.874776
+          ],
+          "metric": "pairwise",
+          "n_jd": 40,
+          "n_jd_excluded": 15,
+          "n_pairs": 186,
+          "reference": "mean",
+          "scope": "total",
+          "subset": "llm_free",
+          "system": "extracted rule + SBERT (weak fine-tuned)",
+          "value": 0.791348
+        },
+        {
+          "ci": [
+            0.951533,
+            0.985198
+          ],
+          "metric": "ndcg",
+          "n_jd": 20,
+          "n_jd_excluded": 14,
+          "n_pairs": 63,
+          "reference": "mean",
+          "scope": "generic",
+          "subset": "fit_only",
+          "system": "extracted rule + SBERT (weak fine-tuned)",
+          "value": 0.969151
+        },
+        {
+          "ci": [
+            0.906782,
+            0.963802
+          ],
+          "metric": "ndcg",
+          "n_jd": 19,
+          "n_jd_excluded": 1,
+          "n_pairs": 115,
+          "reference": "mean",
+          "scope": "targeted",
+          "subset": "fit_only",
+          "system": "extracted rule + SBERT (weak fine-tuned)",
+          "value": 0.93706
+        },
+        {
+          "ci": [
+            0.935803,
+            0.969764
+          ],
+          "metric": "ndcg",
+          "n_jd": 39,
+          "n_jd_excluded": 15,
+          "n_pairs": 178,
+          "reference": "mean",
+          "scope": "total",
+          "subset": "fit_only",
+          "system": "extracted rule + SBERT (weak fine-tuned)",
+          "value": 0.953517
+        },
+        {
+          "ci": [
+            0.521667,
+            0.86
+          ],
+          "metric": "pairwise",
+          "n_jd": 20,
+          "n_jd_excluded": 14,
+          "n_pairs": 63,
+          "reference": "mean",
+          "scope": "generic",
+          "subset": "fit_only",
+          "system": "extracted rule + SBERT (weak fine-tuned)",
+          "value": 0.705
+        },
+        {
+          "ci": [
+            0.535824,
+            0.799698
+          ],
+          "metric": "pairwise",
+          "n_jd": 19,
+          "n_jd_excluded": 1,
+          "n_pairs": 115,
+          "reference": "mean",
+          "scope": "targeted",
+          "subset": "fit_only",
+          "system": "extracted rule + SBERT (weak fine-tuned)",
+          "value": 0.674045
+        },
+        {
+          "ci": [
+            0.580017,
+            0.791333
+          ],
+          "metric": "pairwise",
+          "n_jd": 39,
+          "n_jd_excluded": 15,
+          "n_pairs": 178,
+          "reference": "mean",
+          "scope": "total",
+          "subset": "fit_only",
+          "system": "extracted rule + SBERT (weak fine-tuned)",
+          "value": 0.689919
+        },
+        {
+          "ci": [
+            0.886127,
+            0.949755
+          ],
+          "metric": "ndcg",
+          "n_jd": 38,
+          "n_jd_excluded": 2,
+          "n_pairs": 258,
+          "reference": "yc_single",
+          "scope": "generic",
+          "subset": "full",
+          "system": "extracted rule + SBERT (weak fine-tuned)",
+          "value": 0.921182
+        },
+        {
+          "ci": null,
+          "metric": "ndcg",
+          "n_jd": 0,
+          "n_jd_excluded": 0,
+          "n_pairs": 0,
+          "reference": "yc_single",
+          "scope": "targeted",
+          "subset": "full",
+          "system": "extracted rule + SBERT (weak fine-tuned)",
+          "value": null
+        },
+        {
+          "ci": [
+            0.886127,
+            0.949755
+          ],
+          "metric": "ndcg",
+          "n_jd": 38,
+          "n_jd_excluded": 2,
+          "n_pairs": 258,
+          "reference": "yc_single",
+          "scope": "total",
+          "subset": "full",
+          "system": "extracted rule + SBERT (weak fine-tuned)",
+          "value": 0.921182
+        },
+        {
+          "ci": [
+            0.765213,
+            0.865962
+          ],
+          "metric": "pairwise",
+          "n_jd": 38,
+          "n_jd_excluded": 2,
+          "n_pairs": 258,
+          "reference": "yc_single",
+          "scope": "generic",
+          "subset": "full",
+          "system": "extracted rule + SBERT (weak fine-tuned)",
+          "value": 0.817911
+        },
+        {
+          "ci": null,
+          "metric": "pairwise",
+          "n_jd": 0,
+          "n_jd_excluded": 0,
+          "n_pairs": 0,
+          "reference": "yc_single",
+          "scope": "targeted",
+          "subset": "full",
+          "system": "extracted rule + SBERT (weak fine-tuned)",
+          "value": null
+        },
+        {
+          "ci": [
+            0.765213,
+            0.865962
+          ],
+          "metric": "pairwise",
+          "n_jd": 38,
+          "n_jd_excluded": 2,
+          "n_pairs": 258,
+          "reference": "yc_single",
+          "scope": "total",
+          "subset": "full",
+          "system": "extracted rule + SBERT (weak fine-tuned)",
+          "value": 0.817911
+        },
+        {
+          "ci": [
+            0.886127,
+            0.949755
+          ],
+          "metric": "ndcg",
+          "n_jd": 38,
+          "n_jd_excluded": 2,
+          "n_pairs": 258,
+          "reference": "yc_single",
+          "scope": "generic",
+          "subset": "llm_free",
+          "system": "extracted rule + SBERT (weak fine-tuned)",
+          "value": 0.921182
+        },
+        {
+          "ci": null,
+          "metric": "ndcg",
+          "n_jd": 0,
+          "n_jd_excluded": 0,
+          "n_pairs": 0,
+          "reference": "yc_single",
+          "scope": "targeted",
+          "subset": "llm_free",
+          "system": "extracted rule + SBERT (weak fine-tuned)",
+          "value": null
+        },
+        {
+          "ci": [
+            0.886127,
+            0.949755
+          ],
+          "metric": "ndcg",
+          "n_jd": 38,
+          "n_jd_excluded": 2,
+          "n_pairs": 258,
+          "reference": "yc_single",
+          "scope": "total",
+          "subset": "llm_free",
+          "system": "extracted rule + SBERT (weak fine-tuned)",
+          "value": 0.921182
+        },
+        {
+          "ci": [
+            0.765213,
+            0.865962
+          ],
+          "metric": "pairwise",
+          "n_jd": 38,
+          "n_jd_excluded": 2,
+          "n_pairs": 258,
+          "reference": "yc_single",
+          "scope": "generic",
+          "subset": "llm_free",
+          "system": "extracted rule + SBERT (weak fine-tuned)",
+          "value": 0.817911
+        },
+        {
+          "ci": null,
+          "metric": "pairwise",
+          "n_jd": 0,
+          "n_jd_excluded": 0,
+          "n_pairs": 0,
+          "reference": "yc_single",
+          "scope": "targeted",
+          "subset": "llm_free",
+          "system": "extracted rule + SBERT (weak fine-tuned)",
+          "value": null
+        },
+        {
+          "ci": [
+            0.765213,
+            0.865962
+          ],
+          "metric": "pairwise",
+          "n_jd": 38,
+          "n_jd_excluded": 2,
+          "n_pairs": 258,
+          "reference": "yc_single",
+          "scope": "total",
+          "subset": "llm_free",
+          "system": "extracted rule + SBERT (weak fine-tuned)",
+          "value": 0.817911
+        },
+        {
+          "ci": [
+            0.930627,
+            0.969879
+          ],
+          "metric": "ndcg",
+          "n_jd": 27,
+          "n_jd_excluded": 11,
+          "n_pairs": 130,
+          "reference": "yc_single",
+          "scope": "generic",
+          "subset": "fit_only",
+          "system": "extracted rule + SBERT (weak fine-tuned)",
+          "value": 0.950975
+        },
+        {
+          "ci": null,
+          "metric": "ndcg",
+          "n_jd": 0,
+          "n_jd_excluded": 0,
+          "n_pairs": 0,
+          "reference": "yc_single",
+          "scope": "targeted",
+          "subset": "fit_only",
+          "system": "extracted rule + SBERT (weak fine-tuned)",
+          "value": null
+        },
+        {
+          "ci": [
+            0.930627,
+            0.969879
+          ],
+          "metric": "ndcg",
+          "n_jd": 27,
+          "n_jd_excluded": 11,
+          "n_pairs": 130,
+          "reference": "yc_single",
+          "scope": "total",
+          "subset": "fit_only",
+          "system": "extracted rule + SBERT (weak fine-tuned)",
+          "value": 0.950975
+        },
+        {
+          "ci": [
+            0.610185,
+            0.799383
+          ],
+          "metric": "pairwise",
+          "n_jd": 27,
+          "n_jd_excluded": 11,
+          "n_pairs": 130,
+          "reference": "yc_single",
+          "scope": "generic",
+          "subset": "fit_only",
+          "system": "extracted rule + SBERT (weak fine-tuned)",
+          "value": 0.705864
+        },
+        {
+          "ci": null,
+          "metric": "pairwise",
+          "n_jd": 0,
+          "n_jd_excluded": 0,
+          "n_pairs": 0,
+          "reference": "yc_single",
+          "scope": "targeted",
+          "subset": "fit_only",
+          "system": "extracted rule + SBERT (weak fine-tuned)",
+          "value": null
+        },
+        {
+          "ci": [
+            0.610185,
+            0.799383
+          ],
+          "metric": "pairwise",
+          "n_jd": 27,
+          "n_jd_excluded": 11,
+          "n_pairs": 130,
+          "reference": "yc_single",
+          "scope": "total",
+          "subset": "fit_only",
+          "system": "extracted rule + SBERT (weak fine-tuned)",
+          "value": 0.705864
+        }
+      ],
+      "extracted rule + TF-IDF": [
+        {
+          "ci": [
+            0.865627,
+            0.927836
+          ],
+          "metric": "ndcg",
+          "n_jd": 38,
+          "n_jd_excluded": 2,
+          "n_pairs": 380,
+          "reference": "yc",
+          "scope": "generic",
+          "subset": "full",
+          "system": "extracted rule + TF-IDF",
+          "value": 0.898939
+        },
+        {
+          "ci": [
+            0.753358,
+            0.883649
+          ],
+          "metric": "ndcg",
+          "n_jd": 18,
+          "n_jd_excluded": 2,
+          "n_pairs": 180,
+          "reference": "yc",
+          "scope": "targeted",
+          "subset": "full",
+          "system": "extracted rule + TF-IDF",
+          "value": 0.822228
+        },
+        {
+          "ci": [
+            0.842228,
+            0.903379
+          ],
+          "metric": "ndcg",
+          "n_jd": 56,
+          "n_jd_excluded": 4,
+          "n_pairs": 560,
+          "reference": "yc",
+          "scope": "total",
+          "subset": "full",
+          "system": "extracted rule + TF-IDF",
+          "value": 0.874282
+        },
+        {
+          "ci": [
+            0.772575,
+            0.853093
+          ],
+          "metric": "pairwise",
+          "n_jd": 38,
+          "n_jd_excluded": 2,
+          "n_pairs": 380,
+          "reference": "yc",
+          "scope": "generic",
+          "subset": "full",
+          "system": "extracted rule + TF-IDF",
+          "value": 0.813694
+        },
+        {
+          "ci": [
+            0.76816,
+            0.874916
+          ],
+          "metric": "pairwise",
+          "n_jd": 18,
+          "n_jd_excluded": 2,
+          "n_pairs": 180,
+          "reference": "yc",
+          "scope": "targeted",
+          "subset": "full",
+          "system": "extracted rule + TF-IDF",
+          "value": 0.824507
+        },
+        {
+          "ci": [
+            0.783989,
+            0.848502
+          ],
+          "metric": "pairwise",
+          "n_jd": 56,
+          "n_jd_excluded": 4,
+          "n_pairs": 560,
+          "reference": "yc",
+          "scope": "total",
+          "subset": "full",
+          "system": "extracted rule + TF-IDF",
+          "value": 0.817169
+        },
+        {
+          "ci": [
+            0.86796,
+            0.9307
+          ],
+          "metric": "ndcg",
+          "n_jd": 38,
+          "n_jd_excluded": 2,
+          "n_pairs": 350,
+          "reference": "yc",
+          "scope": "generic",
+          "subset": "llm_free",
+          "system": "extracted rule + TF-IDF",
+          "value": 0.901526
+        },
+        {
+          "ci": [
+            0.839277,
+            0.941187
+          ],
+          "metric": "ndcg",
+          "n_jd": 17,
+          "n_jd_excluded": 3,
+          "n_pairs": 110,
+          "reference": "yc",
+          "scope": "targeted",
+          "subset": "llm_free",
+          "system": "extracted rule + TF-IDF",
+          "value": 0.892759
+        },
+        {
+          "ci": [
+            0.871192,
+            0.924502
+          ],
+          "metric": "ndcg",
+          "n_jd": 55,
+          "n_jd_excluded": 5,
+          "n_pairs": 460,
+          "reference": "yc",
+          "scope": "total",
+          "subset": "llm_free",
+          "system": "extracted rule + TF-IDF",
+          "value": 0.898816
+        },
+        {
+          "ci": [
+            0.767823,
+            0.851918
+          ],
+          "metric": "pairwise",
+          "n_jd": 38,
+          "n_jd_excluded": 2,
+          "n_pairs": 350,
+          "reference": "yc",
+          "scope": "generic",
+          "subset": "llm_free",
+          "system": "extracted rule + TF-IDF",
+          "value": 0.810936
+        },
+        {
+          "ci": [
+            0.759431,
+            0.903333
+          ],
+          "metric": "pairwise",
+          "n_jd": 17,
+          "n_jd_excluded": 3,
+          "n_pairs": 110,
+          "reference": "yc",
+          "scope": "targeted",
+          "subset": "llm_free",
+          "system": "extracted rule + TF-IDF",
+          "value": 0.834265
+        },
+        {
+          "ci": [
+            0.780888,
+            0.85454
+          ],
+          "metric": "pairwise",
+          "n_jd": 55,
+          "n_jd_excluded": 5,
+          "n_pairs": 460,
+          "reference": "yc",
+          "scope": "total",
+          "subset": "llm_free",
+          "system": "extracted rule + TF-IDF",
+          "value": 0.818147
+        },
+        {
+          "ci": [
+            0.909503,
+            0.946829
+          ],
+          "metric": "ndcg",
+          "n_jd": 32,
+          "n_jd_excluded": 7,
+          "n_pairs": 216,
+          "reference": "yc",
+          "scope": "generic",
+          "subset": "fit_only",
+          "system": "extracted rule + TF-IDF",
+          "value": 0.92834
+        },
+        {
+          "ci": [
+            0.785259,
+            0.899186
+          ],
+          "metric": "ndcg",
+          "n_jd": 17,
+          "n_jd_excluded": 3,
+          "n_pairs": 109,
+          "reference": "yc",
+          "scope": "targeted",
+          "subset": "fit_only",
+          "system": "extracted rule + TF-IDF",
+          "value": 0.845741
+        },
+        {
+          "ci": [
+            0.872242,
+            0.923772
+          ],
+          "metric": "ndcg",
+          "n_jd": 49,
+          "n_jd_excluded": 10,
+          "n_pairs": 325,
+          "reference": "yc",
+          "scope": "total",
+          "subset": "fit_only",
+          "system": "extracted rule + TF-IDF",
+          "value": 0.899683
+        },
+        {
+          "ci": [
+            0.553335,
+            0.730931
+          ],
+          "metric": "pairwise",
+          "n_jd": 32,
+          "n_jd_excluded": 7,
+          "n_pairs": 216,
+          "reference": "yc",
+          "scope": "generic",
+          "subset": "fit_only",
+          "system": "extracted rule + TF-IDF",
+          "value": 0.645324
+        },
+        {
+          "ci": [
+            0.637402,
+            0.785999
+          ],
+          "metric": "pairwise",
+          "n_jd": 17,
+          "n_jd_excluded": 3,
+          "n_pairs": 109,
+          "reference": "yc",
+          "scope": "targeted",
+          "subset": "fit_only",
+          "system": "extracted rule + TF-IDF",
+          "value": 0.713057
+        },
+        {
+          "ci": [
+            0.603619,
+            0.730568
+          ],
+          "metric": "pairwise",
+          "n_jd": 49,
+          "n_jd_excluded": 10,
+          "n_pairs": 325,
+          "reference": "yc",
+          "scope": "total",
+          "subset": "fit_only",
+          "system": "extracted rule + TF-IDF",
+          "value": 0.668823
+        },
+        {
+          "ci": [
+            0.913729,
+            0.971399
+          ],
+          "metric": "ndcg",
+          "n_jd": 31,
+          "n_jd_excluded": 8,
+          "n_pairs": 112,
+          "reference": "van",
+          "scope": "generic",
+          "subset": "full",
+          "system": "extracted rule + TF-IDF",
+          "value": 0.944948
+        },
+        {
+          "ci": [
+            0.758221,
+            0.879575
+          ],
+          "metric": "ndcg",
+          "n_jd": 20,
+          "n_jd_excluded": 0,
+          "n_pairs": 200,
+          "reference": "van",
+          "scope": "targeted",
+          "subset": "full",
+          "system": "extracted rule + TF-IDF",
+          "value": 0.822702
+        },
+        {
+          "ci": [
+            0.862205,
+            0.928492
+          ],
+          "metric": "ndcg",
+          "n_jd": 51,
+          "n_jd_excluded": 8,
+          "n_pairs": 312,
+          "reference": "van",
+          "scope": "total",
+          "subset": "full",
+          "system": "extracted rule + TF-IDF",
+          "value": 0.897009
+        },
+        {
+          "ci": [
+            0.604224,
+            0.841477
+          ],
+          "metric": "pairwise",
+          "n_jd": 31,
+          "n_jd_excluded": 8,
+          "n_pairs": 112,
+          "reference": "van",
+          "scope": "generic",
+          "subset": "full",
+          "system": "extracted rule + TF-IDF",
+          "value": 0.727929
+        },
+        {
+          "ci": [
+            0.555413,
+            0.739392
+          ],
+          "metric": "pairwise",
+          "n_jd": 20,
+          "n_jd_excluded": 0,
+          "n_pairs": 200,
+          "reference": "van",
+          "scope": "targeted",
+          "subset": "full",
+          "system": "extracted rule + TF-IDF",
+          "value": 0.652669
+        },
+        {
+          "ci": [
+            0.614214,
+            0.775865
+          ],
+          "metric": "pairwise",
+          "n_jd": 51,
+          "n_jd_excluded": 8,
+          "n_pairs": 312,
+          "reference": "van",
+          "scope": "total",
+          "subset": "full",
+          "system": "extracted rule + TF-IDF",
+          "value": 0.698415
+        },
+        {
+          "ci": [
+            0.921247,
+            0.989969
+          ],
+          "metric": "ndcg",
+          "n_jd": 21,
+          "n_jd_excluded": 14,
+          "n_pairs": 71,
+          "reference": "van",
+          "scope": "generic",
+          "subset": "llm_free",
+          "system": "extracted rule + TF-IDF",
+          "value": 0.959559
+        },
+        {
+          "ci": [
+            0.861817,
+            0.96992
+          ],
+          "metric": "ndcg",
+          "n_jd": 17,
+          "n_jd_excluded": 3,
+          "n_pairs": 110,
+          "reference": "van",
+          "scope": "targeted",
+          "subset": "llm_free",
+          "system": "extracted rule + TF-IDF",
+          "value": 0.921503
+        },
+        {
+          "ci": [
+            0.908694,
+            0.971373
+          ],
+          "metric": "ndcg",
+          "n_jd": 38,
+          "n_jd_excluded": 17,
+          "n_pairs": 181,
+          "reference": "van",
+          "scope": "total",
+          "subset": "llm_free",
+          "system": "extracted rule + TF-IDF",
+          "value": 0.942534
+        },
+        {
+          "ci": [
+            0.673016,
+            0.936508
+          ],
+          "metric": "pairwise",
+          "n_jd": 21,
+          "n_jd_excluded": 14,
+          "n_pairs": 71,
+          "reference": "van",
+          "scope": "generic",
+          "subset": "llm_free",
+          "system": "extracted rule + TF-IDF",
+          "value": 0.816667
+        },
+        {
+          "ci": [
+            0.773686,
+            0.927001
+          ],
+          "metric": "pairwise",
+          "n_jd": 17,
+          "n_jd_excluded": 3,
+          "n_pairs": 110,
+          "reference": "van",
+          "scope": "targeted",
+          "subset": "llm_free",
+          "system": "extracted rule + TF-IDF",
+          "value": 0.85489
+        },
+        {
+          "ci": [
+            0.745119,
+            0.909144
+          ],
+          "metric": "pairwise",
+          "n_jd": 38,
+          "n_jd_excluded": 17,
+          "n_pairs": 181,
+          "reference": "van",
+          "scope": "total",
+          "subset": "llm_free",
+          "system": "extracted rule + TF-IDF",
+          "value": 0.833767
+        },
+        {
+          "ci": [
+            0.914772,
+            0.981604
+          ],
+          "metric": "ndcg",
+          "n_jd": 14,
+          "n_jd_excluded": 20,
+          "n_pairs": 48,
+          "reference": "van",
+          "scope": "generic",
+          "subset": "fit_only",
+          "system": "extracted rule + TF-IDF",
+          "value": 0.949546
+        },
+        {
+          "ci": [
+            0.837801,
+            0.940864
+          ],
+          "metric": "ndcg",
+          "n_jd": 19,
+          "n_jd_excluded": 1,
+          "n_pairs": 115,
+          "reference": "van",
+          "scope": "targeted",
+          "subset": "fit_only",
+          "system": "extracted rule + TF-IDF",
+          "value": 0.894837
+        },
+        {
+          "ci": [
+            0.881578,
+            0.949415
+          ],
+          "metric": "ndcg",
+          "n_jd": 33,
+          "n_jd_excluded": 21,
+          "n_pairs": 163,
+          "reference": "van",
+          "scope": "total",
+          "subset": "fit_only",
+          "system": "extracted rule + TF-IDF",
+          "value": 0.918047
+        },
+        {
+          "ci": [
+            0.465476,
+            0.857143
+          ],
+          "metric": "pairwise",
+          "n_jd": 14,
+          "n_jd_excluded": 20,
+          "n_pairs": 48,
+          "reference": "van",
+          "scope": "generic",
+          "subset": "fit_only",
+          "system": "extracted rule + TF-IDF",
+          "value": 0.667857
+        },
+        {
+          "ci": [
+            0.494785,
+            0.760913
+          ],
+          "metric": "pairwise",
+          "n_jd": 19,
+          "n_jd_excluded": 1,
+          "n_pairs": 115,
+          "reference": "van",
+          "scope": "targeted",
+          "subset": "fit_only",
+          "system": "extracted rule + TF-IDF",
+          "value": 0.633212
+        },
+        {
+          "ci": [
+            0.530807,
+            0.760519
+          ],
+          "metric": "pairwise",
+          "n_jd": 33,
+          "n_jd_excluded": 21,
+          "n_pairs": 163,
+          "reference": "van",
+          "scope": "total",
+          "subset": "fit_only",
+          "system": "extracted rule + TF-IDF",
+          "value": 0.64791
+        },
+        {
+          "ci": [
+            0.924377,
+            0.97565
+          ],
+          "metric": "ndcg",
+          "n_jd": 33,
+          "n_jd_excluded": 6,
+          "n_pairs": 117,
+          "reference": "mean",
+          "scope": "generic",
+          "subset": "full",
+          "system": "extracted rule + TF-IDF",
+          "value": 0.95194
+        },
+        {
+          "ci": [
+            0.83194,
+            0.896581
+          ],
+          "metric": "ndcg",
+          "n_jd": 20,
+          "n_jd_excluded": 0,
+          "n_pairs": 200,
+          "reference": "mean",
+          "scope": "targeted",
+          "subset": "full",
+          "system": "extracted rule + TF-IDF",
+          "value": 0.864662
+        },
+        {
+          "ci": [
+            0.894987,
+            0.941249
+          ],
+          "metric": "ndcg",
+          "n_jd": 53,
+          "n_jd_excluded": 6,
+          "n_pairs": 317,
+          "reference": "mean",
+          "scope": "total",
+          "subset": "full",
+          "system": "extracted rule + TF-IDF",
+          "value": 0.919005
+        },
+        {
+          "ci": [
+            0.648158,
+            0.859273
+          ],
+          "metric": "pairwise",
+          "n_jd": 33,
+          "n_jd_excluded": 6,
+          "n_pairs": 117,
+          "reference": "mean",
+          "scope": "generic",
+          "subset": "full",
+          "system": "extracted rule + TF-IDF",
+          "value": 0.758145
+        },
+        {
+          "ci": [
+            0.652649,
+            0.783825
+          ],
+          "metric": "pairwise",
+          "n_jd": 20,
+          "n_jd_excluded": 0,
+          "n_pairs": 200,
+          "reference": "mean",
+          "scope": "targeted",
+          "subset": "full",
+          "system": "extracted rule + TF-IDF",
+          "value": 0.721081
+        },
+        {
+          "ci": [
+            0.669422,
+            0.812715
+          ],
+          "metric": "pairwise",
+          "n_jd": 53,
+          "n_jd_excluded": 6,
+          "n_pairs": 317,
+          "reference": "mean",
+          "scope": "total",
+          "subset": "full",
+          "system": "extracted rule + TF-IDF",
+          "value": 0.744158
+        },
+        {
+          "ci": [
+            0.925383,
+            0.987152
+          ],
+          "metric": "ndcg",
+          "n_jd": 23,
+          "n_jd_excluded": 12,
+          "n_pairs": 76,
+          "reference": "mean",
+          "scope": "generic",
+          "subset": "llm_free",
+          "system": "extracted rule + TF-IDF",
+          "value": 0.960045
+        },
+        {
+          "ci": [
+            0.869654,
+            0.966283
+          ],
+          "metric": "ndcg",
+          "n_jd": 17,
+          "n_jd_excluded": 3,
+          "n_pairs": 110,
+          "reference": "mean",
+          "scope": "targeted",
+          "subset": "llm_free",
+          "system": "extracted rule + TF-IDF",
+          "value": 0.922513
+        },
+        {
+          "ci": [
+            0.914151,
+            0.970912
+          ],
+          "metric": "ndcg",
+          "n_jd": 40,
+          "n_jd_excluded": 15,
+          "n_pairs": 186,
+          "reference": "mean",
+          "scope": "total",
+          "subset": "llm_free",
+          "system": "extracted rule + TF-IDF",
+          "value": 0.944094
+        },
+        {
+          "ci": [
+            0.657953,
+            0.905797
+          ],
+          "metric": "pairwise",
+          "n_jd": 23,
+          "n_jd_excluded": 12,
+          "n_pairs": 76,
+          "reference": "mean",
+          "scope": "generic",
+          "subset": "llm_free",
+          "system": "extracted rule + TF-IDF",
+          "value": 0.79058
+        },
+        {
+          "ci": [
+            0.765125,
+            0.916189
+          ],
+          "metric": "pairwise",
+          "n_jd": 17,
+          "n_jd_excluded": 3,
+          "n_pairs": 110,
+          "reference": "mean",
+          "scope": "targeted",
+          "subset": "llm_free",
+          "system": "extracted rule + TF-IDF",
+          "value": 0.844022
+        },
+        {
+          "ci": [
+            0.728821,
+            0.8894
+          ],
+          "metric": "pairwise",
+          "n_jd": 40,
+          "n_jd_excluded": 15,
+          "n_pairs": 186,
+          "reference": "mean",
+          "scope": "total",
+          "subset": "llm_free",
+          "system": "extracted rule + TF-IDF",
+          "value": 0.813293
+        },
+        {
+          "ci": [
+            0.937761,
+            0.983313
+          ],
+          "metric": "ndcg",
+          "n_jd": 20,
+          "n_jd_excluded": 14,
+          "n_pairs": 63,
+          "reference": "mean",
+          "scope": "generic",
+          "subset": "fit_only",
+          "system": "extracted rule + TF-IDF",
+          "value": 0.962032
+        },
+        {
+          "ci": [
+            0.892348,
+            0.948347
+          ],
+          "metric": "ndcg",
+          "n_jd": 19,
+          "n_jd_excluded": 1,
+          "n_pairs": 115,
+          "reference": "mean",
+          "scope": "targeted",
+          "subset": "fit_only",
+          "system": "extracted rule + TF-IDF",
+          "value": 0.920617
+        },
+        {
+          "ci": [
+            0.922219,
+            0.960741
+          ],
+          "metric": "ndcg",
+          "n_jd": 39,
+          "n_jd_excluded": 15,
+          "n_pairs": 178,
+          "reference": "mean",
+          "scope": "total",
+          "subset": "fit_only",
+          "system": "extracted rule + TF-IDF",
+          "value": 0.941855
+        },
+        {
+          "ci": [
+            0.53,
+            0.853333
+          ],
+          "metric": "pairwise",
+          "n_jd": 20,
+          "n_jd_excluded": 14,
+          "n_pairs": 63,
+          "reference": "mean",
+          "scope": "generic",
+          "subset": "fit_only",
+          "system": "extracted rule + TF-IDF",
+          "value": 0.699167
+        },
+        {
+          "ci": [
+            0.540213,
+            0.779601
+          ],
+          "metric": "pairwise",
+          "n_jd": 19,
+          "n_jd_excluded": 1,
+          "n_pairs": 115,
+          "reference": "mean",
+          "scope": "targeted",
+          "subset": "fit_only",
+          "system": "extracted rule + TF-IDF",
+          "value": 0.664817
+        },
+        {
+          "ci": [
+            0.578705,
+            0.780561
+          ],
+          "metric": "pairwise",
+          "n_jd": 39,
+          "n_jd_excluded": 15,
+          "n_pairs": 178,
+          "reference": "mean",
+          "scope": "total",
+          "subset": "fit_only",
+          "system": "extracted rule + TF-IDF",
+          "value": 0.682432
+        },
+        {
+          "ci": [
+            0.875904,
+            0.943241
+          ],
+          "metric": "ndcg",
+          "n_jd": 38,
+          "n_jd_excluded": 2,
+          "n_pairs": 258,
+          "reference": "yc_single",
+          "scope": "generic",
+          "subset": "full",
+          "system": "extracted rule + TF-IDF",
+          "value": 0.9114
+        },
+        {
+          "ci": null,
+          "metric": "ndcg",
+          "n_jd": 0,
+          "n_jd_excluded": 0,
+          "n_pairs": 0,
+          "reference": "yc_single",
+          "scope": "targeted",
+          "subset": "full",
+          "system": "extracted rule + TF-IDF",
+          "value": null
+        },
+        {
+          "ci": [
+            0.875904,
+            0.943241
+          ],
+          "metric": "ndcg",
+          "n_jd": 38,
+          "n_jd_excluded": 2,
+          "n_pairs": 258,
+          "reference": "yc_single",
+          "scope": "total",
+          "subset": "full",
+          "system": "extracted rule + TF-IDF",
+          "value": 0.9114
+        },
+        {
+          "ci": [
+            0.749617,
+            0.858504
+          ],
+          "metric": "pairwise",
+          "n_jd": 38,
+          "n_jd_excluded": 2,
+          "n_pairs": 258,
+          "reference": "yc_single",
+          "scope": "generic",
+          "subset": "full",
+          "system": "extracted rule + TF-IDF",
+          "value": 0.806018
+        },
+        {
+          "ci": null,
+          "metric": "pairwise",
+          "n_jd": 0,
+          "n_jd_excluded": 0,
+          "n_pairs": 0,
+          "reference": "yc_single",
+          "scope": "targeted",
+          "subset": "full",
+          "system": "extracted rule + TF-IDF",
+          "value": null
+        },
+        {
+          "ci": [
+            0.749617,
+            0.858504
+          ],
+          "metric": "pairwise",
+          "n_jd": 38,
+          "n_jd_excluded": 2,
+          "n_pairs": 258,
+          "reference": "yc_single",
+          "scope": "total",
+          "subset": "full",
+          "system": "extracted rule + TF-IDF",
+          "value": 0.806018
+        },
+        {
+          "ci": [
+            0.875904,
+            0.943241
+          ],
+          "metric": "ndcg",
+          "n_jd": 38,
+          "n_jd_excluded": 2,
+          "n_pairs": 258,
+          "reference": "yc_single",
+          "scope": "generic",
+          "subset": "llm_free",
+          "system": "extracted rule + TF-IDF",
+          "value": 0.9114
+        },
+        {
+          "ci": null,
+          "metric": "ndcg",
+          "n_jd": 0,
+          "n_jd_excluded": 0,
+          "n_pairs": 0,
+          "reference": "yc_single",
+          "scope": "targeted",
+          "subset": "llm_free",
+          "system": "extracted rule + TF-IDF",
+          "value": null
+        },
+        {
+          "ci": [
+            0.875904,
+            0.943241
+          ],
+          "metric": "ndcg",
+          "n_jd": 38,
+          "n_jd_excluded": 2,
+          "n_pairs": 258,
+          "reference": "yc_single",
+          "scope": "total",
+          "subset": "llm_free",
+          "system": "extracted rule + TF-IDF",
+          "value": 0.9114
+        },
+        {
+          "ci": [
+            0.749617,
+            0.858504
+          ],
+          "metric": "pairwise",
+          "n_jd": 38,
+          "n_jd_excluded": 2,
+          "n_pairs": 258,
+          "reference": "yc_single",
+          "scope": "generic",
+          "subset": "llm_free",
+          "system": "extracted rule + TF-IDF",
+          "value": 0.806018
+        },
+        {
+          "ci": null,
+          "metric": "pairwise",
+          "n_jd": 0,
+          "n_jd_excluded": 0,
+          "n_pairs": 0,
+          "reference": "yc_single",
+          "scope": "targeted",
+          "subset": "llm_free",
+          "system": "extracted rule + TF-IDF",
+          "value": null
+        },
+        {
+          "ci": [
+            0.749617,
+            0.858504
+          ],
+          "metric": "pairwise",
+          "n_jd": 38,
+          "n_jd_excluded": 2,
+          "n_pairs": 258,
+          "reference": "yc_single",
+          "scope": "total",
+          "subset": "llm_free",
+          "system": "extracted rule + TF-IDF",
+          "value": 0.806018
+        },
+        {
+          "ci": [
+            0.922851,
+            0.962654
+          ],
+          "metric": "ndcg",
+          "n_jd": 27,
+          "n_jd_excluded": 11,
+          "n_pairs": 130,
+          "reference": "yc_single",
+          "scope": "generic",
+          "subset": "fit_only",
+          "system": "extracted rule + TF-IDF",
+          "value": 0.943291
+        },
+        {
+          "ci": null,
+          "metric": "ndcg",
+          "n_jd": 0,
+          "n_jd_excluded": 0,
+          "n_pairs": 0,
+          "reference": "yc_single",
+          "scope": "targeted",
+          "subset": "fit_only",
+          "system": "extracted rule + TF-IDF",
+          "value": null
+        },
+        {
+          "ci": [
+            0.922851,
+            0.962654
+          ],
+          "metric": "ndcg",
+          "n_jd": 27,
+          "n_jd_excluded": 11,
+          "n_pairs": 130,
+          "reference": "yc_single",
+          "scope": "total",
+          "subset": "fit_only",
+          "system": "extracted rule + TF-IDF",
+          "value": 0.943291
+        },
+        {
+          "ci": [
+            0.558642,
+            0.775926
+          ],
+          "metric": "pairwise",
+          "n_jd": 27,
+          "n_jd_excluded": 11,
+          "n_pairs": 130,
+          "reference": "yc_single",
+          "scope": "generic",
+          "subset": "fit_only",
+          "system": "extracted rule + TF-IDF",
+          "value": 0.669753
+        },
+        {
+          "ci": null,
+          "metric": "pairwise",
+          "n_jd": 0,
+          "n_jd_excluded": 0,
+          "n_pairs": 0,
+          "reference": "yc_single",
+          "scope": "targeted",
+          "subset": "fit_only",
+          "system": "extracted rule + TF-IDF",
+          "value": null
+        },
+        {
+          "ci": [
+            0.558642,
+            0.775926
+          ],
+          "metric": "pairwise",
+          "n_jd": 27,
+          "n_jd_excluded": 11,
+          "n_pairs": 130,
+          "reference": "yc_single",
+          "scope": "total",
+          "subset": "fit_only",
+          "system": "extracted rule + TF-IDF",
+          "value": 0.669753
+        }
+      ]
+    }
+  },
+  "seed": 0
+}

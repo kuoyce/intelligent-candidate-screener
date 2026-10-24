@@ -1,0 +1,54 @@
+{
+  "l3_folds": [
+    {
+      "fold": 0,
+      "pairs": 4800,
+      "windows": 10124,
+      "epoch_loss": [
+        0.066877
+      ],
+      "train_seconds": 7471.6,
+      "score_seconds": 318.9
+    },
+    {
+      "fold": 1,
+      "pairs": 4800,
+      "windows": 9985,
+      "epoch_loss": [
+        0.065165
+      ],
+      "train_seconds": 7347.6,
+      "score_seconds": 353.2
+    },
+    {
+      "fold": 2,
+      "pairs": 4800,
+      "windows": 10085,
+      "epoch_loss": [
+        0.070801
+      ],
+      "train_seconds": 6722.7,
+      "score_seconds": 324.6
+    },
+    {
+      "fold": 3,
+      "pairs": 4800,
+      "windows": 10117,
+      "epoch_loss": [
+        0.069933
+      ],
+      "train_seconds": 6752.1,
+      "score_seconds": 303.3
+    },
+    {
+      "fold": 4,
+      "pairs": 4800,
+      "windows": 10117,
+      "epoch_loss": [
+        0.067164
+      ],
+      "train_seconds": 5007.5,
+      "score_seconds": 185.7
+    }
+  ]
+}

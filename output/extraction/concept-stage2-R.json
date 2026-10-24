@@ -1,0 +1,307 @@
+{
+  "arm": "R",
+  "curves": {
+    "A1-LLM": {
+      "boosting all (11)|10": 0.7728274252014217,
+      "boosting all (11)|25": 0.8173812382297552,
+      "boosting all (11)|50": 0.8367144538606404,
+      "boosting all (11)|70": 0.8456152138821631,
+      "logistic all (11)|10": 0.7954355167579967,
+      "logistic all (11)|25": 0.8236469599139091,
+      "logistic all (11)|50": 0.8381270513855259,
+      "logistic all (11)|70": 0.8420683010492332,
+      "logistic base (4)|10": 0.8430573255171827,
+      "logistic base (4)|25": 0.8449659671778316,
+      "logistic base (4)|50": 0.8518374024751143,
+      "logistic base (4)|70": 0.8535426755447941
+    },
+    "D50": {
+      "boosting all (11)|10": 0.8098229250739845,
+      "boosting all (11)|25": 0.8275313592951304,
+      "boosting all (11)|50": 0.8435017487220877,
+      "boosting all (11)|70": 0.8453927562550444,
+      "logistic all (11)|10": 0.817276466236212,
+      "logistic all (11)|25": 0.8317545735808448,
+      "logistic all (11)|50": 0.8381627993005113,
+      "logistic all (11)|70": 0.8416451103040087,
+      "logistic base (4)|10": 0.84679361716438,
+      "logistic base (4)|25": 0.8443949085283832,
+      "logistic base (4)|50": 0.8481118509550714,
+      "logistic base (4)|70": 0.8475590866290018
+    }
+  },
+  "final": [
+    {
+      "bar_met": false,
+      "ci_total": [
+        -0.008626,
+        0.021007
+      ],
+      "delta_generic": 0.00797,
+      "delta_targeted": 0.001637,
+      "delta_total": 0.005823,
+      "labels": "A1-LLM",
+      "learner": "logistic base (4)",
+      "name": "logistic base (4)",
+      "rise_25_70": 0.00857670836696256,
+      "still_rising": false
+    },
+    {
+      "bar_met": false,
+      "ci_total": [
+        -0.029589,
+        0.021623
+      ],
+      "delta_generic": 0.006596,
+      "delta_targeted": -0.02406,
+      "delta_total": -0.003795,
+      "labels": "A1-LLM",
+      "learner": "logistic all (11)",
+      "name": "logistic all (11)",
+      "rise_25_70": 0.01842134113532412,
+      "still_rising": true
+    },
+    {
+      "bar_met": false,
+      "ci_total": [
+        -0.023983,
+        0.022189
+      ],
+      "delta_generic": -0.000687,
+      "delta_targeted": -0.00119,
+      "delta_total": -0.000858,
+      "labels": "A1-LLM",
+      "learner": "boosting all (11)",
+      "name": "boosting all (11)",
+      "rise_25_70": 0.028233975652407928,
+      "still_rising": true
+    },
+    {
+      "bar_met": false,
+      "ci_total": [
+        -0.013839,
+        0.005997
+      ],
+      "delta_generic": -0.003994,
+      "delta_targeted": -0.003274,
+      "delta_total": -0.00375,
+      "labels": "D50",
+      "learner": "logistic base (4)",
+      "name": "logistic base (4)",
+      "rise_25_70": 0.003164178100618642,
+      "still_rising": false
+    },
+    {
+      "bar_met": false,
+      "ci_total": [
+        -0.029095,
+        0.008199
+      ],
+      "delta_generic": -0.002493,
+      "delta_targeted": -0.024869,
+      "delta_total": -0.010078,
+      "labels": "D50",
+      "learner": "logistic all (11)",
+      "name": "logistic all (11)",
+      "rise_25_70": 0.009890536723163867,
+      "still_rising": false
+    },
+    {
+      "bar_met": false,
+      "ci_total": [
+        -0.038063,
+        0.027823
+      ],
+      "delta_generic": 0.008572,
+      "delta_targeted": -0.029827,
+      "delta_total": -0.004444,
+      "labels": "D50",
+      "learner": "boosting all (11)",
+      "name": "boosting all (11)",
+      "rise_25_70": 0.017861396959913955,
+      "still_rising": true
+    }
+  ],
+  "fits": [
+    {
+      "bar_met": false,
+      "ci_total": [
+        -0.033799,
+        0.010241
+      ],
+      "delta_generic": -0.003291,
+      "delta_targeted": -0.028357,
+      "delta_total": -0.011788,
+      "features": "base (4)",
+      "labels": "A original all",
+      "name": "base (4) | A original all"
+    },
+    {
+      "bar_met": false,
+      "ci_total": [
+        -0.02606,
+        0.017369
+      ],
+      "delta_generic": -0.001535,
+      "delta_targeted": -0.009923,
+      "delta_total": -0.004379,
+      "features": "base (4)",
+      "labels": "B original matched",
+      "name": "base (4) | B original matched"
+    },
+    {
+      "bar_met": false,
+      "ci_total": [
+        -0.008626,
+        0.021007
+      ],
+      "delta_generic": 0.00797,
+      "delta_targeted": 0.001637,
+      "delta_total": 0.005823,
+      "features": "base (4)",
+      "labels": "C LLM matched",
+      "name": "base (4) | C LLM matched"
+    },
+    {
+      "bar_met": false,
+      "ci_total": [
+        -0.025396,
+        0.019953
+      ],
+      "delta_generic": 0.006172,
+      "delta_targeted": -0.01956,
+      "delta_total": -0.00255,
+      "features": "+ concepts / skills",
+      "labels": "A original all",
+      "name": "+ concepts / skills | A original all"
+    },
+    {
+      "bar_met": false,
+      "ci_total": [
+        -0.123158,
+        -0.032803
+      ],
+      "delta_generic": -0.053352,
+      "delta_targeted": -0.12175,
+      "delta_total": -0.076538,
+      "features": "+ concepts / skills",
+      "labels": "B original matched",
+      "name": "+ concepts / skills | B original matched"
+    },
+    {
+      "bar_met": false,
+      "ci_total": [
+        -0.031118,
+        0.012604
+      ],
+      "delta_generic": 0.002849,
+      "delta_targeted": -0.032756,
+      "delta_total": -0.00922,
+      "features": "+ concepts / skills",
+      "labels": "C LLM matched",
+      "name": "+ concepts / skills | C LLM matched"
+    },
+    {
+      "bar_met": false,
+      "ci_total": [
+        -0.042604,
+        0.011708
+      ],
+      "delta_generic": -0.007106,
+      "delta_targeted": -0.031101,
+      "delta_total": -0.01524,
+      "features": "+ experience",
+      "labels": "A original all",
+      "name": "+ experience | A original all"
+    },
+    {
+      "bar_met": false,
+      "ci_total": [
+        -0.065528,
+        -0.007427
+      ],
+      "delta_generic": -0.028499,
+      "delta_targeted": -0.048744,
+      "delta_total": -0.035362,
+      "features": "+ experience",
+      "labels": "B original matched",
+      "name": "+ experience | B original matched"
+    },
+    {
+      "bar_met": false,
+      "ci_total": [
+        -0.014125,
+        0.02219
+      ],
+      "delta_generic": 0.008937,
+      "delta_targeted": -0.006994,
+      "delta_total": 0.003536,
+      "features": "+ experience",
+      "labels": "C LLM matched",
+      "name": "+ experience | C LLM matched"
+    },
+    {
+      "bar_met": false,
+      "ci_total": [
+        -0.039061,
+        0.016013
+      ],
+      "delta_generic": 0.001441,
+      "delta_targeted": -0.035101,
+      "delta_total": -0.010946,
+      "features": "all",
+      "labels": "A original all",
+      "name": "all | A original all"
+    },
+    {
+      "bar_met": false,
+      "ci_total": [
+        -0.135641,
+        -0.046938
+      ],
+      "delta_generic": -0.061771,
+      "delta_targeted": -0.144464,
+      "delta_total": -0.089803,
+      "features": "all",
+      "labels": "B original matched",
+      "name": "all | B original matched"
+    },
+    {
+      "bar_met": false,
+      "ci_total": [
+        -0.029589,
+        0.021623
+      ],
+      "delta_generic": 0.006596,
+      "delta_targeted": -0.02406,
+      "delta_total": -0.003795,
+      "features": "all",
+      "labels": "C LLM matched",
+      "name": "all | C LLM matched"
+    }
+  ],
+  "reps": 20,
+  "verdict": {
+    "boosting all (11)": {
+      "bar_a1": false,
+      "bar_d50": false,
+      "more_labels_worth_scoping": false,
+      "pass": false,
+      "still_rising_a1": true
+    },
+    "logistic all (11)": {
+      "bar_a1": false,
+      "bar_d50": false,
+      "more_labels_worth_scoping": false,
+      "pass": false,
+      "still_rising_a1": true
+    },
+    "logistic base (4)": {
+      "bar_a1": false,
+      "bar_d50": false,
+      "more_labels_worth_scoping": false,
+      "pass": false,
+      "still_rising_a1": false
+    }
+  }
+}

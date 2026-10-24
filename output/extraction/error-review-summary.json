@@ -1,0 +1,96 @@
+{
+  "fit_side_flagged_by_source": {
+    "LLM only": {
+      "flagged": 11,
+      "n": 21
+    },
+    "both humans agree": {
+      "flagged": 1,
+      "n": 7
+    },
+    "humans split, the LLM broke the tie": {
+      "flagged": 7,
+      "n": 10
+    },
+    "one human only": {
+      "flagged": 2,
+      "n": 7
+    }
+  },
+  "n_cases": 45,
+  "n_sampled": 111,
+  "nofit_side_flagged_by_source": {
+    "LLM only": {
+      "flagged": 0,
+      "n": 21
+    },
+    "both humans agree": {
+      "flagged": 0,
+      "n": 7
+    },
+    "humans split, the LLM broke the tie": {
+      "flagged": 0,
+      "n": 7
+    },
+    "one human only": {
+      "flagged": 3,
+      "n": 10
+    }
+  },
+  "override_by_set": {
+    "A2 final": {
+      "both": 1,
+      "fit_side": 9,
+      "nofit_side": 2,
+      "none": 12
+    },
+    "D50 selection": {
+      "both": 0,
+      "fit_side": 11,
+      "nofit_side": 0,
+      "none": 10
+    }
+  },
+  "reason_by_bucket": {
+    "experience_compatible": {
+      "A": 4,
+      "B": 1,
+      "C": 2,
+      "D": 3,
+      "E": 3
+    },
+    "role_match": {
+      "A": 0,
+      "B": 3,
+      "C": 2,
+      "D": 10,
+      "E": 0
+    },
+    "tfidf_scaled": {
+      "A": 2,
+      "B": 2,
+      "C": 3,
+      "D": 10,
+      "E": 0
+    }
+  },
+  "reason_by_set": {
+    "A2 final": {
+      "A": 4,
+      "B": 3,
+      "C": 2,
+      "D": 12,
+      "E": 3
+    },
+    "D50 selection": {
+      "A": 2,
+      "B": 3,
+      "C": 5,
+      "D": 11,
+      "E": 0
+    }
+  },
+  "reviewers": [
+    "yc"
+  ]
+}

@@ -111,7 +111,30 @@ REGISTRY: tuple[Check, ...] = (
     Check("shortlist_dev_variants", "evaluation.shortlist_dev", ("--variants", "--check"),
           cold_s=284.2),
     Check("shortlist_final", "evaluation.shortlist_final", ("--check",), cold_s=160.3),
-    Check("stage2", "evaluation.stage2", ("--check",), W, run_alone=True, cold_s=12609.0,
+    # stage1_classifier: its first (writing) run, 18 Oct 2026, alone; peak 4.2 GB, kept alone
+    # because it loads the D50 train split beside the dev pools.
+    Check("stage1_classifier", "evaluation.stage1_classifier", ("--check",), run_alone=True,
+          cold_s=440.2),
+    # stage1_threshold (step 4a): smoke run 18 Oct 2026, 3.4 min, peak 4.9 GB.
+    Check("stage1_threshold", "evaluation.stage1_threshold", ("--check",), run_alone=True,
+          cold_s=205.0),
+    # feature_arms (step 4b): first full run 18 Oct 2026, 12.6 min, peak 5.1 GB (needs the MiniLM
+    # tagger cache, `feature_arms --tag-n2`, ~60 min once).
+    Check("feature_arms", "evaluation.feature_arms", ("--check",), run_alone=True, cold_s=755.0),
+    # rerank_chat: cold retrains L3's five folds one after another at 5 threads; measured 21 Oct
+    # 2026 (two cold runs, 6.3 h and 6.5 h, peak 6.2 GB). Warm replays R1-R3 and L3.
+    Check("rerank_chat", "evaluation.rerank_chat", ("--check",), W, run_alone=True,
+          cold_s=23400.0, warm_s=600.0),
+    # chat3 (plan 2026-10-21, D62): rebuilds the chat-3 plan, §4's choice and §5's test; estimate
+    # from its parts' runs (2.5 + 2.8 + 7.2 min), peak 5.6 GB.
+    Check("chat3", "evaluation.chat3", ("--check",), run_alone=True, cold_s=608.2),
+    # c2_validation (plan 2026-10-22): cold re-scores 5,400 C2 pairs (2,400 chat-3 + 3,000 test
+    # top-50) into a temporary cache; measured 22 Oct 2026, 4 h 20 min, peak 6.2 GB. Warm reads the
+    # cache (warm_s is an estimate, not yet run).
+    Check("c2_validation", "evaluation.c2_validation", ("--check",), W, run_alone=True,
+          cold_s=15608.0, warm_s=600.0),
+    # stage2: cold measured 22 Oct 2026, 6.2 h (12 grid points, R3 slowest).
+    Check("stage2", "evaluation.stage2", ("--check",), W, run_alone=True, cold_s=22389.5,
           warm_s=251.5),
 )
 BY_NAME = {c.name: c for c in REGISTRY}

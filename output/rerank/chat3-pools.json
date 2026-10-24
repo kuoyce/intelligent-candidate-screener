@@ -1,0 +1,100 @@
+{
+ "plan": "plan/2026-10-21-chat3-holdout (D62)",
+ "config": {
+  "seed": 0,
+  "n_generic": 32,
+  "targeted": {
+   "Business Analyst": 6,
+   "Data Science": 5,
+   "Data Engineer": 4,
+   "Data Analyst": 1
+  },
+  "pool_size": 500,
+  "n_same_keyword": 8,
+  "n_other_keyword": 2,
+  "k": 100,
+  "text_variant": "v2"
+ },
+ "jds": {
+  "total": 48,
+  "by_stratum": {
+   "generic": 32,
+   "targeted": 16
+  },
+  "targeted_by_family": {
+   "Business Analyst": 6,
+   "Data Analyst": 1,
+   "Data Engineer": 4,
+   "Data Science": 5
+  },
+  "eligible": 9380,
+  "excluded_eligible": 405,
+  "ids": [
+   "020682ad-61a4-5ad3-9314-cd144307ac9f",
+   "0c6753d4-5f91-54cc-8dec-5f0b1894ab06",
+   "182aee4f-af3d-5186-96d1-ce97b95f61ef",
+   "1bb7dbbf-bb50-59e3-88b8-4a0997ab4275",
+   "1d14f60b-a0e6-5f0f-907c-3ad3652e669a",
+   "3189bf90-7339-5258-a55f-f6a38658c163",
+   "32b5a2b6-69ba-5681-9bb5-16ba89500f75",
+   "34dba840-bfaa-539d-9a20-307ab3c0aebe",
+   "3d3e51d8-fd17-5de3-ac3c-1c1789ac27e2",
+   "3fed1f95-6be7-5937-897b-fcaca2c2c7eb",
+   "41980f46-9cfd-5ed6-b9ad-1df42cfac5e0",
+   "49335231-d97e-5d31-9b07-9940ecaa51ad",
+   "4970c8bc-019f-5df6-9fc4-5dfe21ad2ad9",
+   "4bee4a43-2a69-51a3-97f1-de86d20733f8",
+   "5782f516-9a2b-52c0-ab90-cdb8a13e5bbe",
+   "57c807dd-8955-5d82-b056-158c5619539a",
+   "59f3b26f-d18c-5c05-ad6f-f38dd6703965",
+   "5a5fd479-4ac2-5984-9567-ee23027036f7",
+   "73251ed6-2d29-52a1-afe4-9120910e2086",
+   "7626175d-3d16-5b9c-adf6-472ef1cb2d18",
+   "7c1c5618-9a1c-5ae2-b435-45bd347d4202",
+   "7d1c26ce-439c-558b-9695-37a544b0531e",
+   "80b4808c-3ec9-50c0-9773-c10a8c77c8d1",
+   "8f644b24-212f-5063-904d-f41301dadddd",
+   "909c2dd7-1760-5f93-a5b1-cbc7c5721cb0",
+   "966007df-2939-56be-92a8-deded00fba64",
+   "9bd60c23-dc2d-5159-ab2d-0880ef783848",
+   "9e6fbaaf-825c-511c-9e3d-f245585a23d7",
+   "a0a58e17-7736-5116-8edf-2f469a4e37f2",
+   "a1c885d6-67f7-51ad-a716-da36cb566b66",
+   "b1b0e476-1c75-578f-9f7a-f7a21a88ad33",
+   "b674c2c1-4ad6-5557-b878-9157a5abf6a7",
+   "c25fb979-5bbf-507d-bf8f-acc3e9611820",
+   "c4319a3a-af0f-5ccd-8fa8-f1d7bd039ee8",
+   "cad4dd8d-7a19-588d-8ccb-9c1546fba5b7",
+   "cc597532-b6f1-5c1f-8055-a6c753e4bf09",
+   "d1e67ac5-c90f-5340-aea1-ff0f79c45228",
+   "d77d2add-e093-513d-a3d3-54d542694ddb",
+   "d7d9508b-6794-51f3-9051-4915f6ecaeef",
+   "dfb4477f-7667-55d0-8a57-264748c3b125",
+   "e0f3c54f-4454-5f56-b99b-5b59fee32559",
+   "e12233e4-f3db-5876-a145-0509e3cf373b",
+   "e22a6cd0-619b-5eee-8553-cad2eaeab887",
+   "e57b7cd5-3e40-5598-8dbc-b4b53c6db26b",
+   "f537a0e6-3761-5995-bb90-517b40808195",
+   "f7c4cfab-7fb8-5766-b99e-8ee73158c85b",
+   "fb491a7e-a60e-5e2a-b402-2c7940981eb0",
+   "fb69a1e3-f1eb-5b9a-922a-f07e62fb90b5"
+  ]
+ },
+ "pairs": {
+  "pool": 24000,
+  "shortlist": 4800,
+  "batches": 240,
+  "pool_ids_sha256": "fc9399094281edcad8f31c960f6e0c16e997a472818cd8a2ea530cd58d6ca748",
+  "shortlist_ids_sha256": "6d48413f89d79af588de0bf1c999442c0128dd4e526bfe5b918f8cfd8a6c7f59"
+ },
+ "forbidden_overlap": {
+  "eval_region": 0,
+  "weak_pairs": 0,
+  "final_set": 0,
+  "d50_jds": 0,
+  "dev_pool_jds": 0
+ },
+ "x2_guard": "stage-1 record reproduced",
+ "instrument_sha256": "c64578dd228b95f97e3f9b4312f802c9afe2cb87d1704e70bfe21fb0583b0970",
+ "run": "chat-3"
+}

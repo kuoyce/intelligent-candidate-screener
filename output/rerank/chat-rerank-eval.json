@@ -1,0 +1,6471 @@
+{
+  "plan": "plan/2026-10-18-classifier-then-rerank (step 3, D61)",
+  "status": "chat-1 is the target and the reference for this task only (D61); learned scores are out of fold by JD; the human check is exploratory",
+  "rules": {
+    "bar": "a candidate passes when its paired Recall@10 delta against X2's order (total) is >= +0.05 and the CI's lower end is above 0",
+    "best": "the candidate with the highest out-of-fold Recall@10 (total) among S1, L1, L2, R3, R1, R2, L3; a tie (6 dp) goes to the earlier, cheaper one. Chosen on the same figures it is then reported with: mildly optimistic (owner, 18 Oct 2026)",
+    "ablations": "of the better of L1 and L2 on Recall@10 (total), ties to L1: without tfidf_scaled, without role_match, without sbert; diagnostic, never 'best'",
+    "features": "F12 computed on each JD's 500-CV pool frame (tfidf_scaled min-max over the pool, as S1 sees it), then the chat pairs' rows",
+    "constraints": "L1 non-negative and L2 monotone increasing on the 8 match signals; the 4 descriptors (log_jd_concepts, log_cv_concepts, exp_gap, exp_known) free",
+    "learning_curve": "skipped (owner, 18 Oct 2026)",
+    "end_to_end": "stage 1 = S1's passed set (P >= 0.5, owner 18 Oct 2026); reference = chat's top 10 over all chat-scored CVs of the JD, tie-aware; fewer than 10 returned counts the misses",
+    "human_check": "exploratory: judged CVs inside the shortlists, per-JD AUC on the final label and pairwise on yc's grades, full and llm_free",
+    "fixed": "18 Oct 2026, in this module, before its first run"
+  },
+  "bar": 0.05,
+  "chat": {
+    "pairs_train": 6000,
+    "pairs_extension": 20,
+    "jds": 60,
+    "folds": {
+      "0": {
+        "jds": 12,
+        "generic": 8,
+        "targeted": 4
+      },
+      "1": {
+        "jds": 12,
+        "generic": 8,
+        "targeted": 4
+      },
+      "2": {
+        "jds": 12,
+        "generic": 8,
+        "targeted": 4
+      },
+      "3": {
+        "jds": 12,
+        "generic": 8,
+        "targeted": 4
+      },
+      "4": {
+        "jds": 12,
+        "generic": 8,
+        "targeted": 4
+      }
+    },
+    "score_mean": 30.371167,
+    "no_fit_share": 0.572667
+  },
+  "features": [
+    "role_match",
+    "experience_compatible",
+    "tfidf_scaled",
+    "coverage",
+    "coverage_unweighted",
+    "log_matched",
+    "log_jd_concepts",
+    "log_cv_concepts",
+    "skill_overlap",
+    "exp_gap",
+    "exp_known",
+    "sbert"
+  ],
+  "constrained": [
+    "role_match",
+    "experience_compatible",
+    "tfidf_scaled",
+    "coverage",
+    "coverage_unweighted",
+    "log_matched",
+    "skill_overlap",
+    "sbert"
+  ],
+  "free": [
+    "log_jd_concepts",
+    "log_cv_concepts",
+    "exp_gap",
+    "exp_known"
+  ],
+  "l1_standardised_coefficients_mean_over_folds": {
+    "role_match": 12.062976,
+    "experience_compatible": 1.015581,
+    "tfidf_scaled": 3.984016,
+    "coverage": 0.0,
+    "coverage_unweighted": 0.0,
+    "log_matched": 3.589378,
+    "log_jd_concepts": -2.372371,
+    "log_cv_concepts": 1.608395,
+    "skill_overlap": 0.0,
+    "exp_gap": -0.602034,
+    "exp_known": -0.059327,
+    "sbert": 6.085777
+  },
+  "l3_config": {
+    "base": "sentence-transformers/all-MiniLM-L6-v2",
+    "max_length": 512,
+    "jd_tokens": 192,
+    "window": 317,
+    "stride": 256,
+    "loss": "MSE on score / 100",
+    "aggregate": "max over windows",
+    "lr": 2e-05,
+    "epochs": 1,
+    "batch": 16,
+    "micro_batch": 8,
+    "warmup_ratio": 0.1,
+    "seed": 0,
+    "predict_batch": 32,
+    "text_variant": "v2",
+    "threads": 5
+  },
+  "candidates": {
+    "extracted rule + TF-IDF": {
+      "summary": {
+        "recall": {
+          "generic": {
+            "value": 0.421179,
+            "ci": [
+              0.358607,
+              0.484173
+            ],
+            "n_jd": 40
+          },
+          "targeted": {
+            "value": 0.41569,
+            "ci": [
+              0.319236,
+              0.50686
+            ],
+            "n_jd": 20
+          },
+          "total": {
+            "value": 0.419349,
+            "ci": [
+              0.365975,
+              0.471163
+            ],
+            "n_jd": 60
+          }
+        },
+        "ndcg": {
+          "generic": {
+            "value": 0.792017,
+            "ci": [
+              0.7291,
+              0.845823
+            ],
+            "n_jd": 40
+          },
+          "targeted": {
+            "value": 0.743566,
+            "ci": [
+              0.651411,
+              0.82245
+            ],
+            "n_jd": 20
+          },
+          "total": {
+            "value": 0.775866,
+            "ci": [
+              0.725235,
+              0.822125
+            ],
+            "n_jd": 60
+          }
+        },
+        "no_fits": {
+          "generic": {
+            "value": 1.475,
+            "ci": [
+              0.65,
+              2.400625
+            ],
+            "n_jd": 40
+          },
+          "targeted": {
+            "value": 2.15,
+            "ci": [
+              1.05,
+              3.4
+            ],
+            "n_jd": 20
+          },
+          "total": {
+            "value": 1.7,
+            "ci": [
+              1.033333,
+              2.43375
+            ],
+            "n_jd": 60
+          }
+        }
+      },
+      "delta_vs_x2": null,
+      "scores_sha256": "9020ec166415d08b89579d810c11517e05b7c865a2f6715e1ea5fa63a1c93520"
+    },
+    "S1 logistic F12 (D50)": {
+      "summary": {
+        "recall": {
+          "generic": {
+            "value": 0.464298,
+            "ci": [
+              0.407131,
+              0.520453
+            ],
+            "n_jd": 40
+          },
+          "targeted": {
+            "value": 0.431952,
+            "ci": [
+              0.338495,
+              0.521455
+            ],
+            "n_jd": 20
+          },
+          "total": {
+            "value": 0.453516,
+            "ci": [
+              0.403035,
+              0.501723
+            ],
+            "n_jd": 60
+          }
+        },
+        "ndcg": {
+          "generic": {
+            "value": 0.824228,
+            "ci": [
+              0.772575,
+              0.869405
+            ],
+            "n_jd": 40
+          },
+          "targeted": {
+            "value": 0.755805,
+            "ci": [
+              0.667377,
+              0.834354
+            ],
+            "n_jd": 20
+          },
+          "total": {
+            "value": 0.80142,
+            "ci": [
+              0.75534,
+              0.843157
+            ],
+            "n_jd": 60
+          }
+        },
+        "no_fits": {
+          "generic": {
+            "value": 1.175,
+            "ci": [
+              0.425,
+              2.05
+            ],
+            "n_jd": 40
+          },
+          "targeted": {
+            "value": 2.3,
+            "ci": [
+              1.1,
+              3.7
+            ],
+            "n_jd": 20
+          },
+          "total": {
+            "value": 1.55,
+            "ci": [
+              0.883333,
+              2.283333
+            ],
+            "n_jd": 60
+          }
+        }
+      },
+      "delta_vs_x2": {
+        "recall": {
+          "generic": {
+            "value": 0.043119,
+            "ci": [
+              0.006524,
+              0.080121
+            ],
+            "n_jd": 40
+          },
+          "targeted": {
+            "value": 0.016262,
+            "ci": [
+              -0.028143,
+              0.059762
+            ],
+            "n_jd": 20
+          },
+          "total": {
+            "value": 0.034167,
+            "ci": [
+              0.005158,
+              0.06336
+            ],
+            "n_jd": 60
+          }
+        },
+        "ndcg": {
+          "generic": {
+            "value": 0.032211,
+            "ci": [
+              0.00664,
+              0.058797
+            ],
+            "n_jd": 40
+          },
+          "targeted": {
+            "value": 0.012239,
+            "ci": [
+              -0.019823,
+              0.045257
+            ],
+            "n_jd": 20
+          },
+          "total": {
+            "value": 0.025554,
+            "ci": [
+              0.005607,
+              0.046628
+            ],
+            "n_jd": 60
+          }
+        },
+        "no_fits": {
+          "generic": {
+            "value": -0.3,
+            "ci": [
+              -0.575,
+              -0.1
+            ],
+            "n_jd": 40
+          },
+          "targeted": {
+            "value": 0.15,
+            "ci": [
+              -0.25,
+              0.55
+            ],
+            "n_jd": 20
+          },
+          "total": {
+            "value": -0.15,
+            "ci": [
+              -0.366667,
+              0.066667
+            ],
+            "n_jd": 60
+          }
+        }
+      },
+      "scores_sha256": "7f4b1aadc9d5fc0034bc8fb8488aead05faa2c1b1d198b549cf8543ec669422d",
+      "passes_bar": false
+    },
+    "R1 cross-encoder (LLM batch, pointwise)": {
+      "summary": {
+        "recall": {
+          "generic": {
+            "value": 0.230313,
+            "ci": [
+              0.187028,
+              0.273258
+            ],
+            "n_jd": 40
+          },
+          "targeted": {
+            "value": 0.112548,
+            "ci": [
+              0.067548,
+              0.163548
+            ],
+            "n_jd": 20
+          },
+          "total": {
+            "value": 0.191058,
+            "ci": [
+              0.155164,
+              0.226905
+            ],
+            "n_jd": 60
+          }
+        },
+        "ndcg": {
+          "generic": {
+            "value": 0.526936,
+            "ci": [
+              0.446849,
+              0.603597
+            ],
+            "n_jd": 40
+          },
+          "targeted": {
+            "value": 0.377818,
+            "ci": [
+              0.298514,
+              0.460739
+            ],
+            "n_jd": 20
+          },
+          "total": {
+            "value": 0.47723,
+            "ci": [
+              0.415883,
+              0.540386
+            ],
+            "n_jd": 60
+          }
+        },
+        "no_fits": {
+          "generic": {
+            "value": 4.175,
+            "ci": [
+              3.075,
+              5.3
+            ],
+            "n_jd": 40
+          },
+          "targeted": {
+            "value": 6.2,
+            "ci": [
+              5.0,
+              7.35
+            ],
+            "n_jd": 20
+          },
+          "total": {
+            "value": 4.85,
+            "ci": [
+              3.966667,
+              5.716667
+            ],
+            "n_jd": 60
+          }
+        }
+      },
+      "delta_vs_x2": {
+        "recall": {
+          "generic": {
+            "value": -0.190865,
+            "ci": [
+              -0.270538,
+              -0.113936
+            ],
+            "n_jd": 40
+          },
+          "targeted": {
+            "value": -0.303143,
+            "ci": [
+              -0.401071,
+              -0.197238
+            ],
+            "n_jd": 20
+          },
+          "total": {
+            "value": -0.228291,
+            "ci": [
+              -0.293324,
+              -0.162213
+            ],
+            "n_jd": 60
+          }
+        },
+        "ndcg": {
+          "generic": {
+            "value": -0.26508,
+            "ci": [
+              -0.364705,
+              -0.167369
+            ],
+            "n_jd": 40
+          },
+          "targeted": {
+            "value": -0.365748,
+            "ci": [
+              -0.484517,
+              -0.230259
+            ],
+            "n_jd": 20
+          },
+          "total": {
+            "value": -0.298636,
+            "ci": [
+              -0.378192,
+              -0.218184
+            ],
+            "n_jd": 60
+          }
+        },
+        "no_fits": {
+          "generic": {
+            "value": 2.7,
+            "ci": [
+              1.65,
+              3.825
+            ],
+            "n_jd": 40
+          },
+          "targeted": {
+            "value": 4.05,
+            "ci": [
+              2.2,
+              5.6
+            ],
+            "n_jd": 20
+          },
+          "total": {
+            "value": 3.15,
+            "ci": [
+              2.183333,
+              4.083333
+            ],
+            "n_jd": 60
+          }
+        }
+      },
+      "top10_sha256": "4323e644804dc17279c464d53575f8b5debe15486b4cc474b88dca8febc709ff",
+      "passes_bar": false
+    },
+    "R2 cross-encoder (LLM batch, pairwise)": {
+      "summary": {
+        "recall": {
+          "generic": {
+            "value": 0.269222,
+            "ci": [
+              0.220811,
+              0.319914
+            ],
+            "n_jd": 40
+          },
+          "targeted": {
+            "value": 0.162476,
+            "ci": [
+              0.111282,
+              0.216813
+            ],
+            "n_jd": 20
+          },
+          "total": {
+            "value": 0.23364,
+            "ci": [
+              0.195707,
+              0.27333
+            ],
+            "n_jd": 60
+          }
+        },
+        "ndcg": {
+          "generic": {
+            "value": 0.584556,
+            "ci": [
+              0.522383,
+              0.646058
+            ],
+            "n_jd": 40
+          },
+          "targeted": {
+            "value": 0.392455,
+            "ci": [
+              0.31637,
+              0.473088
+            ],
+            "n_jd": 20
+          },
+          "total": {
+            "value": 0.520522,
+            "ci": [
+              0.466725,
+              0.574804
+            ],
+            "n_jd": 60
+          }
+        },
+        "no_fits": {
+          "generic": {
+            "value": 3.425,
+            "ci": [
+              2.575,
+              4.35
+            ],
+            "n_jd": 40
+          },
+          "targeted": {
+            "value": 6.1,
+            "ci": [
+              4.85,
+              7.25
+            ],
+            "n_jd": 20
+          },
+          "total": {
+            "value": 4.316667,
+            "ci": [
+              3.55,
+              5.100417
+            ],
+            "n_jd": 60
+          }
+        }
+      },
+      "delta_vs_x2": {
+        "recall": {
+          "generic": {
+            "value": -0.151956,
+            "ci": [
+              -0.219987,
+              -0.083799
+            ],
+            "n_jd": 40
+          },
+          "targeted": {
+            "value": -0.253214,
+            "ci": [
+              -0.357619,
+              -0.141667
+            ],
+            "n_jd": 20
+          },
+          "total": {
+            "value": -0.185709,
+            "ci": [
+              -0.246452,
+              -0.124764
+            ],
+            "n_jd": 60
+          }
+        },
+        "ndcg": {
+          "generic": {
+            "value": -0.207461,
+            "ci": [
+              -0.282329,
+              -0.132188
+            ],
+            "n_jd": 40
+          },
+          "targeted": {
+            "value": -0.351111,
+            "ci": [
+              -0.477239,
+              -0.209895
+            ],
+            "n_jd": 20
+          },
+          "total": {
+            "value": -0.255344,
+            "ci": [
+              -0.325612,
+              -0.184778
+            ],
+            "n_jd": 60
+          }
+        },
+        "no_fits": {
+          "generic": {
+            "value": 1.95,
+            "ci": [
+              1.225,
+              2.675
+            ],
+            "n_jd": 40
+          },
+          "targeted": {
+            "value": 3.95,
+            "ci": [
+              2.0,
+              5.65
+            ],
+            "n_jd": 20
+          },
+          "total": {
+            "value": 2.616667,
+            "ci": [
+              1.783333,
+              3.43375
+            ],
+            "n_jd": 60
+          }
+        }
+      },
+      "top10_sha256": "051a01f903dc5c78982c8fbbf0481b85ce172af1fc54faaf86a244ae815227c1",
+      "passes_bar": false
+    },
+    "R3 bi-encoder (LLM batch)": {
+      "summary": {
+        "recall": {
+          "generic": {
+            "value": 0.417804,
+            "ci": [
+              0.359446,
+              0.473024
+            ],
+            "n_jd": 40
+          },
+          "targeted": {
+            "value": 0.391667,
+            "ci": [
+              0.320093,
+              0.461336
+            ],
+            "n_jd": 20
+          },
+          "total": {
+            "value": 0.409091,
+            "ci": [
+              0.363376,
+              0.453121
+            ],
+            "n_jd": 60
+          }
+        },
+        "ndcg": {
+          "generic": {
+            "value": 0.749011,
+            "ci": [
+              0.69277,
+              0.802387
+            ],
+            "n_jd": 40
+          },
+          "targeted": {
+            "value": 0.726768,
+            "ci": [
+              0.647139,
+              0.794659
+            ],
+            "n_jd": 20
+          },
+          "total": {
+            "value": 0.741597,
+            "ci": [
+              0.694342,
+              0.783547
+            ],
+            "n_jd": 60
+          }
+        },
+        "no_fits": {
+          "generic": {
+            "value": 1.875,
+            "ci": [
+              1.1,
+              2.775
+            ],
+            "n_jd": 40
+          },
+          "targeted": {
+            "value": 2.7,
+            "ci": [
+              1.7,
+              3.85
+            ],
+            "n_jd": 20
+          },
+          "total": {
+            "value": 2.15,
+            "ci": [
+              1.516667,
+              2.85
+            ],
+            "n_jd": 60
+          }
+        }
+      },
+      "delta_vs_x2": {
+        "recall": {
+          "generic": {
+            "value": -0.003375,
+            "ci": [
+              -0.079965,
+              0.07268
+            ],
+            "n_jd": 40
+          },
+          "targeted": {
+            "value": -0.024024,
+            "ci": [
+              -0.141555,
+              0.09881
+            ],
+            "n_jd": 20
+          },
+          "total": {
+            "value": -0.010258,
+            "ci": [
+              -0.074124,
+              0.057413
+            ],
+            "n_jd": 60
+          }
+        },
+        "ndcg": {
+          "generic": {
+            "value": -0.043006,
+            "ci": [
+              -0.118612,
+              0.035453
+            ],
+            "n_jd": 40
+          },
+          "targeted": {
+            "value": -0.016798,
+            "ci": [
+              -0.123429,
+              0.099761
+            ],
+            "n_jd": 20
+          },
+          "total": {
+            "value": -0.03427,
+            "ci": [
+              -0.097534,
+              0.031124
+            ],
+            "n_jd": 60
+          }
+        },
+        "no_fits": {
+          "generic": {
+            "value": 0.4,
+            "ci": [
+              -0.4,
+              1.2
+            ],
+            "n_jd": 40
+          },
+          "targeted": {
+            "value": 0.55,
+            "ci": [
+              -0.8,
+              1.85
+            ],
+            "n_jd": 20
+          },
+          "total": {
+            "value": 0.45,
+            "ci": [
+              -0.25,
+              1.116667
+            ],
+            "n_jd": 60
+          }
+        }
+      },
+      "top10_sha256": "44a6724fa88f269f1a554daff86f28e3def3cf3821aecd83401794772d83f296",
+      "passes_bar": false
+    },
+    "L1 linear (ridge, non-negative match signals)": {
+      "summary": {
+        "recall": {
+          "generic": {
+            "value": 0.489643,
+            "ci": [
+              0.438285,
+              0.539882
+            ],
+            "n_jd": 40
+          },
+          "targeted": {
+            "value": 0.469333,
+            "ci": [
+              0.387143,
+              0.54993
+            ],
+            "n_jd": 20
+          },
+          "total": {
+            "value": 0.482873,
+            "ci": [
+              0.439805,
+              0.52502
+            ],
+            "n_jd": 60
+          }
+        },
+        "ndcg": {
+          "generic": {
+            "value": 0.833526,
+            "ci": [
+              0.791316,
+              0.870389
+            ],
+            "n_jd": 40
+          },
+          "targeted": {
+            "value": 0.797698,
+            "ci": [
+              0.729872,
+              0.857638
+            ],
+            "n_jd": 20
+          },
+          "total": {
+            "value": 0.821583,
+            "ci": [
+              0.785594,
+              0.854264
+            ],
+            "n_jd": 60
+          }
+        },
+        "no_fits": {
+          "generic": {
+            "value": 1.15,
+            "ci": [
+              0.45,
+              1.975
+            ],
+            "n_jd": 40
+          },
+          "targeted": {
+            "value": 1.7,
+            "ci": [
+              0.8,
+              2.75
+            ],
+            "n_jd": 20
+          },
+          "total": {
+            "value": 1.333333,
+            "ci": [
+              0.766667,
+              1.983333
+            ],
+            "n_jd": 60
+          }
+        }
+      },
+      "delta_vs_x2": {
+        "recall": {
+          "generic": {
+            "value": 0.068464,
+            "ci": [
+              0.036179,
+              0.103358
+            ],
+            "n_jd": 40
+          },
+          "targeted": {
+            "value": 0.053643,
+            "ci": [
+              -0.000217,
+              0.115476
+            ],
+            "n_jd": 20
+          },
+          "total": {
+            "value": 0.063524,
+            "ci": [
+              0.034999,
+              0.093524
+            ],
+            "n_jd": 60
+          }
+        },
+        "ndcg": {
+          "generic": {
+            "value": 0.041509,
+            "ci": [
+              0.017406,
+              0.069903
+            ],
+            "n_jd": 40
+          },
+          "targeted": {
+            "value": 0.054132,
+            "ci": [
+              0.013906,
+              0.107769
+            ],
+            "n_jd": 20
+          },
+          "total": {
+            "value": 0.045717,
+            "ci": [
+              0.023675,
+              0.070793
+            ],
+            "n_jd": 60
+          }
+        },
+        "no_fits": {
+          "generic": {
+            "value": -0.325,
+            "ci": [
+              -0.65,
+              -0.075
+            ],
+            "n_jd": 40
+          },
+          "targeted": {
+            "value": -0.45,
+            "ci": [
+              -1.1,
+              0.1
+            ],
+            "n_jd": 20
+          },
+          "total": {
+            "value": -0.366667,
+            "ci": [
+              -0.666667,
+              -0.1
+            ],
+            "n_jd": 60
+          }
+        }
+      },
+      "scores_sha256": "bc2008b5b69554091ac2486080961a4d0012138b29de687178574fbfe140cfce",
+      "passes_bar": true
+    },
+    "L2 boosting (monotone match signals)": {
+      "summary": {
+        "recall": {
+          "generic": {
+            "value": 0.501712,
+            "ci": [
+              0.44728,
+              0.55374
+            ],
+            "n_jd": 40
+          },
+          "targeted": {
+            "value": 0.471667,
+            "ci": [
+              0.380995,
+              0.556027
+            ],
+            "n_jd": 20
+          },
+          "total": {
+            "value": 0.491697,
+            "ci": [
+              0.44545,
+              0.536313
+            ],
+            "n_jd": 60
+          }
+        },
+        "ndcg": {
+          "generic": {
+            "value": 0.844127,
+            "ci": [
+              0.804885,
+              0.877842
+            ],
+            "n_jd": 40
+          },
+          "targeted": {
+            "value": 0.783473,
+            "ci": [
+              0.707275,
+              0.850213
+            ],
+            "n_jd": 20
+          },
+          "total": {
+            "value": 0.823909,
+            "ci": [
+              0.7872,
+              0.857115
+            ],
+            "n_jd": 60
+          }
+        },
+        "no_fits": {
+          "generic": {
+            "value": 1.025,
+            "ci": [
+              0.375,
+              1.8
+            ],
+            "n_jd": 40
+          },
+          "targeted": {
+            "value": 2.0,
+            "ci": [
+              1.0,
+              3.15
+            ],
+            "n_jd": 20
+          },
+          "total": {
+            "value": 1.35,
+            "ci": [
+              0.766667,
+              2.016667
+            ],
+            "n_jd": 60
+          }
+        }
+      },
+      "delta_vs_x2": {
+        "recall": {
+          "generic": {
+            "value": 0.080534,
+            "ci": [
+              0.043297,
+              0.119388
+            ],
+            "n_jd": 40
+          },
+          "targeted": {
+            "value": 0.055976,
+            "ci": [
+              0.004329,
+              0.109979
+            ],
+            "n_jd": 20
+          },
+          "total": {
+            "value": 0.072348,
+            "ci": [
+              0.041879,
+              0.104218
+            ],
+            "n_jd": 60
+          }
+        },
+        "ndcg": {
+          "generic": {
+            "value": 0.05211,
+            "ci": [
+              0.013312,
+              0.098457
+            ],
+            "n_jd": 40
+          },
+          "targeted": {
+            "value": 0.039907,
+            "ci": [
+              0.003056,
+              0.082343
+            ],
+            "n_jd": 20
+          },
+          "total": {
+            "value": 0.048042,
+            "ci": [
+              0.019244,
+              0.081417
+            ],
+            "n_jd": 60
+          }
+        },
+        "no_fits": {
+          "generic": {
+            "value": -0.45,
+            "ci": [
+              -0.925,
+              -0.075
+            ],
+            "n_jd": 40
+          },
+          "targeted": {
+            "value": -0.15,
+            "ci": [
+              -0.6,
+              0.25
+            ],
+            "n_jd": 20
+          },
+          "total": {
+            "value": -0.35,
+            "ci": [
+              -0.7,
+              -0.066667
+            ],
+            "n_jd": 60
+          }
+        }
+      },
+      "scores_sha256": "18c12eec8e7e9012fe2a2989864895e2920ad8ca2c20f7270aafa8f6ea348f56",
+      "passes_bar": true
+    },
+    "L3 cross-encoder (chat-1, MaxP windows)": {
+      "summary": {
+        "recall": {
+          "generic": {
+            "value": 0.194159,
+            "ci": [
+              0.149929,
+              0.239347
+            ],
+            "n_jd": 40
+          },
+          "targeted": {
+            "value": 0.178095,
+            "ci": [
+              0.10881,
+              0.254289
+            ],
+            "n_jd": 20
+          },
+          "total": {
+            "value": 0.188804,
+            "ci": [
+              0.15125,
+              0.227251
+            ],
+            "n_jd": 60
+          }
+        },
+        "ndcg": {
+          "generic": {
+            "value": 0.483723,
+            "ci": [
+              0.409542,
+              0.556523
+            ],
+            "n_jd": 40
+          },
+          "targeted": {
+            "value": 0.458556,
+            "ci": [
+              0.378009,
+              0.541505
+            ],
+            "n_jd": 20
+          },
+          "total": {
+            "value": 0.475334,
+            "ci": [
+              0.419079,
+              0.532085
+            ],
+            "n_jd": 60
+          }
+        },
+        "no_fits": {
+          "generic": {
+            "value": 4.45,
+            "ci": [
+              3.375,
+              5.55
+            ],
+            "n_jd": 40
+          },
+          "targeted": {
+            "value": 5.05,
+            "ci": [
+              3.95,
+              6.15
+            ],
+            "n_jd": 20
+          },
+          "total": {
+            "value": 4.65,
+            "ci": [
+              3.833333,
+              5.466667
+            ],
+            "n_jd": 60
+          }
+        }
+      },
+      "delta_vs_x2": {
+        "recall": {
+          "generic": {
+            "value": -0.22702,
+            "ci": [
+              -0.311104,
+              -0.142106
+            ],
+            "n_jd": 40
+          },
+          "targeted": {
+            "value": -0.237595,
+            "ci": [
+              -0.364119,
+              -0.093687
+            ],
+            "n_jd": 20
+          },
+          "total": {
+            "value": -0.230545,
+            "ci": [
+              -0.301858,
+              -0.15611
+            ],
+            "n_jd": 60
+          }
+        },
+        "ndcg": {
+          "generic": {
+            "value": -0.308294,
+            "ci": [
+              -0.404428,
+              -0.210019
+            ],
+            "n_jd": 40
+          },
+          "targeted": {
+            "value": -0.28501,
+            "ci": [
+              -0.417601,
+              -0.135378
+            ],
+            "n_jd": 20
+          },
+          "total": {
+            "value": -0.300533,
+            "ci": [
+              -0.379944,
+              -0.218698
+            ],
+            "n_jd": 60
+          }
+        },
+        "no_fits": {
+          "generic": {
+            "value": 2.975,
+            "ci": [
+              1.85,
+              4.125
+            ],
+            "n_jd": 40
+          },
+          "targeted": {
+            "value": 2.9,
+            "ci": [
+              1.05,
+              4.5
+            ],
+            "n_jd": 20
+          },
+          "total": {
+            "value": 2.95,
+            "ci": [
+              1.95,
+              3.916667
+            ],
+            "n_jd": 60
+          }
+        }
+      },
+      "scores_sha256": "0da69179a8af0cbc1e5ae55bb3d6f525dff7c10524090f523e2351adf43981ad",
+      "passes_bar": false
+    },
+    "L2 boosting (monotone match signals) without tfidf_scaled": {
+      "summary": {
+        "recall": {
+          "generic": {
+            "value": 0.49448,
+            "ci": [
+              0.434408,
+              0.552524
+            ],
+            "n_jd": 40
+          },
+          "targeted": {
+            "value": 0.448952,
+            "ci": [
+              0.364284,
+              0.534597
+            ],
+            "n_jd": 20
+          },
+          "total": {
+            "value": 0.479304,
+            "ci": [
+              0.429782,
+              0.527107
+            ],
+            "n_jd": 60
+          }
+        },
+        "ndcg": {
+          "generic": {
+            "value": 0.835692,
+            "ci": [
+              0.78691,
+              0.87852
+            ],
+            "n_jd": 40
+          },
+          "targeted": {
+            "value": 0.761652,
+            "ci": [
+              0.683261,
+              0.831374
+            ],
+            "n_jd": 20
+          },
+          "total": {
+            "value": 0.811012,
+            "ci": [
+              0.769053,
+              0.84929
+            ],
+            "n_jd": 60
+          }
+        },
+        "no_fits": {
+          "generic": {
+            "value": 1.025,
+            "ci": [
+              0.375,
+              1.8
+            ],
+            "n_jd": 40
+          },
+          "targeted": {
+            "value": 2.25,
+            "ci": [
+              1.2,
+              3.45
+            ],
+            "n_jd": 20
+          },
+          "total": {
+            "value": 1.433333,
+            "ci": [
+              0.833333,
+              2.1
+            ],
+            "n_jd": 60
+          }
+        }
+      },
+      "delta_vs_x2": {
+        "recall": {
+          "generic": {
+            "value": 0.073302,
+            "ci": [
+              0.026622,
+              0.119677
+            ],
+            "n_jd": 40
+          },
+          "targeted": {
+            "value": 0.033262,
+            "ci": [
+              -0.022506,
+              0.09453
+            ],
+            "n_jd": 20
+          },
+          "total": {
+            "value": 0.059955,
+            "ci": [
+              0.023803,
+              0.098007
+            ],
+            "n_jd": 60
+          }
+        },
+        "ndcg": {
+          "generic": {
+            "value": 0.043675,
+            "ci": [
+              -0.002677,
+              0.097631
+            ],
+            "n_jd": 40
+          },
+          "targeted": {
+            "value": 0.018086,
+            "ci": [
+              -0.0269,
+              0.069101
+            ],
+            "n_jd": 20
+          },
+          "total": {
+            "value": 0.035146,
+            "ci": [
+              0.000826,
+              0.074066
+            ],
+            "n_jd": 60
+          }
+        },
+        "no_fits": {
+          "generic": {
+            "value": -0.45,
+            "ci": [
+              -0.975,
+              -0.025
+            ],
+            "n_jd": 40
+          },
+          "targeted": {
+            "value": 0.1,
+            "ci": [
+              -0.4,
+              0.6
+            ],
+            "n_jd": 20
+          },
+          "total": {
+            "value": -0.266667,
+            "ci": [
+              -0.650417,
+              0.066667
+            ],
+            "n_jd": 60
+          }
+        }
+      },
+      "delta_vs_full": {
+        "recall": {
+          "generic": {
+            "value": -0.007232,
+            "ci": [
+              -0.035107,
+              0.019988
+            ],
+            "n_jd": 40
+          },
+          "targeted": {
+            "value": -0.022714,
+            "ci": [
+              -0.061195,
+              0.014286
+            ],
+            "n_jd": 20
+          },
+          "total": {
+            "value": -0.012393,
+            "ci": [
+              -0.034699,
+              0.010088
+            ],
+            "n_jd": 60
+          }
+        },
+        "ndcg": {
+          "generic": {
+            "value": -0.008435,
+            "ci": [
+              -0.025111,
+              0.007752
+            ],
+            "n_jd": 40
+          },
+          "targeted": {
+            "value": -0.02182,
+            "ci": [
+              -0.04224,
+              -0.003229
+            ],
+            "n_jd": 20
+          },
+          "total": {
+            "value": -0.012896,
+            "ci": [
+              -0.02607,
+              -0.00026
+            ],
+            "n_jd": 60
+          }
+        },
+        "no_fits": {
+          "generic": {
+            "value": 0.0,
+            "ci": [
+              -0.125,
+              0.125
+            ],
+            "n_jd": 40
+          },
+          "targeted": {
+            "value": 0.25,
+            "ci": [
+              0.0,
+              0.55
+            ],
+            "n_jd": 20
+          },
+          "total": {
+            "value": 0.083333,
+            "ci": [
+              -0.033333,
+              0.216667
+            ],
+            "n_jd": 60
+          }
+        }
+      },
+      "scores_sha256": "fe31388464dc9524adf65e6328c403c1b98673a6a8abb56306e30a316ecfa9be",
+      "ablation_of": "L2 boosting (monotone match signals)"
+    },
+    "L2 boosting (monotone match signals) without role_match": {
+      "summary": {
+        "recall": {
+          "generic": {
+            "value": 0.42048,
+            "ci": [
+              0.36047,
+              0.480248
+            ],
+            "n_jd": 40
+          },
+          "targeted": {
+            "value": 0.423095,
+            "ci": [
+              0.352595,
+              0.487931
+            ],
+            "n_jd": 20
+          },
+          "total": {
+            "value": 0.421352,
+            "ci": [
+              0.376415,
+              0.466366
+            ],
+            "n_jd": 60
+          }
+        },
+        "ndcg": {
+          "generic": {
+            "value": 0.757208,
+            "ci": [
+              0.703612,
+              0.806256
+            ],
+            "n_jd": 40
+          },
+          "targeted": {
+            "value": 0.778259,
+            "ci": [
+              0.722762,
+              0.825253
+            ],
+            "n_jd": 20
+          },
+          "total": {
+            "value": 0.764225,
+            "ci": [
+              0.724463,
+              0.801325
+            ],
+            "n_jd": 60
+          }
+        },
+        "no_fits": {
+          "generic": {
+            "value": 2.0,
+            "ci": [
+              1.25,
+              2.85
+            ],
+            "n_jd": 40
+          },
+          "targeted": {
+            "value": 1.9,
+            "ci": [
+              1.1,
+              2.8
+            ],
+            "n_jd": 20
+          },
+          "total": {
+            "value": 1.966667,
+            "ci": [
+              1.399583,
+              2.6
+            ],
+            "n_jd": 60
+          }
+        }
+      },
+      "delta_vs_x2": {
+        "recall": {
+          "generic": {
+            "value": -0.000698,
+            "ci": [
+              -0.063228,
+              0.061157
+            ],
+            "n_jd": 40
+          },
+          "targeted": {
+            "value": 0.007405,
+            "ci": [
+              -0.082048,
+              0.10874
+            ],
+            "n_jd": 20
+          },
+          "total": {
+            "value": 0.002003,
+            "ci": [
+              -0.048472,
+              0.055183
+            ],
+            "n_jd": 60
+          }
+        },
+        "ndcg": {
+          "generic": {
+            "value": -0.034809,
+            "ci": [
+              -0.096188,
+              0.028595
+            ],
+            "n_jd": 40
+          },
+          "targeted": {
+            "value": 0.034693,
+            "ci": [
+              -0.049491,
+              0.136302
+            ],
+            "n_jd": 20
+          },
+          "total": {
+            "value": -0.011641,
+            "ci": [
+              -0.063088,
+              0.042762
+            ],
+            "n_jd": 60
+          }
+        },
+        "no_fits": {
+          "generic": {
+            "value": 0.525,
+            "ci": [
+              -0.175,
+              1.225
+            ],
+            "n_jd": 40
+          },
+          "targeted": {
+            "value": -0.25,
+            "ci": [
+              -1.15,
+              0.55
+            ],
+            "n_jd": 20
+          },
+          "total": {
+            "value": 0.266667,
+            "ci": [
+              -0.283333,
+              0.833333
+            ],
+            "n_jd": 60
+          }
+        }
+      },
+      "delta_vs_full": {
+        "recall": {
+          "generic": {
+            "value": -0.081232,
+            "ci": [
+              -0.128614,
+              -0.035285
+            ],
+            "n_jd": 40
+          },
+          "targeted": {
+            "value": -0.048571,
+            "ci": [
+              -0.113571,
+              0.029286
+            ],
+            "n_jd": 20
+          },
+          "total": {
+            "value": -0.070345,
+            "ci": [
+              -0.1095,
+              -0.030845
+            ],
+            "n_jd": 60
+          }
+        },
+        "ndcg": {
+          "generic": {
+            "value": -0.086919,
+            "ci": [
+              -0.134653,
+              -0.045797
+            ],
+            "n_jd": 40
+          },
+          "targeted": {
+            "value": -0.005214,
+            "ci": [
+              -0.067816,
+              0.071648
+            ],
+            "n_jd": 20
+          },
+          "total": {
+            "value": -0.059684,
+            "ci": [
+              -0.09931,
+              -0.020752
+            ],
+            "n_jd": 60
+          }
+        },
+        "no_fits": {
+          "generic": {
+            "value": 0.975,
+            "ci": [
+              0.475,
+              1.575
+            ],
+            "n_jd": 40
+          },
+          "targeted": {
+            "value": -0.1,
+            "ci": [
+              -0.8,
+              0.45
+            ],
+            "n_jd": 20
+          },
+          "total": {
+            "value": 0.616667,
+            "ci": [
+              0.2,
+              1.066667
+            ],
+            "n_jd": 60
+          }
+        }
+      },
+      "scores_sha256": "bb369737f86de22879bd97c451919fb661e8198eb96676d4e22794919cb4a482",
+      "ablation_of": "L2 boosting (monotone match signals)"
+    },
+    "L2 boosting (monotone match signals) without sbert": {
+      "summary": {
+        "recall": {
+          "generic": {
+            "value": 0.468534,
+            "ci": [
+              0.416775,
+              0.519237
+            ],
+            "n_jd": 40
+          },
+          "targeted": {
+            "value": 0.447095,
+            "ci": [
+              0.362667,
+              0.528001
+            ],
+            "n_jd": 20
+          },
+          "total": {
+            "value": 0.461388,
+            "ci": [
+              0.41667,
+              0.50458
+            ],
+            "n_jd": 60
+          }
+        },
+        "ndcg": {
+          "generic": {
+            "value": 0.828821,
+            "ci": [
+              0.783854,
+              0.866944
+            ],
+            "n_jd": 40
+          },
+          "targeted": {
+            "value": 0.762525,
+            "ci": [
+              0.688057,
+              0.829332
+            ],
+            "n_jd": 20
+          },
+          "total": {
+            "value": 0.806722,
+            "ci": [
+              0.767171,
+              0.842219
+            ],
+            "n_jd": 60
+          }
+        },
+        "no_fits": {
+          "generic": {
+            "value": 1.25,
+            "ci": [
+              0.575,
+              2.05
+            ],
+            "n_jd": 40
+          },
+          "targeted": {
+            "value": 2.1,
+            "ci": [
+              1.15,
+              3.2
+            ],
+            "n_jd": 20
+          },
+          "total": {
+            "value": 1.533333,
+            "ci": [
+              0.966667,
+              2.166667
+            ],
+            "n_jd": 60
+          }
+        }
+      },
+      "delta_vs_x2": {
+        "recall": {
+          "generic": {
+            "value": 0.047355,
+            "ci": [
+              0.01005,
+              0.086106
+            ],
+            "n_jd": 40
+          },
+          "targeted": {
+            "value": 0.031405,
+            "ci": [
+              -0.00862,
+              0.073335
+            ],
+            "n_jd": 20
+          },
+          "total": {
+            "value": 0.042038,
+            "ci": [
+              0.014145,
+              0.071182
+            ],
+            "n_jd": 60
+          }
+        },
+        "ndcg": {
+          "generic": {
+            "value": 0.036804,
+            "ci": [
+              0.00236,
+              0.077331
+            ],
+            "n_jd": 40
+          },
+          "targeted": {
+            "value": 0.018959,
+            "ci": [
+              -0.018256,
+              0.066553
+            ],
+            "n_jd": 20
+          },
+          "total": {
+            "value": 0.030856,
+            "ci": [
+              0.004264,
+              0.061339
+            ],
+            "n_jd": 60
+          }
+        },
+        "no_fits": {
+          "generic": {
+            "value": -0.225,
+            "ci": [
+              -0.625,
+              0.125
+            ],
+            "n_jd": 40
+          },
+          "targeted": {
+            "value": -0.05,
+            "ci": [
+              -0.6,
+              0.4
+            ],
+            "n_jd": 20
+          },
+          "total": {
+            "value": -0.166667,
+            "ci": [
+              -0.483333,
+              0.117083
+            ],
+            "n_jd": 60
+          }
+        }
+      },
+      "delta_vs_full": {
+        "recall": {
+          "generic": {
+            "value": -0.033179,
+            "ci": [
+              -0.057513,
+              -0.00856
+            ],
+            "n_jd": 40
+          },
+          "targeted": {
+            "value": -0.024571,
+            "ci": [
+              -0.060238,
+              0.009667
+            ],
+            "n_jd": 20
+          },
+          "total": {
+            "value": -0.03031,
+            "ci": [
+              -0.050477,
+              -0.010745
+            ],
+            "n_jd": 60
+          }
+        },
+        "ndcg": {
+          "generic": {
+            "value": -0.015306,
+            "ci": [
+              -0.030684,
+              -9.6e-05
+            ],
+            "n_jd": 40
+          },
+          "targeted": {
+            "value": -0.020947,
+            "ci": [
+              -0.043211,
+              0.001557
+            ],
+            "n_jd": 20
+          },
+          "total": {
+            "value": -0.017186,
+            "ci": [
+              -0.029891,
+              -0.004278
+            ],
+            "n_jd": 60
+          }
+        },
+        "no_fits": {
+          "generic": {
+            "value": 0.225,
+            "ci": [
+              0.025,
+              0.45
+            ],
+            "n_jd": 40
+          },
+          "targeted": {
+            "value": 0.1,
+            "ci": [
+              -0.2,
+              0.4
+            ],
+            "n_jd": 20
+          },
+          "total": {
+            "value": 0.183333,
+            "ci": [
+              0.016667,
+              0.366667
+            ],
+            "n_jd": 60
+          }
+        }
+      },
+      "scores_sha256": "8451d223986283b91dc5f6cc00e8bd127c4127cb710235ba2be36f78983971ec",
+      "ablation_of": "L2 boosting (monotone match signals)"
+    }
+  },
+  "best": {
+    "key": "L2",
+    "name": "L2 boosting (monotone match signals)",
+    "better_of_l1_l2": "L2"
+  },
+  "human_check": {
+    "reference": "yc",
+    "judged_pairs": 422,
+    "systems": {
+      "extracted rule + TF-IDF": {
+        "auc": [
+          {
+            "system": "extracted rule + TF-IDF",
+            "metric": "auc",
+            "scope": "generic",
+            "subset": "all",
+            "value": 0.682698,
+            "ci_low": 0.55599,
+            "ci_high": 0.797501,
+            "n_jd": 30,
+            "n_pairs": 213,
+            "rule_version": 1
+          },
+          {
+            "system": "extracted rule + TF-IDF",
+            "metric": "auc",
+            "scope": "targeted",
+            "subset": "all",
+            "value": 0.64106,
+            "ci_low": 0.489217,
+            "ci_high": 0.782579,
+            "n_jd": 18,
+            "n_pairs": 125,
+            "rule_version": 1
+          },
+          {
+            "system": "extracted rule + TF-IDF",
+            "metric": "auc",
+            "scope": "total",
+            "subset": "all",
+            "value": 0.667084,
+            "ci_low": 0.56852,
+            "ci_high": 0.756661,
+            "n_jd": 48,
+            "n_pairs": 338,
+            "rule_version": 1
+          },
+          {
+            "system": "extracted rule + TF-IDF",
+            "metric": "within_family_auc",
+            "scope": "generic",
+            "subset": "all",
+            "value": 0.665045,
+            "ci_low": 0.520427,
+            "ci_high": 0.797173,
+            "n_jd": 23,
+            "n_pairs": 159,
+            "rule_version": 1
+          },
+          {
+            "system": "extracted rule + TF-IDF",
+            "metric": "within_family_auc",
+            "scope": "targeted",
+            "subset": "all",
+            "value": 0.609153,
+            "ci_low": 0.473122,
+            "ci_high": 0.751746,
+            "n_jd": 15,
+            "n_pairs": 99,
+            "rule_version": 1
+          },
+          {
+            "system": "extracted rule + TF-IDF",
+            "metric": "within_family_auc",
+            "scope": "total",
+            "subset": "all",
+            "value": 0.642982,
+            "ci_low": 0.539593,
+            "ci_high": 0.739352,
+            "n_jd": 38,
+            "n_pairs": 258,
+            "rule_version": 1
+          },
+          {
+            "system": "extracted rule + TF-IDF",
+            "metric": "auc",
+            "scope": "generic",
+            "subset": "llm_free",
+            "value": 0.672476,
+            "ci_low": 0.519329,
+            "ci_high": 0.817337,
+            "n_jd": 25,
+            "n_pairs": 165,
+            "rule_version": 1
+          },
+          {
+            "system": "extracted rule + TF-IDF",
+            "metric": "auc",
+            "scope": "targeted",
+            "subset": "llm_free",
+            "value": 0.884848,
+            "ci_low": 0.763636,
+            "ci_high": 0.984848,
+            "n_jd": 11,
+            "n_pairs": 54,
+            "rule_version": 1
+          },
+          {
+            "system": "extracted rule + TF-IDF",
+            "metric": "auc",
+            "scope": "total",
+            "subset": "llm_free",
+            "value": 0.737368,
+            "ci_low": 0.619907,
+            "ci_high": 0.848218,
+            "n_jd": 36,
+            "n_pairs": 219,
+            "rule_version": 1
+          },
+          {
+            "system": "extracted rule + TF-IDF",
+            "metric": "within_family_auc",
+            "scope": "generic",
+            "subset": "llm_free",
+            "value": 0.668563,
+            "ci_low": 0.497569,
+            "ci_high": 0.830032,
+            "n_jd": 18,
+            "n_pairs": 117,
+            "rule_version": 1
+          },
+          {
+            "system": "extracted rule + TF-IDF",
+            "metric": "within_family_auc",
+            "scope": "targeted",
+            "subset": "llm_free",
+            "value": 0.785185,
+            "ci_low": 0.551852,
+            "ci_high": 0.962963,
+            "n_jd": 9,
+            "n_pairs": 43,
+            "rule_version": 1
+          },
+          {
+            "system": "extracted rule + TF-IDF",
+            "metric": "within_family_auc",
+            "scope": "total",
+            "subset": "llm_free",
+            "value": 0.707437,
+            "ci_low": 0.569131,
+            "ci_high": 0.834774,
+            "n_jd": 27,
+            "n_pairs": 160,
+            "rule_version": 1
+          }
+        ],
+        "pairwise_yc": {
+          "full": {
+            "generic": {
+              "value": 0.629536,
+              "ci": [
+                0.53807,
+                0.714003
+              ],
+              "n_jd": 37
+            },
+            "targeted": {
+              "value": 0.652866,
+              "ci": [
+                0.531628,
+                0.755974
+              ],
+              "n_jd": 18
+            },
+            "total": {
+              "value": 0.637171,
+              "ci": [
+                0.565907,
+                0.703852
+              ],
+              "n_jd": 55
+            }
+          },
+          "llm_free": {
+            "generic": {
+              "value": 0.610825,
+              "ci": [
+                0.513495,
+                0.699718
+              ],
+              "n_jd": 37
+            },
+            "targeted": {
+              "value": 0.644851,
+              "ci": [
+                0.473722,
+                0.799619
+              ],
+              "n_jd": 15
+            },
+            "total": {
+              "value": 0.62064,
+              "ci": [
+                0.538552,
+                0.702284
+              ],
+              "n_jd": 52
+            }
+          }
+        }
+      },
+      "S1 logistic F12 (D50)": {
+        "auc": [
+          {
+            "system": "S1 logistic F12 (D50)",
+            "metric": "auc",
+            "scope": "generic",
+            "subset": "all",
+            "value": 0.755238,
+            "ci_low": 0.653688,
+            "ci_high": 0.845595,
+            "n_jd": 30,
+            "n_pairs": 213,
+            "rule_version": 1
+          },
+          {
+            "system": "S1 logistic F12 (D50)",
+            "metric": "auc",
+            "scope": "targeted",
+            "subset": "all",
+            "value": 0.636916,
+            "ci_low": 0.510901,
+            "ci_high": 0.758466,
+            "n_jd": 18,
+            "n_pairs": 125,
+            "rule_version": 1
+          },
+          {
+            "system": "S1 logistic F12 (D50)",
+            "metric": "auc",
+            "scope": "total",
+            "subset": "all",
+            "value": 0.710867,
+            "ci_low": 0.630084,
+            "ci_high": 0.7877,
+            "n_jd": 48,
+            "n_pairs": 338,
+            "rule_version": 1
+          },
+          {
+            "system": "S1 logistic F12 (D50)",
+            "metric": "within_family_auc",
+            "scope": "generic",
+            "subset": "all",
+            "value": 0.718306,
+            "ci_low": 0.597859,
+            "ci_high": 0.832042,
+            "n_jd": 23,
+            "n_pairs": 159,
+            "rule_version": 1
+          },
+          {
+            "system": "S1 logistic F12 (D50)",
+            "metric": "within_family_auc",
+            "scope": "targeted",
+            "subset": "all",
+            "value": 0.623228,
+            "ci_low": 0.490631,
+            "ci_high": 0.757996,
+            "n_jd": 15,
+            "n_pairs": 99,
+            "rule_version": 1
+          },
+          {
+            "system": "S1 logistic F12 (D50)",
+            "metric": "within_family_auc",
+            "scope": "total",
+            "subset": "all",
+            "value": 0.680775,
+            "ci_low": 0.589254,
+            "ci_high": 0.769267,
+            "n_jd": 38,
+            "n_pairs": 258,
+            "rule_version": 1
+          },
+          {
+            "system": "S1 logistic F12 (D50)",
+            "metric": "auc",
+            "scope": "generic",
+            "subset": "llm_free",
+            "value": 0.764413,
+            "ci_low": 0.650237,
+            "ci_high": 0.870191,
+            "n_jd": 25,
+            "n_pairs": 165,
+            "rule_version": 1
+          },
+          {
+            "system": "S1 logistic F12 (D50)",
+            "metric": "auc",
+            "scope": "targeted",
+            "subset": "llm_free",
+            "value": 0.794589,
+            "ci_low": 0.582468,
+            "ci_high": 0.963636,
+            "n_jd": 11,
+            "n_pairs": 54,
+            "rule_version": 1
+          },
+          {
+            "system": "S1 logistic F12 (D50)",
+            "metric": "auc",
+            "scope": "total",
+            "subset": "llm_free",
+            "value": 0.773633,
+            "ci_low": 0.672398,
+            "ci_high": 0.865276,
+            "n_jd": 36,
+            "n_pairs": 219,
+            "rule_version": 1
+          },
+          {
+            "system": "S1 logistic F12 (D50)",
+            "metric": "within_family_auc",
+            "scope": "generic",
+            "subset": "llm_free",
+            "value": 0.714242,
+            "ci_low": 0.573501,
+            "ci_high": 0.847884,
+            "n_jd": 18,
+            "n_pairs": 117,
+            "rule_version": 1
+          },
+          {
+            "system": "S1 logistic F12 (D50)",
+            "metric": "within_family_auc",
+            "scope": "targeted",
+            "subset": "llm_free",
+            "value": 0.730423,
+            "ci_low": 0.483333,
+            "ci_high": 0.931217,
+            "n_jd": 9,
+            "n_pairs": 43,
+            "rule_version": 1
+          },
+          {
+            "system": "S1 logistic F12 (D50)",
+            "metric": "within_family_auc",
+            "scope": "total",
+            "subset": "llm_free",
+            "value": 0.719636,
+            "ci_low": 0.592853,
+            "ci_high": 0.832569,
+            "n_jd": 27,
+            "n_pairs": 160,
+            "rule_version": 1
+          }
+        ],
+        "pairwise_yc": {
+          "full": {
+            "generic": {
+              "value": 0.684659,
+              "ci": [
+                0.607109,
+                0.758399
+              ],
+              "n_jd": 37
+            },
+            "targeted": {
+              "value": 0.732383,
+              "ci": [
+                0.620434,
+                0.836216
+              ],
+              "n_jd": 18
+            },
+            "total": {
+              "value": 0.700278,
+              "ci": [
+                0.638725,
+                0.75928
+              ],
+              "n_jd": 55
+            }
+          },
+          "llm_free": {
+            "generic": {
+              "value": 0.679786,
+              "ci": [
+                0.601823,
+                0.754496
+              ],
+              "n_jd": 37
+            },
+            "targeted": {
+              "value": 0.722448,
+              "ci": [
+                0.548148,
+                0.875851
+              ],
+              "n_jd": 15
+            },
+            "total": {
+              "value": 0.692092,
+              "ci": [
+                0.617685,
+                0.760936
+              ],
+              "n_jd": 52
+            }
+          }
+        },
+        "auc_delta_vs_x2": [
+          {
+            "metric": "auc",
+            "scope": "generic",
+            "subset": "all",
+            "delta": 0.07254,
+            "ci": [
+              -0.01405,
+              0.161349
+            ],
+            "half_width": 0.087699,
+            "n_jd": 30
+          },
+          {
+            "metric": "auc",
+            "scope": "targeted",
+            "subset": "all",
+            "delta": -0.004145,
+            "ci": [
+              -0.141028,
+              0.120304
+            ],
+            "half_width": 0.130666,
+            "n_jd": 18
+          },
+          {
+            "metric": "auc",
+            "scope": "total",
+            "subset": "all",
+            "delta": 0.043783,
+            "ci": [
+              -0.029681,
+              0.11713
+            ],
+            "half_width": 0.073406,
+            "n_jd": 48
+          },
+          {
+            "metric": "auc",
+            "scope": "generic",
+            "subset": "llm_free",
+            "delta": 0.091937,
+            "ci": [
+              -0.026794,
+              0.217729
+            ],
+            "half_width": 0.122262,
+            "n_jd": 25
+          },
+          {
+            "metric": "auc",
+            "scope": "targeted",
+            "subset": "llm_free",
+            "delta": -0.09026,
+            "ci": [
+              -0.304545,
+              0.090909
+            ],
+            "half_width": 0.197727,
+            "n_jd": 11
+          },
+          {
+            "metric": "auc",
+            "scope": "total",
+            "subset": "llm_free",
+            "delta": 0.036265,
+            "ci": [
+              -0.07355,
+              0.145971
+            ],
+            "half_width": 0.109761,
+            "n_jd": 36
+          }
+        ],
+        "pairwise_delta_vs_x2": [
+          {
+            "reference": "yc",
+            "subset": "full",
+            "metric": "pairwise",
+            "scope": "generic",
+            "delta": 0.055123,
+            "ci": [
+              -0.015976,
+              0.125148
+            ],
+            "n_jd": 37
+          },
+          {
+            "reference": "yc",
+            "subset": "full",
+            "metric": "pairwise",
+            "scope": "targeted",
+            "delta": 0.079518,
+            "ci": [
+              -0.016794,
+              0.16898
+            ],
+            "n_jd": 18
+          },
+          {
+            "reference": "yc",
+            "subset": "full",
+            "metric": "pairwise",
+            "scope": "total",
+            "delta": 0.063107,
+            "ci": [
+              0.00487,
+              0.119535
+            ],
+            "n_jd": 55
+          },
+          {
+            "reference": "yc",
+            "subset": "llm_free",
+            "metric": "pairwise",
+            "scope": "generic",
+            "delta": 0.06896,
+            "ci": [
+              -0.01211,
+              0.15574
+            ],
+            "n_jd": 37
+          },
+          {
+            "reference": "yc",
+            "subset": "llm_free",
+            "metric": "pairwise",
+            "scope": "targeted",
+            "delta": 0.077597,
+            "ci": [
+              -0.100277,
+              0.26276
+            ],
+            "n_jd": 15
+          },
+          {
+            "reference": "yc",
+            "subset": "llm_free",
+            "metric": "pairwise",
+            "scope": "total",
+            "delta": 0.071452,
+            "ci": [
+              -0.007006,
+              0.152774
+            ],
+            "n_jd": 52
+          }
+        ]
+      },
+      "R1 cross-encoder (LLM batch, pointwise)": {
+        "auc": [
+          {
+            "system": "R1 cross-encoder (LLM batch, pointwise)",
+            "metric": "auc",
+            "scope": "generic",
+            "subset": "all",
+            "value": 0.642579,
+            "ci_low": 0.51968,
+            "ci_high": 0.760638,
+            "n_jd": 30,
+            "n_pairs": 213,
+            "rule_version": 1
+          },
+          {
+            "system": "R1 cross-encoder (LLM batch, pointwise)",
+            "metric": "auc",
+            "scope": "targeted",
+            "subset": "all",
+            "value": 0.651477,
+            "ci_low": 0.533465,
+            "ci_high": 0.768458,
+            "n_jd": 18,
+            "n_pairs": 125,
+            "rule_version": 1
+          },
+          {
+            "system": "R1 cross-encoder (LLM batch, pointwise)",
+            "metric": "auc",
+            "scope": "total",
+            "subset": "all",
+            "value": 0.645916,
+            "ci_low": 0.555635,
+            "ci_high": 0.732251,
+            "n_jd": 48,
+            "n_pairs": 338,
+            "rule_version": 1
+          },
+          {
+            "system": "R1 cross-encoder (LLM batch, pointwise)",
+            "metric": "within_family_auc",
+            "scope": "generic",
+            "subset": "all",
+            "value": 0.642029,
+            "ci_low": 0.506721,
+            "ci_high": 0.76729,
+            "n_jd": 23,
+            "n_pairs": 159,
+            "rule_version": 1
+          },
+          {
+            "system": "R1 cross-encoder (LLM batch, pointwise)",
+            "metric": "within_family_auc",
+            "scope": "targeted",
+            "subset": "all",
+            "value": 0.613598,
+            "ci_low": 0.456507,
+            "ci_high": 0.763175,
+            "n_jd": 15,
+            "n_pairs": 99,
+            "rule_version": 1
+          },
+          {
+            "system": "R1 cross-encoder (LLM batch, pointwise)",
+            "metric": "within_family_auc",
+            "scope": "total",
+            "subset": "all",
+            "value": 0.630806,
+            "ci_low": 0.529991,
+            "ci_high": 0.725982,
+            "n_jd": 38,
+            "n_pairs": 258,
+            "rule_version": 1
+          },
+          {
+            "system": "R1 cross-encoder (LLM batch, pointwise)",
+            "metric": "auc",
+            "scope": "generic",
+            "subset": "llm_free",
+            "value": 0.623683,
+            "ci_low": 0.481042,
+            "ci_high": 0.760955,
+            "n_jd": 25,
+            "n_pairs": 165,
+            "rule_version": 1
+          },
+          {
+            "system": "R1 cross-encoder (LLM batch, pointwise)",
+            "metric": "auc",
+            "scope": "targeted",
+            "subset": "llm_free",
+            "value": 0.685065,
+            "ci_low": 0.554113,
+            "ci_high": 0.818182,
+            "n_jd": 11,
+            "n_pairs": 54,
+            "rule_version": 1
+          },
+          {
+            "system": "R1 cross-encoder (LLM batch, pointwise)",
+            "metric": "auc",
+            "scope": "total",
+            "subset": "llm_free",
+            "value": 0.642438,
+            "ci_low": 0.532648,
+            "ci_high": 0.744071,
+            "n_jd": 36,
+            "n_pairs": 219,
+            "rule_version": 1
+          },
+          {
+            "system": "R1 cross-encoder (LLM batch, pointwise)",
+            "metric": "within_family_auc",
+            "scope": "generic",
+            "subset": "llm_free",
+            "value": 0.643342,
+            "ci_low": 0.506964,
+            "ci_high": 0.778131,
+            "n_jd": 18,
+            "n_pairs": 117,
+            "rule_version": 1
+          },
+          {
+            "system": "R1 cross-encoder (LLM batch, pointwise)",
+            "metric": "within_family_auc",
+            "scope": "targeted",
+            "subset": "llm_free",
+            "value": 0.652116,
+            "ci_low": 0.431217,
+            "ci_high": 0.849206,
+            "n_jd": 9,
+            "n_pairs": 43,
+            "rule_version": 1
+          },
+          {
+            "system": "R1 cross-encoder (LLM batch, pointwise)",
+            "metric": "within_family_auc",
+            "scope": "total",
+            "subset": "llm_free",
+            "value": 0.646267,
+            "ci_low": 0.527748,
+            "ci_high": 0.759672,
+            "n_jd": 27,
+            "n_pairs": 160,
+            "rule_version": 1
+          }
+        ],
+        "pairwise_yc": {
+          "full": {
+            "generic": {
+              "value": 0.665805,
+              "ci": [
+                0.590161,
+                0.738436
+              ],
+              "n_jd": 37
+            },
+            "targeted": {
+              "value": 0.620781,
+              "ci": [
+                0.548053,
+                0.697121
+              ],
+              "n_jd": 18
+            },
+            "total": {
+              "value": 0.65107,
+              "ci": [
+                0.593178,
+                0.705215
+              ],
+              "n_jd": 55
+            }
+          },
+          "llm_free": {
+            "generic": {
+              "value": 0.669785,
+              "ci": [
+                0.588292,
+                0.748473
+              ],
+              "n_jd": 37
+            },
+            "targeted": {
+              "value": 0.700031,
+              "ci": [
+                0.591458,
+                0.812768
+              ],
+              "n_jd": 15
+            },
+            "total": {
+              "value": 0.67851,
+              "ci": [
+                0.612322,
+                0.74249
+              ],
+              "n_jd": 52
+            }
+          }
+        },
+        "auc_delta_vs_x2": [
+          {
+            "metric": "auc",
+            "scope": "generic",
+            "subset": "all",
+            "delta": -0.040119,
+            "ci": [
+              -0.209842,
+              0.134922
+            ],
+            "half_width": 0.172382,
+            "n_jd": 30
+          },
+          {
+            "metric": "auc",
+            "scope": "targeted",
+            "subset": "all",
+            "delta": 0.010417,
+            "ci": [
+              -0.205688,
+              0.2337
+            ],
+            "half_width": 0.219694,
+            "n_jd": 18
+          },
+          {
+            "metric": "auc",
+            "scope": "total",
+            "subset": "all",
+            "delta": -0.021168,
+            "ci": [
+              -0.154733,
+              0.118664
+            ],
+            "half_width": 0.136698,
+            "n_jd": 48
+          },
+          {
+            "metric": "auc",
+            "scope": "generic",
+            "subset": "llm_free",
+            "delta": -0.048794,
+            "ci": [
+              -0.258686,
+              0.161858
+            ],
+            "half_width": 0.210272,
+            "n_jd": 25
+          },
+          {
+            "metric": "auc",
+            "scope": "targeted",
+            "subset": "llm_free",
+            "delta": -0.199784,
+            "ci": [
+              -0.376623,
+              0.003247
+            ],
+            "half_width": 0.189935,
+            "n_jd": 11
+          },
+          {
+            "metric": "auc",
+            "scope": "total",
+            "subset": "llm_free",
+            "delta": -0.094929,
+            "ci": [
+              -0.254471,
+              0.064684
+            ],
+            "half_width": 0.159578,
+            "n_jd": 36
+          }
+        ],
+        "pairwise_delta_vs_x2": [
+          {
+            "reference": "yc",
+            "subset": "full",
+            "metric": "pairwise",
+            "scope": "generic",
+            "delta": 0.036269,
+            "ci": [
+              -0.070263,
+              0.143922
+            ],
+            "n_jd": 37
+          },
+          {
+            "reference": "yc",
+            "subset": "full",
+            "metric": "pairwise",
+            "scope": "targeted",
+            "delta": -0.032085,
+            "ci": [
+              -0.174883,
+              0.141968
+            ],
+            "n_jd": 18
+          },
+          {
+            "reference": "yc",
+            "subset": "full",
+            "metric": "pairwise",
+            "scope": "total",
+            "delta": 0.013898,
+            "ci": [
+              -0.072374,
+              0.103389
+            ],
+            "n_jd": 55
+          },
+          {
+            "reference": "yc",
+            "subset": "llm_free",
+            "metric": "pairwise",
+            "scope": "generic",
+            "delta": 0.05896,
+            "ci": [
+              -0.057991,
+              0.176489
+            ],
+            "n_jd": 37
+          },
+          {
+            "reference": "yc",
+            "subset": "llm_free",
+            "metric": "pairwise",
+            "scope": "targeted",
+            "delta": 0.055181,
+            "ci": [
+              -0.144679,
+              0.265502
+            ],
+            "n_jd": 15
+          },
+          {
+            "reference": "yc",
+            "subset": "llm_free",
+            "metric": "pairwise",
+            "scope": "total",
+            "delta": 0.05787,
+            "ci": [
+              -0.044535,
+              0.158918
+            ],
+            "n_jd": 52
+          }
+        ]
+      },
+      "R2 cross-encoder (LLM batch, pairwise)": {
+        "auc": [
+          {
+            "system": "R2 cross-encoder (LLM batch, pairwise)",
+            "metric": "auc",
+            "scope": "generic",
+            "subset": "all",
+            "value": 0.651032,
+            "ci_low": 0.529841,
+            "ci_high": 0.762542,
+            "n_jd": 30,
+            "n_pairs": 213,
+            "rule_version": 1
+          },
+          {
+            "system": "R2 cross-encoder (LLM batch, pairwise)",
+            "metric": "auc",
+            "scope": "targeted",
+            "subset": "all",
+            "value": 0.611673,
+            "ci_low": 0.490237,
+            "ci_high": 0.729645,
+            "n_jd": 18,
+            "n_pairs": 125,
+            "rule_version": 1
+          },
+          {
+            "system": "R2 cross-encoder (LLM batch, pairwise)",
+            "metric": "auc",
+            "scope": "total",
+            "subset": "all",
+            "value": 0.636272,
+            "ci_low": 0.547767,
+            "ci_high": 0.72293,
+            "n_jd": 48,
+            "n_pairs": 338,
+            "rule_version": 1
+          },
+          {
+            "system": "R2 cross-encoder (LLM batch, pairwise)",
+            "metric": "within_family_auc",
+            "scope": "generic",
+            "subset": "all",
+            "value": 0.640355,
+            "ci_low": 0.511989,
+            "ci_high": 0.762338,
+            "n_jd": 23,
+            "n_pairs": 159,
+            "rule_version": 1
+          },
+          {
+            "system": "R2 cross-encoder (LLM batch, pairwise)",
+            "metric": "within_family_auc",
+            "scope": "targeted",
+            "subset": "all",
+            "value": 0.574603,
+            "ci_low": 0.424433,
+            "ci_high": 0.714444,
+            "n_jd": 15,
+            "n_pairs": 99,
+            "rule_version": 1
+          },
+          {
+            "system": "R2 cross-encoder (LLM batch, pairwise)",
+            "metric": "within_family_auc",
+            "scope": "total",
+            "subset": "all",
+            "value": 0.614401,
+            "ci_low": 0.520321,
+            "ci_high": 0.706868,
+            "n_jd": 38,
+            "n_pairs": 258,
+            "rule_version": 1
+          },
+          {
+            "system": "R2 cross-encoder (LLM batch, pairwise)",
+            "metric": "auc",
+            "scope": "generic",
+            "subset": "llm_free",
+            "value": 0.653429,
+            "ci_low": 0.517619,
+            "ci_high": 0.780574,
+            "n_jd": 25,
+            "n_pairs": 165,
+            "rule_version": 1
+          },
+          {
+            "system": "R2 cross-encoder (LLM batch, pairwise)",
+            "metric": "auc",
+            "scope": "targeted",
+            "subset": "llm_free",
+            "value": 0.430519,
+            "ci_low": 0.25,
+            "ci_high": 0.616883,
+            "n_jd": 11,
+            "n_pairs": 54,
+            "rule_version": 1
+          },
+          {
+            "system": "R2 cross-encoder (LLM batch, pairwise)",
+            "metric": "auc",
+            "scope": "total",
+            "subset": "llm_free",
+            "value": 0.585317,
+            "ci_low": 0.469312,
+            "ci_high": 0.696759,
+            "n_jd": 36,
+            "n_pairs": 219,
+            "rule_version": 1
+          },
+          {
+            "system": "R2 cross-encoder (LLM batch, pairwise)",
+            "metric": "within_family_auc",
+            "scope": "generic",
+            "subset": "llm_free",
+            "value": 0.601764,
+            "ci_low": 0.453701,
+            "ci_high": 0.745901,
+            "n_jd": 18,
+            "n_pairs": 117,
+            "rule_version": 1
+          },
+          {
+            "system": "R2 cross-encoder (LLM batch, pairwise)",
+            "metric": "within_family_auc",
+            "scope": "targeted",
+            "subset": "llm_free",
+            "value": 0.396561,
+            "ci_low": 0.178307,
+            "ci_high": 0.627778,
+            "n_jd": 9,
+            "n_pairs": 43,
+            "rule_version": 1
+          },
+          {
+            "system": "R2 cross-encoder (LLM batch, pairwise)",
+            "metric": "within_family_auc",
+            "scope": "total",
+            "subset": "llm_free",
+            "value": 0.533363,
+            "ci_low": 0.40573,
+            "ci_high": 0.658319,
+            "n_jd": 27,
+            "n_pairs": 160,
+            "rule_version": 1
+          }
+        ],
+        "pairwise_yc": {
+          "full": {
+            "generic": {
+              "value": 0.681712,
+              "ci": [
+                0.601115,
+                0.756564
+              ],
+              "n_jd": 37
+            },
+            "targeted": {
+              "value": 0.585346,
+              "ci": [
+                0.486148,
+                0.68773
+              ],
+              "n_jd": 18
+            },
+            "total": {
+              "value": 0.650174,
+              "ci": [
+                0.585991,
+                0.711655
+              ],
+              "n_jd": 55
+            }
+          },
+          "llm_free": {
+            "generic": {
+              "value": 0.701158,
+              "ci": [
+                0.619023,
+                0.776598
+              ],
+              "n_jd": 37
+            },
+            "targeted": {
+              "value": 0.567362,
+              "ci": [
+                0.426116,
+                0.697787
+              ],
+              "n_jd": 15
+            },
+            "total": {
+              "value": 0.662563,
+              "ci": [
+                0.592781,
+                0.730925
+              ],
+              "n_jd": 52
+            }
+          }
+        },
+        "auc_delta_vs_x2": [
+          {
+            "metric": "auc",
+            "scope": "generic",
+            "subset": "all",
+            "delta": -0.031667,
+            "ci": [
+              -0.166708,
+              0.101866
+            ],
+            "half_width": 0.134287,
+            "n_jd": 30
+          },
+          {
+            "metric": "auc",
+            "scope": "targeted",
+            "subset": "all",
+            "delta": -0.029387,
+            "ci": [
+              -0.253023,
+              0.201808
+            ],
+            "half_width": 0.227416,
+            "n_jd": 18
+          },
+          {
+            "metric": "auc",
+            "scope": "total",
+            "subset": "all",
+            "delta": -0.030812,
+            "ci": [
+              -0.153015,
+              0.091869
+            ],
+            "half_width": 0.122442,
+            "n_jd": 48
+          },
+          {
+            "metric": "auc",
+            "scope": "generic",
+            "subset": "llm_free",
+            "delta": -0.019048,
+            "ci": [
+              -0.18043,
+              0.148333
+            ],
+            "half_width": 0.164382,
+            "n_jd": 25
+          },
+          {
+            "metric": "auc",
+            "scope": "targeted",
+            "subset": "llm_free",
+            "delta": -0.454329,
+            "ci": [
+              -0.698052,
+              -0.199995
+            ],
+            "half_width": 0.249029,
+            "n_jd": 11
+          },
+          {
+            "metric": "auc",
+            "scope": "total",
+            "subset": "llm_free",
+            "delta": -0.15205,
+            "ci": [
+              -0.3046,
+              0.001854
+            ],
+            "half_width": 0.153227,
+            "n_jd": 36
+          }
+        ],
+        "pairwise_delta_vs_x2": [
+          {
+            "reference": "yc",
+            "subset": "full",
+            "metric": "pairwise",
+            "scope": "generic",
+            "delta": 0.052176,
+            "ci": [
+              -0.04777,
+              0.154097
+            ],
+            "n_jd": 37
+          },
+          {
+            "reference": "yc",
+            "subset": "full",
+            "metric": "pairwise",
+            "scope": "targeted",
+            "delta": -0.06752,
+            "ci": [
+              -0.222703,
+              0.107631
+            ],
+            "n_jd": 18
+          },
+          {
+            "reference": "yc",
+            "subset": "full",
+            "metric": "pairwise",
+            "scope": "total",
+            "delta": 0.013003,
+            "ci": [
+              -0.073266,
+              0.098863
+            ],
+            "n_jd": 55
+          },
+          {
+            "reference": "yc",
+            "subset": "llm_free",
+            "metric": "pairwise",
+            "scope": "generic",
+            "delta": 0.090332,
+            "ci": [
+              -0.013414,
+              0.199483
+            ],
+            "n_jd": 37
+          },
+          {
+            "reference": "yc",
+            "subset": "llm_free",
+            "metric": "pairwise",
+            "scope": "targeted",
+            "delta": -0.077488,
+            "ci": [
+              -0.335226,
+              0.182316
+            ],
+            "n_jd": 15
+          },
+          {
+            "reference": "yc",
+            "subset": "llm_free",
+            "metric": "pairwise",
+            "scope": "total",
+            "delta": 0.041923,
+            "ci": [
+              -0.064197,
+              0.147808
+            ],
+            "n_jd": 52
+          }
+        ]
+      },
+      "R3 bi-encoder (LLM batch)": {
+        "auc": [
+          {
+            "system": "R3 bi-encoder (LLM batch)",
+            "metric": "auc",
+            "scope": "generic",
+            "subset": "all",
+            "value": 0.788333,
+            "ci_low": 0.695714,
+            "ci_high": 0.871115,
+            "n_jd": 30,
+            "n_pairs": 213,
+            "rule_version": 1
+          },
+          {
+            "system": "R3 bi-encoder (LLM batch)",
+            "metric": "auc",
+            "scope": "targeted",
+            "subset": "all",
+            "value": 0.707242,
+            "ci_low": 0.583069,
+            "ci_high": 0.828638,
+            "n_jd": 18,
+            "n_pairs": 125,
+            "rule_version": 1
+          },
+          {
+            "system": "R3 bi-encoder (LLM batch)",
+            "metric": "auc",
+            "scope": "total",
+            "subset": "all",
+            "value": 0.757924,
+            "ci_low": 0.682267,
+            "ci_high": 0.828797,
+            "n_jd": 48,
+            "n_pairs": 338,
+            "rule_version": 1
+          },
+          {
+            "system": "R3 bi-encoder (LLM batch)",
+            "metric": "within_family_auc",
+            "scope": "generic",
+            "subset": "all",
+            "value": 0.75509,
+            "ci_low": 0.648446,
+            "ci_high": 0.852795,
+            "n_jd": 23,
+            "n_pairs": 159,
+            "rule_version": 1
+          },
+          {
+            "system": "R3 bi-encoder (LLM batch)",
+            "metric": "within_family_auc",
+            "scope": "targeted",
+            "subset": "all",
+            "value": 0.622381,
+            "ci_low": 0.484913,
+            "ci_high": 0.76048,
+            "n_jd": 15,
+            "n_pairs": 99,
+            "rule_version": 1
+          },
+          {
+            "system": "R3 bi-encoder (LLM batch)",
+            "metric": "within_family_auc",
+            "scope": "total",
+            "subset": "all",
+            "value": 0.702705,
+            "ci_low": 0.618137,
+            "ci_high": 0.788221,
+            "n_jd": 38,
+            "n_pairs": 258,
+            "rule_version": 1
+          },
+          {
+            "system": "R3 bi-encoder (LLM batch)",
+            "metric": "auc",
+            "scope": "generic",
+            "subset": "llm_free",
+            "value": 0.774762,
+            "ci_low": 0.670857,
+            "ci_high": 0.873629,
+            "n_jd": 25,
+            "n_pairs": 165,
+            "rule_version": 1
+          },
+          {
+            "system": "R3 bi-encoder (LLM batch)",
+            "metric": "auc",
+            "scope": "targeted",
+            "subset": "llm_free",
+            "value": 0.677489,
+            "ci_low": 0.450216,
+            "ci_high": 0.872294,
+            "n_jd": 11,
+            "n_pairs": 54,
+            "rule_version": 1
+          },
+          {
+            "system": "R3 bi-encoder (LLM batch)",
+            "metric": "auc",
+            "scope": "total",
+            "subset": "llm_free",
+            "value": 0.74504,
+            "ci_low": 0.642857,
+            "ci_high": 0.837173,
+            "n_jd": 36,
+            "n_pairs": 219,
+            "rule_version": 1
+          },
+          {
+            "system": "R3 bi-encoder (LLM batch)",
+            "metric": "within_family_auc",
+            "scope": "generic",
+            "subset": "llm_free",
+            "value": 0.720459,
+            "ci_low": 0.59506,
+            "ci_high": 0.836243,
+            "n_jd": 18,
+            "n_pairs": 117,
+            "rule_version": 1
+          },
+          {
+            "system": "R3 bi-encoder (LLM batch)",
+            "metric": "within_family_auc",
+            "scope": "targeted",
+            "subset": "llm_free",
+            "value": 0.568783,
+            "ci_low": 0.316138,
+            "ci_high": 0.801587,
+            "n_jd": 9,
+            "n_pairs": 43,
+            "rule_version": 1
+          },
+          {
+            "system": "R3 bi-encoder (LLM batch)",
+            "metric": "within_family_auc",
+            "scope": "total",
+            "subset": "llm_free",
+            "value": 0.6699,
+            "ci_low": 0.549911,
+            "ci_high": 0.782399,
+            "n_jd": 27,
+            "n_pairs": 160,
+            "rule_version": 1
+          }
+        ],
+        "pairwise_yc": {
+          "full": {
+            "generic": {
+              "value": 0.743352,
+              "ci": [
+                0.674268,
+                0.807845
+              ],
+              "n_jd": 37
+            },
+            "targeted": {
+              "value": 0.625198,
+              "ci": [
+                0.535231,
+                0.714011
+              ],
+              "n_jd": 18
+            },
+            "total": {
+              "value": 0.704683,
+              "ci": [
+                0.647443,
+                0.76136
+              ],
+              "n_jd": 55
+            }
+          },
+          "llm_free": {
+            "generic": {
+              "value": 0.740759,
+              "ci": [
+                0.666658,
+                0.811462
+              ],
+              "n_jd": 37
+            },
+            "targeted": {
+              "value": 0.628575,
+              "ci": [
+                0.45517,
+                0.787407
+              ],
+              "n_jd": 15
+            },
+            "total": {
+              "value": 0.708398,
+              "ci": [
+                0.635609,
+                0.777955
+              ],
+              "n_jd": 52
+            }
+          }
+        },
+        "auc_delta_vs_x2": [
+          {
+            "metric": "auc",
+            "scope": "generic",
+            "subset": "all",
+            "delta": 0.105635,
+            "ci": [
+              -0.020834,
+              0.238215
+            ],
+            "half_width": 0.129525,
+            "n_jd": 30
+          },
+          {
+            "metric": "auc",
+            "scope": "targeted",
+            "subset": "all",
+            "delta": 0.066182,
+            "ci": [
+              -0.141978,
+              0.278153
+            ],
+            "half_width": 0.210065,
+            "n_jd": 18
+          },
+          {
+            "metric": "auc",
+            "scope": "total",
+            "subset": "all",
+            "delta": 0.09084,
+            "ci": [
+              -0.02186,
+              0.206176
+            ],
+            "half_width": 0.114018,
+            "n_jd": 48
+          },
+          {
+            "metric": "auc",
+            "scope": "generic",
+            "subset": "llm_free",
+            "delta": 0.102286,
+            "ci": [
+              -0.052145,
+              0.270004
+            ],
+            "half_width": 0.161074,
+            "n_jd": 25
+          },
+          {
+            "metric": "auc",
+            "scope": "targeted",
+            "subset": "llm_free",
+            "delta": -0.207359,
+            "ci": [
+              -0.487013,
+              0.05066
+            ],
+            "half_width": 0.268837,
+            "n_jd": 11
+          },
+          {
+            "metric": "auc",
+            "scope": "total",
+            "subset": "llm_free",
+            "delta": 0.007672,
+            "ci": [
+              -0.14223,
+              0.154171
+            ],
+            "half_width": 0.1482,
+            "n_jd": 36
+          }
+        ],
+        "pairwise_delta_vs_x2": [
+          {
+            "reference": "yc",
+            "subset": "full",
+            "metric": "pairwise",
+            "scope": "generic",
+            "delta": 0.113816,
+            "ci": [
+              0.013467,
+              0.217066
+            ],
+            "n_jd": 37
+          },
+          {
+            "reference": "yc",
+            "subset": "full",
+            "metric": "pairwise",
+            "scope": "targeted",
+            "delta": -0.027668,
+            "ci": [
+              -0.180671,
+              0.147772
+            ],
+            "n_jd": 18
+          },
+          {
+            "reference": "yc",
+            "subset": "full",
+            "metric": "pairwise",
+            "scope": "total",
+            "delta": 0.067512,
+            "ci": [
+              -0.018688,
+              0.158168
+            ],
+            "n_jd": 55
+          },
+          {
+            "reference": "yc",
+            "subset": "llm_free",
+            "metric": "pairwise",
+            "scope": "generic",
+            "delta": 0.129934,
+            "ci": [
+              0.016353,
+              0.249956
+            ],
+            "n_jd": 37
+          },
+          {
+            "reference": "yc",
+            "subset": "llm_free",
+            "metric": "pairwise",
+            "scope": "targeted",
+            "delta": -0.016276,
+            "ci": [
+              -0.227006,
+              0.166648
+            ],
+            "n_jd": 15
+          },
+          {
+            "reference": "yc",
+            "subset": "llm_free",
+            "metric": "pairwise",
+            "scope": "total",
+            "delta": 0.087758,
+            "ci": [
+              -0.015854,
+              0.188084
+            ],
+            "n_jd": 52
+          }
+        ]
+      },
+      "L1 linear (ridge, non-negative match signals)": {
+        "auc": [
+          {
+            "system": "L1 linear (ridge, non-negative match signals)",
+            "metric": "auc",
+            "scope": "generic",
+            "subset": "all",
+            "value": 0.758929,
+            "ci_low": 0.643484,
+            "ci_high": 0.86127,
+            "n_jd": 30,
+            "n_pairs": 213,
+            "rule_version": 1
+          },
+          {
+            "system": "L1 linear (ridge, non-negative match signals)",
+            "metric": "auc",
+            "scope": "targeted",
+            "subset": "all",
+            "value": 0.702833,
+            "ci_low": 0.592361,
+            "ci_high": 0.806451,
+            "n_jd": 18,
+            "n_pairs": 125,
+            "rule_version": 1
+          },
+          {
+            "system": "L1 linear (ridge, non-negative match signals)",
+            "metric": "auc",
+            "scope": "total",
+            "subset": "all",
+            "value": 0.737893,
+            "ci_low": 0.65437,
+            "ci_high": 0.815753,
+            "n_jd": 48,
+            "n_pairs": 338,
+            "rule_version": 1
+          },
+          {
+            "system": "L1 linear (ridge, non-negative match signals)",
+            "metric": "within_family_auc",
+            "scope": "generic",
+            "subset": "all",
+            "value": 0.706815,
+            "ci_low": 0.562857,
+            "ci_high": 0.836664,
+            "n_jd": 23,
+            "n_pairs": 159,
+            "rule_version": 1
+          },
+          {
+            "system": "L1 linear (ridge, non-negative match signals)",
+            "metric": "within_family_auc",
+            "scope": "targeted",
+            "subset": "all",
+            "value": 0.646772,
+            "ci_low": 0.54259,
+            "ci_high": 0.755353,
+            "n_jd": 15,
+            "n_pairs": 99,
+            "rule_version": 1
+          },
+          {
+            "system": "L1 linear (ridge, non-negative match signals)",
+            "metric": "within_family_auc",
+            "scope": "total",
+            "subset": "all",
+            "value": 0.683114,
+            "ci_low": 0.5866,
+            "ci_high": 0.773037,
+            "n_jd": 38,
+            "n_pairs": 258,
+            "rule_version": 1
+          },
+          {
+            "system": "L1 linear (ridge, non-negative match signals)",
+            "metric": "auc",
+            "scope": "generic",
+            "subset": "llm_free",
+            "value": 0.77773,
+            "ci_low": 0.656063,
+            "ci_high": 0.887861,
+            "n_jd": 25,
+            "n_pairs": 165,
+            "rule_version": 1
+          },
+          {
+            "system": "L1 linear (ridge, non-negative match signals)",
+            "metric": "auc",
+            "scope": "targeted",
+            "subset": "llm_free",
+            "value": 0.836797,
+            "ci_low": 0.724221,
+            "ci_high": 0.939394,
+            "n_jd": 11,
+            "n_pairs": 54,
+            "rule_version": 1
+          },
+          {
+            "system": "L1 linear (ridge, non-negative match signals)",
+            "metric": "auc",
+            "scope": "total",
+            "subset": "llm_free",
+            "value": 0.795778,
+            "ci_low": 0.70099,
+            "ci_high": 0.879399,
+            "n_jd": 36,
+            "n_pairs": 219,
+            "rule_version": 1
+          },
+          {
+            "system": "L1 linear (ridge, non-negative match signals)",
+            "metric": "within_family_auc",
+            "scope": "generic",
+            "subset": "llm_free",
+            "value": 0.711905,
+            "ci_low": 0.55864,
+            "ci_high": 0.85468,
+            "n_jd": 18,
+            "n_pairs": 117,
+            "rule_version": 1
+          },
+          {
+            "system": "L1 linear (ridge, non-negative match signals)",
+            "metric": "within_family_auc",
+            "scope": "targeted",
+            "subset": "llm_free",
+            "value": 0.726455,
+            "ci_low": 0.505291,
+            "ci_high": 0.898413,
+            "n_jd": 9,
+            "n_pairs": 43,
+            "rule_version": 1
+          },
+          {
+            "system": "L1 linear (ridge, non-negative match signals)",
+            "metric": "within_family_auc",
+            "scope": "total",
+            "subset": "llm_free",
+            "value": 0.716755,
+            "ci_low": 0.588886,
+            "ci_high": 0.830043,
+            "n_jd": 27,
+            "n_pairs": 160,
+            "rule_version": 1
+          }
+        ],
+        "pairwise_yc": {
+          "full": {
+            "generic": {
+              "value": 0.724752,
+              "ci": [
+                0.651879,
+                0.793727
+              ],
+              "n_jd": 37
+            },
+            "targeted": {
+              "value": 0.761275,
+              "ci": [
+                0.663089,
+                0.848626
+              ],
+              "n_jd": 18
+            },
+            "total": {
+              "value": 0.736705,
+              "ci": [
+                0.681636,
+                0.79163
+              ],
+              "n_jd": 55
+            }
+          },
+          "llm_free": {
+            "generic": {
+              "value": 0.722196,
+              "ci": [
+                0.648275,
+                0.791304
+              ],
+              "n_jd": 37
+            },
+            "targeted": {
+              "value": 0.732034,
+              "ci": [
+                0.579608,
+                0.862327
+              ],
+              "n_jd": 15
+            },
+            "total": {
+              "value": 0.725034,
+              "ci": [
+                0.658557,
+                0.788088
+              ],
+              "n_jd": 52
+            }
+          }
+        },
+        "auc_delta_vs_x2": [
+          {
+            "metric": "auc",
+            "scope": "generic",
+            "subset": "all",
+            "delta": 0.07623,
+            "ci": [
+              -0.001946,
+              0.164968
+            ],
+            "half_width": 0.083457,
+            "n_jd": 30
+          },
+          {
+            "metric": "auc",
+            "scope": "targeted",
+            "subset": "all",
+            "delta": 0.061772,
+            "ci": [
+              -0.050397,
+              0.20774
+            ],
+            "half_width": 0.129068,
+            "n_jd": 18
+          },
+          {
+            "metric": "auc",
+            "scope": "total",
+            "subset": "all",
+            "delta": 0.070809,
+            "ci": [
+              0.004785,
+              0.144794
+            ],
+            "half_width": 0.070004,
+            "n_jd": 48
+          },
+          {
+            "metric": "auc",
+            "scope": "generic",
+            "subset": "llm_free",
+            "delta": 0.105254,
+            "ci": [
+              -0.000698,
+              0.228778
+            ],
+            "half_width": 0.114738,
+            "n_jd": 25
+          },
+          {
+            "metric": "auc",
+            "scope": "targeted",
+            "subset": "llm_free",
+            "delta": -0.048052,
+            "ci": [
+              -0.181818,
+              0.090909
+            ],
+            "half_width": 0.136364,
+            "n_jd": 11
+          },
+          {
+            "metric": "auc",
+            "scope": "total",
+            "subset": "llm_free",
+            "delta": 0.05841,
+            "ci": [
+              -0.030322,
+              0.158271
+            ],
+            "half_width": 0.094297,
+            "n_jd": 36
+          }
+        ],
+        "pairwise_delta_vs_x2": [
+          {
+            "reference": "yc",
+            "subset": "full",
+            "metric": "pairwise",
+            "scope": "generic",
+            "delta": 0.095216,
+            "ci": [
+              0.039643,
+              0.15782
+            ],
+            "n_jd": 37
+          },
+          {
+            "reference": "yc",
+            "subset": "full",
+            "metric": "pairwise",
+            "scope": "targeted",
+            "delta": 0.108409,
+            "ci": [
+              0.007473,
+              0.238478
+            ],
+            "n_jd": 18
+          },
+          {
+            "reference": "yc",
+            "subset": "full",
+            "metric": "pairwise",
+            "scope": "total",
+            "delta": 0.099534,
+            "ci": [
+              0.047919,
+              0.158412
+            ],
+            "n_jd": 55
+          },
+          {
+            "reference": "yc",
+            "subset": "llm_free",
+            "metric": "pairwise",
+            "scope": "generic",
+            "delta": 0.111371,
+            "ci": [
+              0.043984,
+              0.190018
+            ],
+            "n_jd": 37
+          },
+          {
+            "reference": "yc",
+            "subset": "llm_free",
+            "metric": "pairwise",
+            "scope": "targeted",
+            "delta": 0.087183,
+            "ci": [
+              -0.049325,
+              0.258397
+            ],
+            "n_jd": 15
+          },
+          {
+            "reference": "yc",
+            "subset": "llm_free",
+            "metric": "pairwise",
+            "scope": "total",
+            "delta": 0.104394,
+            "ci": [
+              0.040268,
+              0.176983
+            ],
+            "n_jd": 52
+          }
+        ]
+      },
+      "L2 boosting (monotone match signals)": {
+        "auc": [
+          {
+            "system": "L2 boosting (monotone match signals)",
+            "metric": "auc",
+            "scope": "generic",
+            "subset": "all",
+            "value": 0.780595,
+            "ci_low": 0.677656,
+            "ci_high": 0.872663,
+            "n_jd": 30,
+            "n_pairs": 213,
+            "rule_version": 1
+          },
+          {
+            "system": "L2 boosting (monotone match signals)",
+            "metric": "auc",
+            "scope": "targeted",
+            "subset": "all",
+            "value": 0.788062,
+            "ci_low": 0.69461,
+            "ci_high": 0.873413,
+            "n_jd": 18,
+            "n_pairs": 125,
+            "rule_version": 1
+          },
+          {
+            "system": "L2 boosting (monotone match signals)",
+            "metric": "auc",
+            "scope": "total",
+            "subset": "all",
+            "value": 0.783395,
+            "ci_low": 0.709809,
+            "ci_high": 0.850784,
+            "n_jd": 48,
+            "n_pairs": 338,
+            "rule_version": 1
+          },
+          {
+            "system": "L2 boosting (monotone match signals)",
+            "metric": "within_family_auc",
+            "scope": "generic",
+            "subset": "all",
+            "value": 0.724034,
+            "ci_low": 0.601206,
+            "ci_high": 0.83675,
+            "n_jd": 23,
+            "n_pairs": 159,
+            "rule_version": 1
+          },
+          {
+            "system": "L2 boosting (monotone match signals)",
+            "metric": "within_family_auc",
+            "scope": "targeted",
+            "subset": "all",
+            "value": 0.75254,
+            "ci_low": 0.659206,
+            "ci_high": 0.84175,
+            "n_jd": 15,
+            "n_pairs": 99,
+            "rule_version": 1
+          },
+          {
+            "system": "L2 boosting (monotone match signals)",
+            "metric": "within_family_auc",
+            "scope": "total",
+            "subset": "all",
+            "value": 0.735286,
+            "ci_low": 0.65354,
+            "ci_high": 0.811843,
+            "n_jd": 38,
+            "n_pairs": 258,
+            "rule_version": 1
+          },
+          {
+            "system": "L2 boosting (monotone match signals)",
+            "metric": "auc",
+            "scope": "generic",
+            "subset": "llm_free",
+            "value": 0.812619,
+            "ci_low": 0.713042,
+            "ci_high": 0.902333,
+            "n_jd": 25,
+            "n_pairs": 165,
+            "rule_version": 1
+          },
+          {
+            "system": "L2 boosting (monotone match signals)",
+            "metric": "auc",
+            "scope": "targeted",
+            "subset": "llm_free",
+            "value": 0.85368,
+            "ci_low": 0.732468,
+            "ci_high": 0.958874,
+            "n_jd": 11,
+            "n_pairs": 54,
+            "rule_version": 1
+          },
+          {
+            "system": "L2 boosting (monotone match signals)",
+            "metric": "auc",
+            "scope": "total",
+            "subset": "llm_free",
+            "value": 0.825165,
+            "ci_low": 0.748114,
+            "ci_high": 0.896495,
+            "n_jd": 36,
+            "n_pairs": 219,
+            "rule_version": 1
+          },
+          {
+            "system": "L2 boosting (monotone match signals)",
+            "metric": "within_family_auc",
+            "scope": "generic",
+            "subset": "llm_free",
+            "value": 0.746252,
+            "ci_low": 0.627116,
+            "ci_high": 0.857364,
+            "n_jd": 18,
+            "n_pairs": 117,
+            "rule_version": 1
+          },
+          {
+            "system": "L2 boosting (monotone match signals)",
+            "metric": "within_family_auc",
+            "scope": "targeted",
+            "subset": "llm_free",
+            "value": 0.74709,
+            "ci_low": 0.521164,
+            "ci_high": 0.928571,
+            "n_jd": 9,
+            "n_pairs": 43,
+            "rule_version": 1
+          },
+          {
+            "system": "L2 boosting (monotone match signals)",
+            "metric": "within_family_auc",
+            "scope": "total",
+            "subset": "llm_free",
+            "value": 0.746531,
+            "ci_low": 0.637425,
+            "ci_high": 0.84524,
+            "n_jd": 27,
+            "n_pairs": 160,
+            "rule_version": 1
+          }
+        ],
+        "pairwise_yc": {
+          "full": {
+            "generic": {
+              "value": 0.76294,
+              "ci": [
+                0.694075,
+                0.829401
+              ],
+              "n_jd": 37
+            },
+            "targeted": {
+              "value": 0.765953,
+              "ci": [
+                0.65879,
+                0.857347
+              ],
+              "n_jd": 18
+            },
+            "total": {
+              "value": 0.763926,
+              "ci": [
+                0.708711,
+                0.817818
+              ],
+              "n_jd": 55
+            }
+          },
+          "llm_free": {
+            "generic": {
+              "value": 0.767038,
+              "ci": [
+                0.696655,
+                0.834368
+              ],
+              "n_jd": 37
+            },
+            "targeted": {
+              "value": 0.752806,
+              "ci": [
+                0.595907,
+                0.885195
+              ],
+              "n_jd": 15
+            },
+            "total": {
+              "value": 0.762932,
+              "ci": [
+                0.695734,
+                0.825095
+              ],
+              "n_jd": 52
+            }
+          }
+        },
+        "auc_delta_vs_x2": [
+          {
+            "metric": "auc",
+            "scope": "generic",
+            "subset": "all",
+            "delta": 0.097897,
+            "ci": [
+              0.009005,
+              0.200805
+            ],
+            "half_width": 0.0959,
+            "n_jd": 30
+          },
+          {
+            "metric": "auc",
+            "scope": "targeted",
+            "subset": "all",
+            "delta": 0.147002,
+            "ci": [
+              0.021384,
+              0.290213
+            ],
+            "half_width": 0.134414,
+            "n_jd": 18
+          },
+          {
+            "metric": "auc",
+            "scope": "total",
+            "subset": "all",
+            "delta": 0.116311,
+            "ci": [
+              0.04327,
+              0.197785
+            ],
+            "half_width": 0.077257,
+            "n_jd": 48
+          },
+          {
+            "metric": "auc",
+            "scope": "generic",
+            "subset": "llm_free",
+            "delta": 0.140143,
+            "ci": [
+              0.019427,
+              0.275048
+            ],
+            "half_width": 0.12781,
+            "n_jd": 25
+          },
+          {
+            "metric": "auc",
+            "scope": "targeted",
+            "subset": "llm_free",
+            "delta": -0.031169,
+            "ci": [
+              -0.162338,
+              0.105195
+            ],
+            "half_width": 0.133766,
+            "n_jd": 11
+          },
+          {
+            "metric": "auc",
+            "scope": "total",
+            "subset": "llm_free",
+            "delta": 0.087798,
+            "ci": [
+              -0.009396,
+              0.195507
+            ],
+            "half_width": 0.102451,
+            "n_jd": 36
+          }
+        ],
+        "pairwise_delta_vs_x2": [
+          {
+            "reference": "yc",
+            "subset": "full",
+            "metric": "pairwise",
+            "scope": "generic",
+            "delta": 0.133404,
+            "ci": [
+              0.063156,
+              0.209142
+            ],
+            "n_jd": 37
+          },
+          {
+            "reference": "yc",
+            "subset": "full",
+            "metric": "pairwise",
+            "scope": "targeted",
+            "delta": 0.113088,
+            "ci": [
+              -0.006294,
+              0.254541
+            ],
+            "n_jd": 18
+          },
+          {
+            "reference": "yc",
+            "subset": "full",
+            "metric": "pairwise",
+            "scope": "total",
+            "delta": 0.126755,
+            "ci": [
+              0.064126,
+              0.193431
+            ],
+            "n_jd": 55
+          },
+          {
+            "reference": "yc",
+            "subset": "llm_free",
+            "metric": "pairwise",
+            "scope": "generic",
+            "delta": 0.156212,
+            "ci": [
+              0.075216,
+              0.246527
+            ],
+            "n_jd": 37
+          },
+          {
+            "reference": "yc",
+            "subset": "llm_free",
+            "metric": "pairwise",
+            "scope": "targeted",
+            "delta": 0.107955,
+            "ci": [
+              -0.033315,
+              0.278415
+            ],
+            "n_jd": 15
+          },
+          {
+            "reference": "yc",
+            "subset": "llm_free",
+            "metric": "pairwise",
+            "scope": "total",
+            "delta": 0.142292,
+            "ci": [
+              0.06995,
+              0.220239
+            ],
+            "n_jd": 52
+          }
+        ]
+      },
+      "L3 cross-encoder (chat-1, MaxP windows)": {
+        "auc": [
+          {
+            "system": "L3 cross-encoder (chat-1, MaxP windows)",
+            "metric": "auc",
+            "scope": "generic",
+            "subset": "all",
+            "value": 0.596429,
+            "ci_low": 0.488728,
+            "ci_high": 0.7,
+            "n_jd": 30,
+            "n_pairs": 213,
+            "rule_version": 1
+          },
+          {
+            "system": "L3 cross-encoder (chat-1, MaxP windows)",
+            "metric": "auc",
+            "scope": "targeted",
+            "subset": "all",
+            "value": 0.691303,
+            "ci_low": 0.562368,
+            "ci_high": 0.806614,
+            "n_jd": 18,
+            "n_pairs": 125,
+            "rule_version": 1
+          },
+          {
+            "system": "L3 cross-encoder (chat-1, MaxP windows)",
+            "metric": "auc",
+            "scope": "total",
+            "subset": "all",
+            "value": 0.632006,
+            "ci_low": 0.547755,
+            "ci_high": 0.712563,
+            "n_jd": 48,
+            "n_pairs": 338,
+            "rule_version": 1
+          },
+          {
+            "system": "L3 cross-encoder (chat-1, MaxP windows)",
+            "metric": "within_family_auc",
+            "scope": "generic",
+            "subset": "all",
+            "value": 0.542961,
+            "ci_low": 0.412834,
+            "ci_high": 0.665531,
+            "n_jd": 23,
+            "n_pairs": 159,
+            "rule_version": 1
+          },
+          {
+            "system": "L3 cross-encoder (chat-1, MaxP windows)",
+            "metric": "within_family_auc",
+            "scope": "targeted",
+            "subset": "all",
+            "value": 0.658254,
+            "ci_low": 0.50952,
+            "ci_high": 0.797143,
+            "n_jd": 15,
+            "n_pairs": 99,
+            "rule_version": 1
+          },
+          {
+            "system": "L3 cross-encoder (chat-1, MaxP windows)",
+            "metric": "within_family_auc",
+            "scope": "total",
+            "subset": "all",
+            "value": 0.588471,
+            "ci_low": 0.490915,
+            "ci_high": 0.683648,
+            "n_jd": 38,
+            "n_pairs": 258,
+            "rule_version": 1
+          },
+          {
+            "system": "L3 cross-encoder (chat-1, MaxP windows)",
+            "metric": "auc",
+            "scope": "generic",
+            "subset": "llm_free",
+            "value": 0.600762,
+            "ci_low": 0.47219,
+            "ci_high": 0.728576,
+            "n_jd": 25,
+            "n_pairs": 165,
+            "rule_version": 1
+          },
+          {
+            "system": "L3 cross-encoder (chat-1, MaxP windows)",
+            "metric": "auc",
+            "scope": "targeted",
+            "subset": "llm_free",
+            "value": 0.694589,
+            "ci_low": 0.542208,
+            "ci_high": 0.837446,
+            "n_jd": 11,
+            "n_pairs": 54,
+            "rule_version": 1
+          },
+          {
+            "system": "L3 cross-encoder (chat-1, MaxP windows)",
+            "metric": "auc",
+            "scope": "total",
+            "subset": "llm_free",
+            "value": 0.629431,
+            "ci_low": 0.526389,
+            "ci_high": 0.726058,
+            "n_jd": 36,
+            "n_pairs": 219,
+            "rule_version": 1
+          },
+          {
+            "system": "L3 cross-encoder (chat-1, MaxP windows)",
+            "metric": "within_family_auc",
+            "scope": "generic",
+            "subset": "llm_free",
+            "value": 0.536111,
+            "ci_low": 0.383856,
+            "ci_high": 0.689818,
+            "n_jd": 18,
+            "n_pairs": 117,
+            "rule_version": 1
+          },
+          {
+            "system": "L3 cross-encoder (chat-1, MaxP windows)",
+            "metric": "within_family_auc",
+            "scope": "targeted",
+            "subset": "llm_free",
+            "value": 0.61746,
+            "ci_low": 0.41746,
+            "ci_high": 0.797619,
+            "n_jd": 9,
+            "n_pairs": 43,
+            "rule_version": 1
+          },
+          {
+            "system": "L3 cross-encoder (chat-1, MaxP windows)",
+            "metric": "within_family_auc",
+            "scope": "total",
+            "subset": "llm_free",
+            "value": 0.563228,
+            "ci_low": 0.437564,
+            "ci_high": 0.683069,
+            "n_jd": 27,
+            "n_pairs": 160,
+            "rule_version": 1
+          }
+        ],
+        "pairwise_yc": {
+          "full": {
+            "generic": {
+              "value": 0.639475,
+              "ci": [
+                0.554835,
+                0.720996
+              ],
+              "n_jd": 37
+            },
+            "targeted": {
+              "value": 0.615327,
+              "ci": [
+                0.524424,
+                0.706633
+              ],
+              "n_jd": 18
+            },
+            "total": {
+              "value": 0.631572,
+              "ci": [
+                0.568195,
+                0.693577
+              ],
+              "n_jd": 55
+            }
+          },
+          "llm_free": {
+            "generic": {
+              "value": 0.62689,
+              "ci": [
+                0.541842,
+                0.709938
+              ],
+              "n_jd": 37
+            },
+            "targeted": {
+              "value": 0.693326,
+              "ci": [
+                0.562467,
+                0.818116
+              ],
+              "n_jd": 15
+            },
+            "total": {
+              "value": 0.646054,
+              "ci": [
+                0.575872,
+                0.715131
+              ],
+              "n_jd": 52
+            }
+          }
+        },
+        "auc_delta_vs_x2": [
+          {
+            "metric": "auc",
+            "scope": "generic",
+            "subset": "all",
+            "delta": -0.08627,
+            "ci": [
+              -0.236152,
+              0.073613
+            ],
+            "half_width": 0.154882,
+            "n_jd": 30
+          },
+          {
+            "metric": "auc",
+            "scope": "targeted",
+            "subset": "all",
+            "delta": 0.050243,
+            "ci": [
+              -0.142353,
+              0.255865
+            ],
+            "half_width": 0.199109,
+            "n_jd": 18
+          },
+          {
+            "metric": "auc",
+            "scope": "total",
+            "subset": "all",
+            "delta": -0.035078,
+            "ci": [
+              -0.158082,
+              0.091818
+            ],
+            "half_width": 0.12495,
+            "n_jd": 48
+          },
+          {
+            "metric": "auc",
+            "scope": "generic",
+            "subset": "llm_free",
+            "delta": -0.071714,
+            "ci": [
+              -0.267343,
+              0.140763
+            ],
+            "half_width": 0.204053,
+            "n_jd": 25
+          },
+          {
+            "metric": "auc",
+            "scope": "targeted",
+            "subset": "llm_free",
+            "delta": -0.19026,
+            "ci": [
+              -0.405844,
+              0.029919
+            ],
+            "half_width": 0.217881,
+            "n_jd": 11
+          },
+          {
+            "metric": "auc",
+            "scope": "total",
+            "subset": "llm_free",
+            "delta": -0.107937,
+            "ci": [
+              -0.264256,
+              0.053348
+            ],
+            "half_width": 0.158802,
+            "n_jd": 36
+          }
+        ],
+        "pairwise_delta_vs_x2": [
+          {
+            "reference": "yc",
+            "subset": "full",
+            "metric": "pairwise",
+            "scope": "generic",
+            "delta": 0.009939,
+            "ci": [
+              -0.112828,
+              0.136814
+            ],
+            "n_jd": 37
+          },
+          {
+            "reference": "yc",
+            "subset": "full",
+            "metric": "pairwise",
+            "scope": "targeted",
+            "delta": -0.037539,
+            "ci": [
+              -0.18479,
+              0.137054
+            ],
+            "n_jd": 18
+          },
+          {
+            "reference": "yc",
+            "subset": "full",
+            "metric": "pairwise",
+            "scope": "total",
+            "delta": -0.005599,
+            "ci": [
+              -0.101347,
+              0.094389
+            ],
+            "n_jd": 55
+          },
+          {
+            "reference": "yc",
+            "subset": "llm_free",
+            "metric": "pairwise",
+            "scope": "generic",
+            "delta": 0.016064,
+            "ci": [
+              -0.116939,
+              0.154625
+            ],
+            "n_jd": 37
+          },
+          {
+            "reference": "yc",
+            "subset": "llm_free",
+            "metric": "pairwise",
+            "scope": "targeted",
+            "delta": 0.048475,
+            "ci": [
+              -0.160225,
+              0.262438
+            ],
+            "n_jd": 15
+          },
+          {
+            "reference": "yc",
+            "subset": "llm_free",
+            "metric": "pairwise",
+            "scope": "total",
+            "delta": 0.025413,
+            "ci": [
+              -0.088475,
+              0.136689
+            ],
+            "n_jd": 52
+          }
+        ]
+      },
+      "L2 boosting (monotone match signals) without tfidf_scaled": {
+        "auc": [
+          {
+            "system": "L2 boosting (monotone match signals) without tfidf_scaled",
+            "metric": "auc",
+            "scope": "generic",
+            "subset": "all",
+            "value": 0.74119,
+            "ci_low": 0.626109,
+            "ci_high": 0.846194,
+            "n_jd": 30,
+            "n_pairs": 213,
+            "rule_version": 1
+          },
+          {
+            "system": "L2 boosting (monotone match signals) without tfidf_scaled",
+            "metric": "auc",
+            "scope": "targeted",
+            "subset": "all",
+            "value": 0.785042,
+            "ci_low": 0.690274,
+            "ci_high": 0.872786,
+            "n_jd": 18,
+            "n_pairs": 125,
+            "rule_version": 1
+          },
+          {
+            "system": "L2 boosting (monotone match signals) without tfidf_scaled",
+            "metric": "auc",
+            "scope": "total",
+            "subset": "all",
+            "value": 0.757635,
+            "ci_low": 0.676388,
+            "ci_high": 0.834224,
+            "n_jd": 48,
+            "n_pairs": 338,
+            "rule_version": 1
+          },
+          {
+            "system": "L2 boosting (monotone match signals) without tfidf_scaled",
+            "metric": "within_family_auc",
+            "scope": "generic",
+            "subset": "all",
+            "value": 0.67519,
+            "ci_low": 0.537164,
+            "ci_high": 0.802488,
+            "n_jd": 23,
+            "n_pairs": 159,
+            "rule_version": 1
+          },
+          {
+            "system": "L2 boosting (monotone match signals) without tfidf_scaled",
+            "metric": "within_family_auc",
+            "scope": "targeted",
+            "subset": "all",
+            "value": 0.736138,
+            "ci_low": 0.632646,
+            "ci_high": 0.838206,
+            "n_jd": 15,
+            "n_pairs": 99,
+            "rule_version": 1
+          },
+          {
+            "system": "L2 boosting (monotone match signals) without tfidf_scaled",
+            "metric": "within_family_auc",
+            "scope": "total",
+            "subset": "all",
+            "value": 0.699248,
+            "ci_low": 0.607832,
+            "ci_high": 0.784649,
+            "n_jd": 38,
+            "n_pairs": 258,
+            "rule_version": 1
+          },
+          {
+            "system": "L2 boosting (monotone match signals) without tfidf_scaled",
+            "metric": "auc",
+            "scope": "generic",
+            "subset": "llm_free",
+            "value": 0.754825,
+            "ci_low": 0.634442,
+            "ci_high": 0.865335,
+            "n_jd": 25,
+            "n_pairs": 165,
+            "rule_version": 1
+          },
+          {
+            "system": "L2 boosting (monotone match signals) without tfidf_scaled",
+            "metric": "auc",
+            "scope": "targeted",
+            "subset": "llm_free",
+            "value": 0.815152,
+            "ci_low": 0.681818,
+            "ci_high": 0.936364,
+            "n_jd": 11,
+            "n_pairs": 54,
+            "rule_version": 1
+          },
+          {
+            "system": "L2 boosting (monotone match signals) without tfidf_scaled",
+            "metric": "auc",
+            "scope": "total",
+            "subset": "llm_free",
+            "value": 0.773258,
+            "ci_low": 0.683201,
+            "ci_high": 0.85891,
+            "n_jd": 36,
+            "n_pairs": 219,
+            "rule_version": 1
+          },
+          {
+            "system": "L2 boosting (monotone match signals) without tfidf_scaled",
+            "metric": "within_family_auc",
+            "scope": "generic",
+            "subset": "llm_free",
+            "value": 0.667857,
+            "ci_low": 0.526409,
+            "ci_high": 0.795683,
+            "n_jd": 18,
+            "n_pairs": 117,
+            "rule_version": 1
+          },
+          {
+            "system": "L2 boosting (monotone match signals) without tfidf_scaled",
+            "metric": "within_family_auc",
+            "scope": "targeted",
+            "subset": "llm_free",
+            "value": 0.681481,
+            "ci_low": 0.444444,
+            "ci_high": 0.888889,
+            "n_jd": 9,
+            "n_pairs": 43,
+            "rule_version": 1
+          },
+          {
+            "system": "L2 boosting (monotone match signals) without tfidf_scaled",
+            "metric": "within_family_auc",
+            "scope": "total",
+            "subset": "llm_free",
+            "value": 0.672399,
+            "ci_low": 0.550996,
+            "ci_high": 0.787313,
+            "n_jd": 27,
+            "n_pairs": 160,
+            "rule_version": 1
+          }
+        ],
+        "pairwise_yc": {
+          "full": {
+            "generic": {
+              "value": 0.736209,
+              "ci": [
+                0.654278,
+                0.810797
+              ],
+              "n_jd": 37
+            },
+            "targeted": {
+              "value": 0.730196,
+              "ci": [
+                0.610241,
+                0.831986
+              ],
+              "n_jd": 18
+            },
+            "total": {
+              "value": 0.734241,
+              "ci": [
+                0.670261,
+                0.795269
+              ],
+              "n_jd": 55
+            }
+          },
+          "llm_free": {
+            "generic": {
+              "value": 0.725523,
+              "ci": [
+                0.6454,
+                0.799152
+              ],
+              "n_jd": 37
+            },
+            "targeted": {
+              "value": 0.684784,
+              "ci": [
+                0.522118,
+                0.823212
+              ],
+              "n_jd": 15
+            },
+            "total": {
+              "value": 0.713771,
+              "ci": [
+                0.641321,
+                0.78109
+              ],
+              "n_jd": 52
+            }
+          }
+        },
+        "auc_delta_vs_x2": [
+          {
+            "metric": "auc",
+            "scope": "generic",
+            "subset": "all",
+            "delta": 0.058492,
+            "ci": [
+              -0.06,
+              0.17604
+            ],
+            "half_width": 0.11802,
+            "n_jd": 30
+          },
+          {
+            "metric": "auc",
+            "scope": "targeted",
+            "subset": "all",
+            "delta": 0.143981,
+            "ci": [
+              0.013889,
+              0.288889
+            ],
+            "half_width": 0.1375,
+            "n_jd": 18
+          },
+          {
+            "metric": "auc",
+            "scope": "total",
+            "subset": "all",
+            "delta": 0.090551,
+            "ci": [
+              0.001859,
+              0.181176
+            ],
+            "half_width": 0.089659,
+            "n_jd": 48
+          },
+          {
+            "metric": "auc",
+            "scope": "generic",
+            "subset": "llm_free",
+            "delta": 0.082349,
+            "ci": [
+              -0.073335,
+              0.236574
+            ],
+            "half_width": 0.154955,
+            "n_jd": 25
+          },
+          {
+            "metric": "auc",
+            "scope": "targeted",
+            "subset": "llm_free",
+            "delta": -0.069697,
+            "ci": [
+              -0.224242,
+              0.081818
+            ],
+            "half_width": 0.15303,
+            "n_jd": 11
+          },
+          {
+            "metric": "auc",
+            "scope": "total",
+            "subset": "llm_free",
+            "delta": 0.035891,
+            "ci": [
+              -0.08272,
+              0.154642
+            ],
+            "half_width": 0.118681,
+            "n_jd": 36
+          }
+        ],
+        "pairwise_delta_vs_x2": [
+          {
+            "reference": "yc",
+            "subset": "full",
+            "metric": "pairwise",
+            "scope": "generic",
+            "delta": 0.106673,
+            "ci": [
+              0.009444,
+              0.195988
+            ],
+            "n_jd": 37
+          },
+          {
+            "reference": "yc",
+            "subset": "full",
+            "metric": "pairwise",
+            "scope": "targeted",
+            "delta": 0.077331,
+            "ci": [
+              -0.042773,
+              0.224848
+            ],
+            "n_jd": 18
+          },
+          {
+            "reference": "yc",
+            "subset": "full",
+            "metric": "pairwise",
+            "scope": "total",
+            "delta": 0.09707,
+            "ci": [
+              0.019853,
+              0.172226
+            ],
+            "n_jd": 55
+          },
+          {
+            "reference": "yc",
+            "subset": "llm_free",
+            "metric": "pairwise",
+            "scope": "generic",
+            "delta": 0.114697,
+            "ci": [
+              0.008931,
+              0.220423
+            ],
+            "n_jd": 37
+          },
+          {
+            "reference": "yc",
+            "subset": "llm_free",
+            "metric": "pairwise",
+            "scope": "targeted",
+            "delta": 0.039933,
+            "ci": [
+              -0.07985,
+              0.179583
+            ],
+            "n_jd": 15
+          },
+          {
+            "reference": "yc",
+            "subset": "llm_free",
+            "metric": "pairwise",
+            "scope": "total",
+            "delta": 0.093131,
+            "ci": [
+              0.008758,
+              0.175688
+            ],
+            "n_jd": 52
+          }
+        ]
+      },
+      "L2 boosting (monotone match signals) without role_match": {
+        "auc": [
+          {
+            "system": "L2 boosting (monotone match signals) without role_match",
+            "metric": "auc",
+            "scope": "generic",
+            "subset": "all",
+            "value": 0.800238,
+            "ci_low": 0.705238,
+            "ci_high": 0.884524,
+            "n_jd": 30,
+            "n_pairs": 213,
+            "rule_version": 1
+          },
+          {
+            "system": "L2 boosting (monotone match signals) without role_match",
+            "metric": "auc",
+            "scope": "targeted",
+            "subset": "all",
+            "value": 0.706702,
+            "ci_low": 0.613998,
+            "ci_high": 0.796387,
+            "n_jd": 18,
+            "n_pairs": 125,
+            "rule_version": 1
+          },
+          {
+            "system": "L2 boosting (monotone match signals) without role_match",
+            "metric": "auc",
+            "scope": "total",
+            "subset": "all",
+            "value": 0.765162,
+            "ci_low": 0.695635,
+            "ci_high": 0.829862,
+            "n_jd": 48,
+            "n_pairs": 338,
+            "rule_version": 1
+          },
+          {
+            "system": "L2 boosting (monotone match signals) without role_match",
+            "metric": "within_family_auc",
+            "scope": "generic",
+            "subset": "all",
+            "value": 0.77381,
+            "ci_low": 0.657759,
+            "ci_high": 0.877955,
+            "n_jd": 23,
+            "n_pairs": 159,
+            "rule_version": 1
+          },
+          {
+            "system": "L2 boosting (monotone match signals) without role_match",
+            "metric": "within_family_auc",
+            "scope": "targeted",
+            "subset": "all",
+            "value": 0.659153,
+            "ci_low": 0.555767,
+            "ci_high": 0.763813,
+            "n_jd": 15,
+            "n_pairs": 99,
+            "rule_version": 1
+          },
+          {
+            "system": "L2 boosting (monotone match signals) without role_match",
+            "metric": "within_family_auc",
+            "scope": "total",
+            "subset": "all",
+            "value": 0.728551,
+            "ci_low": 0.644464,
+            "ci_high": 0.806809,
+            "n_jd": 38,
+            "n_pairs": 258,
+            "rule_version": 1
+          },
+          {
+            "system": "L2 boosting (monotone match signals) without role_match",
+            "metric": "auc",
+            "scope": "generic",
+            "subset": "llm_free",
+            "value": 0.818095,
+            "ci_low": 0.735524,
+            "ci_high": 0.898574,
+            "n_jd": 25,
+            "n_pairs": 165,
+            "rule_version": 1
+          },
+          {
+            "system": "L2 boosting (monotone match signals) without role_match",
+            "metric": "auc",
+            "scope": "targeted",
+            "subset": "llm_free",
+            "value": 0.72381,
+            "ci_low": 0.549334,
+            "ci_high": 0.863636,
+            "n_jd": 11,
+            "n_pairs": 54,
+            "rule_version": 1
+          },
+          {
+            "system": "L2 boosting (monotone match signals) without role_match",
+            "metric": "auc",
+            "scope": "total",
+            "subset": "llm_free",
+            "value": 0.789286,
+            "ci_low": 0.709458,
+            "ci_high": 0.861048,
+            "n_jd": 36,
+            "n_pairs": 219,
+            "rule_version": 1
+          },
+          {
+            "system": "L2 boosting (monotone match signals) without role_match",
+            "metric": "within_family_auc",
+            "scope": "generic",
+            "subset": "llm_free",
+            "value": 0.799603,
+            "ci_low": 0.693912,
+            "ci_high": 0.895238,
+            "n_jd": 18,
+            "n_pairs": 117,
+            "rule_version": 1
+          },
+          {
+            "system": "L2 boosting (monotone match signals) without role_match",
+            "metric": "within_family_auc",
+            "scope": "targeted",
+            "subset": "llm_free",
+            "value": 0.58836,
+            "ci_low": 0.351587,
+            "ci_high": 0.779101,
+            "n_jd": 9,
+            "n_pairs": 43,
+            "rule_version": 1
+          },
+          {
+            "system": "L2 boosting (monotone match signals) without role_match",
+            "metric": "within_family_auc",
+            "scope": "total",
+            "subset": "llm_free",
+            "value": 0.729189,
+            "ci_low": 0.617632,
+            "ci_high": 0.829279,
+            "n_jd": 27,
+            "n_pairs": 160,
+            "rule_version": 1
+          }
+        ],
+        "pairwise_yc": {
+          "full": {
+            "generic": {
+              "value": 0.771459,
+              "ci": [
+                0.711754,
+                0.827704
+              ],
+              "n_jd": 37
+            },
+            "targeted": {
+              "value": 0.746989,
+              "ci": [
+                0.648826,
+                0.835345
+              ],
+              "n_jd": 18
+            },
+            "total": {
+              "value": 0.763451,
+              "ci": [
+                0.713948,
+                0.811967
+              ],
+              "n_jd": 55
+            }
+          },
+          "llm_free": {
+            "generic": {
+              "value": 0.775745,
+              "ci": [
+                0.714166,
+                0.833945
+              ],
+              "n_jd": 37
+            },
+            "targeted": {
+              "value": 0.674916,
+              "ci": [
+                0.518311,
+                0.817008
+              ],
+              "n_jd": 15
+            },
+            "total": {
+              "value": 0.74666,
+              "ci": [
+                0.681349,
+                0.807716
+              ],
+              "n_jd": 52
+            }
+          }
+        },
+        "auc_delta_vs_x2": [
+          {
+            "metric": "auc",
+            "scope": "generic",
+            "subset": "all",
+            "delta": 0.11754,
+            "ci": [
+              0.022381,
+              0.21909
+            ],
+            "half_width": 0.098355,
+            "n_jd": 30
+          },
+          {
+            "metric": "auc",
+            "scope": "targeted",
+            "subset": "all",
+            "delta": 0.065642,
+            "ci": [
+              -0.085719,
+              0.232838
+            ],
+            "half_width": 0.159279,
+            "n_jd": 18
+          },
+          {
+            "metric": "auc",
+            "scope": "total",
+            "subset": "all",
+            "delta": 0.098078,
+            "ci": [
+              0.014421,
+              0.187798
+            ],
+            "half_width": 0.086688,
+            "n_jd": 48
+          },
+          {
+            "metric": "auc",
+            "scope": "generic",
+            "subset": "llm_free",
+            "delta": 0.145619,
+            "ci": [
+              0.016568,
+              0.28501
+            ],
+            "half_width": 0.134221,
+            "n_jd": 25
+          },
+          {
+            "metric": "auc",
+            "scope": "targeted",
+            "subset": "llm_free",
+            "delta": -0.161039,
+            "ci": [
+              -0.365584,
+              -0.001948
+            ],
+            "half_width": 0.181818,
+            "n_jd": 11
+          },
+          {
+            "metric": "auc",
+            "scope": "total",
+            "subset": "llm_free",
+            "delta": 0.051918,
+            "ci": [
+              -0.067729,
+              0.170901
+            ],
+            "half_width": 0.119315,
+            "n_jd": 36
+          }
+        ],
+        "pairwise_delta_vs_x2": [
+          {
+            "reference": "yc",
+            "subset": "full",
+            "metric": "pairwise",
+            "scope": "generic",
+            "delta": 0.141924,
+            "ci": [
+              0.057778,
+              0.229584
+            ],
+            "n_jd": 37
+          },
+          {
+            "reference": "yc",
+            "subset": "full",
+            "metric": "pairwise",
+            "scope": "targeted",
+            "delta": 0.094123,
+            "ci": [
+              -0.018735,
+              0.236383
+            ],
+            "n_jd": 18
+          },
+          {
+            "reference": "yc",
+            "subset": "full",
+            "metric": "pairwise",
+            "scope": "total",
+            "delta": 0.12628,
+            "ci": [
+              0.057401,
+              0.201745
+            ],
+            "n_jd": 55
+          },
+          {
+            "reference": "yc",
+            "subset": "llm_free",
+            "metric": "pairwise",
+            "scope": "generic",
+            "delta": 0.164919,
+            "ci": [
+              0.06943,
+              0.265012
+            ],
+            "n_jd": 37
+          },
+          {
+            "reference": "yc",
+            "subset": "llm_free",
+            "metric": "pairwise",
+            "scope": "targeted",
+            "delta": 0.030065,
+            "ci": [
+              -0.098824,
+              0.141961
+            ],
+            "n_jd": 15
+          },
+          {
+            "reference": "yc",
+            "subset": "llm_free",
+            "metric": "pairwise",
+            "scope": "total",
+            "delta": 0.126019,
+            "ci": [
+              0.04661,
+              0.205463
+            ],
+            "n_jd": 52
+          }
+        ]
+      },
+      "L2 boosting (monotone match signals) without sbert": {
+        "auc": [
+          {
+            "system": "L2 boosting (monotone match signals) without sbert",
+            "metric": "auc",
+            "scope": "generic",
+            "subset": "all",
+            "value": 0.778056,
+            "ci_low": 0.662141,
+            "ci_high": 0.877382,
+            "n_jd": 30,
+            "n_pairs": 213,
+            "rule_version": 1
+          },
+          {
+            "system": "L2 boosting (monotone match signals) without sbert",
+            "metric": "auc",
+            "scope": "targeted",
+            "subset": "all",
+            "value": 0.802326,
+            "ci_low": 0.678801,
+            "ci_high": 0.906968,
+            "n_jd": 18,
+            "n_pairs": 125,
+            "rule_version": 1
+          },
+          {
+            "system": "L2 boosting (monotone match signals) without sbert",
+            "metric": "auc",
+            "scope": "total",
+            "subset": "all",
+            "value": 0.787157,
+            "ci_low": 0.700883,
+            "ci_high": 0.86428,
+            "n_jd": 48,
+            "n_pairs": 338,
+            "rule_version": 1
+          },
+          {
+            "system": "L2 boosting (monotone match signals) without sbert",
+            "metric": "within_family_auc",
+            "scope": "generic",
+            "subset": "all",
+            "value": 0.722101,
+            "ci_low": 0.578828,
+            "ci_high": 0.849432,
+            "n_jd": 23,
+            "n_pairs": 159,
+            "rule_version": 1
+          },
+          {
+            "system": "L2 boosting (monotone match signals) without sbert",
+            "metric": "within_family_auc",
+            "scope": "targeted",
+            "subset": "all",
+            "value": 0.774339,
+            "ci_low": 0.642275,
+            "ci_high": 0.891861,
+            "n_jd": 15,
+            "n_pairs": 99,
+            "rule_version": 1
+          },
+          {
+            "system": "L2 boosting (monotone match signals) without sbert",
+            "metric": "within_family_auc",
+            "scope": "total",
+            "subset": "all",
+            "value": 0.742721,
+            "ci_low": 0.642214,
+            "ci_high": 0.832018,
+            "n_jd": 38,
+            "n_pairs": 258,
+            "rule_version": 1
+          },
+          {
+            "system": "L2 boosting (monotone match signals) without sbert",
+            "metric": "auc",
+            "scope": "generic",
+            "subset": "llm_free",
+            "value": 0.809571,
+            "ci_low": 0.690658,
+            "ci_high": 0.913287,
+            "n_jd": 25,
+            "n_pairs": 165,
+            "rule_version": 1
+          },
+          {
+            "system": "L2 boosting (monotone match signals) without sbert",
+            "metric": "auc",
+            "scope": "targeted",
+            "subset": "llm_free",
+            "value": 0.936364,
+            "ci_low": 0.827273,
+            "ci_high": 1.0,
+            "n_jd": 11,
+            "n_pairs": 54,
+            "rule_version": 1
+          },
+          {
+            "system": "L2 boosting (monotone match signals) without sbert",
+            "metric": "auc",
+            "scope": "total",
+            "subset": "llm_free",
+            "value": 0.848313,
+            "ci_low": 0.758461,
+            "ci_high": 0.925728,
+            "n_jd": 36,
+            "n_pairs": 219,
+            "rule_version": 1
+          },
+          {
+            "system": "L2 boosting (monotone match signals) without sbert",
+            "metric": "within_family_auc",
+            "scope": "generic",
+            "subset": "llm_free",
+            "value": 0.743783,
+            "ci_low": 0.590741,
+            "ci_high": 0.875397,
+            "n_jd": 18,
+            "n_pairs": 117,
+            "rule_version": 1
+          },
+          {
+            "system": "L2 boosting (monotone match signals) without sbert",
+            "metric": "within_family_auc",
+            "scope": "targeted",
+            "subset": "llm_free",
+            "value": 0.922222,
+            "ci_low": 0.811111,
+            "ci_high": 1.0,
+            "n_jd": 9,
+            "n_pairs": 43,
+            "rule_version": 1
+          },
+          {
+            "system": "L2 boosting (monotone match signals) without sbert",
+            "metric": "within_family_auc",
+            "scope": "total",
+            "subset": "llm_free",
+            "value": 0.803263,
+            "ci_low": 0.690386,
+            "ci_high": 0.900271,
+            "n_jd": 27,
+            "n_pairs": 160,
+            "rule_version": 1
+          }
+        ],
+        "pairwise_yc": {
+          "full": {
+            "generic": {
+              "value": 0.732549,
+              "ci": [
+                0.65286,
+                0.806133
+              ],
+              "n_jd": 37
+            },
+            "targeted": {
+              "value": 0.787185,
+              "ci": [
+                0.698083,
+                0.869093
+              ],
+              "n_jd": 18
+            },
+            "total": {
+              "value": 0.75043,
+              "ci": [
+                0.691021,
+                0.805923
+              ],
+              "n_jd": 55
+            }
+          },
+          "llm_free": {
+            "generic": {
+              "value": 0.732433,
+              "ci": [
+                0.652939,
+                0.805131
+              ],
+              "n_jd": 37
+            },
+            "targeted": {
+              "value": 0.80747,
+              "ci": [
+                0.65845,
+                0.921307
+              ],
+              "n_jd": 15
+            },
+            "total": {
+              "value": 0.754078,
+              "ci": [
+                0.683647,
+                0.818034
+              ],
+              "n_jd": 52
+            }
+          }
+        },
+        "auc_delta_vs_x2": [
+          {
+            "metric": "auc",
+            "scope": "generic",
+            "subset": "all",
+            "delta": 0.095357,
+            "ci": [
+              0.013293,
+              0.193612
+            ],
+            "half_width": 0.09016,
+            "n_jd": 30
+          },
+          {
+            "metric": "auc",
+            "scope": "targeted",
+            "subset": "all",
+            "delta": 0.161265,
+            "ci": [
+              0.062033,
+              0.291358
+            ],
+            "half_width": 0.114662,
+            "n_jd": 18
+          },
+          {
+            "metric": "auc",
+            "scope": "total",
+            "subset": "all",
+            "delta": 0.120073,
+            "ci": [
+              0.055042,
+              0.194544
+            ],
+            "half_width": 0.069751,
+            "n_jd": 48
+          },
+          {
+            "metric": "auc",
+            "scope": "generic",
+            "subset": "llm_free",
+            "delta": 0.137095,
+            "ci": [
+              0.024756,
+              0.269668
+            ],
+            "half_width": 0.122456,
+            "n_jd": 25
+          },
+          {
+            "metric": "auc",
+            "scope": "targeted",
+            "subset": "llm_free",
+            "delta": 0.051515,
+            "ci": [
+              -0.018182,
+              0.151515
+            ],
+            "half_width": 0.084848,
+            "n_jd": 11
+          },
+          {
+            "metric": "auc",
+            "scope": "total",
+            "subset": "llm_free",
+            "delta": 0.110946,
+            "ci": [
+              0.028274,
+              0.209
+            ],
+            "half_width": 0.090363,
+            "n_jd": 36
+          }
+        ],
+        "pairwise_delta_vs_x2": [
+          {
+            "reference": "yc",
+            "subset": "full",
+            "metric": "pairwise",
+            "scope": "generic",
+            "delta": 0.103014,
+            "ci": [
+              0.047798,
+              0.164543
+            ],
+            "n_jd": 37
+          },
+          {
+            "reference": "yc",
+            "subset": "full",
+            "metric": "pairwise",
+            "scope": "targeted",
+            "delta": 0.13432,
+            "ci": [
+              0.028029,
+              0.267123
+            ],
+            "n_jd": 18
+          },
+          {
+            "reference": "yc",
+            "subset": "full",
+            "metric": "pairwise",
+            "scope": "total",
+            "delta": 0.113259,
+            "ci": [
+              0.062137,
+              0.173216
+            ],
+            "n_jd": 55
+          },
+          {
+            "reference": "yc",
+            "subset": "llm_free",
+            "metric": "pairwise",
+            "scope": "generic",
+            "delta": 0.121607,
+            "ci": [
+              0.053316,
+              0.200783
+            ],
+            "n_jd": 37
+          },
+          {
+            "reference": "yc",
+            "subset": "llm_free",
+            "metric": "pairwise",
+            "scope": "targeted",
+            "delta": 0.162619,
+            "ci": [
+              0.04325,
+              0.316595
+            ],
+            "n_jd": 15
+          },
+          {
+            "reference": "yc",
+            "subset": "llm_free",
+            "metric": "pairwise",
+            "scope": "total",
+            "delta": 0.133437,
+            "ci": [
+              0.071572,
+              0.202262
+            ],
+            "n_jd": 52
+          }
+        ]
+      }
+    },
+    "unscoreable": []
+  },
+  "end_to_end": {
+    "X2 alone": {
+      "system": "extracted rule + TF-IDF",
+      "summary": {
+        "recall": {
+          "generic": {
+            "value": 0.421179,
+            "ci": [
+              0.358607,
+              0.484173
+            ],
+            "n_jd": 40
+          },
+          "targeted": {
+            "value": 0.41569,
+            "ci": [
+              0.319236,
+              0.50686
+            ],
+            "n_jd": 20
+          },
+          "total": {
+            "value": 0.419349,
+            "ci": [
+              0.365975,
+              0.471163
+            ],
+            "n_jd": 60
+          }
+        },
+        "ndcg": {
+          "generic": {
+            "value": 0.792017,
+            "ci": [
+              0.7291,
+              0.845823
+            ],
+            "n_jd": 40
+          },
+          "targeted": {
+            "value": 0.743566,
+            "ci": [
+              0.651411,
+              0.82245
+            ],
+            "n_jd": 20
+          },
+          "total": {
+            "value": 0.775866,
+            "ci": [
+              0.725235,
+              0.822125
+            ],
+            "n_jd": 60
+          }
+        },
+        "no_fits": {
+          "generic": {
+            "value": 1.475,
+            "ci": [
+              0.65,
+              2.400625
+            ],
+            "n_jd": 40
+          },
+          "targeted": {
+            "value": 2.15,
+            "ci": [
+              1.05,
+              3.4
+            ],
+            "n_jd": 20
+          },
+          "total": {
+            "value": 1.7,
+            "ci": [
+              1.033333,
+              2.43375
+            ],
+            "n_jd": 60
+          }
+        }
+      },
+      "returned_per_jd": {
+        "median": 10.0,
+        "min": 10,
+        "jds_under_10": 0
+      },
+      "judged_fits_in_top10_total": 116
+    },
+    "S1 alone (passed set, by probability)": {
+      "system": "S1 logistic F12 (D50)",
+      "summary": {
+        "recall": {
+          "generic": {
+            "value": 0.438494,
+            "ci": [
+              0.375321,
+              0.49921
+            ],
+            "n_jd": 40
+          },
+          "targeted": {
+            "value": 0.389452,
+            "ci": [
+              0.288116,
+              0.487333
+            ],
+            "n_jd": 20
+          },
+          "total": {
+            "value": 0.422147,
+            "ci": [
+              0.367583,
+              0.475021
+            ],
+            "n_jd": 60
+          }
+        },
+        "ndcg": {
+          "generic": {
+            "value": 0.787608,
+            "ci": [
+              0.720501,
+              0.846529
+            ],
+            "n_jd": 40
+          },
+          "targeted": {
+            "value": 0.682358,
+            "ci": [
+              0.564385,
+              0.788161
+            ],
+            "n_jd": 20
+          },
+          "total": {
+            "value": 0.752524,
+            "ci": [
+              0.692001,
+              0.80742
+            ],
+            "n_jd": 60
+          }
+        },
+        "no_fits": {
+          "generic": {
+            "value": 0.525,
+            "ci": [
+              0.125,
+              1.05
+            ],
+            "n_jd": 40
+          },
+          "targeted": {
+            "value": 1.2,
+            "ci": [
+              0.45,
+              2.15
+            ],
+            "n_jd": 20
+          },
+          "total": {
+            "value": 0.75,
+            "ci": [
+              0.366667,
+              1.216667
+            ],
+            "n_jd": 60
+          }
+        }
+      },
+      "returned_per_jd": {
+        "median": 10.0,
+        "min": 1,
+        "jds_under_10": 14
+      },
+      "judged_fits_in_top10_total": 118,
+      "delta_vs_x2_alone": {
+        "recall": {
+          "generic": {
+            "value": 0.017315,
+            "ci": [
+              -0.028613,
+              0.062467
+            ],
+            "n_jd": 40
+          },
+          "targeted": {
+            "value": -0.026238,
+            "ci": [
+              -0.082481,
+              0.029
+            ],
+            "n_jd": 20
+          },
+          "total": {
+            "value": 0.002798,
+            "ci": [
+              -0.033418,
+              0.038207
+            ],
+            "n_jd": 60
+          }
+        },
+        "ndcg": {
+          "generic": {
+            "value": -0.004409,
+            "ci": [
+              -0.052333,
+              0.036837
+            ],
+            "n_jd": 40
+          },
+          "targeted": {
+            "value": -0.061208,
+            "ci": [
+              -0.130623,
+              0.003471
+            ],
+            "n_jd": 20
+          },
+          "total": {
+            "value": -0.023342,
+            "ci": [
+              -0.06291,
+              0.012771
+            ],
+            "n_jd": 60
+          }
+        },
+        "no_fits": {
+          "generic": {
+            "value": -0.95,
+            "ci": [
+              -1.675,
+              -0.35
+            ],
+            "n_jd": 40
+          },
+          "targeted": {
+            "value": -0.95,
+            "ci": [
+              -1.95,
+              -0.1
+            ],
+            "n_jd": 20
+          },
+          "total": {
+            "value": -0.95,
+            "ci": [
+              -1.516667,
+              -0.433333
+            ],
+            "n_jd": 60
+          }
+        }
+      }
+    },
+    "X2 top 100 -> L2": {
+      "system": "L2 boosting (monotone match signals)",
+      "summary": {
+        "recall": {
+          "generic": {
+            "value": 0.501712,
+            "ci": [
+              0.44728,
+              0.55374
+            ],
+            "n_jd": 40
+          },
+          "targeted": {
+            "value": 0.471667,
+            "ci": [
+              0.380995,
+              0.556027
+            ],
+            "n_jd": 20
+          },
+          "total": {
+            "value": 0.491697,
+            "ci": [
+              0.44545,
+              0.536313
+            ],
+            "n_jd": 60
+          }
+        },
+        "ndcg": {
+          "generic": {
+            "value": 0.844127,
+            "ci": [
+              0.804885,
+              0.877842
+            ],
+            "n_jd": 40
+          },
+          "targeted": {
+            "value": 0.783473,
+            "ci": [
+              0.707275,
+              0.850213
+            ],
+            "n_jd": 20
+          },
+          "total": {
+            "value": 0.823909,
+            "ci": [
+              0.7872,
+              0.857115
+            ],
+            "n_jd": 60
+          }
+        },
+        "no_fits": {
+          "generic": {
+            "value": 1.025,
+            "ci": [
+              0.375,
+              1.8
+            ],
+            "n_jd": 40
+          },
+          "targeted": {
+            "value": 2.0,
+            "ci": [
+              1.0,
+              3.15
+            ],
+            "n_jd": 20
+          },
+          "total": {
+            "value": 1.35,
+            "ci": [
+              0.766667,
+              2.016667
+            ],
+            "n_jd": 60
+          }
+        }
+      },
+      "returned_per_jd": {
+        "median": 10.0,
+        "min": 10,
+        "jds_under_10": 0
+      },
+      "judged_fits_in_top10_total": 113,
+      "delta_vs_x2_alone": {
+        "recall": {
+          "generic": {
+            "value": 0.080534,
+            "ci": [
+              0.043297,
+              0.119388
+            ],
+            "n_jd": 40
+          },
+          "targeted": {
+            "value": 0.055976,
+            "ci": [
+              0.004329,
+              0.109979
+            ],
+            "n_jd": 20
+          },
+          "total": {
+            "value": 0.072348,
+            "ci": [
+              0.041879,
+              0.104218
+            ],
+            "n_jd": 60
+          }
+        },
+        "ndcg": {
+          "generic": {
+            "value": 0.05211,
+            "ci": [
+              0.013312,
+              0.098457
+            ],
+            "n_jd": 40
+          },
+          "targeted": {
+            "value": 0.039907,
+            "ci": [
+              0.003056,
+              0.082343
+            ],
+            "n_jd": 20
+          },
+          "total": {
+            "value": 0.048042,
+            "ci": [
+              0.019244,
+              0.081417
+            ],
+            "n_jd": 60
+          }
+        },
+        "no_fits": {
+          "generic": {
+            "value": -0.45,
+            "ci": [
+              -0.925,
+              -0.075
+            ],
+            "n_jd": 40
+          },
+          "targeted": {
+            "value": -0.15,
+            "ci": [
+              -0.6,
+              0.25
+            ],
+            "n_jd": 20
+          },
+          "total": {
+            "value": -0.35,
+            "ci": [
+              -0.7,
+              -0.066667
+            ],
+            "n_jd": 60
+          }
+        }
+      }
+    },
+    "S1 passed set -> L2": {
+      "system": "L2 boosting (monotone match signals)",
+      "summary": {
+        "recall": {
+          "generic": {
+            "value": 0.470254,
+            "ci": [
+              0.40569,
+              0.531576
+            ],
+            "n_jd": 40
+          },
+          "targeted": {
+            "value": 0.4065,
+            "ci": [
+              0.310429,
+              0.498646
+            ],
+            "n_jd": 20
+          },
+          "total": {
+            "value": 0.449003,
+            "ci": [
+              0.395364,
+              0.501886
+            ],
+            "n_jd": 60
+          }
+        },
+        "ndcg": {
+          "generic": {
+            "value": 0.788738,
+            "ci": [
+              0.72025,
+              0.849045
+            ],
+            "n_jd": 40
+          },
+          "targeted": {
+            "value": 0.694017,
+            "ci": [
+              0.581009,
+              0.793397
+            ],
+            "n_jd": 20
+          },
+          "total": {
+            "value": 0.757164,
+            "ci": [
+              0.697833,
+              0.810717
+            ],
+            "n_jd": 60
+          }
+        },
+        "no_fits": {
+          "generic": {
+            "value": 0.525,
+            "ci": [
+              0.125,
+              1.05
+            ],
+            "n_jd": 40
+          },
+          "targeted": {
+            "value": 1.1,
+            "ci": [
+              0.45,
+              1.95
+            ],
+            "n_jd": 20
+          },
+          "total": {
+            "value": 0.716667,
+            "ci": [
+              0.35,
+              1.15
+            ],
+            "n_jd": 60
+          }
+        }
+      },
+      "returned_per_jd": {
+        "median": 10.0,
+        "min": 1,
+        "jds_under_10": 14
+      },
+      "judged_fits_in_top10_total": 110,
+      "delta_vs_x2_alone": {
+        "recall": {
+          "generic": {
+            "value": 0.049075,
+            "ci": [
+              0.001855,
+              0.095712
+            ],
+            "n_jd": 40
+          },
+          "targeted": {
+            "value": -0.00919,
+            "ci": [
+              -0.076194,
+              0.065476
+            ],
+            "n_jd": 20
+          },
+          "total": {
+            "value": 0.029653,
+            "ci": [
+              -0.00998,
+              0.071141
+            ],
+            "n_jd": 60
+          }
+        },
+        "ndcg": {
+          "generic": {
+            "value": -0.003279,
+            "ci": [
+              -0.052361,
+              0.039653
+            ],
+            "n_jd": 40
+          },
+          "targeted": {
+            "value": -0.049549,
+            "ci": [
+              -0.125505,
+              0.025055
+            ],
+            "n_jd": 20
+          },
+          "total": {
+            "value": -0.018702,
+            "ci": [
+              -0.060206,
+              0.020716
+            ],
+            "n_jd": 60
+          }
+        },
+        "no_fits": {
+          "generic": {
+            "value": -0.95,
+            "ci": [
+              -1.7,
+              -0.35
+            ],
+            "n_jd": 40
+          },
+          "targeted": {
+            "value": -1.05,
+            "ci": [
+              -2.1,
+              -0.15
+            ],
+            "n_jd": 20
+          },
+          "total": {
+            "value": -0.983333,
+            "ci": [
+              -1.566667,
+              -0.466667
+            ],
+            "n_jd": 60
+          }
+        }
+      },
+      "delta_vs_x2_top100_pipeline": {
+        "recall": {
+          "generic": {
+            "value": -0.031458,
+            "ci": [
+              -0.065417,
+              -0.0025
+            ],
+            "n_jd": 40
+          },
+          "targeted": {
+            "value": -0.065167,
+            "ci": [
+              -0.111667,
+              -0.02
+            ],
+            "n_jd": 20
+          },
+          "total": {
+            "value": -0.042694,
+            "ci": [
+              -0.070194,
+              -0.017639
+            ],
+            "n_jd": 60
+          }
+        },
+        "ndcg": {
+          "generic": {
+            "value": -0.055389,
+            "ci": [
+              -0.111943,
+              -0.010996
+            ],
+            "n_jd": 40
+          },
+          "targeted": {
+            "value": -0.089456,
+            "ci": [
+              -0.145106,
+              -0.040476
+            ],
+            "n_jd": 20
+          },
+          "total": {
+            "value": -0.066744,
+            "ci": [
+              -0.1084,
+              -0.031541
+            ],
+            "n_jd": 60
+          }
+        },
+        "no_fits": {
+          "generic": {
+            "value": -0.5,
+            "ci": [
+              -1.175,
+              0.025
+            ],
+            "n_jd": 40
+          },
+          "targeted": {
+            "value": -0.9,
+            "ci": [
+              -1.9,
+              -0.1
+            ],
+            "n_jd": 20
+          },
+          "total": {
+            "value": -0.633333,
+            "ci": [
+              -1.183333,
+              -0.15
+            ],
+            "n_jd": 60
+          }
+        }
+      }
+    }
+  },
+  "note": "Recall@10 is tie-aware against the chat's top 10 (r/t on a tie at the 10th score). chat-1 was run once, with batch drift and multiples-of-5 scores, so no model's Recall@10 can reach 1 (no noise ceiling; accepted limitation)."
+}
