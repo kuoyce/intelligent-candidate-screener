@@ -256,24 +256,21 @@ def test_running_request_explains_the_wait_and_offers_refresh(workspace):
     assert any("a few minutes" in item.value for item in at.caption)
 
 
-def test_live_review_explains_each_rank_and_csv_review_does_not(workspace):
+def test_live_review_stores_the_reasons_but_shows_no_why_panel(workspace):
+    """The reasons compare skills and years, which the ranking score barely weighs, so the
+    review does not show them (owner, 24 Oct 2026); the snapshot keeps them for later use."""
     from test_portal_workspace import ready_adapter
+    reason = "Has 1 of the 2 skills the job names: python."
     def adapter(operation, payload):
         response = ready_adapter(operation, payload)
-        first = {**response["candidates"][0], "evidence_provenance": {"reasons": [
-            "Same role family as the job: Platform (role match 0.91).", "Has 1 of the 2 skills the job names: python."]}}
-        second = {"candidate_id": "Applicant-2", "rank": 2, "score": 0.2, "source_ref": "fixture:two",
-                  "cv_text": "Invented applicant two. SQL reports."}
-        response.update(eligible_candidate_ids=["Applicant-1", "Applicant-2"], candidates=[first, second])
+        response["candidates"] = [{**response["candidates"][0], "evidence_provenance": {"reasons": [reason]}}]
         return response
-    csv = app()
-    assert any(item.label == "Review action" for item in csv.selectbox)
-    assert not any(item.label.startswith("Why #") for item in csv.expander)
     job_id = live_job(workspace, adapter)
     at = app()
     next(item for item in at.button if item.key == "portal_card_" + job_id).click().run()
     next(item for item in at.button if item.label == "Rank candidates").click().run()
     assert not at.exception
-    assert [item.label for item in at.expander if item.label.startswith("Why #")] == ["Why #1 · Applicant-1"]
-    assert any("Has 1 of the 2 skills" in item.value for item in at.markdown)
-    assert any("not a Fit decision" in item.value for item in at.caption)
+    assert any(item.label == "Review action" for item in at.selectbox)
+    assert not any(item.label.startswith("Why #") for item in at.expander)
+    assert not any(reason in item.value for item in at.markdown)
+    assert workspace.dataset.snapshot(job_id).candidates[0]["evidence_provenance"]["reasons"] == [reason]

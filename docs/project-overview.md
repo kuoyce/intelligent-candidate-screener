@@ -230,8 +230,11 @@ forced into one of the 60 IT role families (low `role_prob` is the tell); skills
 
 **In the Hiring Desk (24 Oct 2026, plan `2026-10-24-hiring-desk-inference-api`).** New JDs rank through
 `app/portal_inference.py` over the 600 A2 final-set CVs (the owner's choice; 2023-09-01): D63 within the request (26.8 s
-for the first, including the model load), D64 opt-in on a worker thread (210 s for a new JD, uncached C2), and
-`explain`'s reasons shown per candidate. The 60 benchmark JDs stay on the CSV export (X2 over their 10 labelled CVs).
+for the first, including the model load), D64 opt-in on a worker thread (210 s for a new JD, uncached C2).
+`explain`'s reasons are stored with each ranking but not shown: they compare skills and years, which L1 barely weighs
+(role_match +13.1 dominates; coverage and skill_overlap 0; a CV stating no years counts as compatible and stating years
+costs ~1 point via exp_known −0.56), so they contradicted the order on screen. The 60 benchmark JDs stay on the CSV
+export (X2 over their 10 labelled CVs).
 
 ---
 

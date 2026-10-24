@@ -70,7 +70,9 @@ the workspace: `HR_PORTAL_RANKING_ADAPTER=candidate_screener.app.portal_inferenc
 `HR_PORTAL_CANDIDATE_POOL=a2-final-cvs` (the 600 A2 final-set CVs, chosen
 explicitly by the model owner, so no pool is chosen silently). Results, timings
 and the app-side changes it needed (`ranking_system`, a parseable experience
-line, "Why #k") are in that plan's implementation record.
+line) are in that plan's implementation record. A per-candidate "Why #k" panel
+was added and then removed at the owner's request; the reasons stay in each
+live snapshot's `evidence_provenance`.
 
 Email uses `example.invalid` recipients and local MIME capture as requested;
 production SMTP is intentionally outside this demonstration. Live inference

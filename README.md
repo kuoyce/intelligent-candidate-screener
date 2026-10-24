@@ -357,11 +357,12 @@ The pool is the 600 A2 final-set CVs (reference date 2023-09-01); no labels are 
 candidates** runs D63 and usually returns within the click (the first request also loads the model,
 about half a minute). Tick **Refine the top 50 with the reranker** for D64: it runs in the
 background for a few minutes (210 s for a new JD on 24 Oct 2026; seconds once its C2 scores are
-cached, peak RSS 4.6 GB while the reranker loads); use **Refresh ranking status** to fetch it. **Top10 ranked CVs**
-then shows a **Why #k** panel per applicant: the model's own reasons (role family, matched and
-missing JD skills, years), not a Fit decision. The model reads the JD text only: skills outside its
-vocabulary (ESCO ICT + data_jobs) are invisible to it, required and preferred count alike, and it
-ignores experience requirements above 20 years. Failures show in the app as a generic message; the
+cached, peak RSS 4.6 GB while the reranker loads); use **Refresh ranking status** to fetch it. Each
+ranking stores the model's `explain()` reasons with its snapshot, but the review does not show them:
+they compare skills and years, which the score barely weighs (L1 is driven by role-family match and
+text similarity), so they would contradict the order. The model reads the JD text only: skills
+outside its vocabulary (ESCO ICT + data_jobs) are invisible to it, required and preferred count
+alike, and it ignores experience requirements above 20 years. Failures show in the app as a generic message; the
 cause is in `logs/hiring-desk-adapter.log`. Any other adapter implementing the
 [contract](plan/2026-10-23-hiring-desk-v1/05-live-ranking-contract.md) (`adapter(operation,
 payload) -> dict`, schema in `app/portal_ranking.py`) can be configured instead. Without an

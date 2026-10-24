@@ -16,7 +16,9 @@ Builds on `plan/2026-10-23-hiring-desk-v1/` (the app and its live-ranking contra
    with the model offline. Only new JDs use the API.
 3. **System: D63 by default, D64 as an option** (C2 reranks L1's top 50, ~2 min per JD), so the
    adapter needs a background worker and the app a status refresh.
-4. **Explanations: yes**, a "Why this rank" expander for live-ranked candidates.
+4. **Explanations: yes**, a "Why this rank" expander for live-ranked candidates. *Revised by the
+   owner the same day, after the browser run: removed from the UI, the reasons kept in the snapshot
+   (§ Amendment in the implementation record).*
 
 ## Why
 
@@ -62,7 +64,7 @@ counts only, no CV text printed.
 | B1 | **Real CV text fails the app's validator, so every ranking would be recorded as failed.** `portal_jobs._text` rejects any control character other than `\n` / `\t`. | 530 of the 600 final-set CV texts contain `\r`; 9 of 10 in this JD's top 10, 10 of 10 in a benchmark JD's top 10. After CRLF → LF: 0 of 10 fail. No CV hits the 60,000-character or `Bearer` rules; all 600 IDs pass `_opaque_identity`. | Adapter normalises line endings; the digest is computed on the text it returns |
 | B2 | **Adapter errors are invisible.** By design the app persists one generic message ("failed or returned an invalid result"), never the exception. | `RankingService._invoke`. | Adapter logs the exception type and traceback, never document text, to `logs/hiring-desk-adapter.log` |
 | B3 | **No way to choose the system.** The request payload (schema 1) has no model field; `RankingService.rank(rerank=…)` means "a new run", not C2. | `portal_ranking.py`. | Optional payload field `ranking_system` (`D63` default, `D64`), a checkbox by the Rank button |
-| B4 | **Explanations have nowhere to go.** `evidence_provenance` is validated and stored but never displayed. | `grep evidence_provenance app/`. | Answer 4: "Why this rank" expander |
+| B4 | **Explanations have nowhere to go.** `evidence_provenance` is validated and stored but never displayed. | `grep evidence_provenance app/`. | Answer 4: "Why this rank" expander (later removed; the reasons stay stored) |
 | B5 | Benchmark JDs: D63's top 10 (500-CV pool) for the first benchmark JD shares 2 CVs with the CSV's 10 labelled CVs. | Probe. | Answer 2: unchanged |
 | B6 | Minor: the skills answer "excel, tiktok, abacus" on one line is stored as one requirement (the UI asks for one per line). The model still reads the text. | `operational_job_revisions`, revision 5. | None (noted) |
 
@@ -131,7 +133,7 @@ No `fit` field: the API makes no Fit call, and the app accepts one only with dec
   with it.
 - **`portal_ui._review`** (answer 4): in "Top10 ranked CVs", for live snapshots, one "Why #k"
   expander per candidate listing `evidence_provenance.reasons` (through `redact_text`). CSV reviews
-  are unchanged.
+  are unchanged. *Removed by the owner's amendment (24 Oct 2026).*
 
 ## Steps
 
@@ -181,7 +183,7 @@ Optional: `inference --check` (~9 min) after the merge, on the owner's say-so.
 | Q1 | Which CVs does a new JD rank against? | The 600 A2 final-set CVs (owner, 24 Oct 2026) |
 | Q2 | Do the 60 benchmark JDs move from the CSV folder to the API? | No, new JDs only (owner, 24 Oct 2026) |
 | Q3 | D63 only, or D64 as an option? | D63 default, D64 option (owner, 24 Oct 2026) |
-| Q4 | Show `explain()`'s reasons in the review? | Yes, "Why this rank" (owner, 24 Oct 2026) |
+| Q4 | Show `explain()`'s reasons in the review? | Yes, "Why this rank" (owner, 24 Oct 2026); revised the same day: not shown, kept in the snapshot |
 
 None open.
 
@@ -207,7 +209,8 @@ Fit calls; progress bars for D64 (the contract has no progress field).
 | `f6a1dc8` | Step 1: merge `feat/inference-api` (two doc rows resolved, both sides kept) |
 | `fb5c594` | Step 2: this plan, approved |
 | `dbb6ab4` | Steps 3-5: the adapter, the app changes, their tests, `AGENTS.md` / `README.md` |
-| (next commit) | Steps 6-7: the browser run, docs and this record |
+| `2386997` | Steps 6-7: the browser run, docs and this record |
+| (next commit) | Amendment: the "Why #k" panel removed (owner) |
 
 ### What was done
 
@@ -218,7 +221,8 @@ Fit calls; progress bars for D64 (the contract has no progress field).
    `logs/hiring-desk-adapter.log` without document text.
 2. **App** (sub-agent B): `RankingService.rank(system=…)` and `ranking_system` in the payload (the
    contract docstring says so); the reranker checkbox and a queued/running caption; one
-   `Experience: …` line in `render_jd`; "Why #k" expanders for live rankings.
+   `Experience: …` line in `render_jd`; "Why #k" expanders for live rankings (removed by the
+   amendment below).
 3. **Docs:** `AGENTS.md` (Hiring Desk paragraph, "Where code goes"), `README.md` (launching with
    the adapter, its limits), `docs/project-overview.md` §2.6 and §7, hiring-desk plan `README.md`,
    `03-open-questions.md` (Q1 resolved) and `06-implementation.md` (binding done).
@@ -277,7 +281,33 @@ Fit calls; progress bars for D64 (the contract has no progress field).
   need `torchvision`, once a transformers model is loaded); `--server.fileWatcherType none` would
   silence them. Afterwards the worktree and its throwaway account were removed.
 
+### Amendment (owner, 24 Oct 2026): the "Why #k" panel removed
+
+After the browser run the owner saw candidates ranked above others that name more JD skills or
+state years, and asked for the panel to go. Its sentences were true, but they did not say why the
+score orders the CVs. `explain()`'s reasons compare role family, the JD skills found and years; the
+frozen L1 (`output/rerank/l1-chat3-model.json`, standardised weights) is driven by `role_match`
++13.1, `sbert` +5.5 and `tfidf_scaled` +3.4, with `log_matched` +2.7 and `log_cv_concepts` +2.5
+small and `coverage`, `coverage_unweighted` and `skill_overlap` at 0. Experience moves the score
+little, and in a direction the reasons hide: a CV stating no years counts as compatible, and stating
+years costs about 1.2 points (`exp_known` −0.56 at an SD of 0.46). On the browser-run JD (D63,
+re-ranked for this check): #6 had 4 of 5 JD skills but role match 0.61, below #1-#5 (2-3 skills,
+role match 0.72-0.89); #7-#9 had 1 of 5 with role match ~0.8; the CV with all 5 skills and 5 years
+in range ranked 25th (role match 0.03, −7.3 points); 7 of the top 10 state no years. The panel also
+existed only for new JDs, not the benchmark reviews.
+
+Change: the expander block in `portal_ui._review` is removed (the file again equals its version
+before the panel). The adapter is unchanged, so every live snapshot still carries
+`evidence_provenance` (reasons, roles, skills, years and L1's exact `feature_shares`) for a faithful
+explanation or the chatbot later. `test_live_review_stores_the_reasons_but_shows_no_why_panel`
+replaces the panel's test: it failed with the panel (`logs/hiring-desk-why-removal-before.log`) and
+passes without it (`logs/hiring-desk-why-removal-after.log`).
+
 ### Still lacking (for the owner)
+
+- **No explanation on screen.** A faithful one would lead with L1's stored `feature_shares` (role
+  match, keyword and semantic similarity), with skills and years as minor context; D64's C2 part
+  does not decompose that way.
 
 - **No CV intake.** The pool is fixed to the 600 A2 final-set CVs; uploads (the API's intended
   path) would need a Hiring Desk upload step.
