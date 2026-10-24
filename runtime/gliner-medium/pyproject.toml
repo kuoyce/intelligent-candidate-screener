@@ -1,0 +1,13 @@
+[project]
+name = "candidate-screener-gliner-medium-runtime"
+version = "0.1.0"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+  "torch==2.2.2", "transformers==4.48.3", "gliner==0.2.21",
+  "numpy<2", "huggingface-hub>=0.24,<1", "sentencepiece>=0.2,<0.3",
+  "protobuf>=4,<6", "spacy==3.8.7", "click==8.1.8",
+]
+
+[tool.uv]
+package = false
+required-environments = ["sys_platform == 'darwin' and platform_machine == 'x86_64'"]

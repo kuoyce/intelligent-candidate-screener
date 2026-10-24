@@ -1,6 +1,14 @@
 # Streamlit LLM screening chatbot
 
-Date: 12 October 2026. Approved: 13 October 2026. Status: **implementation in progress**.
+19 October documentation refactor: the new HR portal conversation design and
+implementation plan live in
+[src/llm-plan/2026-10-19-hr-conversation-design](../../src/llm-plan/2026-10-19-hr-conversation-design/README.md).
+The original implementation record is preserved there. The scope below describes
+the historical local prototype; authentication, durable sessions, alerts and
+department email are proposed new integrations, not completed features.
+
+Date: 12 October 2026. Approved: 13 October 2026. Status: **wrapper implemented;
+local Qwen/UI verified; real R2 scoring deferred until trained weights are restored**.
 
 ## Requested outcome
 
@@ -12,6 +20,7 @@ classification model.
 
 Read [design specifications](01-design-spec.md), then the
 [implementation sequence and acceptance criteria](02-implementation-plan.md).
+Implementation and verification are recorded in [03](03-implementation.md).
 
 ## Verified starting point
 
@@ -39,18 +48,21 @@ experimental configuration. It does not change the recorded research winner.
 
 | ID | Decision needed | Proposed direction / dependency |
 |---|---|---|
-| Q1 | Which exact checkpoint is the intended final cross-encoder, and is its use an experimental app option or an adoption decision? | Supply artifact/config digest and its selection record. Do not silently choose R2 or rename it final. Blocks backend release. |
-| Q2 | Does that artifact provide a validated Fit / No Fit threshold? | Use its recorded validation threshold; otherwise show ranking with classification unavailable. A new threshold needs a separate approved train/dev protocol. Blocks classification. |
-| Q3 | Where will Qwen run, with what RAM/GPU and permitted data boundary? | Propose a local model service with configurable endpoint; remote deployment requires an explicit data handling decision. Blocks real-provider configuration. |
-| Q4 | Which Qwen model/revision, quantization and answer latency budget? | Benchmark one compatible instruction-following model on the chosen host before selection; pin runtime and artifact. No checkpoint size is assumed. |
-| Q5 | Is MVP recruiter-only, or should the LLM also converse with applicants? | Propose recruiter QA over existing reviewed submissions. Applicant LLM intake is a separate extension. Blocks conversation scope approval. |
-| Q6 | Which stage-1 retriever, shortlist size and maximum pool size should the app expose? | Propose explicit retriever configuration and top-50 default subject to approval; document candidates outside the reranked set. |
-| Q7 | Is session-only use sufficient, or are authentication, persistence and multi-user hosting required? | Propose session-only MVP, matching current app. Hosting and persistence need a further design. |
+| Q1 (model resolved; weights missing) | Which cross-encoder should the app use? | User directed to `rerank/models.py`: recorded selected R2 `r2-60412b3f1f1e`. Weights are absent; restore them. Application use remains distinct from research adoption. |
+| Q2 (resolved: unavailable) | Does R2 supply validated Fit / No Fit? | R2 is pairwise ordering with no binary threshold. Show ranking and unavailable classification. No calibration/training is authorized. |
+| Q3 (resolved for MVP) | Where does Qwen run? | Workshop-directed local CPU inference in the existing isolated transformer runtime; loopback only, no remote applicant transfer. |
+| Q4 (prototype verified) | Which Qwen configuration and latency? | `Qwen/Qwen2.5-0.5B-Instruct`, pinned revision/digest, float32 CPU, four threads, no quantization. Three synthetic smoke questions answered without fallback; actual local UI screening/free-form QA verified. Production SLA unspecified. |
+| Q5 (resolved by approval) | Is MVP recruiter-only, or should the LLM also converse with applicants? | Recruiter QA over existing reviewed submissions. Applicant LLM intake remains an extension. |
+| Q6 (resolved for MVP) | Which stage-1 retriever, shortlist size and maximum pool size should the app expose? | Explicit TF-IDF illustration retrieval, configurable shortlist (default 50), max pool 500; no research adoption. Frozen train-region retriever selection remains separate. |
+| Q7 (resolved by approval) | Is session-only use sufficient, or are authentication, persistence and multi-user hosting required? | Session-only MVP. Hosting/persistence require a further design. |
 
 The user approved implementation of this plan on 13 October 2026. Approval accepts
 the proposed recruiter-only, session-only MVP and configurable top-50 retrieval
-scope (Q5–Q7), not an unspecified model artifact or remote data transfer. Q1–Q4
-remain open for actual model configuration and measured provider validation.
+scope (Q5–Q7), not remote data transfer. Subsequent user clarification directed
+Qwen use to the local workshop and backend use to `rerank/models.py` (Q1–Q4).
+Qwen and local UI validation passed. Restoring selected R2 weights and its real
+inference validation remain open. Missing R2 is explicitly excluded from the
+working illustration prototype rather than reported as validated.
 Implement independent contracts and configuration now; missing model configuration
 has an explicit unavailable state. No training, research adoption or deployment is
 authorized by this wrapper implementation. Create `feat/streamlit-llm-chatbot` and

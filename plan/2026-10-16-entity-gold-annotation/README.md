@@ -1,8 +1,9 @@
 # Small human entity-gold batch, local span UI and fine-tuning protocol
 
-Date: 16 October 2026. Status: implementation approved by user ("yes proceed");
-category/population/batch and annotator confirmations remain pending. Build and
-synthetic verification can proceed; real campaign creation waits for confirmation.
+Date: 16 October 2026. Status: implementation and real batch approved by user;
+real A1 campaign created with four categories,120documents and two annotators.
+UI/service/export implementation and validation are recorded in
+[01-implementation.md](01-implementation.md).
 
 ## Objective and decision boundary
 
@@ -123,10 +124,14 @@ guide; no new collection starts before scoped decision and frozen manifest exist
 
 ## Persistent open questions
 
-G1 pending: which four categories? Current medium predicts five.
-G2 pending: A1 fit documents or A2 train documents? Clarify A0 if it names a
-different source or UI not represented by the current repository instrument.
-G3 pending: accept proposed120-document cap and80/20/20 split, or specify time cap?
-G4 pending: one annotator or two? Determines agreement/adjudication workflow.
+G1 resolved: KNOWLEDGE, SKILL, TITLE and DEGREE confirmed.
+G2 resolved: A1 fit documents confirmed.
+G3 resolved:120documents,60CVs/60JDs;80train/20dev/20test confirmed.
+G4 resolved: two annotators confirmed. IDs annotator1 (all120documents) and
+annotator2 (balanced24-document independent overlap, as proposed by the plan).
 G5 resolved: user approved proceeding with the isolated UI/protocol and scoped
 human-only entity collection decision. Existing Fit collection stays closed.
+
+Frozen real campaign: f5fadd3fda6068818192a3a8, stored under ignored
+data/processed/entity-annotation/campaigns/. Human collection is open only for
+this manifest and scope; no model output is prefilled.

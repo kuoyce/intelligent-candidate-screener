@@ -1,6 +1,6 @@
 # GLiNER medium v2.5 with sentence-aware long-document extraction
 
-Date: 14 October 2026. Status: proposed for user review.
+Date: 14 October 2026. Status: user approved; implementation and validation underway.
 
 ## Requirements and authorization
 
@@ -155,7 +155,7 @@ no blanket all-documents-success claim is permitted unless supported by counts.
 
 ## Persistent open questions
 
-M1 pending user approval: corrected gliner-community model identifier and full scope.
+M1 resolved: user approved corrected gliner-community model identifier and full scope.
 M2 implementation investigation: actual checkpoint context limits, tokenizer/backbone
 assets and compatibility with GLiNER 0.2.21. Resolve from pinned artifacts and smoke
 tests; document runtime changes rather than silently substituting another model.

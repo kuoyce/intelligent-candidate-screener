@@ -121,6 +121,15 @@ and [Qwen repository](https://github.com/QwenLM/Qwen3).
 Verify model-specific chat templates, non-thinking configuration and generation
 settings when Q3/Q4 are resolved; do not copy settings across model families.
 
+13 October clarification: the supplied `Demo_PreTrained_Models_Part_II_v5.ipynb`
+uses local Transformers generation with `Qwen/Qwen2.5-0.5B-Instruct`. The service
+therefore uses that checkpoint, greedy generation and its native chat template;
+Qwen3 thinking switches do not apply. `/v1/tokenize` exposes the exact tokenizer
+to the app environment. The existing isolated Torch 2.2.2 / Transformers 4.48.3
+runtime supplies CPU inference without changing the main dependency lock.
+For `rerank/models.py`, export the recorded R2 validation selection only when
+the exact trained checkpoint is present.
+
 UI: keep the existing submission/review flow; provide JD/title inputs, a screening
 action, labelled ranking/fit/evidence panels, recruiter chat and reset controls.
 Display ranking scope, model identity and classification availability. Provide

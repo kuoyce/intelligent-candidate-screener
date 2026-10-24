@@ -12,9 +12,10 @@ def test_html_and_text_uploads_become_plain_text():
     assert files.to_text("cv.txt", b"  Python   developer ") == "Python developer"
 
 
-def test_the_app_renders_its_empty_state():
+def test_the_app_renders_its_empty_state(monkeypatch):
+    monkeypatch.setenv("SCREENER_QWEN_DISABLED", "true")
     st_testing = pytest.importorskip("streamlit.testing.v1")
-    app = Path(__file__).resolve().parents[1] / "src/candidate_screener/app/streamlit_app.py"
+    app = Path(__file__).resolve().parents[1] / "src/candidate_screener/app/legacy_streamlit_app.py"
     at = st_testing.AppTest.from_file(str(app), default_timeout=120)
     at.run()
     assert not at.exception
@@ -22,12 +23,13 @@ def test_the_app_renders_its_empty_state():
 
 
 def test_synthetic_demo_and_chat_do_not_need_a_downloaded_corpus(monkeypatch):
+    monkeypatch.setenv("SCREENER_QWEN_DISABLED", "true")
     st_testing = pytest.importorskip("streamlit.testing.v1")
     from candidate_screener.extraction.live import GlinerEntityExtractor
     monkeypatch.setattr(GlinerEntityExtractor, "availability", lambda self: {"status": "unavailable"})
     monkeypatch.setattr(GlinerEntityExtractor, "__call__", lambda self, text, side: {
         "status": "unavailable", "entities": [], "provenance": {}})
-    app = Path(__file__).resolve().parents[1] / "src/candidate_screener/app/streamlit_app.py"
+    app = Path(__file__).resolve().parents[1] / "src/candidate_screener/app/legacy_streamlit_app.py"
     at = st_testing.AppTest.from_file(str(app), default_timeout=30).run()
     next(b for b in at.button if b.label == "Screen demonstration").click().run()
     assert not at.exception

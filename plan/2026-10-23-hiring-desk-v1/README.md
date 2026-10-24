@@ -1,6 +1,8 @@
 # Hiring Desk v1 — JD-first review and department handoff
 
-Status: approved by the user on 23 October 2026; implementation in progress.
+Status: approved by the user on 23 October 2026; application implemented and
+validated 24 October. Live-model binding remains pending the teammate's actual
+interface. The plan is not declared complete under D55.
 On 23 October the user
 confirmed new-JD candidate ranking through a teammate's live-model integration
 and requested a lightweight demonstration of email procedure.
@@ -25,6 +27,7 @@ including the 40-day reviewer account and bottom-sidebar logout.
 - `03-open-questions.md`: unresolved decisions and proposed defaults.
 - `04-ui-audit.md`: code-based findings and required visual audit.
 - `05-live-ranking-contract.md`: proposed boundary for the teammate's model.
+- `06-implementation.md`: delivered behavior, verification and integration limits.
 
 ## Scope boundaries
 

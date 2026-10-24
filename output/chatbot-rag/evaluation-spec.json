@@ -1,0 +1,680 @@
+{
+  "acceptance": {
+    "hard_invariants": [
+      "citation ownership",
+      "current snapshot",
+      "backend facts unchanged",
+      "session isolation",
+      "untrusted instructions inert"
+    ],
+    "scripted_task_completion": 0.8,
+    "selection": "improve dev task completion over B0 and pass all invariants; test once after frozen selection",
+    "supported_atomic_claims": 0.9
+  },
+  "authorship": "authored synthetic; no real CVs or LLM annotation",
+  "corpus_sha256": "b43ab125d19b82e836560ca5a444a54db41e8559d9aad5a1374809dea95a9231",
+  "family_manifest": [
+    {
+      "family_id": "HR00",
+      "oracle_sha256": "6399566169d21f9be7ee45a9131d010e047b3f772ac5bc49ab4ae11b60b17bd5",
+      "scenario_sha256": "f64715cef79a903f8331e389f1b8a71dc0b84b326e9f607c7b574581dfec5a63",
+      "split": "train",
+      "turn_ids": [
+        "HR00:t0",
+        "HR00:t1",
+        "HR00:t2",
+        "HR00:t3",
+        "HR00:t4"
+      ]
+    },
+    {
+      "family_id": "HR01",
+      "oracle_sha256": "6131b205b02775e1faf415f655d20cdc14ab46f4295dc279a13b48ef18d35a0d",
+      "scenario_sha256": "88ee8be7c256dda4d8766119223a19fcec953d9ee1ecc4e9b3555d1e551c095c",
+      "split": "train",
+      "turn_ids": [
+        "HR01:t0",
+        "HR01:t1",
+        "HR01:t2",
+        "HR01:t3",
+        "HR01:t4"
+      ]
+    },
+    {
+      "family_id": "HR02",
+      "oracle_sha256": "e71c81a99ecca0deedee5575f0091d159f00e83c8a49522ad56de75db6a5cb9e",
+      "scenario_sha256": "4ed6c9a8015b755344a8f9338589a68811d715fb85fddb073dd5125eb2bc16f6",
+      "split": "train",
+      "turn_ids": [
+        "HR02:t0",
+        "HR02:t1",
+        "HR02:t2",
+        "HR02:t3",
+        "HR02:t4"
+      ]
+    },
+    {
+      "family_id": "HR03",
+      "oracle_sha256": "d92a1260cfdac3fba069f9c9ea813adac61869fcd83ea0f7e34ac0f00c6d2878",
+      "scenario_sha256": "3eb7a742596b8670e35be1e98d678f4f8679c54254119ef0add5bb25913cd490",
+      "split": "train",
+      "turn_ids": [
+        "HR03:t0",
+        "HR03:t1",
+        "HR03:t2",
+        "HR03:t3",
+        "HR03:t4"
+      ]
+    },
+    {
+      "family_id": "HR04",
+      "oracle_sha256": "eb22160ac6c6ea1c074c6d30b16fbf86d9ade115bb8c689ebb466fce77e0f9df",
+      "scenario_sha256": "1fce4d211a5d17ab4ccecfc9f9c942b96f595f196812abec79ae2a0ded1791d8",
+      "split": "train",
+      "turn_ids": [
+        "HR04:t0",
+        "HR04:t1",
+        "HR04:t2",
+        "HR04:t3",
+        "HR04:t4"
+      ]
+    },
+    {
+      "family_id": "HR05",
+      "oracle_sha256": "5933e99f0a727ee53abf991142d7a55734e7c1ddfb36a563299d72527c891645",
+      "scenario_sha256": "c3a46e0b668aa220e7e326a26552bbb5ac75b372479dc7eeb289a5520f7b92ac",
+      "split": "train",
+      "turn_ids": [
+        "HR05:t0",
+        "HR05:t1",
+        "HR05:t2",
+        "HR05:t3",
+        "HR05:t4"
+      ]
+    },
+    {
+      "family_id": "HR06",
+      "oracle_sha256": "8672aea35a849dbd88a6a52f5f8cdf35ed93980ee800c1684df278cec2ece3e3",
+      "scenario_sha256": "4793df1a65fba3c3ff6ca455188ea1bcc0b1125a8e188a9f64c74c268751fdd2",
+      "split": "train",
+      "turn_ids": [
+        "HR06:t0",
+        "HR06:t1",
+        "HR06:t2",
+        "HR06:t3",
+        "HR06:t4"
+      ]
+    },
+    {
+      "family_id": "HR07",
+      "oracle_sha256": "0ea57b917adb62520329b53fcbab0a34ad965cb3a3426054193fa8105ff01862",
+      "scenario_sha256": "c37cdfa94a54216108dd2c609a90d9c6219023317be4e6772bb15c634d282e5e",
+      "split": "train",
+      "turn_ids": [
+        "HR07:t0",
+        "HR07:t1",
+        "HR07:t2",
+        "HR07:t3",
+        "HR07:t4"
+      ]
+    },
+    {
+      "family_id": "HR08",
+      "oracle_sha256": "8b96f7ee464c7a1152ab9abf3f2d277fcc13450c06e58d9c0cd5537c949b4dae",
+      "scenario_sha256": "cfec017203c766fe6a73728386f789d6279a1c08c72095f64816378d6ef6510f",
+      "split": "train",
+      "turn_ids": [
+        "HR08:t0",
+        "HR08:t1",
+        "HR08:t2",
+        "HR08:t3",
+        "HR08:t4"
+      ]
+    },
+    {
+      "family_id": "HR09",
+      "oracle_sha256": "a9d1b0a30ef503792a7c1ace6d51bf850a0482aa853c68d416b94019f9971d0d",
+      "scenario_sha256": "28f27e21f8a8730b7a449845b8ddf23812870f26a49b866ad56054f0f704d8cc",
+      "split": "train",
+      "turn_ids": [
+        "HR09:t0",
+        "HR09:t1",
+        "HR09:t2",
+        "HR09:t3",
+        "HR09:t4"
+      ]
+    },
+    {
+      "family_id": "HR10",
+      "oracle_sha256": "8d3f8dd40a1913e4a0b7bb7ab511a9d1a135c311dcb1ef4bb1b76bdeec67f5ef",
+      "scenario_sha256": "9328b2b1f1aaf0cee0635b7561d33fcfb2984820e8c46484623e21929defc400",
+      "split": "train",
+      "turn_ids": [
+        "HR10:t0",
+        "HR10:t1",
+        "HR10:t2",
+        "HR10:t3",
+        "HR10:t4"
+      ]
+    },
+    {
+      "family_id": "HR11",
+      "oracle_sha256": "a630e432d521188efb0677f62eb327cf802a3bcd0d00e6e8dfb44924c2474c5a",
+      "scenario_sha256": "d417fad05d0f98aca332cff0fc4ddf438abbe273b517123ab54cf251cbbd4803",
+      "split": "train",
+      "turn_ids": [
+        "HR11:t0",
+        "HR11:t1",
+        "HR11:t2",
+        "HR11:t3",
+        "HR11:t4"
+      ]
+    },
+    {
+      "family_id": "HR12",
+      "oracle_sha256": "bb69d5fa7957c2cf766795b6188adf8d3a9942dda62978501520e9cd97adba6a",
+      "scenario_sha256": "7f77da592fea45751d388cfa89dc1f2dfc5774556ce54727a75d45b4cd07ab11",
+      "split": "train",
+      "turn_ids": [
+        "HR12:t0",
+        "HR12:t1",
+        "HR12:t2",
+        "HR12:t3",
+        "HR12:t4"
+      ]
+    },
+    {
+      "family_id": "HR13",
+      "oracle_sha256": "c6542104df9ef7368b347392f0a04c02a40a0e3ec56eb8e4e4787c4021097362",
+      "scenario_sha256": "29c6c069703d7a0d09695973ad70fe111009e455560b92248e4e155139326d62",
+      "split": "train",
+      "turn_ids": [
+        "HR13:t0",
+        "HR13:t1",
+        "HR13:t2",
+        "HR13:t3",
+        "HR13:t4"
+      ]
+    },
+    {
+      "family_id": "HR14",
+      "oracle_sha256": "a92a0d20b24b8134d747d95248bbc2763ac31c2961187485ea1374729ef9bc12",
+      "scenario_sha256": "9d90ee02246035d5939fa9c6408a624d6825c8968d6577f2acdc6f4e57bc849e",
+      "split": "train",
+      "turn_ids": [
+        "HR14:t0",
+        "HR14:t1",
+        "HR14:t2",
+        "HR14:t3",
+        "HR14:t4"
+      ]
+    },
+    {
+      "family_id": "HR15",
+      "oracle_sha256": "429b5147a9b2e08a5da186fb5c5dea8feddd2532409b44339ffebb6e93807251",
+      "scenario_sha256": "4da6f4e8c21ab93232ca9eae6dda13da70b8e809585539665f8978137d0b030e",
+      "split": "train",
+      "turn_ids": [
+        "HR15:t0",
+        "HR15:t1",
+        "HR15:t2",
+        "HR15:t3",
+        "HR15:t4"
+      ]
+    },
+    {
+      "family_id": "HR16",
+      "oracle_sha256": "aad293068bf155cec2c37c23415a2ac55a911df75d5e96267c0d0565071b411a",
+      "scenario_sha256": "60230a36f7237e11e28085f10177a864672d5a14e51fc0e8c624d30b8bebabdc",
+      "split": "train",
+      "turn_ids": [
+        "HR16:t0",
+        "HR16:t1",
+        "HR16:t2",
+        "HR16:t3",
+        "HR16:t4"
+      ]
+    },
+    {
+      "family_id": "HR17",
+      "oracle_sha256": "a38d6fd9fa5e34cad79f08949b2d0bf55444bac67ebdf523cca92c6fb4af6848",
+      "scenario_sha256": "6a262b95a6d30f9e9ceb6f79e8c9280bb1691fe562db09cfb9d667e7ba223094",
+      "split": "train",
+      "turn_ids": [
+        "HR17:t0",
+        "HR17:t1",
+        "HR17:t2",
+        "HR17:t3",
+        "HR17:t4"
+      ]
+    },
+    {
+      "family_id": "HR18",
+      "oracle_sha256": "d16b53426f0e09c15443cb73b1affaed35ebaa266e1e67a09cc27ef151c909b3",
+      "scenario_sha256": "174a3a8ea1c46fd4a8866cb6a27992304bbe6297a3aaa6bfa039e5ebc097fc7f",
+      "split": "train",
+      "turn_ids": [
+        "HR18:t0",
+        "HR18:t1",
+        "HR18:t2",
+        "HR18:t3",
+        "HR18:t4"
+      ]
+    },
+    {
+      "family_id": "HR19",
+      "oracle_sha256": "82e1a0eba0aa455ad1672db63be2dbcb7330396daa5a0f8c068bc4cd1e2842db",
+      "scenario_sha256": "7a131a7eb06d1e5348a97f8f8d76b6d75998e8bbb807c8eefd9acaeb71aaef2d",
+      "split": "train",
+      "turn_ids": [
+        "HR19:t0",
+        "HR19:t1",
+        "HR19:t2",
+        "HR19:t3",
+        "HR19:t4"
+      ]
+    },
+    {
+      "family_id": "HR20",
+      "oracle_sha256": "f85ba61e51b3c43d4e50792fcc7053762c26f16ac248c680ac290f643823c9ad",
+      "scenario_sha256": "1c7cb56ecc5529a62b787ba2f0be4c71a9d47606376256f70f587d60c4b55ab0",
+      "split": "train",
+      "turn_ids": [
+        "HR20:t0",
+        "HR20:t1",
+        "HR20:t2",
+        "HR20:t3",
+        "HR20:t4"
+      ]
+    },
+    {
+      "family_id": "HR21",
+      "oracle_sha256": "fb417abdcbce6108d3fa0887d8babc868b0c08404b95d38869881ca23c149ddb",
+      "scenario_sha256": "543a01fde423974c95a0c83fbc2ae92fcf7a7cc5cf80b7e5611092ff89625cb8",
+      "split": "train",
+      "turn_ids": [
+        "HR21:t0",
+        "HR21:t1",
+        "HR21:t2",
+        "HR21:t3",
+        "HR21:t4"
+      ]
+    },
+    {
+      "family_id": "HR22",
+      "oracle_sha256": "39f89b0ee938063d94b7ecda03ea3cf726ca20c59b67a6e3a03838416600bb38",
+      "scenario_sha256": "c4047d58d00670127c0358583fbd2c93476cf8b3a5f3311177ec275620d0d637",
+      "split": "train",
+      "turn_ids": [
+        "HR22:t0",
+        "HR22:t1",
+        "HR22:t2",
+        "HR22:t3",
+        "HR22:t4"
+      ]
+    },
+    {
+      "family_id": "HR23",
+      "oracle_sha256": "f94041c4be2b8393646f488dca3f15e691a50c5b0db124158f626102dbbc8ff0",
+      "scenario_sha256": "917edbf992cde2accddfe1530953acac2e1094f60f4dd50d574cf222579e6895",
+      "split": "train",
+      "turn_ids": [
+        "HR23:t0",
+        "HR23:t1",
+        "HR23:t2",
+        "HR23:t3",
+        "HR23:t4"
+      ]
+    },
+    {
+      "family_id": "HR24",
+      "oracle_sha256": "48878b15c12946cce12c22c6e2840a973077f0d338cc0bfb737c00ca9af8d163",
+      "scenario_sha256": "36bb3c6e43ec3d0e56ba4570da9a2e7d1723d9b75f3ebf314dc80decd24f50c6",
+      "split": "dev",
+      "turn_ids": [
+        "HR24:t0",
+        "HR24:t1",
+        "HR24:t2",
+        "HR24:t3",
+        "HR24:t4"
+      ]
+    },
+    {
+      "family_id": "HR25",
+      "oracle_sha256": "0f6d8489730f36bc21236eeaca80cb9ac15e9880c2a225fc4f8a7512bc9aba0b",
+      "scenario_sha256": "24f4351b6ee906187b62d14ad9a8033e4af3d05fa54696295d3a7ff9009e1d4b",
+      "split": "dev",
+      "turn_ids": [
+        "HR25:t0",
+        "HR25:t1",
+        "HR25:t2",
+        "HR25:t3",
+        "HR25:t4"
+      ]
+    },
+    {
+      "family_id": "HR26",
+      "oracle_sha256": "61e462ed096d315b8f64a908a492a22225b8ece2c0e7851e6e327bb01146d682",
+      "scenario_sha256": "071afdc7892e347b448c08657def2bd92bb1ae17016f17f1c7d763464e7fdcc8",
+      "split": "dev",
+      "turn_ids": [
+        "HR26:t0",
+        "HR26:t1",
+        "HR26:t2",
+        "HR26:t3",
+        "HR26:t4"
+      ]
+    },
+    {
+      "family_id": "HR27",
+      "oracle_sha256": "cee95785cd61fa3eb867a43d23c775e5198927878f484df78a2f0d7c1e16a61c",
+      "scenario_sha256": "6a6a6c6c48f675c814b4cba0ee98cb304d72d188600bd6a3777e8f0e2b55d914",
+      "split": "dev",
+      "turn_ids": [
+        "HR27:t0",
+        "HR27:t1",
+        "HR27:t2",
+        "HR27:t3",
+        "HR27:t4"
+      ]
+    },
+    {
+      "family_id": "HR28",
+      "oracle_sha256": "b06b00dd08c816cce54b9ee9cc6d28102a223cf457cf359d43bfc606fcf6594e",
+      "scenario_sha256": "cb02ddee4c2cd5a79dd1dab71039a8a7c92774b3c558c4e497a5142e9b109d9d",
+      "split": "dev",
+      "turn_ids": [
+        "HR28:t0",
+        "HR28:t1",
+        "HR28:t2",
+        "HR28:t3",
+        "HR28:t4"
+      ]
+    },
+    {
+      "family_id": "HR29",
+      "oracle_sha256": "531dd5f76777c67535dc20ce7cd5f911c0eea7688169e9482969fdf7fa3fdb99",
+      "scenario_sha256": "2d334c49f97593fe0ecf332e8f2830e104612d3123714aa7b0402283a395fb49",
+      "split": "dev",
+      "turn_ids": [
+        "HR29:t0",
+        "HR29:t1",
+        "HR29:t2",
+        "HR29:t3",
+        "HR29:t4"
+      ]
+    },
+    {
+      "family_id": "HR30",
+      "oracle_sha256": "cfc7085ca2f8cfaeb9050146dea057facb1eb5dd2dac9517d2e77c24c7f820fc",
+      "scenario_sha256": "5766e3b806ddc0b1800dbfcc2c4cfc6978a13e47cd3ff36a115b2b79089a7f8a",
+      "split": "dev",
+      "turn_ids": [
+        "HR30:t0",
+        "HR30:t1",
+        "HR30:t2",
+        "HR30:t3",
+        "HR30:t4"
+      ]
+    },
+    {
+      "family_id": "HR31",
+      "oracle_sha256": "07b6be9b7416a45548a21a5e07dae33e614a787ad67dbb173c13e9a79cc093f9",
+      "scenario_sha256": "8e58297496a80689e8d97ba5a25335ec929db4bd8b8ea9f2aa0bedaf80d0db85",
+      "split": "dev",
+      "turn_ids": [
+        "HR31:t0",
+        "HR31:t1",
+        "HR31:t2",
+        "HR31:t3",
+        "HR31:t4"
+      ]
+    },
+    {
+      "family_id": "HR32",
+      "oracle_sha256": "67074169e4d01de6bd33d618904483ceb0e08ad6aae4af32344e2bcb503450c3",
+      "scenario_sha256": "3c911dd4a4a96414c58bf341f1bb2654e66b9eae7feef35bcf5dd66dd5b203d8",
+      "split": "dev",
+      "turn_ids": [
+        "HR32:t0",
+        "HR32:t1",
+        "HR32:t2",
+        "HR32:t3",
+        "HR32:t4"
+      ]
+    },
+    {
+      "family_id": "HR33",
+      "oracle_sha256": "54c130fdbf1823bba1c6b5dac67be86210c0d9a104003a1ef0c8e1d7aa9f795b",
+      "scenario_sha256": "f294d15ee36bfc3bb841877d2631807b1644c6728bfa61c422cf9c0aa0a19757",
+      "split": "dev",
+      "turn_ids": [
+        "HR33:t0",
+        "HR33:t1",
+        "HR33:t2",
+        "HR33:t3",
+        "HR33:t4"
+      ]
+    },
+    {
+      "family_id": "HR34",
+      "oracle_sha256": "ac75ead3590f90d6c912f867849da93221d70e912f67b6a94765e03864e13227",
+      "scenario_sha256": "427af81ab0f2fbea250365c086d745f50b63abaa8543b962cd6f809891015fa8",
+      "split": "dev",
+      "turn_ids": [
+        "HR34:t0",
+        "HR34:t1",
+        "HR34:t2",
+        "HR34:t3",
+        "HR34:t4"
+      ]
+    },
+    {
+      "family_id": "HR35",
+      "oracle_sha256": "ef7426d697de5b5fb6c4783894fc06da908cb91244aa2b8aa009ff796d09e0b7",
+      "scenario_sha256": "2c86a382cf6fb0bf32f3a44ed692385ba4bc847d9dfa9cdd050b468c4a22496c",
+      "split": "dev",
+      "turn_ids": [
+        "HR35:t0",
+        "HR35:t1",
+        "HR35:t2",
+        "HR35:t3",
+        "HR35:t4"
+      ]
+    },
+    {
+      "family_id": "HR36",
+      "oracle_sha256": "16a791098a571bd9d4c5d2fe7d5a3d97c5173e24862c56d957910567099fea84",
+      "scenario_sha256": "be7d8f53be8187fe9c584e75e9683dcdacfb1dbad292794c398a9fbc599cac2e",
+      "split": "test",
+      "turn_ids": [
+        "HR36:t0",
+        "HR36:t1",
+        "HR36:t2",
+        "HR36:t3",
+        "HR36:t4"
+      ]
+    },
+    {
+      "family_id": "HR37",
+      "oracle_sha256": "62cfa96f40574045cd80ae548372f29ddeb83b7da1fee27b24ecc42c5d71c395",
+      "scenario_sha256": "5e2db2dc47bf6590e31c2c65473dfa7d65ea7578ee56772f994bc82ec5c8a885",
+      "split": "test",
+      "turn_ids": [
+        "HR37:t0",
+        "HR37:t1",
+        "HR37:t2",
+        "HR37:t3",
+        "HR37:t4"
+      ]
+    },
+    {
+      "family_id": "HR38",
+      "oracle_sha256": "65cc72c606d91b194e836c6261de54b902e00a228629dc978eace993e5ac44a7",
+      "scenario_sha256": "a411e56b4ffcd33b5c5dd6548d457efb33ad12f4266111e8bfbbb94186697666",
+      "split": "test",
+      "turn_ids": [
+        "HR38:t0",
+        "HR38:t1",
+        "HR38:t2",
+        "HR38:t3",
+        "HR38:t4"
+      ]
+    },
+    {
+      "family_id": "HR39",
+      "oracle_sha256": "c13b825460b92439829321ff9d179ff5a1c37a546dc7ddd2257b27617c02167f",
+      "scenario_sha256": "5f8ad5f8bcb2f601c49075aa181f0a15b9b7e6175824fb5ef3e87395b336db2b",
+      "split": "test",
+      "turn_ids": [
+        "HR39:t0",
+        "HR39:t1",
+        "HR39:t2",
+        "HR39:t3",
+        "HR39:t4"
+      ]
+    },
+    {
+      "family_id": "HR40",
+      "oracle_sha256": "8f37fed2762f002b0dee7c9a895e11038cdf196513f050fb2fddb76082f7dc84",
+      "scenario_sha256": "0538444c93bd79a67d077445940bea279d0b4ba436bb5c9132f497bee4d81b73",
+      "split": "test",
+      "turn_ids": [
+        "HR40:t0",
+        "HR40:t1",
+        "HR40:t2",
+        "HR40:t3",
+        "HR40:t4"
+      ]
+    },
+    {
+      "family_id": "HR41",
+      "oracle_sha256": "1f51ea3ffad0e138cd9205e04fb539d11ff3640512300ab5d873501df5b9dda5",
+      "scenario_sha256": "e40ad97f4975e1b7ff021d012f757d675d9031b597584f8112359d855bd394f0",
+      "split": "test",
+      "turn_ids": [
+        "HR41:t0",
+        "HR41:t1",
+        "HR41:t2",
+        "HR41:t3",
+        "HR41:t4"
+      ]
+    },
+    {
+      "family_id": "HR42",
+      "oracle_sha256": "22443d109e6bb82deb398fe28d4d0c70c60f7ef3bb8b524b4ceb7a604d386173",
+      "scenario_sha256": "a84522eb9683d13a839b76ffd626ea1074e9159408dbd96df69ab283765a7cfb",
+      "split": "test",
+      "turn_ids": [
+        "HR42:t0",
+        "HR42:t1",
+        "HR42:t2",
+        "HR42:t3",
+        "HR42:t4"
+      ]
+    },
+    {
+      "family_id": "HR43",
+      "oracle_sha256": "bc0e44fcff42cd408bcb8a95d4dbb8ed6f26baf646aed70d3a8c81ea1c264c96",
+      "scenario_sha256": "3c45b0214a9ec7226f0ee43abb79d115e4d94e856e3057ed5541c0acba8e31b6",
+      "split": "test",
+      "turn_ids": [
+        "HR43:t0",
+        "HR43:t1",
+        "HR43:t2",
+        "HR43:t3",
+        "HR43:t4"
+      ]
+    },
+    {
+      "family_id": "HR44",
+      "oracle_sha256": "d27591e77fcf9dae7249b80d6cb837b1853607d46643eb860914e25aec1fa721",
+      "scenario_sha256": "c93062ac4a31280a394e08a43f464184823ae8f39a0f3d318dd6c52ac7c6eb7e",
+      "split": "test",
+      "turn_ids": [
+        "HR44:t0",
+        "HR44:t1",
+        "HR44:t2",
+        "HR44:t3",
+        "HR44:t4"
+      ]
+    },
+    {
+      "family_id": "HR45",
+      "oracle_sha256": "324d93db9af8e0fb523b2f1111049ade9c3dd25bf3f38fdbd0639f39e4c5da55",
+      "scenario_sha256": "761e9d163952202f2c4efd9d2f97a924c9f30c425ec0d1b830b9a92471ba168f",
+      "split": "test",
+      "turn_ids": [
+        "HR45:t0",
+        "HR45:t1",
+        "HR45:t2",
+        "HR45:t3",
+        "HR45:t4"
+      ]
+    },
+    {
+      "family_id": "HR46",
+      "oracle_sha256": "b5c81be00015e0ba8e984a17a2bfde38d81d9a26664424370bb6496556082592",
+      "scenario_sha256": "6f1f478a45edfb82bb7824fb3e4d961544235aa6fd32604c4f52fa6eedef847c",
+      "split": "test",
+      "turn_ids": [
+        "HR46:t0",
+        "HR46:t1",
+        "HR46:t2",
+        "HR46:t3",
+        "HR46:t4"
+      ]
+    },
+    {
+      "family_id": "HR47",
+      "oracle_sha256": "56acf2a7c6f641bdcdb24516b82a782dd55727ab911993a9fa9f0ca599d1339f",
+      "scenario_sha256": "4e1edbb216857e1b2496692e2b07f1068fb551763ea1778ccfe1d1ccdbe1ccd2",
+      "split": "test",
+      "turn_ids": [
+        "HR47:t0",
+        "HR47:t1",
+        "HR47:t2",
+        "HR47:t3",
+        "HR47:t4"
+      ]
+    }
+  ],
+  "metrics": {
+    "citation_support_ownership": "all emitted citations must match exact current family source ownership/slices",
+    "claim_support": "typed relation and exact source evidence reference; free prose not counted verified",
+    "contradiction_rate": "emitted typed relation disagrees with referenced authored oracle relation",
+    "evidence_recall_at_k": "fraction of oracle spans wholly covered by same-owner/document passages within first k",
+    "factual_exact_match": "normalized whole target per single-span fact/long answer",
+    "factual_token_f1": "maximum token overlap over authored alternatives; single-span only",
+    "latency": "p50/p95 optional measured end-to-end seconds; missing never imputed zero",
+    "list_precision_recall": "exact normalized item sets; empty predicted list has undefined precision",
+    "no_answer_precision_recall": "explicit abstention on is_impossible factual/list/long/unanswerable turns",
+    "requirement_coverage": "oracle evidence requirements covered; ranking has backend-only target",
+    "route_slot_accuracy": "exact route and candidate-ID set",
+    "task_completion": "route+candidate+task answer targets plus required exact citations/backend ranks/clarification"
+  },
+  "splits": {
+    "dev": {
+      "families": 12,
+      "turns": 60
+    },
+    "test": {
+      "families": 12,
+      "turns": 60
+    },
+    "train": {
+      "families": 24,
+      "turns": 120
+    }
+  },
+  "test_policy": "No test scoring without explicit final configuration ID and frozen selection record.",
+  "uncertainty": {
+    "bootstrap_unit": "document family",
+    "confidence": 0.95,
+    "paired": "same family bootstrap indices for configuration deltas",
+    "resamples": 2000,
+    "seed": 0,
+    "undefined": "null; denominator zero"
+  },
+  "version": "authored-hr-rag-v2"
+}

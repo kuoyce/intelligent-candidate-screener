@@ -1,6 +1,8 @@
 # HR conversational QA amendment
 
-20 October 2026. Status: revised plan for review; implementation not started.
+20 October 2026; updated 21 October. Status: conversational QA implemented;
+completion and validation authorized in the
+[approved completion plan](../../../plan/2026-10-21-chatbox-completion/README.md).
 User direction: the goal is to communicate with HR, using a chatbox alongside
 dropdown navigation and an LLM assistant such as Qwen-Instruct. This supersedes
 the earlier prohibition on typed HR questions. Authentication, authorization,

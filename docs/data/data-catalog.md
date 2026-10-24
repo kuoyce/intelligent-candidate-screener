@@ -1,5 +1,17 @@
 # Data Catalog
 
+**Operational application records, 23 October 2026:** Hiring Desk v1 adds local
+owner-scoped JD revisions, live-ranking requests/redacted snapshots and demo
+email captures. These are application state, not a new benchmark or labelled
+corpus; no historical measurements below are superseded. See the
+[operational workspace card](cards/HR-operational-workspace.md).
+
+**Operational inference cache, 24 October 2026:** v1 adds private GLiNER-medium
+entity results keyed by authorized redacted source and model configuration.
+RoBERTa-SQuAD2 factual answers retain source offsets in review history. These
+results are rebuildable inference artifacts, never new gold, corpus counts or
+training input; no previous measured figure is superseded.
+
 **Compiled:** 19 August 2026 · **Verified** = downloaded and profiled directly; **Card claim** = taken from the publisher's description, unconfirmed.
 
 **Acquisition status: complete.** All eleven adopted sources are on disk (676 MB) and pass
@@ -54,6 +66,12 @@ including real mentions and charts. Both methods are compared on the same sample
 training documents; no labels, source counts, split definitions or gold-evaluation
 status change. Standalone figures and aggregate tables live in `output/extraction/eda/`.
 
+**Validation, 14 Oct 2026:** notebook 17 audits saved entity spans against their
+original Djinni fields and historical manifests, with bounded redacted source
+examples. Source traceability is separate from semantic correctness. Current local
+DataTurks and SkillSpan raw directories are absent; earlier learned-tagger gold
+metrics cannot be attributed to the saved GLiNER experiment.
+
 Legend — **Tier 1** adopt, **Tier 2** adopt with stated caveats, **Tier 3** evaluated and rejected (recorded so the decision is traceable).
 
 ---
@@ -102,6 +120,14 @@ resumes, **Recall@10 is capped at 0.56 for the median query** on this, the *ship
 > [`plan/2026-08-23-derived-artefacts/05-implementation.md`](../../plan/2026-08-23-derived-artefacts/05-implementation.md).
 
 ### A2 · `lang-uk/recruitment-dataset-*` (Djinni) — **Tier 1, in-domain evaluation (R4)**
+
+20 October 2026 local portal input audit: supplied extraction tables contain600CV
+rows and60JD rows, joined to600existing X2-ranked pairs (10perJD). These are model
+outputs, not new gold or a company-wide search. The portal reads permitted ranking
+columns and source ID/text only; it does not use `final_label`, fit a model or
+score an experiment. Mentions lack verified entity offsets; unsupported categories
+remain unavailable. Original corpus figures below are unchanged. See the
+[portal record](../../src/llm-plan/2026-10-19-hr-conversation-design/05-implementation.md).
 
 | | |
 |---|---|
@@ -355,3 +381,31 @@ C4 (only 344 unique candidates behind a 9,544-row cross-product, no annotatable 
 `data/processed/vm-structured-onet/`** (inherit all of the above; reconstructed resume text adds
 0 novel tokens; unreviewed O\*NET join — see C4), D3 (unlicensed LinkedIn scrape), D4 (tiny,
 Llama-2 licence, pre-normalised).
+
+## Scoped A1 human entity gold — 16 October 2026 (D56)
+
+Frozen campaign `f5fadd3fda6068818192a3a8` selects120unique documents from existing
+A1 fit sources:60CVs/60JDs, divided80train/20dev/20test, balanced by side. Four
+span categories: KNOWLEDGE, SKILL, TITLE, DEGREE. Primary annotator120documents;
+second annotator24independent overlap documents. This is a newly opened human
+entity task, not reopened Fit annotation or a change to existing benchmark labels.
+At launch no real spans have been labelled and no entity accuracy is reported.
+Manifest/review files remain under ignored data/processed/entity-annotation/.
+Source provenance and scope: [A1 card](cards/A1-resume-job-description-fit.md) and
+[entity campaign](../../plan/2026-10-16-entity-gold-annotation/README.md).
+
+**Progress snapshot16October2026 — original tokenizer alignment superseded17October2026:**10entity-train documents reviewed by annotator1
+(4CV/6JD),130spans. Launch-time zero progress is superseded by this snapshot;
+the120-document population is unchanged. Actual GLiNER word-boundary compatibility:
+90exact,40blocked (22whitespace,18inside-token). This is not precision/recall/F1.
+No human-data fine-tuning ran and no reviewed span was rounded/dropped.
+[Provenance and limitations](../../plan/2026-10-16-entity-ten-example-finetune/01-implementation.md).
+
+**Tokenizer amendment17October2026:** immutable snapshotv2 still contains10reviewed
+entity-train documents and130spans. No source text, gold boundary or old snapshot
+was rewritten. Training-only global lexical cuts (17surfaces) plus codepointwise
+whitespace units yield130/130exact representations,48nonoverlapping gold-safe
+windows and required span width25 with the actual pinned encoder budget.
+These deterministic training-compatibility counts are not NER accuracy figures.
+Optimization timing, training and suggestion publication remain pending.
+[Tokenizer provenance and validation](../../plan/2026-10-17-character-boundary-tokenization/01-implementation.md).

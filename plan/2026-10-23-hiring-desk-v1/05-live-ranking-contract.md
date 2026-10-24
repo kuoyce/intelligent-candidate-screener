@@ -61,6 +61,24 @@ another job's or candidate's data to fill a screen or package.
 
 ## Completion evidence
 
+The implemented adapter is selected by trusted server configuration
+`HR_PORTAL_RANKING_ADAPTER=module:function` plus
+`HR_PORTAL_CANDIDATE_POOL=<pool-reference>`. A Python wrapper may call the
+teammate's HTTP service; no endpoint is guessed. Its callable accepts
+`adapter(operation, payload)`, where operation is `submit` or `status`.
+
+Every response echoes `request_id`, `jd_id`, `jd_revision`, `jd_digest`,
+`workspace`, `authorization_scope` and `candidate_pool_ref`. Ready responses
+also include `run_id`, `model_id`, `candidate_pool_version`, `score_semantics`,
+`eligible_candidate_ids` and `candidates`. Candidates contain `candidate_id`,
+contiguous `rank`, finite `score`, `source_ref` and optional `cv_text`/entities.
+Use UUIDs, digest-based IDs or `Applicant-<number>` supported by the portal's
+typed identity validator. Arbitrary display names are rejected before marking
+results ready so chat/report/package storage remains valid. Full field bounds,
+status behavior and evidence provenance are documented in
+`src/candidate_screener/app/portal_ranking.py`; synthetic contract fixtures live
+in `tests/test_portal_ranking.py`. These fixtures are never offered as real ranks.
+
 Synthetic injected adapters test lifecycle and state isolation. Complete live
 integration with a documented run through the teammate's actual interface and
 authorized pool. Record provenance/timing without exposing applicant PII. Until

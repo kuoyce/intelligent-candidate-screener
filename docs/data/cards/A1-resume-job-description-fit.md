@@ -145,3 +145,38 @@ Good Fit resumes per test JD: min 1, Q1 3, **median 18**, Q3 24, max 48.
   compare systems; they do not estimate production precision.
 
 Explored in [`notebooks/02-fit-benchmark-eda.ipynb`](../../../notebooks/02-fit-benchmark-eda.ipynb).
+
+## Human entity-span campaign (16 October 2026, D56)
+
+User-confirmed campaign `f5fadd3fda6068818192a3a8` selects120unique A1 documents:
+60CVs/60JDs, with80entity-train (40/side),20dev (10/side) and20test (10/side).
+Categories are KNOWLEDGE, SKILL, TITLE and DEGREE. Annotator1 receives all120;
+annotator2 receives a balanced24-document independent overlap. Existing pair Fit
+labels are hidden and are not entity gold. Sources are deduplicated/grouped before
+selection; original-test documents do not enter entity training/development.
+Known previously inspected examples are excluded from blind entity test selection.
+The ignored manifest freezes source text/digests, redaction mapping, assignments
+and the entity-guide-v1 boundary policy. At launch, all assignments were untouched:
+no real entity-gold accuracy figures or fine-tuned weights exist yet. The A13
+limitation for existing Fit labels remains unchanged. See the
+[campaign plan](../../../plan/2026-10-16-entity-gold-annotation/README.md).
+
+*Historical alignment result, superseded17October2026 by the tokenizer amendment below.*
+As of the frozen ten-document snapshot (16October2026), annotator1 has reviewed
+4CVs/6JDs from entity train with130provisional spans (80KNOWLEDGE,30SKILL,11DEGREE,
+9TITLE). This supersedes the launch-time zero-progress state, without changing
+the batch population. Exact pinned GLiNER training alignment finds90representable
+spans and40boundary mismatches:22extra whitespace edges,18inside-token cuts.
+Some inside-token entities are valid labels in fused source text. Training is
+blocked rather than rounding or dropping gold. No entity accuracy figure is
+claimed. See the [pilot record](../../../plan/2026-10-16-entity-ten-example-finetune/01-implementation.md).
+
+The17October2026 snapshotv2 retains10reviewed entity-train documents and130human
+spans without modifying their text or boundaries. A frozen tokenizer learns17exact
+lexical-surface cut rules from these training labels and represents every whitespace
+code point explicitly. Actual pinned-model preparation now represents130/130spans
+exactly once in48nonoverlapping source-covering windows, with required span width25.
+This is training compatibility, not entity accuracy. The prior snapshot and base
+checkpoint remain unchanged; real optimization and independent evaluation are
+separate outstanding steps. Private cut vocabulary stays under ignored data/.
+See the [tokenizer amendment record](../../../plan/2026-10-17-character-boundary-tokenization/01-implementation.md).

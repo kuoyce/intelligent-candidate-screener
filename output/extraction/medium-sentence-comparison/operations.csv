@@ -1,0 +1,9 @@
+model,split,doc_type,requested_documents,completed_documents,completed_spans,complete,complete_rate,complete_zero,complete_zero_rate,incomplete,incomplete_rate,failed,failed_rate,pending,pending_rate,runtime_seconds,chunks,fallback_windows,quarantined_spans,sentence_count
+small-v2.1 / word windows,train,cv,446,446,8622,427,0.9573991031390134,19,0.042600896860986545,0,0.0,0,0.0,0,0.0,1126.9756563857372,,,,
+small-v2.1 / word windows,train,jd,245,245,1490,235,0.9591836734693877,10,0.04081632653061224,0,0.0,0,0.0,0,0.0,354.56012385498616,,,,
+small-v2.1 / word windows,test,cv,158,158,3205,152,0.9620253164556962,6,0.0379746835443038,0,0.0,0,0.0,0,0.0,399.17545410990715,,,,
+small-v2.1 / word windows,test,jd,100,100,629,99,0.99,1,0.01,0,0.0,0,0.0,0,0.0,132.00773945305264,,,,
+medium-v2.5 / sentence windows,train,cv,446,446,25176,446,1.0,0,0.0,0,0.0,0,0.0,0,0.0,2140.3812971478183,1923.0,121.0,0.0,17608.0
+medium-v2.5 / sentence windows,train,jd,245,245,4504,245,1.0,0,0.0,0,0.0,0,0.0,0,0.0,421.24337183791795,491.0,4.0,0.0,6161.0
+medium-v2.5 / sentence windows,test,cv,158,158,9488,158,1.0,0,0.0,0,0.0,0,0.0,0,0.0,738.9029387979681,676.0,42.0,0.0,6385.0
+medium-v2.5 / sentence windows,test,jd,100,100,1859,100,1.0,0,0.0,0,0.0,0,0.0,0,0.0,176.49118471812108,208.0,0.0,0.0,2607.0

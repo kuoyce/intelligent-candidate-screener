@@ -20,3 +20,25 @@ line length, spacing, focus order, target size, colour-only indicators, loading,
 disabled actions, empty states and horizontal overflow. Record severity, page,
 evidence, change and recheck outcome. Do not mark visual acceptance based solely
 on AppTest. Use synthetic documents for screenshots to avoid committing PII.
+
+## Implemented audit findings — 24 October
+
+The JD browser now persists above review actions, with search, selected-state
+labels and previous/next navigation. Desktop displays multiple cards; narrow
+screens display the selected card with the same navigation controls. Full JD text
+uses a bounded readable panel. Entity comparisons use readable mention lists.
+The production demo selector is removed. Login, saved review, authoring, alerts,
+source-unavailable states and capture previews retain explicit labels/actions.
+
+Browser inspection identified chat auto-scroll obscuring the initial JD and an
+unanchored sidebar footer. A separately scrollable inline chat and a keyed
+sidebar flex container corrected both. The browser then verified JD switching,
+authoring/alert navigation, a 390px mobile viewport and 200% root text scaling
+without document overflow. Screenshots use invented fixtures and stay ignored:
+`logs/hiring-desk-v1-desktop.png`, `hiring-desk-v1-authoring.png`,
+`hiring-desk-v1-mobile.png`, and `hiring-desk-v1-text-scaling.png`.
+The old shell is captured in `logs/hiring-desk-browser-diagnostic.png`.
+
+Theme colors and caption styles improve contrast; controls use visible labels,
+keyboard-native widgets and focus outlines. This is a manual/source/browser audit,
+not an Impeccable tool run or certification of complete WCAG conformance.

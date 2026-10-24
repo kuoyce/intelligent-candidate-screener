@@ -1,6 +1,7 @@
 # Learn from ten human-labelled documents and assist training annotation
 
-Date:16October2026. Status: proposed for approval; no training started.
+Date:16October2026. Status: user approved; implementation underway. Real training
+blocked by40unalignable human span boundaries; no labels dropped or changed.
 
 ## Verified starting point and scope
 
@@ -116,9 +117,10 @@ evaluation data exist. Human data remain local with backup instructions.
 
 ## Persistent open questions
 
-T1 pending: approve this first fixed exploratory training run and suggestion UI.
-T2 implementation check: all130gold spans align exactly and fit the pinned model's
-word/span limits; unresolved spans must not be silently dropped.
+T1 resolved: user explicitly approved this exploratory run and suggestion UI.
+T2 unresolved blocker:90/130spans align;40do not (22extra boundary whitespace,
+18inside tokenizer words). No width/budget failures. Original labels are unchanged;
+humans must review proposed boundaries, including possible fused-source-word cases.
 T3 implementation check: verify frozen-backbone parameter selection and loss API
 in the installed0.2.21 runtime; record measured CPU cost before the full job.
 T4 resolved default: development/test and annotator2 remain blind; no further

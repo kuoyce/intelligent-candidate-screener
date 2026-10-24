@@ -2,7 +2,9 @@
 
 Conventions an agent (or new team member) needs before touching anything in this
 repository. **Rules only.** Why each rule exists, and every superseded one, is in
-[`docs/decisions.md`](docs/decisions.md) and the plan records it links to (D45).
+[`docs/decisions.md`](docs/decisions.md) and the plan records it links to (D45). D56–D61 have independent
+`(entity/app)` and `(research)` meanings; qualify new citations and resolve
+historical citations by their linked plan, as documented in the decision log.
 
 ## Project Overview
 
@@ -69,7 +71,8 @@ base `uv run pytest` must pass without the `ml` and `app` groups: model-dependen
 | Matching systems (ladder rungs) | `matching/`: every rung implements `matching.base.System` |
 | Extraction (vocabulary, rules, NER) | `extraction/` |
 | Evidence layer and end-to-end pipeline | `evidence/`, `pipeline.py` |
-| Recruiter UI | `app/`: rules in `intents.py` (tested), Streamlit as thin transport |
+| Recruiter UI | `app/`: tested screening/QA services, `intents.py` fallback, Streamlit as thin transport |
+| Conversational inference | `llm/`: frozen local extractive QA/runtime; historical Qwen service; never annotation or training |
 | Frozen annotation instrument | `annotation/`: read-only (D42) |
 | Tests | `tests/`, run as `uv run pytest` |
 | Committed records | `output/…`: config, digests and figures for things we fit, never bytes (D23 baseline) |
@@ -78,6 +81,24 @@ base `uv run pytest` must pass without the `ml` and `app` groups: model-dependen
 | Decision log | `docs/decisions.md` |
 
 No runnable scripts under `plan/`; code that outlives a decision goes in the package.
+
+Recruiter LLM answers use validated references to screening snapshots and redacted
+evidence. Conversational answer models cannot author ranks, scores or Fit calls. Application model
+selection does not change the research winner; missing weights are an unavailable
+state, never a reason to train at startup. See the approved contracts under
+`plan/2026-10-12-streamlit-llm-chatbot/`.
+
+Hiring Desk v1 preserves existing CSV JD/CV reviews independently of the live
+ranking adapter. Operational JD revisions and live ranking records stay outside
+benchmark labels/training. New handoff packages contain ten redacted CVs;
+historical eight-CV packages remain readable. Department email captures are local
+demonstrations, never reported as mailbox delivery (D60 (entity/app)).
+
+Primary v1 chat uses the existing RoBERTa-SQuAD2 span extractor and private
+GLiNER-medium entity caches. Comparisons are assembled from validated source
+evidence; Qwen generation and Qwen fine-tuning are outside this flow (D61 (entity/app)).
+Preserve qualification context, explicit no-answer/partial states and source
+ownership on every cache read. Entities cannot establish skill-specific tenure.
 
 ## Evaluation rules
 
@@ -117,15 +138,27 @@ No runnable scripts under `plan/`; code that outlives a decision goes in the pac
 - **Collection is closed** (D42). No new labels, no new batches, and no Claude subprocess
   is ever started from this repository: `llm_recheck --dispatch/--judge` and
   `prompt_calibration` raise `DispatchClosed`. The one exception is the D50 scoring batch,
-  scoped in code. Reopening further needs a decision in the log.
+  scoped in code. The recorded research chat collections are separately scoped by
+  D60–D61 (research) and D62; they authorize no Claude subprocess. D56 (entity/app)
+  separately authorizes human entity-span gold under `entity_annotation/`: confirm
+  the source/categories/batch/annotators and freeze its document-disjoint manifest
+  before real collection. It does not reopen Fit judgements, the A2 final set,
+  frozen instruments or LLM dispatch. Further reopening needs a decision in the log.
+- **Entity assistance** (D57 (entity/app)): model suggestions are separate from human
+  reviews, explicitly loaded only on untouched primary-annotator entity-train
+  documents. Preserve assistance provenance on saves/exports; assisted rows are
+  not blind evaluation gold. Entity dev/test and the independent annotator remain
+  blind. Reject unrepresentable training spans rather than silently rounding or
+  dropping them; never expand correct gold merely to match tokenization.
 - **The LLM is a secondary annotator** (D43). Exactly one series enters the final set:
   instrument `5d986c82`, `claude-haiku-4-5`, runs 9/10. Only a reranker or the stage-1
-  classifier may train on LLM output: on the D50 batch (D51, D61), and, for the stage-2
-  reranker, on `chat-3` (48 train-region JDs, D62). **For the stage-2 top-10 task only,
-  `chat-1` is the test reference** and is never trained or tuned on (D62; steps 3-5d of plan
-  2026-10-18 trained on it under D61, out of fold by JD); everywhere else the human grades
-  are the only reference. Ordering figures and any LLM scored as a system are reported on the `llm_free`
-  subset beside `full`.
+  classifier may train on LLM output: on the D50 batch (D51, D61 (research)), and,
+  for the stage-2 reranker, on `chat-3` (48 train-region JDs, D62). For the stage-2
+  top-10 task only, `chat-1` is the test reference and is never trained or tuned on
+  (D62; steps 3-5d of plan 2026-10-18 trained on it under D61 (research), out of
+  fold by JD). Elsewhere the human grades are the reference. Ordering figures and
+  any LLM scored as a system are reported on `llm_free` beside `full`. Historical
+  exploratory exceptions remain limited to D56 (research)'s linked plans.
 - **LLM labels never enter `judgements.csv`.** They live in `llm-*.csv`, keyed by
   (`agent_sha256`, model, run, draw). Never pool across those axes.
 - Every document displayed to a person passes `annotation.redact`.
@@ -197,7 +230,7 @@ Know what a command costs before you start it (measured 8 Oct 2026, 22 cores, 15
    `logs/checks/<name>.log` and prints one line per check.
 2. **Iterate narrowly, verify broadly.** While working, run the test file you are touching,
    or `pytest --lf`. Run the full suite once, before review.
-3. **`uv run pytest` alone is enough unless the change touches underlying code** (D58): code a
+3. **`uv run pytest` alone is enough unless the change touches underlying code** (D58 (research)): code a
    committed record is built from, such as models, extractors, features, scorers or the data
    layer. New standalone tools, tests, docs, plans and notebooks need no checks.
 4. **Ask the owner before any long check run.** Before `--all`, `--cold`, or a run expected to

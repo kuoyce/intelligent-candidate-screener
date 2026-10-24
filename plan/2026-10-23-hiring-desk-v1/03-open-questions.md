@@ -13,10 +13,10 @@ flow; implementation choice is delegated. Use local MIME-message capture.
 | Q1 | Do newly created JDs rank candidates? | Yes; request/status/result adapter described in `05-live-ranking-contract.md`. Teammate owns inference and candidate pool. | Scope confirmed; boundary proposed |
 | Q2 | Which email setup? | Local `.eml` capture, preview, explicit confirmation and download; example Tech/Business addresses. | Choice delegated; specified in design |
 | Q3 | Are real addresses/mail credentials needed? | No; reserved example addresses and local capture meet the demonstration scope. | Resolved by reduced scope |
-| Q4 | What should trigger alerts? | JD publication, ranking ready/failed, email captured/failed. No applicant-arrival alerts without a source. | Proposed for approval |
+| Q4 | What should trigger alerts? | JD publication, ranking ready/failed, email captured/failed. No applicant-arrival alerts without a source. | Approved; implemented |
 | Q5 | What does top ten include? | All ten ranked redacted CV text files and profiles plus comparison report; replace new top-eight handoffs using schema v2. | Proposed from user's ten-applicant requirement |
 | Q6 | Is Impeccable available elsewhere? | No installed skill found in available catalog or local skill/plugin directories. Use a documented manual audit unless supplied. | Tool unavailable; alternative disclosed |
-| Q7 | May app data be persisted? | Owner-authorized operational JD drafts/published revisions in local SQLite, separate from benchmark data, with versioned migrations. | Proposed for approval |
+| Q7 | May app data be persisted? | Owner-authorized operational JD drafts/published revisions in local SQLite, separate from benchmark data, with versioned migrations. | Approved; implemented |
 
 The teammate's interface is not yet supplied. Obtain its invocation method
 (Python or HTTP), request/result schema, status behavior, configured candidate

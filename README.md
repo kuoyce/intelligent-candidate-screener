@@ -50,7 +50,8 @@ output/baselines/           committed model record — figures and config, never
   matching/                 the ladder: rules, lexical, SBERT, cross-encoders, hybrids
   extraction/               skill vocabulary, rules matcher, MiniLM NER, normalisation
   evidence/, pipeline.py    requirements, verbatim evidence, end-to-end `screen()`
-  app/                      recruiter UI: intents (rules) + Streamlit transport
+  app/                      frozen screening snapshots, grounded QA + Streamlit transport
+  llm/                      local extractive QA and historical Qwen service; no annotation or training
   annotation/               the frozen annotation instrument (D42)
 tests/                      pytest — runs without data/ (data-dependent checks skip visibly)
 notebooks/                  01-07 acquisition EDA and baseline; 08-11 the reset's findings
@@ -193,6 +194,57 @@ curves describe predictions, not extraction accuracy. This notebook uses existin
 artifacts and regenerates only the matching rule predictions; it performs no
 additional neural inference or training.
 
+For validation against the original CV/JD fields, open
+[`27-entity-extraction-source-validation.ipynb`](notebooks/27-entity-extraction-source-validation.ipynb).
+It audits historical run manifests, source hashes, exact entity slices and field
+coverage, and displays bounded source context beside saved labels. Source matches
+establish traceability; label accuracy and missing-entity recall require compatible
+gold annotations. The [validation plan](plan/2026-10-14-entity-extraction-validation/README.md)
+records this distinction and the local gold-data availability.
+
+The approved full-fit GLiNER campaign covers every pair in
+`data/processed/fit/train.parquet` and `test.parquet`, extracting each unique CV
+and JD once with five fixed entity categories. Its reporting notebook is
+[`28-fit-gliner-comparison.ipynb`](notebooks/28-fit-gliner-comparison.ipynb).
+The [campaign record](plan/2026-10-14-fit-pair-gliner-comparison/01-implementation.md)
+tracks execution and validation status. Fit-conditioned distributions are
+exploratory; A1 labels do not reproduce (A13), and they are not entity-span gold.
+
+The separate [medium-v2.5 experiment](plan/2026-10-14-gliner-medium-sentence-chunking/README.md)
+uses `gliner-community/gliner_medium-v2.5` with sentence-aware, prompt-budgeted
+chunks and overlapping word windows for oversized sentences. Original text and
+entity offsets are preserved. It has its own runtime and campaign checkpoints;
+the small-model default remains unchanged. Notebook
+[`29-gliner-medium-sentence-comparison.ipynb`](notebooks/29-gliner-medium-sentence-comparison.ipynb)
+compares operational results after inference completes. Model and chunk strategy
+change together; mention counts do not establish extraction accuracy.
+
+The separate [human entity annotation UI](plan/2026-10-16-entity-gold-annotation/README.md)
+supports selecting text spans, four category shortcuts, editing, undo and explicit
+whole-document review. Try synthetic documents locally:
+
+```bash
+uv run python -m candidate_screener.entity_annotation.ui --demo --annotator reviewer
+```
+
+Open the printed `http://127.0.0.1:8766/` URL. Demo annotations are synthetic and
+cannot measure the model. Real source/categories/batch/annotators must be confirmed
+before creating a campaign under D56. See the
+[boundary guide](plan/2026-10-16-entity-gold-annotation/annotation-guide.md) and
+[evaluation/training protocol](plan/2026-10-16-entity-gold-annotation/training-protocol.md).
+The frozen Fit annotation UI and labels are unchanged.
+
+The approved [ten-document GLiNER adaptation pilot](plan/2026-10-16-entity-ten-example-finetune/README.md)
+uses saved human training spans. It validates exact tokenizer boundaries before
+training and preserves original reviews. Model suggestions, once available, are
+explicitly loaded only on untouched primary-annotator training documents; exports
+retain assistance provenance. Independent annotation and dev/test stay blank.
+The approved [character-boundary tokenizer amendment](plan/2026-10-17-character-boundary-tokenization/README.md)
+preserves every saved human boundary: training-derived lexical cuts and explicit
+whitespace units align all130spans in the latest ten-document snapshot. The frozen
+policy must accompany training, checkpoint reload and inference. This alignment
+check establishes representability; it does not establish extraction accuracy.
+
 The [French interview prototype](notebooks/16-french-interview-translation.ipynb)
 demonstrates audio decoding, French speech transcription and Marian French-to-English
 text translation. Full transcripts and media remain local; the notebook reports
@@ -203,6 +255,278 @@ text-only pipeline changes, five-label GLiNER evidence, applicant transcript rev
 and the proposed chat upload flow. Live pipeline/UI integration awaits that plan's
 approval. Launch notebooks from the installed project environment with
 `uv run jupyter lab` after `uv sync`.
+
+## Streamlit recruiter chatbot
+
+The primary app opens **Hiring Desk**, with typed HR chat and dropdown review menus:
+
+```bash
+uv run streamlit run src/candidate_screener/app/streamlit_app.py --server.address 127.0.0.1 --server.port 8503
+```
+
+Hiring Desk v1 opens the supplied CSV-backed jobs alongside published operational
+JDs. The production app has no workspace/demo selector. Provision an account
+in your own terminal and enter a private access token of at least24 characters at
+the hidden prompt; no token is printed or stored in conversation history:
+
+```bash
+uv run python -m candidate_screener.app.portal_auth --create-local-user reviewer --department benchmark
+```
+
+Then sign in. Local token authentication is
+not company SSO. Reviewer credentials default to 40 days (`--hours 960`); active
+sign-ins last until account expiry, revocation or logout, without an hourly timeout.
+Browser reconnects can require signing in again. Use **Log out** at the bottom of
+the left sidebar to end the current sign-in.
+The app reads `a2-cv-extraction.csv`, `a2-jd-extraction.csv` and
+`a2-x2-scores.csv` under `data/processed/phase2-rerank-output/`, without reranking
+or reading `final_label`. It supports top10 review, source-text dialogs,
+five-category mention comparison, saved sessions and reports/ZIP packages with
+all ten ranked CV text files and profiles. Historical eight-CV packages retain
+their schema. `HR_PORTAL_ACCOUNTS` and `HR_PORTAL_DATA` provide local configuration.
+
+**Review jobs** shows selectable JD cards, Previous/Next controls, title search,
+a source-grounded summary and the full redacted JD. Review actions and chat follow
+below. Switch cards at any point to resume that job's saved review; conversations
+and candidate selections stay with their job. CSV rankings are never silently
+recomputed and remain usable when live modeling is unavailable. Full JD/CV text
+continues to come from the existing authorized source-text cache; missing text is
+shown as unavailable rather than reconstructed from extraction columns.
+
+**Create new JD** guides title, department, responsibilities, required/preferred
+skills and knowledge, experience and qualifications. Each accepted answer is
+saved locally. Resume/edit a draft, confirm the preview, then publish and request
+candidate ranking. Operational JDs and ranking snapshots live separately from
+benchmark labels and training data in the local workspace database.
+
+Connect the teammate's live model with trusted runtime configuration:
+
+```bash
+export HR_PORTAL_RANKING_ADAPTER=your_package.your_module:rank_adapter
+export HR_PORTAL_CANDIDATE_POOL=your-authorized-pool
+```
+
+The adapter implements `adapter(operation, payload) -> dict` for `submit` and
+`status`, with request/revision identity, model/pool provenance and validated
+candidate results. Long inference returns a queued/running handle promptly; use
+**Refresh ranking status** to check completion. See the
+[adapter contract](plan/2026-10-23-hiring-desk-v1/05-live-ranking-contract.md) and
+the detailed schema in `app/portal_ranking.py`. Until connected, new JDs remain
+saved with an explicit unavailable state; existing CSV reviews still work. No
+model is trained at startup. A real run with the teammate's interface remains
+necessary to verify live integration.
+
+**Alerts** records JD publication, ranking ready/failed and local email
+captured/failed events. Read/unread controls and Open job preserve access checks.
+**Send to hiring department** demonstrates the flow using Tech/Business example
+addresses: preview the ten-applicant package, then choose **Send to demo outbox**.
+The resulting private `.eml` file can be downloaded; it is captured locally, not
+delivered to a mailbox. Captures live under `data/processed/hr-portal/mail-captures/`.
+Original PDFs, company SSO, external applicant events and production mail delivery
+remain unconnected. Additive SQLite migrations preserve old sessions/packages;
+retain a private backup of the workspace directory before moving deployments.
+
+After selecting a role, use **Ask Hiring Desk** to ask about its requirements,
+compare candidates, or inspect cited CV evidence. Dropdown candidate/category
+selections establish the context for the next question; explicit candidates in
+your question take precedence. Saved reviews retain their bounded conversation.
+All review dropdowns remain available, including CV previews and reports.
+Failed submissions offer **Retry question** and **Discard question**. A pending
+question is discarded with an explanation if its review or candidate context changes.
+
+The current v1 path uses the installed `deepset/roberta-base-squad2` to answer
+factual JD/CV questions with exact start/end spans. Answers retain source context
+and expandable citations. Unsupported facts remain insufficient evidence;
+missing or failed models show their availability and labelled source excerpts.
+The assistant cannot change ranks or execute report, package or delivery actions.
+
+Both **Compare candidates** and chat requests such as **Compare 1 and 2** use an
+application-built table of JD requirements and candidate evidence. GLiNER medium
+extracts technology, skills, titles, degrees and experience mentions in the
+background and caches them privately by source/model/configuration. Use
+**Refresh extraction** while work is queued. General comparison does not wait for
+QA inference; focused questions such as **Compare 1 and 2 on Python** extract
+answers independently from each requested document. Entity mentions do not
+establish proficiency, completed credentials or skill-specific years of experience.
+
+This path reuses the existing isolated `runtime/gliner-medium` and
+`runtime/transformer` environments and pinned local checkpoints. Models load on
+demand; missing assets never trigger downloads or training at startup. Primary
+v1 answers no longer invoke Qwen. Earlier saved Qwen answers retain their recorded
+provenance. The latest scope and verification are recorded in the
+[extractive implementation plan](plan/2026-10-24-grounded-qwen-comparisons/05-extractive-implementation.md).
+
+The earlier free-form/upload prototype is preserved separately:
+
+```bash
+uv run streamlit run src/candidate_screener/app/legacy_streamlit_app.py
+```
+
+The historical workshop setup below describes that prototype. Current portal
+status is in the [extractive implementation record](plan/2026-10-24-grounded-qwen-comparisons/06-implementation-record.md).
+
+The [19 October conversation-design plan](src/llm-plan/2026-10-19-hr-conversation-design/README.md)
+defines the authenticated HR portal workflow, notifications,
+stored sessions, top10 review and confirmed top8 department handoff. It preserves
+the earlier implementation record and distinguishes planned integrations from
+the current local prototype.
+
+The earlier [HR conversational RAG upgrade](plan/2026-10-18-hr-conversational-rag/README.md)
+introduced question-specific CV/JD passage retrieval, stable candidate follow-ups,
+explicit filter previews and cited source mentions. The v1 path above supersedes
+its generator selection;
+synthetic development measurements have not established production QA accuracy.
+The extractive baseline is provisioned explicitly, never downloaded at UI startup:
+
+```bash
+PYTHONPATH=src uv run --project runtime/transformer --no-sync python -m candidate_screener.llm.qa_assets
+uv run streamlit run src/candidate_screener/app/legacy_streamlit_app.py
+```
+
+Question examples: “Who best suits this role?”, “Compare 1 and 2”, “What
+certifications does applicant 1 hold?”, and “What about applicant 2?”. Source
+mentions retain context; a mention does not establish an active qualification,
+and missing evidence does not prove a qualification is absent. The QA feasibility
+corpus is authored synthetic data with a frozen family-disjoint manifest under
+`output/chatbot-rag/`; it does not use the human GLiNER labels or frozen Fit labels.
+
+The [approved chatbot plan](plan/2026-10-12-streamlit-llm-chatbot/README.md) adds
+session-only recruiter QA, immutable screening snapshots, frozen cross-encoder
+loading and an optional Qwen service. Existing written CV and reviewed French
+interview ingestion remains available.
+
+The user-supplied workshop selects `Qwen/Qwen2.5-0.5B-Instruct` for local
+generation. Provision it once and start the loopback service in a separate terminal:
+
+```bash
+uv run python -m candidate_screener.llm.qwen_assets
+uv sync --project runtime/transformer
+PYTHONPATH=src uv run --project runtime/transformer --no-sync python -m candidate_screener.llm.local_server --manifest data/processed/chatbot/qwen/manifest.json
+```
+
+For the historical prototype, start Streamlit as below. The provisioned manifest supplies local Qwen
+settings automatically. The isolated service uses CPU, four threads and greedy
+decoding; the app counts tokens through `/v1/tokenize`, so its environment needs
+no Torch for Qwen. Loading is offline; only provisioning downloads public files.
+`SCREENER_QWEN_DISABLED=true` forces templates.
+
+For the requested backend in `rerank/models.py`, prepare the recorded selected R2:
+
+```bash
+uv run python -m candidate_screener.app.rerank_assets
+```
+
+Streamlit and the local service discover the exported manifest automatically;
+restart the service after preparation. The selected directory
+`data/processed/rerank/r2-60412b3f1f1e` is absent in this checkout; restore its
+complete trained checkpoint and tokenizer before preparation. No training is
+started. R2 has no validated binary threshold, so classification remains
+unavailable. App use does not change the research selection of SBERT weak ordering.
+
+```bash
+uv sync --group app
+uv run streamlit run src/candidate_screener/app/legacy_streamlit_app.py
+uv run python -m candidate_screener.app.chat_smoke
+```
+
+With no model configuration, select **Illustration TF-IDF** and **Screen
+demonstration** to use invented applicants and grounded template answers. The
+illustration fits unsupervised IDF on submitted text; it is not an adopted benchmark
+model. Ask `top 5`, `explain 1`, `compare 1 and 2`, `entities 1`, or `source 1`.
+With Qwen, other phrasing is mapped to supported screening operations and the model
+selects evidence. Backend facts, scores and quotes are rendered from validated
+references. Generated narrative is excluded from the MVP. Invalid responses use
+templates.
+
+Provision an approved local Transformers sequence-classification checkpoint and
+its tokenizer in the same directory. Native loading requires Torch/Transformers
+in the app environment (`uv sync --group app --group ml` on a supported host).
+On Intel macOS, the local service also supplies frozen CE inference through
+`/v1/rerank`; it discovers the verified exported manifest at startup.
+`SCREENER_CE_SERVICE_URL` selects this loopback transport, so the app needs no
+main-environment Torch for R2. Set it to an empty string for native loading, or
+pass `--reranker-manifest` to the service for another frozen manifest. App startup
+performs no weights download or training.
+
+Set `SCREENER_CE_MANIFEST` to a local JSON file with this schema:
+
+```json
+{
+  "name": "Approved cross-encoder",
+  "checkpoint": "checkpoint-directory",
+  "tokenizer": "checkpoint-directory",
+  "sha256": "replace-with-checkpoint_digest-result",
+  "text_variant": "text_v2",
+  "score_semantics": "ordering_logit",
+  "selection_record": "path-or-id-of-approved-selection-record",
+  "max_length": 384,
+  "truncation_policy": "longest_first",
+  "batch_size": 8
+}
+```
+
+Paths resolve relative to the manifest. Compute the digest using
+`candidate_screener.app.screening_service.checkpoint_digest(Path(...))`; it covers
+relative filenames and bytes, including tokenizer files. Symlinked artifacts are
+rejected. Length and truncation must match the approved artifact; this example is
+not a model selection. The default shortlist is 50, the pool limit is 500, and
+scoring documents are limited to 200,000 characters. The retrieval-only tail is
+labelled **not reranked**. Retrieval scores and CE logits are separate fields.
+
+Fit / No Fit requires `score_semantics: "binary_logit"`, a finite
+`binary_threshold` **in raw logit units**, and `threshold_validation_record`.
+Never copy a probability threshold into a logit manifest. For a model whose
+documented output is `sigmoid(logit)`, an interior probability threshold `p` maps
+to `log(p / (1-p))`; record that equivalence and the original validation lineage.
+Ordering checkpoints, including R2, acquire no binary threshold through this
+wrapper. Manifest declarations and file integrity are checked; statistical quality
+of a supplied threshold is not independently revalidated. Without a validated
+threshold, classification is **unavailable**. Percentiles are not probabilities.
+
+Configure Qwen through environment variables, or matching string keys under
+`[chatbot]` in `.streamlit/secrets.toml` (never commit secrets):
+
+| Setting | Meaning |
+|---|---|
+| `SCREENER_QWEN_BASE_URL` | OpenAI-compatible URL, e.g. `http://127.0.0.1:8000/v1` |
+| `SCREENER_QWEN_MODEL` / `SCREENER_QWEN_REVISION` | Exact served model and provisioned revision |
+| `SCREENER_QWEN_SHA256` | Expected service digest; local provisioning supplies it automatically |
+| `SCREENER_QWEN_TOKENIZER` | Matching tokenizer directory, or `service` for local `/tokenize` |
+| `SCREENER_QWEN_RUNTIME` / `SCREENER_QWEN_QUANTIZATION` | Runtime name/version and quantization, or `none` |
+| `SCREENER_QWEN_API_KEY` | Optional credential |
+| `SCREENER_QWEN_CONTEXT_TOKENS` / `SCREENER_QWEN_OUTPUT_TOKENS` | Defaults 4096 / 512; match deployed model |
+| `SCREENER_QWEN_TIMEOUT` / `SCREENER_QWEN_TEMPERATURE` | Defaults 30 seconds / 0.2; validate on selected model |
+| `SCREENER_QWEN_JSON_MODE` | Default `true`; disable for runtimes lacking JSON response format |
+| `SCREENER_QWEN_ENABLE_THINKING` | Optional `true`/`false` for compatible models/templates only |
+| `SCREENER_QWEN_ALLOW_REMOTE` | Default `false`; explicit data-boundary decision and HTTPS required |
+| `SCREENER_QWEN_DISABLED` | `true` forces templates and suppresses model autodiscovery |
+
+Qwen supports OpenAI-compatible serving; chat templates and thinking options vary.
+See the [official Qwen2.5 model and generation example](https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct#quickstart)
+before provisioning. The client counts tokens locally, reserves output space,
+limits response bytes and retries transient errors at most once. HTTP redirects
+and inherited proxies are disabled. Model revision/runtime declarations are
+configuration provenance for external services. The provisioned local service's
+revision, digest and token limits are checked against `/v1/models`, and its actual
+runtime versions are recorded.
+
+```bash
+uv run python -m candidate_screener.app.chat_smoke --live --freeform
+```
+
+Live smoke uses invented documents and two QA requests (plus a free-form question
+with `--freeform`), reports load/answer time,
+token counts, client peak RSS and fallbacks, and exits unsuccessfully on missing
+configuration or generated-answer fallback. Measure service memory separately.
+The report separates Qwen QA from CE availability. A Qwen-only trial uses explicit
+TF-IDF illustration retrieval if no CE manifest is configured; it never proves
+R2 inference. Measure checkpoint/service compatibility separately.
+
+Applicant material and chat context stay in session memory; shared resources hold
+frozen models only. Document, JD/title or configuration changes invalidate results
+and history. Reset clears session material. Redaction masks contact identifiers
+but does not anonymize names. No persistence, public hosting, new annotation or
+model adoption is included.
 
 ## Build the derived artefacts
 

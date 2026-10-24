@@ -1,7 +1,8 @@
 # HR portal chatbot: conversation design and delivery plan
 
-19–20 October 2026. Status: guided local workflow implemented; conversational QA
-amendment drafted for review. Corporate identity/events/mail remain unavailable.
+19–21 October 2026. Status: guided local workflow and conversational QA implemented;
+chatbox completion implemented and reviewed. Corporate identity/events/mail
+remain unavailable.
 See the [implementation record](05-implementation.md) for actual capabilities,
 input provenance and limits rather than treating planned integrations as delivered.
 
@@ -30,8 +31,10 @@ shortlist/report and hand the reviewed package to the hiring department.
 The revised design combines **typed HR conversation and dropdown navigation**.
 The20October amendment supersedes the earlier dropdown-only restriction. It adds
 no image, audio, video or file uploads. CV/JD content comes from authorized sources;
-passwords and tokens remain outside conversation. The current implemented portal
-still uses dropdowns until the conversational amendment is approved and built.
+passwords and tokens remain outside conversation. The implemented portal includes
+both typed questions and dropdowns. The
+[21 October completion plan](../../../plan/2026-10-21-chatbox-completion/README.md)
+addresses context sharing, retry recovery and verification.
 
 Default review set: database-ranked top10 CVs for one authorized JD. Default
 shortlist: ranks1–8 from that same ranking snapshot. The department package contains

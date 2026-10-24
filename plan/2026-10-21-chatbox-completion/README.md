@@ -1,6 +1,8 @@
 # Complete portal chat while retaining dropdowns
 
-21 October 2026. Status: approved by the user; implementation in progress.
+21 October 2026. Status: local chatbox completion implemented and reviewed.
+See [implementation and validation](01-implementation.md), including the two
+previously observed baseline reproduction failures and local Qwen limits.
 
 ## Requested outcome
 
@@ -57,9 +59,31 @@ than an uncaught exception. Citations resolve to the current authorized source.
 No action is executed merely because chat requests it. Missing inference remains
 an explicit usable evidence fallback, not a claimed successful LLM answer.
 
+## User acceptance correction: answer the question
+
+21 October: user observed that the assistant displays CV passages rather than
+answering. This corrects the implementation within the approved chatbox scope:
+the intended outcome requires a concise question-specific answer before citations.
+The excerpt-only implementation is insufficient product acceptance, even though
+its source-selection tests pass. No additional approval gate is introduced.
+
+Design: retrieve question-relevant source context, extract concise answer-bearing
+statements, validate their exact ownership/source spans, and render them directly
+in the answer. Use optional Qwen for question-specific answer span selection;
+retain a usable deterministic extraction fallback with explicit provenance.
+Preserve negation, ongoing/expired credentials and total-versus-skill tenure.
+Unsupported questions receive an explicit no-evidence answer. Long source context
+is available in collapsed citations. Comparisons show an answer per candidate;
+dropdowns, authorization, ranks and persisted conversation remain intact.
+
+Delegate QA/extraction and UI/acceptance tests separately; independently review.
+Prove question-specific regression tests fail before the fix, run focused tests,
+the full suite once stable and scoped registered checks. No training, new model
+downloads, benchmark changes or unchecked factual paraphrasing is authorized.
+
 ## Open questions
 
 - Plan approval: granted by the user on 21 October 2026.
-- Actual configured local Qwen availability remains to be verified; synthetic
-  provider tests alone will not establish a working live model.
+- Existing Qwen availability was verified in the implementation record;
+  answer-first behavior needs fresh validation after the acceptance correction.
 - Corporate integrations remain outside this chatbox completion scope.

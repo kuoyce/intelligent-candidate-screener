@@ -1,6 +1,12 @@
 # HR portal assistant: hybrid factual QA and conversational RAG
 
-18 October 2026. Status: **proposed for user review; implementation not started**.
+19 October scope refinement: the user now specifies an authenticated, persisted,
+dropdown-only HR portal experience with alerts, previews and department handoff.
+See the [conversation design and refactored implementation plan](../../src/llm-plan/2026-10-19-hr-conversation-design/README.md).
+This document remains technical history for retrieval/QA work; its free-form,
+session-only UI assumptions do not define the new portal experience.
+
+18 October 2026. Status: **approved; implementation and development evaluation in progress**.
 Replaces the scope proposal in ../2026-10-17-chatbot-qa-improvement/README.md;
 preserves that record as history. This is a new conversational product design,
 building on reusable screening/provider services from the October chatbot MVP.

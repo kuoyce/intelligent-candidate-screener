@@ -1,6 +1,7 @@
 # Validate saved entity extractions against source data
 
-Status: proposed; awaiting approval. Scope: the saved GLiNER outputs discussed in
+Status: implemented on 14 October 2026; see [validation results](01-implementation.md).
+Gold accuracy evaluation remains unavailable. Scope: the saved GLiNER outputs discussed in
 notebooks 13–15, with rules as a comparator. Preserve unrelated working changes.
 
 ## Design and deliverables
@@ -42,14 +43,13 @@ annotation dispatch or modification of collected labels.
 
 ## Open questions
 
-- V1: Does the user approve this source inspection plus available-gold evaluation
-  scope? Pending. It includes inference on existing labelled extraction datasets
+- V1: Resolved: user approved source inspection plus available-gold evaluation.
+  It includes inference on existing labelled extraction datasets
   only if the required assets are already available.
-- V2: Which saved run should be the primary report? Proposed: the run referenced
+- V2: Resolved: primary report is the run referenced
   by notebook 13's committed transformer record; inventory later runs separately.
-- V3: Are compatible gold assets locally present and usable for this frozen GLiNER
-  configuration? Resolve through inventory, without treating old availability
-  entries in a historical metrics file as a current filesystem check.
+- V3: Resolved by filesystem inventory: DataTurks and SkillSpan raw directories are
+  absent. Gold scoring is unavailable; no new download is part of this work.
 - V4: Djinni Fit labels do not label entity spans. Entity-label accuracy and missing
   entities in Djinni cannot be established from text slices or Fit labels alone.
   New annotation remains outside this plan under D42.

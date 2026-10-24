@@ -12,7 +12,7 @@ Freeze installed pinned GLiNER, five current prompt categories KNOWLEDGE, SKILL,
 
 Package extraction.fit_run: strict source inventory, resumable per-document inference with atomic local checkpoints, exact source offsets and coverage, source/model/runtime/code hashes. Completed-zero, incomplete, failed and pending states remain distinct. Per-document budget 120 seconds. Resume only identical source/config/code; no blending retries. Real source text, IDs and evidence stay under ignored data. Aggregate reports/config may be committed.
 
-Notebook 18-fit-gliner-comparison.ipynb: both splits and all five categories, total/unique mentions, zero-document rates, raw scores, completion and timing; distributions/charts like notebook 15. Include the previous real CV/JD pair with bounded redacted entity/context examples and comparison to earlier15-CV/zero-JD run; previous limited provenance is not strict replay gold. Previews max5rows/2000chars, no full documents. Exploratory Fit-conditioned summaries state A1 labels do not reproduce (A13). Fit labels do not supply entity precision/recall/F1. No new matching accuracy claim or final-set tuning. Update docs and implementation record.
+Notebook 28-fit-gliner-comparison.ipynb: both splits and all five categories, total/unique mentions, zero-document rates, raw scores, completion and timing; distributions/charts like notebook 15. Include the previous real CV/JD pair with bounded redacted entity/context examples and comparison to earlier15-CV/zero-JD run; previous limited provenance is not strict replay gold. Previews max5rows/2000chars, no full documents. Exploratory Fit-conditioned summaries state A1 labels do not reproduce (A13). Fit labels do not supply entity precision/recall/F1. No new matching accuracy claim or final-set tuning. Update docs and implementation record.
 
 ## Workflow and verification
 
@@ -22,4 +22,4 @@ Synthetic tests for conflicting identities, source corruption, zero denominators
 
 ## Open questions
 
-FP1 resolved: all train/test pairs userapproved. FP2 scope: extraction operational/distribution comparisons, not gold entity or matching accuracy. FP3 runtime pending timed pilot; proceed with measured estimate.
+FP1 resolved: all train/test pairs userapproved. FP2 scope: extraction operational/distribution comparisons, not gold entity or matching accuracy. FP3 resolved by timed pilot: initialization11.09s; four quartile-length documents (16,358 chars) took9.72s inference, allcomplete. Length-scaled estimate2,716s (~45minutes) for949docs, not a guaranteed bound. Pilot logs: logs/fit-gliner-pilot.json and .log. Darwin uses /usr/bin/time -l for peak RSS (the documented -v is GNU-specific).

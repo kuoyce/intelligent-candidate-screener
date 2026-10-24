@@ -43,4 +43,11 @@ except the uncommitted LLM bank under `data/processed/rerank/` (git-ignored by d
 
 ## Open
 
+13 October 2026 wrapper update: [Streamlit LLM chatbot implementation](../2026-10-12-streamlit-llm-chatbot/03-implementation.md)
+adds frozen cross-encoder configuration, evidence-grounded recruiter QA and
+session invalidation around the current text/evidence pipeline. It does not
+adopt a research winner or complete P9's remaining shared-normaliser/text-builder
+work. The historical stage-2 cold-check debt is unchanged. Live chatbot model
+validation waits on its Q1–Q4 configuration decisions.
+
 Q-A1b (replicate), Q-B2 (span hand-check), Q-D2, Q-D3, Q-P7-1, Q-P7-2 (P8.5 retriever) — see [05](05-open-questions.md).

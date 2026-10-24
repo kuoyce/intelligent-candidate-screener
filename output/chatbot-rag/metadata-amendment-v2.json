@@ -1,0 +1,17 @@
+{
+  "date": "2026-10-18",
+  "new_corpus_sha256": "b43ab125d19b82e836560ca5a444a54db41e8559d9aad5a1374809dea95a9231",
+  "new_version": "authored-hr-rag-v2",
+  "old_corpus_sha256": "92bfe2a63ca6fc6a397b3edc9897d39a494c409918d9f6d1a303866393930ee9",
+  "old_version": "authored-hr-rag-v1",
+  "preserved_measurements": [
+    "B0-dev.json",
+    "B1-dev.json",
+    "B1-vs-B0-dev.json"
+  ],
+  "question_document_oracle_splits_unchanged": true,
+  "reason": "Fixtures were authored in agent-written deterministic code; no human annotation claim is warranted. No annotator model dispatch occurred.",
+  "status": "v1 provenance metadata superseded; measured experiments retained unchanged",
+  "type": "metadata-only authorship correction",
+  "unchanged_question_document_oracle_split_sha256": "f09e4ad40e2ec50a5e6bce559e98c56f4cb37d73922b815c60a1c8b23aa7c901"
+}

@@ -1,0 +1,54 @@
+{
+  "after_configuration": "B2-pretrained-extractive-lexical-dev",
+  "before_configuration": "B1-lexical-model-free",
+  "comparisons": [
+    {
+      "bootstrap_unit": "paired_document_family",
+      "ci95": [
+        0.0,
+        0.04999999999999999
+      ],
+      "delta": 0.016666666666666663,
+      "denominators": [
+        60,
+        60
+      ],
+      "families": 12,
+      "metric": "task_completion",
+      "turns": 60
+    },
+    {
+      "bootstrap_unit": "paired_document_family",
+      "ci95": [
+        -0.1515151515151515,
+        -0.023255813953488413
+      ],
+      "delta": -0.07792207792207795,
+      "denominators": [
+        77,
+        77
+      ],
+      "families": 12,
+      "metric": "evidence_recall_at_k",
+      "turns": 60
+    },
+    {
+      "bootstrap_unit": "paired_document_family",
+      "ci95": [
+        0.3137254901960785,
+        0.4
+      ],
+      "delta": 0.36000000000000004,
+      "denominators": [
+        15,
+        15
+      ],
+      "families": 12,
+      "metric": "factual_token_f1",
+      "turns": 60
+    }
+  ],
+  "heldout": "not scored",
+  "metadata_amendment": "metadata-amendment-v2.json",
+  "split": "dev"
+}

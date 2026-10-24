@@ -1,11 +1,58 @@
 # `data/` — acquisition guide
 
+Hiring Desk v1 additionally stores private operational application state under
+`processed/hr-portal/`: reviewer accounts, JD revisions, review/ranking history
+and locally captured demo emails. Empty schemas regenerate at startup; actual
+reviewer-authored drafts and history require a private backup and are not
+reconstructible from dataset fetch/build commands. These records are excluded
+from benchmark labels/training. See the
+[operational workspace card](../docs/data/cards/HR-operational-workspace.md).
+
+The v1 `processed/hr-portal/entity-cache/` is rebuildable from authorized
+redacted JD/CV sources using the installed pinned GLiNER-medium assets and
+`runtime/gliner-medium`. Cache keys include owner/workspace, source digest and
+model/label/chunking configuration; the application rebuilds entries on demand.
+RoBERTa-SQuAD2 uses its existing `processed/chatbot/qa/extractive/` checkpoint in
+`runtime/transformer`. No model downloads or training run at app startup, and
+these model outputs never become benchmark or human entity labels.
+
 Nothing in this directory is committed except this file. Everything below reconstructs the
 **676 MB** working set. See [`docs/data/data-catalog.md`](../docs/data/data-catalog.md) for
 what each source is, its licence and its known defects, and
 [`docs/data/cards/`](../docs/data/cards/) for the per-source detail.
 
 ## 1. Automated (no credentials)
+
+### Guided HR portal: user-supplied derived exports
+
+The local reviewer consumes existing files under `data/processed/phase2-rerank-output/`:
+`a2-cv-extraction.csv` (600CV rows), `a2-jd-extraction.csv` (60JD rows), and
+`a2-x2-scores.csv` (600ranked pairs,10perJD). These are user-provided derived model
+exports, not new raw sources or gold. The portal never regenerates them, trains a
+replacement or exposes `final_label`. A producer rebuild command/run timestamp was
+not available in this repository inspection; restore the supplied exports with
+their documented digests when absent. This limitation is separate from raw corpus
+acquisition below. See the [portal record](../src/llm-plan/2026-10-19-hr-conversation-design/05-implementation.md).
+
+Text previews use only ID/text columns from the existing cache
+`data/processed/matching/a2-pairs-v2-539ddf32117c.parquet`. Missing text leaves
+previews/packaging unavailable. Model table mentions lack verified source offsets;
+knowledge, degree and CV titles are not fabricated from role-family predictions.
+
+Local account hashes, SQLite sessions and redacted report artifacts live under
+ignored `data/processed/hr-portal/` with private permissions. Tokens never enter
+saved sessions. Synthetic demo storage is separate and contains invented documents.
+These caches do not replace company identity, retention, encryption or mail services.
+
+Historical Qwen prototype assets are separate from these corpus downloads. Run
+`uv run python -m candidate_screener.llm.qwen_assets` to provision the workshop's
+`Qwen/Qwen2.5-0.5B-Instruct` under `data/processed/chatbot/qwen/`. Its manifest
+pins the model commit, file digest and local inference configuration. Repeated
+provisioning reuses that exact revision. These are pretrained inference weights,
+not a new annotated corpus. For recorded R2 reranker weights, restore the selected
+training cache first, then run `uv run python -m candidate_screener.app.rerank_assets`;
+manifest export cannot recreate missing trained weights. See the chatbot setup
+in [README](../README.md#streamlit-recruiter-chatbot).
 
 ```bash
 uv run python -m candidate_screener.data.fetch --all
@@ -131,6 +178,62 @@ requiring bitwise score replay across devices. A timed-out run is explicitly par
 There is no remote document inference or labelled corpus accuracy in this phase.
 
 ## Additional handling notes
+
+### Human entity gold (D56)
+
+This is a separate human span task, not reopened Fit annotation. Confirm the
+source, four categories, batch cap and annotator IDs before selecting real data.
+The following is the proposed configuration, not an already-created campaign:
+
+```bash
+uv run python -m candidate_screener.entity_annotation.create --source a1 --labels KNOWLEDGE SKILL TITLE DEGREE --counts 80 20 20 --annotators reviewer
+```
+
+Use `--source a2-train` only if that population is selected. Creation freezes
+original-source hashes, redacted display mappings, duplicate groups, document
+splits, guideline and assignments under `data/processed/entity-annotation/campaigns/`.
+It does not extract entities, train a model, or infer gold from existing Fit labels.
+Start the UI using the printed manifest path and registered annotator ID:
+
+```bash
+uv run python -m candidate_screener.entity_annotation.ui --campaign PATH_TO_MANIFEST --annotator reviewer
+uv run python -m candidate_screener.entity_annotation.export --campaign PATH_TO_MANIFEST --annotator reviewer --destination data/processed/entity-annotation/exports/REVISION_NAME
+```
+
+Only explicitly reviewed documents export as gold; missing, draft, skipped and
+uncertain annotations are not negatives. Every saved review is append-only and
+revision-checked. Export directories are immutable and include JSONL/Parquet
+digests. No raw source text or review files belong in git. Back up the manifest,
+review journal and revision exports: human decisions cannot be reconstructed by
+rerunning inference or fetching raw documents. For a safe synthetic-only demo,
+run `uv run python -m candidate_screener.entity_annotation.ui --demo --annotator reviewer`.
+
+### Medium-v2.5 sentence-aware extraction
+
+This optional experiment has a separate locked runtime and pinned assets. Recreate
+them with the following commands; model weights and source evidence stay ignored:
+
+```bash
+uv sync --project runtime/gliner-medium
+uv run python -m candidate_screener.extraction.medium_assets
+PYTHONPATH=src uv run --project runtime/gliner-medium --no-sync python -c 'import json; from candidate_screener.extraction.medium_model import runtime_versions; from candidate_screener.extraction.medium_assets import MODEL_DIR; (MODEL_DIR/"runtime-versions.json").write_text(json.dumps(runtime_versions(),indent=2,sort_keys=True)+"\n")'
+uv run python -m candidate_screener.extraction.medium_pilot
+uv run python -m candidate_screener.extraction.medium_run
+```
+
+The model ID is `gliner-community/gliner_medium-v2.5`, pinned to revision
+`88c3b98b57ad5e7d66fb209ed61c53f4b1fd05da`. Its checkpoint-supplied tokenizer
+and backbone configuration are pinned and hashed. The loader uses the checkpoint's
+128003-token vocabulary rather than the backbone's reserved 128100 embeddings.
+Inference stays offline. Sentence boundaries use spaCy's rule-only sentencizer;
+no language model is downloaded. Original CV/JD text is unchanged.
+
+Results live in `data/processed/extraction/medium-sentence-campaigns/`. Import
+`load_campaign` from `candidate_screener.extraction.medium_run` for this profile;
+pass an explicit campaign ID to inspect partial results. Its `latest.json` appears
+only after every document has a terminal processing state. Failed and incomplete
+states remain explicit; terminal does not mean successful. Notebook 19 writes
+aggregate comparison records under `output/extraction/medium-sentence-comparison/`.
 
 ### Extraction EDA
 

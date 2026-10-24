@@ -1,0 +1,7 @@
+{
+  "baseline_campaign_id": "901a26c9e785920223b07c9b",
+  "medium_campaign_id": "3d836f87df64512b057b20ec",
+  "limitation": "Model and chunk strategy change together; no attribution to chunking alone. Counts and scores are not extraction accuracy. No entity gold evaluation.",
+  "denominators": "Unique documents per split and side; a document shared across splits appears in each split, not an additive total.",
+  "peak_rss": "Read campaign /usr/bin/time -l logs; document runtimes do not measure process peak RSS."
+}

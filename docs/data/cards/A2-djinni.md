@@ -1,5 +1,13 @@
 # A2 · Djinni Recruitment Dataset (`lang-uk/recruitment-dataset-*`)
 
+20 October 2026 derived-input audit: the guided HR portal can read the supplied
+600CV/60JD extraction rows and600saved X2-ranked pairs (10perJD). No new source,
+labels or ranking experiment is introduced. The adapter excludes `final_label`
+and all oracle metadata from its source-text reads. Extraction cells are unverified
+table mentions without source offsets; predicted role family is not a verified
+job title. Producer rebuild lineage/timestamps and original PDFs remain unavailable.
+See the [implementation record](../../../src/llm-plan/2026-10-19-hr-conversation-design/05-implementation.md).
+
 | | |
 |---|---|
 | Catalog entry | [A2](../data-catalog.md) — Tier 1, in-domain evaluation |
@@ -105,3 +113,9 @@ Notebook 14 explores these saved predictions with visualizations and bounded rea
 entity/context examples. Its rule comparison is recomputed on exactly the neural
 run's training IDs. Frequency, score and disagreement analysis does not provide
 gold extraction accuracy or constitute another annotation campaign.
+
+**Source validation, 14 Oct 2026:** notebook 17 reconstructs the historical
+GLiNER run's recorded fields and sampled training IDs rather than using today's
+input-field defaults. It checks source/artifact hashes, exact entity slices and
+processing coverage. Bounded redacted contexts support qualitative inspection;
+Djinni Fit labels are not entity-span gold and cannot establish NER accuracy.

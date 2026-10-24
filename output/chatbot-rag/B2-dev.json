@@ -1,0 +1,4136 @@
+{
+  "baseline_contract": "Measured actual service outputs; retrieval excerpts alone are not exact factual/list answers; no claims fabricated by evaluator.",
+  "configuration_id": "B2-pretrained-extractive-lexical-dev",
+  "corpus_sha256": "b43ab125d19b82e836560ca5a444a54db41e8559d9aad5a1374809dea95a9231",
+  "failure_categories": {
+    "candidate_resolution": 1,
+    "evidence_coverage": 7,
+    "exact_answer_or_list_unavailable": 45
+  },
+  "failures": [
+    {
+      "reasons": [
+        "exact_answer_or_list_unavailable"
+      ],
+      "task": "fact",
+      "turn_id": "HR24:t0"
+    },
+    {
+      "reasons": [
+        "exact_answer_or_list_unavailable"
+      ],
+      "task": "list",
+      "turn_id": "HR24:t1"
+    },
+    {
+      "reasons": [
+        "exact_answer_or_list_unavailable",
+        "evidence_coverage"
+      ],
+      "task": "followup",
+      "turn_id": "HR24:t3"
+    },
+    {
+      "reasons": [
+        "exact_answer_or_list_unavailable"
+      ],
+      "task": "fact",
+      "turn_id": "HR24:t4"
+    },
+    {
+      "reasons": [
+        "exact_answer_or_list_unavailable"
+      ],
+      "task": "fact",
+      "turn_id": "HR25:t0"
+    },
+    {
+      "reasons": [
+        "exact_answer_or_list_unavailable"
+      ],
+      "task": "list",
+      "turn_id": "HR25:t1"
+    },
+    {
+      "reasons": [
+        "exact_answer_or_list_unavailable"
+      ],
+      "task": "compare",
+      "turn_id": "HR25:t2"
+    },
+    {
+      "reasons": [
+        "exact_answer_or_list_unavailable"
+      ],
+      "task": "list",
+      "turn_id": "HR25:t4"
+    },
+    {
+      "reasons": [
+        "exact_answer_or_list_unavailable"
+      ],
+      "task": "fact",
+      "turn_id": "HR26:t0"
+    },
+    {
+      "reasons": [
+        "exact_answer_or_list_unavailable"
+      ],
+      "task": "list",
+      "turn_id": "HR26:t1"
+    },
+    {
+      "reasons": [
+        "exact_answer_or_list_unavailable",
+        "evidence_coverage"
+      ],
+      "task": "followup",
+      "turn_id": "HR26:t3"
+    },
+    {
+      "reasons": [
+        "exact_answer_or_list_unavailable"
+      ],
+      "task": "fact",
+      "turn_id": "HR27:t0"
+    },
+    {
+      "reasons": [
+        "exact_answer_or_list_unavailable"
+      ],
+      "task": "list",
+      "turn_id": "HR27:t1"
+    },
+    {
+      "reasons": [
+        "exact_answer_or_list_unavailable"
+      ],
+      "task": "compare",
+      "turn_id": "HR27:t2"
+    },
+    {
+      "reasons": [
+        "exact_answer_or_list_unavailable"
+      ],
+      "task": "compare",
+      "turn_id": "HR27:t4"
+    },
+    {
+      "reasons": [
+        "exact_answer_or_list_unavailable"
+      ],
+      "task": "fact",
+      "turn_id": "HR28:t0"
+    },
+    {
+      "reasons": [
+        "exact_answer_or_list_unavailable"
+      ],
+      "task": "list",
+      "turn_id": "HR28:t1"
+    },
+    {
+      "reasons": [
+        "candidate_resolution",
+        "exact_answer_or_list_unavailable",
+        "evidence_coverage"
+      ],
+      "task": "filter",
+      "turn_id": "HR28:t2"
+    },
+    {
+      "reasons": [
+        "exact_answer_or_list_unavailable",
+        "evidence_coverage"
+      ],
+      "task": "followup",
+      "turn_id": "HR28:t3"
+    },
+    {
+      "reasons": [
+        "exact_answer_or_list_unavailable",
+        "evidence_coverage"
+      ],
+      "task": "followup",
+      "turn_id": "HR28:t4"
+    },
+    {
+      "reasons": [
+        "exact_answer_or_list_unavailable"
+      ],
+      "task": "fact",
+      "turn_id": "HR29:t0"
+    },
+    {
+      "reasons": [
+        "exact_answer_or_list_unavailable"
+      ],
+      "task": "list",
+      "turn_id": "HR29:t1"
+    },
+    {
+      "reasons": [
+        "exact_answer_or_list_unavailable"
+      ],
+      "task": "compare",
+      "turn_id": "HR29:t2"
+    },
+    {
+      "reasons": [
+        "exact_answer_or_list_unavailable"
+      ],
+      "task": "fact",
+      "turn_id": "HR30:t0"
+    },
+    {
+      "reasons": [
+        "exact_answer_or_list_unavailable"
+      ],
+      "task": "list",
+      "turn_id": "HR30:t1"
+    },
+    {
+      "reasons": [
+        "exact_answer_or_list_unavailable"
+      ],
+      "task": "compare",
+      "turn_id": "HR30:t3"
+    },
+    {
+      "reasons": [
+        "exact_answer_or_list_unavailable"
+      ],
+      "task": "fact",
+      "turn_id": "HR31:t0"
+    },
+    {
+      "reasons": [
+        "exact_answer_or_list_unavailable"
+      ],
+      "task": "list",
+      "turn_id": "HR31:t1"
+    },
+    {
+      "reasons": [
+        "exact_answer_or_list_unavailable"
+      ],
+      "task": "compare",
+      "turn_id": "HR31:t2"
+    },
+    {
+      "reasons": [
+        "exact_answer_or_list_unavailable"
+      ],
+      "task": "long",
+      "turn_id": "HR31:t4"
+    },
+    {
+      "reasons": [
+        "exact_answer_or_list_unavailable"
+      ],
+      "task": "fact",
+      "turn_id": "HR32:t0"
+    },
+    {
+      "reasons": [
+        "exact_answer_or_list_unavailable"
+      ],
+      "task": "list",
+      "turn_id": "HR32:t1"
+    },
+    {
+      "reasons": [
+        "exact_answer_or_list_unavailable",
+        "evidence_coverage"
+      ],
+      "task": "followup",
+      "turn_id": "HR32:t3"
+    },
+    {
+      "reasons": [
+        "exact_answer_or_list_unavailable"
+      ],
+      "task": "fact",
+      "turn_id": "HR32:t4"
+    },
+    {
+      "reasons": [
+        "exact_answer_or_list_unavailable"
+      ],
+      "task": "fact",
+      "turn_id": "HR33:t0"
+    },
+    {
+      "reasons": [
+        "exact_answer_or_list_unavailable"
+      ],
+      "task": "list",
+      "turn_id": "HR33:t1"
+    },
+    {
+      "reasons": [
+        "exact_answer_or_list_unavailable"
+      ],
+      "task": "compare",
+      "turn_id": "HR33:t2"
+    },
+    {
+      "reasons": [
+        "exact_answer_or_list_unavailable"
+      ],
+      "task": "list",
+      "turn_id": "HR33:t4"
+    },
+    {
+      "reasons": [
+        "exact_answer_or_list_unavailable"
+      ],
+      "task": "fact",
+      "turn_id": "HR34:t0"
+    },
+    {
+      "reasons": [
+        "exact_answer_or_list_unavailable"
+      ],
+      "task": "list",
+      "turn_id": "HR34:t1"
+    },
+    {
+      "reasons": [
+        "exact_answer_or_list_unavailable",
+        "evidence_coverage"
+      ],
+      "task": "followup",
+      "turn_id": "HR34:t3"
+    },
+    {
+      "reasons": [
+        "exact_answer_or_list_unavailable"
+      ],
+      "task": "fact",
+      "turn_id": "HR35:t0"
+    },
+    {
+      "reasons": [
+        "exact_answer_or_list_unavailable"
+      ],
+      "task": "list",
+      "turn_id": "HR35:t1"
+    },
+    {
+      "reasons": [
+        "exact_answer_or_list_unavailable"
+      ],
+      "task": "compare",
+      "turn_id": "HR35:t2"
+    },
+    {
+      "reasons": [
+        "exact_answer_or_list_unavailable"
+      ],
+      "task": "compare",
+      "turn_id": "HR35:t4"
+    }
+  ],
+  "limitation": "Small authored synthetic feasibility corpus; no real recruiter accuracy or screening adoption claim.",
+  "n_families": 12,
+  "n_turns": 60,
+  "report": {
+    "bootstrap_unit": "document_family",
+    "latency_seconds": {
+      "families": 12,
+      "n": 60,
+      "p50": 0.0712223964947043,
+      "p50_ci95": [
+        0.003687809017719701,
+        0.31348679700749926
+      ],
+      "p95": 0.6930613928576349,
+      "p95_ci95": [
+        0.6188718483448611,
+        1.3887620533452436
+      ]
+    },
+    "metrics": {
+      "citation_ownership": {
+        "bootstrap_defined_replicates": 2000,
+        "ci95": [
+          1.0,
+          1.0
+        ],
+        "denominator": 115,
+        "families": 12,
+        "numerator": 115.0,
+        "turns": 60,
+        "value": 1.0
+      },
+      "citation_support": {
+        "bootstrap_defined_replicates": 2000,
+        "ci95": [
+          0.31451036866359444,
+          0.5094384978229317
+        ],
+        "denominator": 115,
+        "families": 12,
+        "numerator": 47.0,
+        "turns": 60,
+        "value": 0.40869565217391307
+      },
+      "claim_support": {
+        "bootstrap_defined_replicates": 0,
+        "ci95": null,
+        "denominator": 0,
+        "families": 12,
+        "numerator": 0.0,
+        "turns": 60,
+        "value": null
+      },
+      "contradiction_rate": {
+        "bootstrap_defined_replicates": 0,
+        "ci95": null,
+        "denominator": 0,
+        "families": 12,
+        "numerator": 0.0,
+        "turns": 60,
+        "value": null
+      },
+      "evidence_recall_at_k": {
+        "bootstrap_defined_replicates": 2000,
+        "ci95": [
+          0.8133125,
+          0.9764705882352941
+        ],
+        "denominator": 77,
+        "families": 12,
+        "numerator": 70.0,
+        "turns": 60,
+        "value": 0.9090909090909091
+      },
+      "factual_exact_match": {
+        "bootstrap_defined_replicates": 2000,
+        "ci95": [
+          0.0,
+          0.0
+        ],
+        "denominator": 15,
+        "families": 12,
+        "numerator": 0.0,
+        "turns": 60,
+        "value": 0.0
+      },
+      "factual_token_f1": {
+        "bootstrap_defined_replicates": 2000,
+        "ci95": [
+          0.3137254901960785,
+          0.4
+        ],
+        "denominator": 15,
+        "families": 12,
+        "numerator": 5.4,
+        "turns": 60,
+        "value": 0.36000000000000004
+      },
+      "incorrect_citation_owners": {
+        "bootstrap_defined_replicates": 2000,
+        "ci95": [
+          0.0,
+          0.0
+        ],
+        "denominator": 115,
+        "families": 12,
+        "numerator": 0.0,
+        "turns": 60,
+        "value": 0.0
+      },
+      "list_precision": {
+        "bootstrap_defined_replicates": 0,
+        "ci95": null,
+        "denominator": 0,
+        "families": 12,
+        "numerator": 0.0,
+        "turns": 60,
+        "value": null
+      },
+      "list_recall": {
+        "bootstrap_defined_replicates": 2000,
+        "ci95": [
+          0.0,
+          0.0
+        ],
+        "denominator": 28,
+        "families": 12,
+        "numerator": 0.0,
+        "turns": 60,
+        "value": 0.0
+      },
+      "no_answer_precision": {
+        "bootstrap_defined_replicates": 2000,
+        "ci95": [
+          0.0,
+          0.1819602272727265
+        ],
+        "denominator": 16,
+        "families": 12,
+        "numerator": 1.0,
+        "turns": 60,
+        "value": 0.0625
+      },
+      "no_answer_recall": {
+        "bootstrap_defined_replicates": 1292,
+        "ci95": [
+          1.0,
+          1.0
+        ],
+        "denominator": 1,
+        "families": 12,
+        "numerator": 1.0,
+        "turns": 60,
+        "value": 1.0
+      },
+      "requirement_coverage": {
+        "bootstrap_defined_replicates": 2000,
+        "ci95": [
+          0.8133125,
+          0.9764705882352941
+        ],
+        "denominator": 77,
+        "families": 12,
+        "numerator": 70.0,
+        "turns": 60,
+        "value": 0.9090909090909091
+      },
+      "route_accuracy": {
+        "bootstrap_defined_replicates": 2000,
+        "ci95": [
+          1.0,
+          1.0
+        ],
+        "denominator": 60,
+        "families": 12,
+        "numerator": 60.0,
+        "turns": 60,
+        "value": 1.0
+      },
+      "slot_accuracy": {
+        "bootstrap_defined_replicates": 2000,
+        "ci95": [
+          0.95,
+          1.0
+        ],
+        "denominator": 60,
+        "families": 12,
+        "numerator": 59.0,
+        "turns": 60,
+        "value": 0.9833333333333333
+      },
+      "task_completion": {
+        "bootstrap_defined_replicates": 2000,
+        "ci95": [
+          0.18333333333333332,
+          0.31666666666666665
+        ],
+        "denominator": 60,
+        "families": 12,
+        "numerator": 15.0,
+        "turns": 60,
+        "value": 0.25
+      }
+    }
+  },
+  "rows": [
+    {
+      "family_id": "HR24",
+      "metrics": {
+        "citation_ownership": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "citation_support": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "claim_support": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "contradiction_rate": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "evidence_recall_at_k": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "factual_exact_match": {
+          "denominator": 1,
+          "numerator": 0.0
+        },
+        "factual_token_f1": {
+          "denominator": 1,
+          "numerator": 0.4
+        },
+        "incorrect_citation_owners": {
+          "denominator": 1,
+          "numerator": 0.0
+        },
+        "latency_seconds": 10.85773437601165,
+        "no_answer_precision": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "no_answer_recall": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "requirement_coverage": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "route_accuracy": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "slot_accuracy": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "task_completion": {
+          "denominator": 1,
+          "numerator": 0.0
+        }
+      },
+      "task": "fact",
+      "turn_id": "HR24:t0"
+    },
+    {
+      "family_id": "HR24",
+      "metrics": {
+        "citation_ownership": {
+          "denominator": 2,
+          "numerator": 2.0
+        },
+        "citation_support": {
+          "denominator": 2,
+          "numerator": 1.0
+        },
+        "claim_support": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "contradiction_rate": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "evidence_recall_at_k": {
+          "denominator": 2,
+          "numerator": 2.0
+        },
+        "incorrect_citation_owners": {
+          "denominator": 2,
+          "numerator": 0.0
+        },
+        "latency_seconds": 0.6517221049871296,
+        "list_precision": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "list_recall": {
+          "denominator": 2,
+          "numerator": 0.0
+        },
+        "no_answer_precision": {
+          "denominator": 1,
+          "numerator": 0.0
+        },
+        "no_answer_recall": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "requirement_coverage": {
+          "denominator": 2,
+          "numerator": 2.0
+        },
+        "route_accuracy": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "slot_accuracy": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "task_completion": {
+          "denominator": 1,
+          "numerator": 0.0
+        }
+      },
+      "task": "list",
+      "turn_id": "HR24:t1"
+    },
+    {
+      "family_id": "HR24",
+      "metrics": {
+        "citation_ownership": {
+          "denominator": 5,
+          "numerator": 5.0
+        },
+        "citation_support": {
+          "denominator": 5,
+          "numerator": 0.0
+        },
+        "claim_support": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "contradiction_rate": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "evidence_recall_at_k": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "incorrect_citation_owners": {
+          "denominator": 5,
+          "numerator": 0.0
+        },
+        "latency_seconds": 0.00254335199133493,
+        "no_answer_precision": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "no_answer_recall": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "requirement_coverage": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "route_accuracy": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "slot_accuracy": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "task_completion": {
+          "denominator": 1,
+          "numerator": 1.0
+        }
+      },
+      "task": "rank",
+      "turn_id": "HR24:t2"
+    },
+    {
+      "family_id": "HR24",
+      "metrics": {
+        "citation_ownership": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "citation_support": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "claim_support": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "contradiction_rate": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "evidence_recall_at_k": {
+          "denominator": 1,
+          "numerator": 0.0
+        },
+        "incorrect_citation_owners": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "latency_seconds": 0.0007649719773326069,
+        "no_answer_precision": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "no_answer_recall": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "requirement_coverage": {
+          "denominator": 1,
+          "numerator": 0.0
+        },
+        "route_accuracy": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "slot_accuracy": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "task_completion": {
+          "denominator": 1,
+          "numerator": 0.0
+        }
+      },
+      "task": "followup",
+      "turn_id": "HR24:t3"
+    },
+    {
+      "family_id": "HR24",
+      "metrics": {
+        "citation_ownership": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "citation_support": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "claim_support": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "contradiction_rate": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "evidence_recall_at_k": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "factual_exact_match": {
+          "denominator": 1,
+          "numerator": 0.0
+        },
+        "factual_token_f1": {
+          "denominator": 1,
+          "numerator": 0.4
+        },
+        "incorrect_citation_owners": {
+          "denominator": 1,
+          "numerator": 0.0
+        },
+        "latency_seconds": 0.3496756319946144,
+        "no_answer_precision": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "no_answer_recall": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "requirement_coverage": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "route_accuracy": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "slot_accuracy": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "task_completion": {
+          "denominator": 1,
+          "numerator": 0.0
+        }
+      },
+      "task": "fact",
+      "turn_id": "HR24:t4"
+    },
+    {
+      "family_id": "HR25",
+      "metrics": {
+        "citation_ownership": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "citation_support": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "claim_support": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "contradiction_rate": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "evidence_recall_at_k": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "factual_exact_match": {
+          "denominator": 1,
+          "numerator": 0.0
+        },
+        "factual_token_f1": {
+          "denominator": 1,
+          "numerator": 0.4
+        },
+        "incorrect_citation_owners": {
+          "denominator": 1,
+          "numerator": 0.0
+        },
+        "latency_seconds": 0.34647823401610367,
+        "no_answer_precision": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "no_answer_recall": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "requirement_coverage": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "route_accuracy": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "slot_accuracy": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "task_completion": {
+          "denominator": 1,
+          "numerator": 0.0
+        }
+      },
+      "task": "fact",
+      "turn_id": "HR25:t0"
+    },
+    {
+      "family_id": "HR25",
+      "metrics": {
+        "citation_ownership": {
+          "denominator": 2,
+          "numerator": 2.0
+        },
+        "citation_support": {
+          "denominator": 2,
+          "numerator": 1.0
+        },
+        "claim_support": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "contradiction_rate": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "evidence_recall_at_k": {
+          "denominator": 2,
+          "numerator": 2.0
+        },
+        "incorrect_citation_owners": {
+          "denominator": 2,
+          "numerator": 0.0
+        },
+        "latency_seconds": 0.672282569023082,
+        "list_precision": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "list_recall": {
+          "denominator": 2,
+          "numerator": 0.0
+        },
+        "no_answer_precision": {
+          "denominator": 1,
+          "numerator": 0.0
+        },
+        "no_answer_recall": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "requirement_coverage": {
+          "denominator": 2,
+          "numerator": 2.0
+        },
+        "route_accuracy": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "slot_accuracy": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "task_completion": {
+          "denominator": 1,
+          "numerator": 0.0
+        }
+      },
+      "task": "list",
+      "turn_id": "HR25:t1"
+    },
+    {
+      "family_id": "HR25",
+      "metrics": {
+        "citation_ownership": {
+          "denominator": 4,
+          "numerator": 4.0
+        },
+        "citation_support": {
+          "denominator": 4,
+          "numerator": 2.0
+        },
+        "claim_support": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "contradiction_rate": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "evidence_recall_at_k": {
+          "denominator": 3,
+          "numerator": 3.0
+        },
+        "incorrect_citation_owners": {
+          "denominator": 4,
+          "numerator": 0.0
+        },
+        "latency_seconds": 0.0034678650263231248,
+        "no_answer_precision": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "no_answer_recall": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "requirement_coverage": {
+          "denominator": 3,
+          "numerator": 3.0
+        },
+        "route_accuracy": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "slot_accuracy": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "task_completion": {
+          "denominator": 1,
+          "numerator": 0.0
+        }
+      },
+      "task": "compare",
+      "turn_id": "HR25:t2"
+    },
+    {
+      "family_id": "HR25",
+      "metrics": {
+        "citation_ownership": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "citation_support": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "claim_support": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "contradiction_rate": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "evidence_recall_at_k": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "incorrect_citation_owners": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "latency_seconds": 0.0002116010000463575,
+        "no_answer_precision": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "no_answer_recall": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "requirement_coverage": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "route_accuracy": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "slot_accuracy": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "task_completion": {
+          "denominator": 1,
+          "numerator": 1.0
+        }
+      },
+      "task": "ambiguous",
+      "turn_id": "HR25:t3"
+    },
+    {
+      "family_id": "HR25",
+      "metrics": {
+        "citation_ownership": {
+          "denominator": 2,
+          "numerator": 2.0
+        },
+        "citation_support": {
+          "denominator": 2,
+          "numerator": 1.0
+        },
+        "claim_support": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "contradiction_rate": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "evidence_recall_at_k": {
+          "denominator": 2,
+          "numerator": 2.0
+        },
+        "incorrect_citation_owners": {
+          "denominator": 2,
+          "numerator": 0.0
+        },
+        "latency_seconds": 0.5799410530016758,
+        "list_precision": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "list_recall": {
+          "denominator": 2,
+          "numerator": 0.0
+        },
+        "no_answer_precision": {
+          "denominator": 1,
+          "numerator": 0.0
+        },
+        "no_answer_recall": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "requirement_coverage": {
+          "denominator": 2,
+          "numerator": 2.0
+        },
+        "route_accuracy": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "slot_accuracy": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "task_completion": {
+          "denominator": 1,
+          "numerator": 0.0
+        }
+      },
+      "task": "list",
+      "turn_id": "HR25:t4"
+    },
+    {
+      "family_id": "HR26",
+      "metrics": {
+        "citation_ownership": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "citation_support": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "claim_support": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "contradiction_rate": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "evidence_recall_at_k": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "factual_exact_match": {
+          "denominator": 1,
+          "numerator": 0.0
+        },
+        "factual_token_f1": {
+          "denominator": 1,
+          "numerator": 0.4
+        },
+        "incorrect_citation_owners": {
+          "denominator": 1,
+          "numerator": 0.0
+        },
+        "latency_seconds": 0.36387298500631005,
+        "no_answer_precision": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "no_answer_recall": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "requirement_coverage": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "route_accuracy": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "slot_accuracy": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "task_completion": {
+          "denominator": 1,
+          "numerator": 0.0
+        }
+      },
+      "task": "fact",
+      "turn_id": "HR26:t0"
+    },
+    {
+      "family_id": "HR26",
+      "metrics": {
+        "citation_ownership": {
+          "denominator": 2,
+          "numerator": 2.0
+        },
+        "citation_support": {
+          "denominator": 2,
+          "numerator": 1.0
+        },
+        "claim_support": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "contradiction_rate": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "evidence_recall_at_k": {
+          "denominator": 2,
+          "numerator": 2.0
+        },
+        "incorrect_citation_owners": {
+          "denominator": 2,
+          "numerator": 0.0
+        },
+        "latency_seconds": 0.5903402350086253,
+        "list_precision": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "list_recall": {
+          "denominator": 2,
+          "numerator": 0.0
+        },
+        "no_answer_precision": {
+          "denominator": 1,
+          "numerator": 0.0
+        },
+        "no_answer_recall": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "requirement_coverage": {
+          "denominator": 2,
+          "numerator": 2.0
+        },
+        "route_accuracy": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "slot_accuracy": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "task_completion": {
+          "denominator": 1,
+          "numerator": 0.0
+        }
+      },
+      "task": "list",
+      "turn_id": "HR26:t1"
+    },
+    {
+      "family_id": "HR26",
+      "metrics": {
+        "citation_ownership": {
+          "denominator": 5,
+          "numerator": 5.0
+        },
+        "citation_support": {
+          "denominator": 5,
+          "numerator": 0.0
+        },
+        "claim_support": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "contradiction_rate": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "evidence_recall_at_k": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "incorrect_citation_owners": {
+          "denominator": 5,
+          "numerator": 0.0
+        },
+        "latency_seconds": 0.003631943982327357,
+        "no_answer_precision": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "no_answer_recall": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "requirement_coverage": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "route_accuracy": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "slot_accuracy": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "task_completion": {
+          "denominator": 1,
+          "numerator": 1.0
+        }
+      },
+      "task": "rank",
+      "turn_id": "HR26:t2"
+    },
+    {
+      "family_id": "HR26",
+      "metrics": {
+        "citation_ownership": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "citation_support": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "claim_support": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "contradiction_rate": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "evidence_recall_at_k": {
+          "denominator": 1,
+          "numerator": 0.0
+        },
+        "incorrect_citation_owners": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "latency_seconds": 0.00105138000799343,
+        "no_answer_precision": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "no_answer_recall": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "requirement_coverage": {
+          "denominator": 1,
+          "numerator": 0.0
+        },
+        "route_accuracy": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "slot_accuracy": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "task_completion": {
+          "denominator": 1,
+          "numerator": 0.0
+        }
+      },
+      "task": "followup",
+      "turn_id": "HR26:t3"
+    },
+    {
+      "family_id": "HR26",
+      "metrics": {
+        "citation_ownership": {
+          "denominator": 5,
+          "numerator": 5.0
+        },
+        "citation_support": {
+          "denominator": 5,
+          "numerator": 0.0
+        },
+        "claim_support": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "contradiction_rate": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "evidence_recall_at_k": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "incorrect_citation_owners": {
+          "denominator": 5,
+          "numerator": 0.0
+        },
+        "latency_seconds": 0.004379085003165528,
+        "no_answer_precision": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "no_answer_recall": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "requirement_coverage": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "route_accuracy": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "slot_accuracy": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "task_completion": {
+          "denominator": 1,
+          "numerator": 1.0
+        }
+      },
+      "task": "rank",
+      "turn_id": "HR26:t4"
+    },
+    {
+      "family_id": "HR27",
+      "metrics": {
+        "citation_ownership": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "citation_support": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "claim_support": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "contradiction_rate": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "evidence_recall_at_k": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "factual_exact_match": {
+          "denominator": 1,
+          "numerator": 0.0
+        },
+        "factual_token_f1": {
+          "denominator": 1,
+          "numerator": 0.4
+        },
+        "incorrect_citation_owners": {
+          "denominator": 1,
+          "numerator": 0.0
+        },
+        "latency_seconds": 0.32936711399815977,
+        "no_answer_precision": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "no_answer_recall": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "requirement_coverage": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "route_accuracy": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "slot_accuracy": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "task_completion": {
+          "denominator": 1,
+          "numerator": 0.0
+        }
+      },
+      "task": "fact",
+      "turn_id": "HR27:t0"
+    },
+    {
+      "family_id": "HR27",
+      "metrics": {
+        "citation_ownership": {
+          "denominator": 2,
+          "numerator": 2.0
+        },
+        "citation_support": {
+          "denominator": 2,
+          "numerator": 1.0
+        },
+        "claim_support": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "contradiction_rate": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "evidence_recall_at_k": {
+          "denominator": 2,
+          "numerator": 2.0
+        },
+        "incorrect_citation_owners": {
+          "denominator": 2,
+          "numerator": 0.0
+        },
+        "latency_seconds": 0.6187343219935428,
+        "list_precision": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "list_recall": {
+          "denominator": 2,
+          "numerator": 0.0
+        },
+        "no_answer_precision": {
+          "denominator": 1,
+          "numerator": 0.0
+        },
+        "no_answer_recall": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "requirement_coverage": {
+          "denominator": 2,
+          "numerator": 2.0
+        },
+        "route_accuracy": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "slot_accuracy": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "task_completion": {
+          "denominator": 1,
+          "numerator": 0.0
+        }
+      },
+      "task": "list",
+      "turn_id": "HR27:t1"
+    },
+    {
+      "family_id": "HR27",
+      "metrics": {
+        "citation_ownership": {
+          "denominator": 4,
+          "numerator": 4.0
+        },
+        "citation_support": {
+          "denominator": 4,
+          "numerator": 2.0
+        },
+        "claim_support": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "contradiction_rate": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "evidence_recall_at_k": {
+          "denominator": 3,
+          "numerator": 3.0
+        },
+        "incorrect_citation_owners": {
+          "denominator": 4,
+          "numerator": 0.0
+        },
+        "latency_seconds": 0.002565160015365109,
+        "no_answer_precision": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "no_answer_recall": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "requirement_coverage": {
+          "denominator": 3,
+          "numerator": 3.0
+        },
+        "route_accuracy": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "slot_accuracy": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "task_completion": {
+          "denominator": 1,
+          "numerator": 0.0
+        }
+      },
+      "task": "compare",
+      "turn_id": "HR27:t2"
+    },
+    {
+      "family_id": "HR27",
+      "metrics": {
+        "citation_ownership": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "citation_support": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "claim_support": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "contradiction_rate": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "evidence_recall_at_k": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "incorrect_citation_owners": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "latency_seconds": 0.0002696599985938519,
+        "no_answer_precision": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "no_answer_recall": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "requirement_coverage": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "route_accuracy": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "slot_accuracy": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "task_completion": {
+          "denominator": 1,
+          "numerator": 1.0
+        }
+      },
+      "task": "ambiguous",
+      "turn_id": "HR27:t3"
+    },
+    {
+      "family_id": "HR27",
+      "metrics": {
+        "citation_ownership": {
+          "denominator": 4,
+          "numerator": 4.0
+        },
+        "citation_support": {
+          "denominator": 4,
+          "numerator": 2.0
+        },
+        "claim_support": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "contradiction_rate": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "evidence_recall_at_k": {
+          "denominator": 3,
+          "numerator": 3.0
+        },
+        "incorrect_citation_owners": {
+          "denominator": 4,
+          "numerator": 0.0
+        },
+        "latency_seconds": 0.003687809017719701,
+        "no_answer_precision": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "no_answer_recall": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "requirement_coverage": {
+          "denominator": 3,
+          "numerator": 3.0
+        },
+        "route_accuracy": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "slot_accuracy": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "task_completion": {
+          "denominator": 1,
+          "numerator": 0.0
+        }
+      },
+      "task": "compare",
+      "turn_id": "HR27:t4"
+    },
+    {
+      "family_id": "HR28",
+      "metrics": {
+        "citation_ownership": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "citation_support": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "claim_support": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "contradiction_rate": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "evidence_recall_at_k": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "factual_exact_match": {
+          "denominator": 1,
+          "numerator": 0.0
+        },
+        "factual_token_f1": {
+          "denominator": 1,
+          "numerator": 0.4
+        },
+        "incorrect_citation_owners": {
+          "denominator": 1,
+          "numerator": 0.0
+        },
+        "latency_seconds": 0.39525464200414717,
+        "no_answer_precision": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "no_answer_recall": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "requirement_coverage": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "route_accuracy": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "slot_accuracy": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "task_completion": {
+          "denominator": 1,
+          "numerator": 0.0
+        }
+      },
+      "task": "fact",
+      "turn_id": "HR28:t0"
+    },
+    {
+      "family_id": "HR28",
+      "metrics": {
+        "citation_ownership": {
+          "denominator": 2,
+          "numerator": 2.0
+        },
+        "citation_support": {
+          "denominator": 2,
+          "numerator": 1.0
+        },
+        "claim_support": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "contradiction_rate": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "evidence_recall_at_k": {
+          "denominator": 2,
+          "numerator": 2.0
+        },
+        "incorrect_citation_owners": {
+          "denominator": 2,
+          "numerator": 0.0
+        },
+        "latency_seconds": 0.8903950889944099,
+        "list_precision": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "list_recall": {
+          "denominator": 2,
+          "numerator": 0.0
+        },
+        "no_answer_precision": {
+          "denominator": 1,
+          "numerator": 0.0
+        },
+        "no_answer_recall": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "requirement_coverage": {
+          "denominator": 2,
+          "numerator": 2.0
+        },
+        "route_accuracy": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "slot_accuracy": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "task_completion": {
+          "denominator": 1,
+          "numerator": 0.0
+        }
+      },
+      "task": "list",
+      "turn_id": "HR28:t1"
+    },
+    {
+      "family_id": "HR28",
+      "metrics": {
+        "citation_ownership": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "citation_support": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "claim_support": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "contradiction_rate": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "evidence_recall_at_k": {
+          "denominator": 1,
+          "numerator": 0.0
+        },
+        "incorrect_citation_owners": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "latency_seconds": 0.0034509119868744165,
+        "no_answer_precision": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "no_answer_recall": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "requirement_coverage": {
+          "denominator": 1,
+          "numerator": 0.0
+        },
+        "route_accuracy": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "slot_accuracy": {
+          "denominator": 1,
+          "numerator": 0.0
+        },
+        "task_completion": {
+          "denominator": 1,
+          "numerator": 0.0
+        }
+      },
+      "task": "filter",
+      "turn_id": "HR28:t2"
+    },
+    {
+      "family_id": "HR28",
+      "metrics": {
+        "citation_ownership": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "citation_support": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "claim_support": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "contradiction_rate": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "evidence_recall_at_k": {
+          "denominator": 1,
+          "numerator": 0.0
+        },
+        "incorrect_citation_owners": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "latency_seconds": 0.0006974739953875542,
+        "no_answer_precision": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "no_answer_recall": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "requirement_coverage": {
+          "denominator": 1,
+          "numerator": 0.0
+        },
+        "route_accuracy": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "slot_accuracy": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "task_completion": {
+          "denominator": 1,
+          "numerator": 0.0
+        }
+      },
+      "task": "followup",
+      "turn_id": "HR28:t3"
+    },
+    {
+      "family_id": "HR28",
+      "metrics": {
+        "citation_ownership": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "citation_support": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "claim_support": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "contradiction_rate": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "evidence_recall_at_k": {
+          "denominator": 1,
+          "numerator": 0.0
+        },
+        "incorrect_citation_owners": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "latency_seconds": 0.0007429710240103304,
+        "no_answer_precision": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "no_answer_recall": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "requirement_coverage": {
+          "denominator": 1,
+          "numerator": 0.0
+        },
+        "route_accuracy": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "slot_accuracy": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "task_completion": {
+          "denominator": 1,
+          "numerator": 0.0
+        }
+      },
+      "task": "followup",
+      "turn_id": "HR28:t4"
+    },
+    {
+      "family_id": "HR29",
+      "metrics": {
+        "citation_ownership": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "citation_support": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "claim_support": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "contradiction_rate": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "evidence_recall_at_k": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "factual_exact_match": {
+          "denominator": 1,
+          "numerator": 0.0
+        },
+        "factual_token_f1": {
+          "denominator": 1,
+          "numerator": 0.4
+        },
+        "incorrect_citation_owners": {
+          "denominator": 1,
+          "numerator": 0.0
+        },
+        "latency_seconds": 0.5541572320216801,
+        "no_answer_precision": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "no_answer_recall": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "requirement_coverage": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "route_accuracy": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "slot_accuracy": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "task_completion": {
+          "denominator": 1,
+          "numerator": 0.0
+        }
+      },
+      "task": "fact",
+      "turn_id": "HR29:t0"
+    },
+    {
+      "family_id": "HR29",
+      "metrics": {
+        "citation_ownership": {
+          "denominator": 2,
+          "numerator": 2.0
+        },
+        "citation_support": {
+          "denominator": 2,
+          "numerator": 1.0
+        },
+        "claim_support": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "contradiction_rate": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "evidence_recall_at_k": {
+          "denominator": 2,
+          "numerator": 2.0
+        },
+        "incorrect_citation_owners": {
+          "denominator": 2,
+          "numerator": 0.0
+        },
+        "latency_seconds": 0.6214848490199074,
+        "list_precision": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "list_recall": {
+          "denominator": 2,
+          "numerator": 0.0
+        },
+        "no_answer_precision": {
+          "denominator": 1,
+          "numerator": 0.0
+        },
+        "no_answer_recall": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "requirement_coverage": {
+          "denominator": 2,
+          "numerator": 2.0
+        },
+        "route_accuracy": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "slot_accuracy": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "task_completion": {
+          "denominator": 1,
+          "numerator": 0.0
+        }
+      },
+      "task": "list",
+      "turn_id": "HR29:t1"
+    },
+    {
+      "family_id": "HR29",
+      "metrics": {
+        "citation_ownership": {
+          "denominator": 4,
+          "numerator": 4.0
+        },
+        "citation_support": {
+          "denominator": 4,
+          "numerator": 2.0
+        },
+        "claim_support": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "contradiction_rate": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "evidence_recall_at_k": {
+          "denominator": 3,
+          "numerator": 3.0
+        },
+        "incorrect_citation_owners": {
+          "denominator": 4,
+          "numerator": 0.0
+        },
+        "latency_seconds": 0.0037962300120852888,
+        "no_answer_precision": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "no_answer_recall": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "requirement_coverage": {
+          "denominator": 3,
+          "numerator": 3.0
+        },
+        "route_accuracy": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "slot_accuracy": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "task_completion": {
+          "denominator": 1,
+          "numerator": 0.0
+        }
+      },
+      "task": "compare",
+      "turn_id": "HR29:t2"
+    },
+    {
+      "family_id": "HR29",
+      "metrics": {
+        "citation_ownership": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "citation_support": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "claim_support": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "contradiction_rate": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "evidence_recall_at_k": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "incorrect_citation_owners": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "latency_seconds": 0.00029715397977270186,
+        "no_answer_precision": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "no_answer_recall": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "requirement_coverage": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "route_accuracy": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "slot_accuracy": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "task_completion": {
+          "denominator": 1,
+          "numerator": 1.0
+        }
+      },
+      "task": "ambiguous",
+      "turn_id": "HR29:t3"
+    },
+    {
+      "family_id": "HR29",
+      "metrics": {
+        "citation_ownership": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "citation_support": {
+          "denominator": 1,
+          "numerator": 0.0
+        },
+        "claim_support": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "contradiction_rate": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "evidence_recall_at_k": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "incorrect_citation_owners": {
+          "denominator": 1,
+          "numerator": 0.0
+        },
+        "latency_seconds": 0.13806570798624307,
+        "no_answer_precision": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "no_answer_recall": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "requirement_coverage": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "route_accuracy": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "slot_accuracy": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "task_completion": {
+          "denominator": 1,
+          "numerator": 1.0
+        }
+      },
+      "task": "unanswerable",
+      "turn_id": "HR29:t4"
+    },
+    {
+      "family_id": "HR30",
+      "metrics": {
+        "citation_ownership": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "citation_support": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "claim_support": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "contradiction_rate": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "evidence_recall_at_k": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "factual_exact_match": {
+          "denominator": 1,
+          "numerator": 0.0
+        },
+        "factual_token_f1": {
+          "denominator": 1,
+          "numerator": 0.4
+        },
+        "incorrect_citation_owners": {
+          "denominator": 1,
+          "numerator": 0.0
+        },
+        "latency_seconds": 0.3088286409911234,
+        "no_answer_precision": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "no_answer_recall": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "requirement_coverage": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "route_accuracy": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "slot_accuracy": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "task_completion": {
+          "denominator": 1,
+          "numerator": 0.0
+        }
+      },
+      "task": "fact",
+      "turn_id": "HR30:t0"
+    },
+    {
+      "family_id": "HR30",
+      "metrics": {
+        "citation_ownership": {
+          "denominator": 2,
+          "numerator": 2.0
+        },
+        "citation_support": {
+          "denominator": 2,
+          "numerator": 1.0
+        },
+        "claim_support": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "contradiction_rate": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "evidence_recall_at_k": {
+          "denominator": 2,
+          "numerator": 2.0
+        },
+        "incorrect_citation_owners": {
+          "denominator": 2,
+          "numerator": 0.0
+        },
+        "latency_seconds": 0.577313101006439,
+        "list_precision": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "list_recall": {
+          "denominator": 2,
+          "numerator": 0.0
+        },
+        "no_answer_precision": {
+          "denominator": 1,
+          "numerator": 0.0
+        },
+        "no_answer_recall": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "requirement_coverage": {
+          "denominator": 2,
+          "numerator": 2.0
+        },
+        "route_accuracy": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "slot_accuracy": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "task_completion": {
+          "denominator": 1,
+          "numerator": 0.0
+        }
+      },
+      "task": "list",
+      "turn_id": "HR30:t1"
+    },
+    {
+      "family_id": "HR30",
+      "metrics": {
+        "citation_ownership": {
+          "denominator": 5,
+          "numerator": 5.0
+        },
+        "citation_support": {
+          "denominator": 5,
+          "numerator": 0.0
+        },
+        "claim_support": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "contradiction_rate": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "evidence_recall_at_k": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "incorrect_citation_owners": {
+          "denominator": 5,
+          "numerator": 0.0
+        },
+        "latency_seconds": 0.0023755599977448583,
+        "no_answer_precision": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "no_answer_recall": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "requirement_coverage": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "route_accuracy": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "slot_accuracy": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "task_completion": {
+          "denominator": 1,
+          "numerator": 1.0
+        }
+      },
+      "task": "rank",
+      "turn_id": "HR30:t2"
+    },
+    {
+      "family_id": "HR30",
+      "metrics": {
+        "citation_ownership": {
+          "denominator": 4,
+          "numerator": 4.0
+        },
+        "citation_support": {
+          "denominator": 4,
+          "numerator": 2.0
+        },
+        "claim_support": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "contradiction_rate": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "evidence_recall_at_k": {
+          "denominator": 3,
+          "numerator": 3.0
+        },
+        "incorrect_citation_owners": {
+          "denominator": 4,
+          "numerator": 0.0
+        },
+        "latency_seconds": 0.0024351649917662144,
+        "no_answer_precision": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "no_answer_recall": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "requirement_coverage": {
+          "denominator": 3,
+          "numerator": 3.0
+        },
+        "route_accuracy": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "slot_accuracy": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "task_completion": {
+          "denominator": 1,
+          "numerator": 0.0
+        }
+      },
+      "task": "compare",
+      "turn_id": "HR30:t3"
+    },
+    {
+      "family_id": "HR30",
+      "metrics": {
+        "citation_ownership": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "citation_support": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "claim_support": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "contradiction_rate": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "evidence_recall_at_k": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "incorrect_citation_owners": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "latency_seconds": 0.00021900201682001352,
+        "no_answer_precision": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "no_answer_recall": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "requirement_coverage": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "route_accuracy": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "slot_accuracy": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "task_completion": {
+          "denominator": 1,
+          "numerator": 1.0
+        }
+      },
+      "task": "ambiguous",
+      "turn_id": "HR30:t4"
+    },
+    {
+      "family_id": "HR31",
+      "metrics": {
+        "citation_ownership": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "citation_support": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "claim_support": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "contradiction_rate": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "evidence_recall_at_k": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "factual_exact_match": {
+          "denominator": 1,
+          "numerator": 0.0
+        },
+        "factual_token_f1": {
+          "denominator": 1,
+          "numerator": 0.4
+        },
+        "incorrect_citation_owners": {
+          "denominator": 1,
+          "numerator": 0.0
+        },
+        "latency_seconds": 0.3036874590034131,
+        "no_answer_precision": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "no_answer_recall": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "requirement_coverage": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "route_accuracy": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "slot_accuracy": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "task_completion": {
+          "denominator": 1,
+          "numerator": 0.0
+        }
+      },
+      "task": "fact",
+      "turn_id": "HR31:t0"
+    },
+    {
+      "family_id": "HR31",
+      "metrics": {
+        "citation_ownership": {
+          "denominator": 2,
+          "numerator": 2.0
+        },
+        "citation_support": {
+          "denominator": 2,
+          "numerator": 1.0
+        },
+        "claim_support": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "contradiction_rate": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "evidence_recall_at_k": {
+          "denominator": 2,
+          "numerator": 2.0
+        },
+        "incorrect_citation_owners": {
+          "denominator": 2,
+          "numerator": 0.0
+        },
+        "latency_seconds": 0.5324877529928926,
+        "list_precision": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "list_recall": {
+          "denominator": 2,
+          "numerator": 0.0
+        },
+        "no_answer_precision": {
+          "denominator": 1,
+          "numerator": 0.0
+        },
+        "no_answer_recall": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "requirement_coverage": {
+          "denominator": 2,
+          "numerator": 2.0
+        },
+        "route_accuracy": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "slot_accuracy": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "task_completion": {
+          "denominator": 1,
+          "numerator": 0.0
+        }
+      },
+      "task": "list",
+      "turn_id": "HR31:t1"
+    },
+    {
+      "family_id": "HR31",
+      "metrics": {
+        "citation_ownership": {
+          "denominator": 4,
+          "numerator": 4.0
+        },
+        "citation_support": {
+          "denominator": 4,
+          "numerator": 2.0
+        },
+        "claim_support": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "contradiction_rate": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "evidence_recall_at_k": {
+          "denominator": 3,
+          "numerator": 3.0
+        },
+        "incorrect_citation_owners": {
+          "denominator": 4,
+          "numerator": 0.0
+        },
+        "latency_seconds": 0.0023725329956505448,
+        "no_answer_precision": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "no_answer_recall": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "requirement_coverage": {
+          "denominator": 3,
+          "numerator": 3.0
+        },
+        "route_accuracy": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "slot_accuracy": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "task_completion": {
+          "denominator": 1,
+          "numerator": 0.0
+        }
+      },
+      "task": "compare",
+      "turn_id": "HR31:t2"
+    },
+    {
+      "family_id": "HR31",
+      "metrics": {
+        "citation_ownership": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "citation_support": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "claim_support": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "contradiction_rate": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "evidence_recall_at_k": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "incorrect_citation_owners": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "latency_seconds": 0.00019513402367010713,
+        "no_answer_precision": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "no_answer_recall": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "requirement_coverage": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "route_accuracy": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "slot_accuracy": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "task_completion": {
+          "denominator": 1,
+          "numerator": 1.0
+        }
+      },
+      "task": "ambiguous",
+      "turn_id": "HR31:t3"
+    },
+    {
+      "family_id": "HR31",
+      "metrics": {
+        "citation_ownership": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "citation_support": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "claim_support": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "contradiction_rate": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "evidence_recall_at_k": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "factual_exact_match": {
+          "denominator": 1,
+          "numerator": 0.0
+        },
+        "factual_token_f1": {
+          "denominator": 1,
+          "numerator": 0.0
+        },
+        "incorrect_citation_owners": {
+          "denominator": 1,
+          "numerator": 0.0
+        },
+        "latency_seconds": 0.21484910999424756,
+        "no_answer_precision": {
+          "denominator": 1,
+          "numerator": 0.0
+        },
+        "no_answer_recall": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "requirement_coverage": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "route_accuracy": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "slot_accuracy": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "task_completion": {
+          "denominator": 1,
+          "numerator": 0.0
+        }
+      },
+      "task": "long",
+      "turn_id": "HR31:t4"
+    },
+    {
+      "family_id": "HR32",
+      "metrics": {
+        "citation_ownership": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "citation_support": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "claim_support": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "contradiction_rate": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "evidence_recall_at_k": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "factual_exact_match": {
+          "denominator": 1,
+          "numerator": 0.0
+        },
+        "factual_token_f1": {
+          "denominator": 1,
+          "numerator": 0.3333333333333333
+        },
+        "incorrect_citation_owners": {
+          "denominator": 1,
+          "numerator": 0.0
+        },
+        "latency_seconds": 0.3302493270020932,
+        "no_answer_precision": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "no_answer_recall": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "requirement_coverage": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "route_accuracy": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "slot_accuracy": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "task_completion": {
+          "denominator": 1,
+          "numerator": 0.0
+        }
+      },
+      "task": "fact",
+      "turn_id": "HR32:t0"
+    },
+    {
+      "family_id": "HR32",
+      "metrics": {
+        "citation_ownership": {
+          "denominator": 2,
+          "numerator": 2.0
+        },
+        "citation_support": {
+          "denominator": 2,
+          "numerator": 1.0
+        },
+        "claim_support": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "contradiction_rate": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "evidence_recall_at_k": {
+          "denominator": 2,
+          "numerator": 2.0
+        },
+        "incorrect_citation_owners": {
+          "denominator": 2,
+          "numerator": 0.0
+        },
+        "latency_seconds": 0.6935555230011232,
+        "list_precision": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "list_recall": {
+          "denominator": 2,
+          "numerator": 0.0
+        },
+        "no_answer_precision": {
+          "denominator": 1,
+          "numerator": 0.0
+        },
+        "no_answer_recall": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "requirement_coverage": {
+          "denominator": 2,
+          "numerator": 2.0
+        },
+        "route_accuracy": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "slot_accuracy": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "task_completion": {
+          "denominator": 1,
+          "numerator": 0.0
+        }
+      },
+      "task": "list",
+      "turn_id": "HR32:t1"
+    },
+    {
+      "family_id": "HR32",
+      "metrics": {
+        "citation_ownership": {
+          "denominator": 5,
+          "numerator": 5.0
+        },
+        "citation_support": {
+          "denominator": 5,
+          "numerator": 0.0
+        },
+        "claim_support": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "contradiction_rate": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "evidence_recall_at_k": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "incorrect_citation_owners": {
+          "denominator": 5,
+          "numerator": 0.0
+        },
+        "latency_seconds": 0.003061458992306143,
+        "no_answer_precision": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "no_answer_recall": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "requirement_coverage": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "route_accuracy": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "slot_accuracy": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "task_completion": {
+          "denominator": 1,
+          "numerator": 1.0
+        }
+      },
+      "task": "rank",
+      "turn_id": "HR32:t2"
+    },
+    {
+      "family_id": "HR32",
+      "metrics": {
+        "citation_ownership": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "citation_support": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "claim_support": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "contradiction_rate": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "evidence_recall_at_k": {
+          "denominator": 1,
+          "numerator": 0.0
+        },
+        "incorrect_citation_owners": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "latency_seconds": 0.0008228740189224482,
+        "no_answer_precision": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "no_answer_recall": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "requirement_coverage": {
+          "denominator": 1,
+          "numerator": 0.0
+        },
+        "route_accuracy": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "slot_accuracy": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "task_completion": {
+          "denominator": 1,
+          "numerator": 0.0
+        }
+      },
+      "task": "followup",
+      "turn_id": "HR32:t3"
+    },
+    {
+      "family_id": "HR32",
+      "metrics": {
+        "citation_ownership": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "citation_support": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "claim_support": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "contradiction_rate": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "evidence_recall_at_k": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "factual_exact_match": {
+          "denominator": 1,
+          "numerator": 0.0
+        },
+        "factual_token_f1": {
+          "denominator": 1,
+          "numerator": 0.3333333333333333
+        },
+        "incorrect_citation_owners": {
+          "denominator": 1,
+          "numerator": 0.0
+        },
+        "latency_seconds": 0.3287717280036304,
+        "no_answer_precision": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "no_answer_recall": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "requirement_coverage": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "route_accuracy": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "slot_accuracy": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "task_completion": {
+          "denominator": 1,
+          "numerator": 0.0
+        }
+      },
+      "task": "fact",
+      "turn_id": "HR32:t4"
+    },
+    {
+      "family_id": "HR33",
+      "metrics": {
+        "citation_ownership": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "citation_support": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "claim_support": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "contradiction_rate": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "evidence_recall_at_k": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "factual_exact_match": {
+          "denominator": 1,
+          "numerator": 0.0
+        },
+        "factual_token_f1": {
+          "denominator": 1,
+          "numerator": 0.4
+        },
+        "incorrect_citation_owners": {
+          "denominator": 1,
+          "numerator": 0.0
+        },
+        "latency_seconds": 0.3161704230005853,
+        "no_answer_precision": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "no_answer_recall": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "requirement_coverage": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "route_accuracy": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "slot_accuracy": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "task_completion": {
+          "denominator": 1,
+          "numerator": 0.0
+        }
+      },
+      "task": "fact",
+      "turn_id": "HR33:t0"
+    },
+    {
+      "family_id": "HR33",
+      "metrics": {
+        "citation_ownership": {
+          "denominator": 2,
+          "numerator": 2.0
+        },
+        "citation_support": {
+          "denominator": 2,
+          "numerator": 1.0
+        },
+        "claim_support": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "contradiction_rate": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "evidence_recall_at_k": {
+          "denominator": 2,
+          "numerator": 2.0
+        },
+        "incorrect_citation_owners": {
+          "denominator": 2,
+          "numerator": 0.0
+        },
+        "latency_seconds": 0.5902811929991003,
+        "list_precision": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "list_recall": {
+          "denominator": 2,
+          "numerator": 0.0
+        },
+        "no_answer_precision": {
+          "denominator": 1,
+          "numerator": 0.0
+        },
+        "no_answer_recall": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "requirement_coverage": {
+          "denominator": 2,
+          "numerator": 2.0
+        },
+        "route_accuracy": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "slot_accuracy": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "task_completion": {
+          "denominator": 1,
+          "numerator": 0.0
+        }
+      },
+      "task": "list",
+      "turn_id": "HR33:t1"
+    },
+    {
+      "family_id": "HR33",
+      "metrics": {
+        "citation_ownership": {
+          "denominator": 4,
+          "numerator": 4.0
+        },
+        "citation_support": {
+          "denominator": 4,
+          "numerator": 2.0
+        },
+        "claim_support": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "contradiction_rate": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "evidence_recall_at_k": {
+          "denominator": 3,
+          "numerator": 3.0
+        },
+        "incorrect_citation_owners": {
+          "denominator": 4,
+          "numerator": 0.0
+        },
+        "latency_seconds": 0.0024259630008600652,
+        "no_answer_precision": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "no_answer_recall": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "requirement_coverage": {
+          "denominator": 3,
+          "numerator": 3.0
+        },
+        "route_accuracy": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "slot_accuracy": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "task_completion": {
+          "denominator": 1,
+          "numerator": 0.0
+        }
+      },
+      "task": "compare",
+      "turn_id": "HR33:t2"
+    },
+    {
+      "family_id": "HR33",
+      "metrics": {
+        "citation_ownership": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "citation_support": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "claim_support": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "contradiction_rate": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "evidence_recall_at_k": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "incorrect_citation_owners": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "latency_seconds": 0.00017890299204736948,
+        "no_answer_precision": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "no_answer_recall": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "requirement_coverage": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "route_accuracy": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "slot_accuracy": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "task_completion": {
+          "denominator": 1,
+          "numerator": 1.0
+        }
+      },
+      "task": "ambiguous",
+      "turn_id": "HR33:t3"
+    },
+    {
+      "family_id": "HR33",
+      "metrics": {
+        "citation_ownership": {
+          "denominator": 2,
+          "numerator": 2.0
+        },
+        "citation_support": {
+          "denominator": 2,
+          "numerator": 1.0
+        },
+        "claim_support": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "contradiction_rate": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "evidence_recall_at_k": {
+          "denominator": 2,
+          "numerator": 2.0
+        },
+        "incorrect_citation_owners": {
+          "denominator": 2,
+          "numerator": 0.0
+        },
+        "latency_seconds": 0.6930353860079776,
+        "list_precision": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "list_recall": {
+          "denominator": 2,
+          "numerator": 0.0
+        },
+        "no_answer_precision": {
+          "denominator": 1,
+          "numerator": 0.0
+        },
+        "no_answer_recall": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "requirement_coverage": {
+          "denominator": 2,
+          "numerator": 2.0
+        },
+        "route_accuracy": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "slot_accuracy": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "task_completion": {
+          "denominator": 1,
+          "numerator": 0.0
+        }
+      },
+      "task": "list",
+      "turn_id": "HR33:t4"
+    },
+    {
+      "family_id": "HR34",
+      "metrics": {
+        "citation_ownership": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "citation_support": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "claim_support": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "contradiction_rate": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "evidence_recall_at_k": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "factual_exact_match": {
+          "denominator": 1,
+          "numerator": 0.0
+        },
+        "factual_token_f1": {
+          "denominator": 1,
+          "numerator": 0.4
+        },
+        "incorrect_citation_owners": {
+          "denominator": 1,
+          "numerator": 0.0
+        },
+        "latency_seconds": 0.3922512909921352,
+        "no_answer_precision": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "no_answer_recall": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "requirement_coverage": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "route_accuracy": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "slot_accuracy": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "task_completion": {
+          "denominator": 1,
+          "numerator": 0.0
+        }
+      },
+      "task": "fact",
+      "turn_id": "HR34:t0"
+    },
+    {
+      "family_id": "HR34",
+      "metrics": {
+        "citation_ownership": {
+          "denominator": 2,
+          "numerator": 2.0
+        },
+        "citation_support": {
+          "denominator": 2,
+          "numerator": 1.0
+        },
+        "claim_support": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "contradiction_rate": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "evidence_recall_at_k": {
+          "denominator": 2,
+          "numerator": 2.0
+        },
+        "incorrect_citation_owners": {
+          "denominator": 2,
+          "numerator": 0.0
+        },
+        "latency_seconds": 0.6104712990054395,
+        "list_precision": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "list_recall": {
+          "denominator": 2,
+          "numerator": 0.0
+        },
+        "no_answer_precision": {
+          "denominator": 1,
+          "numerator": 0.0
+        },
+        "no_answer_recall": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "requirement_coverage": {
+          "denominator": 2,
+          "numerator": 2.0
+        },
+        "route_accuracy": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "slot_accuracy": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "task_completion": {
+          "denominator": 1,
+          "numerator": 0.0
+        }
+      },
+      "task": "list",
+      "turn_id": "HR34:t1"
+    },
+    {
+      "family_id": "HR34",
+      "metrics": {
+        "citation_ownership": {
+          "denominator": 5,
+          "numerator": 5.0
+        },
+        "citation_support": {
+          "denominator": 5,
+          "numerator": 0.0
+        },
+        "claim_support": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "contradiction_rate": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "evidence_recall_at_k": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "incorrect_citation_owners": {
+          "denominator": 5,
+          "numerator": 0.0
+        },
+        "latency_seconds": 0.002745267003774643,
+        "no_answer_precision": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "no_answer_recall": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "requirement_coverage": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "route_accuracy": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "slot_accuracy": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "task_completion": {
+          "denominator": 1,
+          "numerator": 1.0
+        }
+      },
+      "task": "rank",
+      "turn_id": "HR34:t2"
+    },
+    {
+      "family_id": "HR34",
+      "metrics": {
+        "citation_ownership": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "citation_support": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "claim_support": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "contradiction_rate": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "evidence_recall_at_k": {
+          "denominator": 1,
+          "numerator": 0.0
+        },
+        "incorrect_citation_owners": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "latency_seconds": 0.0008363439992535859,
+        "no_answer_precision": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "no_answer_recall": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "requirement_coverage": {
+          "denominator": 1,
+          "numerator": 0.0
+        },
+        "route_accuracy": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "slot_accuracy": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "task_completion": {
+          "denominator": 1,
+          "numerator": 0.0
+        }
+      },
+      "task": "followup",
+      "turn_id": "HR34:t3"
+    },
+    {
+      "family_id": "HR34",
+      "metrics": {
+        "citation_ownership": {
+          "denominator": 5,
+          "numerator": 5.0
+        },
+        "citation_support": {
+          "denominator": 5,
+          "numerator": 0.0
+        },
+        "claim_support": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "contradiction_rate": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "evidence_recall_at_k": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "incorrect_citation_owners": {
+          "denominator": 5,
+          "numerator": 0.0
+        },
+        "latency_seconds": 0.0022647099976893514,
+        "no_answer_precision": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "no_answer_recall": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "requirement_coverage": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "route_accuracy": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "slot_accuracy": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "task_completion": {
+          "denominator": 1,
+          "numerator": 1.0
+        }
+      },
+      "task": "rank",
+      "turn_id": "HR34:t4"
+    },
+    {
+      "family_id": "HR35",
+      "metrics": {
+        "citation_ownership": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "citation_support": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "claim_support": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "contradiction_rate": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "evidence_recall_at_k": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "factual_exact_match": {
+          "denominator": 1,
+          "numerator": 0.0
+        },
+        "factual_token_f1": {
+          "denominator": 1,
+          "numerator": 0.3333333333333333
+        },
+        "incorrect_citation_owners": {
+          "denominator": 1,
+          "numerator": 0.0
+        },
+        "latency_seconds": 0.31348679700749926,
+        "no_answer_precision": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "no_answer_recall": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "requirement_coverage": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "route_accuracy": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "slot_accuracy": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "task_completion": {
+          "denominator": 1,
+          "numerator": 0.0
+        }
+      },
+      "task": "fact",
+      "turn_id": "HR35:t0"
+    },
+    {
+      "family_id": "HR35",
+      "metrics": {
+        "citation_ownership": {
+          "denominator": 2,
+          "numerator": 2.0
+        },
+        "citation_support": {
+          "denominator": 2,
+          "numerator": 1.0
+        },
+        "claim_support": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "contradiction_rate": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "evidence_recall_at_k": {
+          "denominator": 2,
+          "numerator": 2.0
+        },
+        "incorrect_citation_owners": {
+          "denominator": 2,
+          "numerator": 0.0
+        },
+        "latency_seconds": 0.604984172998229,
+        "list_precision": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "list_recall": {
+          "denominator": 2,
+          "numerator": 0.0
+        },
+        "no_answer_precision": {
+          "denominator": 1,
+          "numerator": 0.0
+        },
+        "no_answer_recall": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "requirement_coverage": {
+          "denominator": 2,
+          "numerator": 2.0
+        },
+        "route_accuracy": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "slot_accuracy": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "task_completion": {
+          "denominator": 1,
+          "numerator": 0.0
+        }
+      },
+      "task": "list",
+      "turn_id": "HR35:t1"
+    },
+    {
+      "family_id": "HR35",
+      "metrics": {
+        "citation_ownership": {
+          "denominator": 4,
+          "numerator": 4.0
+        },
+        "citation_support": {
+          "denominator": 4,
+          "numerator": 2.0
+        },
+        "claim_support": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "contradiction_rate": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "evidence_recall_at_k": {
+          "denominator": 3,
+          "numerator": 3.0
+        },
+        "incorrect_citation_owners": {
+          "denominator": 4,
+          "numerator": 0.0
+        },
+        "latency_seconds": 0.003973405982833356,
+        "no_answer_precision": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "no_answer_recall": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "requirement_coverage": {
+          "denominator": 3,
+          "numerator": 3.0
+        },
+        "route_accuracy": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "slot_accuracy": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "task_completion": {
+          "denominator": 1,
+          "numerator": 0.0
+        }
+      },
+      "task": "compare",
+      "turn_id": "HR35:t2"
+    },
+    {
+      "family_id": "HR35",
+      "metrics": {
+        "citation_ownership": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "citation_support": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "claim_support": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "contradiction_rate": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "evidence_recall_at_k": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "incorrect_citation_owners": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "latency_seconds": 0.0003309770254418254,
+        "no_answer_precision": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "no_answer_recall": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "requirement_coverage": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "route_accuracy": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "slot_accuracy": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "task_completion": {
+          "denominator": 1,
+          "numerator": 1.0
+        }
+      },
+      "task": "ambiguous",
+      "turn_id": "HR35:t3"
+    },
+    {
+      "family_id": "HR35",
+      "metrics": {
+        "citation_ownership": {
+          "denominator": 4,
+          "numerator": 4.0
+        },
+        "citation_support": {
+          "denominator": 4,
+          "numerator": 2.0
+        },
+        "claim_support": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "contradiction_rate": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "evidence_recall_at_k": {
+          "denominator": 3,
+          "numerator": 3.0
+        },
+        "incorrect_citation_owners": {
+          "denominator": 4,
+          "numerator": 0.0
+        },
+        "latency_seconds": 0.0028973270091228187,
+        "no_answer_precision": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "no_answer_recall": {
+          "denominator": 0,
+          "numerator": 0.0
+        },
+        "requirement_coverage": {
+          "denominator": 3,
+          "numerator": 3.0
+        },
+        "route_accuracy": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "slot_accuracy": {
+          "denominator": 1,
+          "numerator": 1.0
+        },
+        "task_completion": {
+          "denominator": 1,
+          "numerator": 0.0
+        }
+      },
+      "task": "compare",
+      "turn_id": "HR35:t4"
+    }
+  ],
+  "split": "dev",
+  "version": "authored-hr-rag-v2"
+}

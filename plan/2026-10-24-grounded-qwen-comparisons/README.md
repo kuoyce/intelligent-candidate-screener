@@ -27,7 +27,7 @@ GLiNER can help locate and organize mentions; it neither upgrades Qwen's weights
 nor supplies the comparison reasoning/answer interface. Its effect on this
 chatbot must be measured. Running it on every message would add avoidable work.
 
-## Diagnosed constraints
+## Historical diagnosis for the superseded generative proposal
 
 | Constraint verified in this checkout | Consequence | Proposed change |
 |---|---|---|
@@ -42,7 +42,7 @@ Source: `app/portal_qa.py`, `llm/local_server.py`, the local Qwen manifest and t
 existing GLiNER medium implementation. These are observations, not newly measured
 accuracy or latency claims.
 
-## Proposed delivery
+## Historical delivery proposal (superseded)
 
 1. Freeze answer behavior, evaluation cases and stage timings.
 2. Build structured comparison answers with improved passage retrieval, using
@@ -57,7 +57,7 @@ of supported differences/uncertainties, followed by expandable source excerpts.
 Its facts remain tied to the active JD and selected CVs. Backend ranks/scores/Fit
 decisions and the research winner remain outside the generator's authority.
 
-## Approval scope
+## Historical approval scope (superseded by the current extractive scope)
 
 The user authorized the new grounded-answer contract, cache/index/matrix,
 pinned medium integration and Qwen fine-tuning in v1 on the current branch.
@@ -78,3 +78,4 @@ same-branch instruction supersedes prior branch-creation text in this plan.
 - `03-decisions-and-sources.md`: proposed defaults, open questions and references.
 - `04-extractive-guide-and-sft.md`: approved fine-tuning amendment and guide mapping.
 - `05-extractive-implementation.md`: latest authorized implementation contract.
+- `06-implementation-record.md`: delivered inference flow, review and retained validation evidence.
