@@ -500,3 +500,25 @@ def test_source_digest_and_ready_snapshot_provenance_persist(jobs, job):
         b"Invented applicant 1. Python private@example.com").hexdigest()
     with sqlite3.connect(jobs.path) as db:
         assert db.execute("SELECT version FROM operational_schema WHERE component='ranking'").fetchone() == (1,)
+
+
+@pytest.mark.parametrize("system", ["D63", "D64"])
+def test_ranking_system_selects_the_model_in_the_payload(jobs, job, system):
+    calls = []
+    ranking = service(jobs, lambda op, p: calls.append(deepcopy(p)) or result(p))
+    assert ranking.rank(job["job_id"], system=system)["status"] == "ready"
+    assert calls[0]["ranking_system"] == system
+    assert ranking.get(calls[0]["request_id"])["payload"]["ranking_system"] == system
+
+
+@pytest.mark.parametrize("system", ["X2", "d64", "", None, 64, ["D64"]])
+def test_unknown_ranking_system_is_refused_before_any_write(jobs, job, system):
+    ranking = service(jobs, lambda op, p: pytest.fail("Must not infer"))
+    with pytest.raises(ValueError):
+        ranking.rank(job["job_id"], system=system)
+    assert ranking.requests() == []
+    assert jobs.get(job["job_id"])["ranking_status"] == "not_requested"
+    calls = []
+    ranking.adapter = lambda op, p: calls.append(p) or result(p)
+    ranking.rank(job["job_id"])
+    assert calls[0]["ranking_system"] == "D63"

@@ -215,3 +215,62 @@ def test_refreshing_stale_saved_review_opens_one_current_session(workspace, monk
     assert next(item for item in at.radio if item.label == "Navigation").value == "Review jobs"
     at.run()
     assert not at.exception and len(calls) == 1
+
+
+ECHO = ("request_id", "jd_id", "jd_revision", "jd_digest", "workspace", "authorization_scope", "candidate_pool_ref")
+
+
+def live_job(workspace, adapter):
+    from candidate_screener.app.portal_ranking import RankingService
+    from candidate_screener.app.portal_workspace import attach_services
+    attach_services(workspace)
+    job = workspace.job_service.create({"title": "New platform role", "department": "Tech", "responsibilities": ["Build services"]})
+    workspace.job_service.review(job["job_id"], job["revision"])
+    workspace.job_service.publish(job["job_id"], job["revision"])
+    ranking = RankingService(workspace.store.path, workspace.principal, guard=workspace._guard, adapter=adapter, pool_ref="fixture-pool")
+    workspace.ranking_service = workspace.dataset.ranking_service = ranking
+    return job["job_id"]
+
+
+@pytest.mark.parametrize("refine,system", [(False, "D63"), (True, "D64")])
+def test_reranker_checkbox_selects_the_ranking_system(workspace, refine, system):
+    from test_portal_workspace import ready_adapter
+    payloads = []
+    job_id = live_job(workspace, lambda op, p: payloads.append(p) or ready_adapter(op, p))
+    at = app()
+    next(item for item in at.button if item.key == "portal_card_" + job_id).click().run()
+    if refine:
+        next(item for item in at.checkbox if item.key == "portal_rank_d64_" + job_id).check().run()
+    next(item for item in at.button if item.label == "Rank candidates").click().run()
+    assert not at.exception
+    assert [payload["ranking_system"] for payload in payloads] == [system]
+
+
+def test_running_request_explains_the_wait_and_offers_refresh(workspace):
+    job_id = live_job(workspace, lambda op, p: {**{key: p[key] for key in ECHO}, "status": "running", "handle": "fixture-handle"})
+    at = app()
+    next(item for item in at.button if item.key == "portal_card_" + job_id).click().run()
+    next(item for item in at.button if item.label == "Rank candidates").click().run()
+    assert not at.exception
+    assert any(item.label == "Refresh ranking status" for item in at.button)
+    assert any("a few minutes" in item.value for item in at.caption)
+
+
+def test_live_review_stores_the_reasons_but_shows_no_why_panel(workspace):
+    """The reasons compare skills and years, which the ranking score barely weighs, so the
+    review does not show them (owner, 24 Oct 2026); the snapshot keeps them for later use."""
+    from test_portal_workspace import ready_adapter
+    reason = "Has 1 of the 2 skills the job names: python."
+    def adapter(operation, payload):
+        response = ready_adapter(operation, payload)
+        response["candidates"] = [{**response["candidates"][0], "evidence_provenance": {"reasons": [reason]}}]
+        return response
+    job_id = live_job(workspace, adapter)
+    at = app()
+    next(item for item in at.button if item.key == "portal_card_" + job_id).click().run()
+    next(item for item in at.button if item.label == "Rank candidates").click().run()
+    assert not at.exception
+    assert any(item.label == "Review action" for item in at.selectbox)
+    assert not any(item.label.startswith("Why #") for item in at.expander)
+    assert not any(reason in item.value for item in at.markdown)
+    assert workspace.dataset.snapshot(job_id).candidates[0]["evidence_provenance"]["reasons"] == [reason]

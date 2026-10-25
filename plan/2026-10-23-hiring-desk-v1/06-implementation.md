@@ -64,6 +64,16 @@ interface. The callable returns promptly with queued/running or validated ready
 results. The UI never trains models or silently borrows CSV candidates for a new
 JD. A real end-to-end model run remains required before claiming that connection.
 
+*Update 24 October 2026 (plan `2026-10-24-hiring-desk-inference-api`):* the
+connection is bound and was run end to end in a browser on an isolated copy of
+the workspace: `HR_PORTAL_RANKING_ADAPTER=candidate_screener.app.portal_inference:adapter`,
+`HR_PORTAL_CANDIDATE_POOL=a2-final-cvs` (the 600 A2 final-set CVs, chosen
+explicitly by the model owner, so no pool is chosen silently). Results, timings
+and the app-side changes it needed (`ranking_system`, a parseable experience
+line) are in that plan's implementation record. A per-candidate "Why #k" panel
+was added and then removed at the owner's request; the reasons stay in each
+live snapshot's `evidence_provenance`.
+
 Email uses `example.invalid` recipients and local MIME capture as requested;
 production SMTP is intentionally outside this demonstration. Live inference
 transport can be wrapped by the teammate's adapter; no endpoint was guessed.

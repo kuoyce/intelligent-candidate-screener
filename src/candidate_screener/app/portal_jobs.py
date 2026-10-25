@@ -126,6 +126,17 @@ def validate_fields(fields, *, complete=False):
     return result
 
 
+def _experience(low, high):
+    """One phrase the ranking model's experience rules read back from the text (D53):
+    "2-6 years", "at least 2 years", "up to 6 years" (read as 0-6) or "Not specified"."""
+    unit = lambda value: "year" if value == 1 else "years"
+    if low is not None and high is not None:
+        return f"{low:g}-{high:g} years"
+    if low is not None:
+        return f"at least {low:g} {unit(low)}"
+    return f"up to {high:g} {unit(high)}" if high is not None else "Not specified"
+
+
 def render_jd(fields):
     """Faithful deterministic full text, including explicit unspecified fields."""
     data = validate_fields(fields)
@@ -138,11 +149,8 @@ def render_jd(fields):
             items = data[name][level]
             lines.append(level.capitalize() + ":")
             lines.extend(["- " + item for item in items] or ["Not specified"])
-    lines.extend(["", "Experience"])
-    for name, label in (("min_years", "Minimum years"), ("max_years", "Maximum years")):
-        value = data[name]
-        lines.append(f"{label}: {value:g}" if value is not None else f"{label}: Not specified")
-    lines.extend(["", "Location: " + (data["location"] or "Not specified"),
+    lines.extend(["", "Experience: " + _experience(data["min_years"], data["max_years"]),
+                  "", "Location: " + (data["location"] or "Not specified"),
                   "Work arrangement: " + (data["work_arrangement"] or "Not specified")])
     return "\n".join(lines)
 

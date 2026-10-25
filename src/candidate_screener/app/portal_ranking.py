@@ -9,7 +9,9 @@ Only a new explicit rank/rerank invokes submit; refresh invokes status.
 
 Payload (schema_version=1): request_id, jd_id, jd_revision, jd_digest, jd_title,
 jd_text, workspace, authorization_scope (opaque owner digest), candidate_pool_ref,
-top_k=10. Only title/text are inference inputs; routing/scope are not features.
+top_k=10, ranking_system ('D63' or 'D64'; optional, a payload without it means D63).
+Only title/text are inference inputs; routing/scope are not features, and
+ranking_system selects the model rather than describing the JD.
 Status payload adds handle. EVERY response echoes request_id, jd_id, jd_revision,
 jd_digest, workspace, authorization_scope and candidate_pool_ref. Status is
 queued/running/ready/failed/service_unavailable; optional handle is an opaque ID.
@@ -57,6 +59,7 @@ from .portal_jobs import (
 from .portal_store import AuthorizationError, RevisionConflict, _opaque_identity, _subject
 
 _TERMINAL = {"ready", "failed", "service_unavailable"}
+_SYSTEMS = ("D63", "D64")
 _ECHO = ("request_id", "jd_id", "jd_revision", "jd_digest", "workspace",
          "authorization_scope", "candidate_pool_ref")
 
@@ -269,11 +272,14 @@ class RankingService(_OperationalService):
                     if (job_id is None or row["job_id"] == job_id)
                     and row["workspace"] in self.principal.departments]
 
-    def rank(self, job_id, revision=None, *, request_id=None, rerank=False):
-        """Submit at most once. Explicit rerank creates another historical run."""
+    def rank(self, job_id, revision=None, *, request_id=None, rerank=False, system="D63"):
+        """Submit at most once. Explicit rerank creates another historical run;
+        system picks the model of a new request (D63, or D64's C2 on the top 50)."""
         self._guard()
         if type(rerank) is not bool:
             raise ValueError("rerank must be boolean")
+        if type(system) is not str or system not in _SYSTEMS:
+            raise ValueError("Unknown ranking system")
         if request_id is not None:
             _identity(request_id, "ranking request ID")
         with self._db() as db:
@@ -294,7 +300,7 @@ class RankingService(_OperationalService):
                        "jd_revision": job["revision"], "jd_digest": job["content_digest"],
                        "jd_title": job["title"], "jd_text": job["jd_text"], "workspace": job["workspace"],
                        "authorization_scope": hashlib.sha256(_subject(self.principal).encode()).hexdigest(),
-                       "candidate_pool_ref": self.pool_ref, "top_k": 10}
+                       "candidate_pool_ref": self.pool_ref, "top_k": 10, "ranking_system": system}
             available = self.availability
             status = "queued" if available["available"] else "service_unavailable"
             now, token = time.time(), str(uuid.uuid4())

@@ -1,0 +1,601 @@
+cv_id,role,role_prob,top_roles,skills,skills_qualified,years,years_source,seniority,seniority_source
+0b5fa2b0-4c1a-59be-97fc-87815830ea6f,QA,0.995042,QA:0.995;QA Automation:0.005;Business Analyst:0.000,learning management systems;jira,,,,,
+11d652b8-a3db-5fb7-951b-d820fa655137,C++,0.592277,C++:0.592;Lead/other:0.131;Python:0.080,c;C++;Python (computer programming);R;computer vision;linux;ubuntu;fedora;artificial neural networks,,10.0,statement,senior,years
+4684da90-e54a-5a8e-87c7-adeb92f49a68,Python,0.933655,Python:0.934;.NET:0.043;Data Engineer:0.004,DevOps;azure;Visual Basic;SQL Server;kanban;Python (computer programming);github;html;CSS;Java (computer programming);flask;SQL;django;rest;PostgreSQL;data science;data mining;machine learning;C#,,,,,
+77511334-1b80-5212-985c-728eeb171661,QA,0.953233,QA:0.953;C++:0.017;QA Automation:0.007,scrum;outlook;excel;word;jira;database;C++,,1.5833,ranges,junior,years
+862837a5-e8ea-5e92-8c81-9b67d8bb84e6,QA,0.940849,QA:0.941;QA Automation:0.048;Project Manager:0.002,jira;SQL,,,,,
+936b2b71-90da-56dc-995a-012394733f14,QA,0.993071,QA:0.993;QA Automation:0.007;Project Manager:0.000,jira;github;JavaScript;CSS;html;SQL;agile;scrum;kanban;git;terminal;Visual Basic;PHP;WordPress;Joomla;windows;ubuntu,,0.3333,statement,junior,years
+99ba1fb9-c99c-5abd-adb7-7557618a963a,QA,0.992317,QA:0.992;QA Automation:0.007;JavaScript:0.000,jira;html;CSS;agile;scrum;SQL;git,,,,junior,token
+c2a36050-0ed3-5890-b9e8-6d8535368347,QA,0.993105,QA:0.993;QA Automation:0.006;Java:0.000,rest;Java (computer programming),,1.75,ranges,junior,years
+c4a659c3-0795-5fc6-a8be-9bc4d5fc6843,QA,0.992315,QA:0.992;QA Automation:0.005;Business Analyst:0.000,,,,,,
+fac01145-d48a-5add-9b8e-2d4305f3738e,QA,0.983996,QA:0.984;QA Automation:0.015;Business Analyst:0.000,embedded systems;jira;confluence;azure;html;SQL;git;gitlab;windows;linux,,,,,
+3cde4a6d-6c32-5ec3-ad0f-671a03f91f32,Product Manager,0.969795,Product Manager:0.970;Project Manager:0.020;Lead/other:0.004,service-oriented modelling;Scratch (computer programming);PHP;MySQL;JavaScript;html;linux,,15.0,statement,senior,years
+4addd62a-4e3e-5d06-bff0-1eff8669951e,Data Engineer,0.34108,Data Engineer:0.341;SQL:0.330;Data Science/data scientist:0.145,azure;oracle;SQL;database;Informatica PowerCenter;bash;Python (computer programming);shell;sap,,,,,
+4c4820a1-a1f1-54ed-a77e-249d5cbf370a,SQL,0.851445,SQL:0.851;.NET:0.099;Data Engineer:0.021,"SQL Server;SQL;data warehouse;power bi;data extraction, transformation and loading tools;ssis;powershell;C#;database;excel;web services;ssrs;Visual Basic",,7.0,statement,senior,years
+4f346051-f9f6-5e12-a0ed-1f8aaa3f5898,SQL,0.194679,SQL:0.195;QA:0.188;Other/other:0.108,MySQL;SQL,,,,,
+8a27f5de-9ecd-5f0f-9aed-b34accfa8b08,SQL,0.97492,SQL:0.975;Data Engineer:0.015;Data Analyst:0.007,"SQL;database;t-sql;SQL Server;data extraction, transformation and loading tools;ssis;online analytical processing;power bi;MDX;data warehouse;algorithms;dax;excel;vba",,10.0,statement,senior,token
+a432e71d-c6e7-5e47-a107-e232f8834e40,SQL,0.547147,SQL:0.547;Data Analyst:0.408;Business Analyst:0.024,database;azure;power bi;Scratch (computer programming);online analytical processing;t-sql;SQL;git;dax;SQL Server,,,,,
+bb4ca42f-7800-50b5-8f11-be111802e681,SQL,0.315933,SQL:0.316;Business Analyst:0.300;.NET:0.184,word;excel;powerpoint;outlook;unified modelling language;Microsoft Visio;database management systems;SQL Server;oracle;database;PostgreSQL;jira;Visual Basic;C#,,6.8333,ranges,senior,years
+c0be189c-9aba-5522-b27e-69cfab31cf59,SQL,0.764288,SQL:0.764;Sysadmin:0.050;DevOps:0.047,aws;power bi;operating systems;linux;windows;oracle;database;shell;SQL;electronic business;azure,,,,,
+cd4abc7b-a9b9-5fa8-a6b7-46c4df90828e,Data Analyst,0.895432,Data Analyst:0.895;Python:0.055;Data Science/data scientist:0.027,data analytics;Python (computer programming);numpy;pandas;matplotlib;SQL,,,,,
+fa137fb9-c77f-54cf-9311-e9f62a010a9c,Unity,0.921239,Unity:0.921;.NET:0.012;C++:0.009,Unity (digital game creation systems),,,,,
+0be96e3f-c628-5216-95db-555bb3525ba9,Python,0.985687,Python:0.986;Data Science/data scientist:0.004;Data Analyst:0.002,Python (computer programming);data analytics;elasticsearch;algorithms;Scratch (computer programming);cryptocurrency;rest;django;cassandra;aws,,,,,
+1992a3f8-e262-5689-9faa-844f29766567,PHP,0.748149,PHP:0.748;Python:0.203;JavaScript:0.021,Scratch (computer programming);linux;ubuntu;PHP;laravel;Python (computer programming);django;JavaScript;react;MySQL;mariadb;rest;scrum;elasticsearch;git,,7.0,statement,senior,years
+2a21facd-13af-59f9-b196-b5268255ac03,Python,0.997642,Python:0.998;JavaScript:0.000;Node.js:0.000,Python (computer programming);django;rest;ICT encryption;firebase;html;CSS;aws;pandas;PostgreSQL;git;ubuntu;unified modelling language,,,,,
+454b07d2-0896-5d33-b684-ca2ba13093b2,Python,0.960486,Python:0.960;Golang:0.021;DevOps:0.015,Python (computer programming);django;rest;PostgreSQL;mongodb;redis;aws;docker;git;gitlab;jira;flow;Jenkins (tools for software configuration management);terraform;go;DevOps;Scratch (computer programming),,,,,
+48196df0-2612-53d9-a198-7707abd41ec9,Product Manager,0.495035,Product Manager:0.495;Project Manager:0.350;Python:0.108,Python (computer programming);html;CSS;ML (computer programming);algorithms;Scratch (computer programming);pay-per-click;PHP,,7.3333,ranges,junior,token
+5a2f6240-893b-5348-bc0a-75559972b76b,Python,0.989381,Python:0.989;JavaScript:0.004;Node.js:0.001,Python (computer programming);django;html;CSS;PostgreSQL;aws;heroku;git,,,,junior,token
+996bfdc2-e299-5f99-9fdc-e877fe2c72c8,Python,0.855969,Python:0.856;Lead/other:0.032;Java:0.018,Scratch (computer programming);Python (computer programming),,9.0,statement,lead,token
+a4800ca3-f84e-5a14-9d73-d874b6d6c966,Python,0.736223,Python:0.736;JavaScript:0.175;Node.js:0.015,Python (computer programming),,,,,
+ab1c1393-e528-5490-9ecd-7742bc75c891,JavaScript,0.995255,JavaScript:0.995;Node.js:0.003;.NET:0.002,create prototype of user experience solutions;JavaScript;TypeScript;react;node.js;express;next.js;rest;graphql;Jenkins (tools for software configuration management);git;bitbucket;jira;C#;ASP.NET;PostgreSQL,,5.0,statement,senior,years
+b7a1f0d2-3236-5d20-9862-187a6bb94bed,Project Manager,0.91333,Project Manager:0.913;Product Manager:0.026;Scrum Master:0.019,flask,,3.3333,ranges,lead,token
+5141469d-b6be-5dfd-ba77-175cbd7f400f,DevOps,0.503643,DevOps:0.504;Sysadmin:0.111;SQL:0.093,debian;ubuntu;centos;aws;linux;oracle;windows;MySQL;PostgreSQL;mongodb;SQL;git;docker,,,,,
+53e90fb4-fbe5-5a6f-8700-4fa1bd298351,DevOps,0.778226,DevOps:0.778;Python:0.151;Sysadmin:0.008,Python (computer programming);DevOps;kubernetes,,6.0,statement,senior,years
+7731ccd3-b1ae-5eb0-9dfb-691712da79d3,QA,0.980938,QA:0.981;QA Automation:0.007;Project Manager:0.006,iOS;Android (mobile operating systems),,6.0,statement,senior,years
+79b8908c-dfcf-5242-b9f0-88dc3305b8d3,DevOps,0.715391,DevOps:0.715;Lead/other:0.038;Python:0.024,Scratch (computer programming);Jenkins (tools for software configuration management);DevOps;unix;operating systems;linux;aws;windows,,,,,
+7b69cc3d-8e9e-5a81-be75-a5309fba3d7e,Sysadmin,0.632026,Sysadmin:0.632;DevOps:0.265;Java:0.050,windows;domain name service;linux;centos;ubuntu;Cisco;docker;bash;Java (computer programming),,,,,
+81177469-68f5-527c-97fb-b69cb3731f43,DevOps,0.989781,DevOps:0.990;Python:0.004;Sysadmin:0.002,oracle;aws;Python (computer programming);terraform;docker;Ansible;Scratch (computer programming);operating systems;linux;bash;MySQL;Jenkins (tools for software configuration management);kafka;redis;PHP,,,,,
+abef80c1-16d8-5594-85cb-36b5298bdb08,DevOps,0.397613,DevOps:0.398;Sysadmin:0.054;Project Manager:0.045,,,,,,
+e3815ed6-fba2-54c5-a980-86500c3a1d4a,Sysadmin,0.933409,Sysadmin:0.933;DevOps:0.053;Support:0.004,azure;windows;domain name service;MySQL;transmission technology;bash;Perl;powershell;trello;ubuntu;debian,,,,,
+f27b1a78-d782-5c9d-b9f2-bd65e24d02c3,DevOps,0.98303,DevOps:0.983;Security:0.008;Sysadmin:0.007,Cisco;DevOps;gitlab;docker;linux;kubernetes;Ansible;terraform,,6.0,statement,senior,years
+f35b04d0-4581-564c-a013-d46ade4e5f6d,Marketing,0.981825,Marketing:0.982;Sales:0.005;Other/other:0.004,augmented reality,,6.0,statement,lead,token
+136f7851-64c5-597f-9c5c-416c20381756,Other/other,0.207381,Other/other:0.207;Project Manager:0.174;Product Manager:0.111,R;programmable logic controller;algorithms,,5.0,statement,senior,years
+25296783-e813-5601-86b8-df80798cb4f8,JavaScript,0.986503,JavaScript:0.987;Node.js:0.011;Other/other:0.001,JavaScript;react;node.js,,,,,
+33d4540e-0cad-5d60-863c-f0156cf286c6,JavaScript,0.98079,JavaScript:0.981;Node.js:0.016;PHP:0.002,JavaScript;PHP;node.js;react,,4.0,statement,senior,token
+8620d1fd-17d2-5e14-b8f8-b97712e13871,JavaScript,0.980114,JavaScript:0.980;Node.js:0.005;PHP:0.003,service-oriented modelling,react,4.0,statement,middle,years
+9c6e88c2-895f-5bef-ba23-254a54f9ff33,Other/other,0.689878,Other/other:0.690;Other/lawyer:0.212;Other/legal counsel:0.023,e-procurement,,4.5,ranges,middle,years
+b1a82b12-1aaa-54aa-a4e8-c5757cab55fb,JavaScript,0.5754,JavaScript:0.575;QA:0.088;PHP:0.060,CSS;html;MySQL,,,,,
+c2ba747a-b243-53c6-9f93-13c21b861b37,JavaScript,0.980498,JavaScript:0.980;Node.js:0.019;PHP:0.000,html;CSS;JavaScript;TypeScript;git;react;node.js;PostgreSQL;graphql;jira;linux;macos;windows,,,,,
+c66a95ab-e135-5060-a64c-1e76989b3f80,JavaScript,0.945225,JavaScript:0.945;Java:0.020;PHP:0.011,Java (computer programming);Angular;Sass;scrum;jira;jquery;git;PHP;Scratch (computer programming);AJAX;MySQL;DevOps;azure,,3.4167,ranges,lead,token
+da6f4d55-47e8-5af9-bdda-4fbd298bdda9,JavaScript,0.948861,JavaScript:0.949;Node.js:0.044;.NET:0.001,Scratch (computer programming);e-commerce systems;Angular;TypeScript;node.js,,6.0,statement,lead,token
+dd1da0fb-1112-5046-af85-1b7b980c6b8c,JavaScript,0.95411,JavaScript:0.954;.NET:0.033;Node.js:0.003,react;git;html;TypeScript;Visual Basic;web services;laravel;Scratch (computer programming);zoom;MySQL;CSS,,,,,
+0292c37f-4814-5092-8ee7-3a4b1857050c,JavaScript,0.988183,JavaScript:0.988;Node.js:0.003;.NET:0.001,TypeScript;react;delphi;MySQL;JavaScript,,,,,
+1bbb9922-7143-5dd3-8bc5-14ebcf3535e5,Business Analyst,0.975746,Business Analyst:0.976;Other/other:0.004;Project Manager:0.003,,,4.0,statement,middle,years
+23c4cccc-81d7-51b4-8e59-44ab04bde71d,JavaScript,0.620899,JavaScript:0.621;Node.js:0.377;PHP:0.001,react;TypeScript;node.js;express;mongodb;PostgreSQL,,5.0,statement,senior,years
+524a1c7a-8836-52ab-8995-84d45b48a960,JavaScript,0.993386,JavaScript:0.993;Node.js:0.002;Python:0.001,react;TypeScript;docker;linux;vue,Angular,,,,
+67f39fa8-f6ce-57f8-8abc-a7c1b8f7aff4,JavaScript,0.933467,JavaScript:0.933;Node.js:0.028;.NET:0.012,react,,,,,
+6b53add6-936b-5ab2-88b6-416cec402c5f,JavaScript,0.950379,JavaScript:0.950;Node.js:0.010;Other/other:0.005,react,,,,,
+a85c9249-3e5a-5e35-b385-fd6c0c256611,JavaScript,0.964202,JavaScript:0.964;Node.js:0.010;PHP:0.005,JavaScript;react;git;Sass;WordPress,,1.0,ranges,junior,years
+ccebb2eb-76ef-5756-b501-3291a1636eb1,JavaScript,0.861214,JavaScript:0.861;Other/other:0.017;Support:0.010,JavaScript,,3.0,statement,middle,years
+d0489049-41e0-554f-bdb5-86008d2b78e0,JavaScript,0.999951,JavaScript:1.000;Node.js:0.000;Design:0.000,html;CSS;Sass;JavaScript;TypeScript;react;graphql;git;gitlab;jira,,2.0,statement,middle,years
+edf5f12c-6b49-5018-8981-835e1af8f088,QA,0.547373,QA:0.547;Project Manager:0.339;Scrum Master:0.026,jira,,2.0,statement,lead,token
+03604585-88dc-5132-8e9c-f96dbb8e9dc4,PHP,0.995332,PHP:0.995;JavaScript:0.002;Lead/other:0.001,Source (digital game creation systems);PHP;laravel;symfony;vue;git;gitlab;SQL;MySQL;rest;graphql,,,,,
+1ed648e8-ebae-506f-98cc-c35830cbdcf8,Ruby,0.749606,Ruby:0.750;Node.js:0.191;JavaScript:0.040,data warehouse;Ruby (computer programming);elixir;node.js;react;Angular;docker;kubernetes,,15.0,statement,senior,years
+6690ca5d-aa69-556e-9e47-a06695e15218,JavaScript,0.50192,JavaScript:0.502;.NET:0.089;Node.js:0.068,R,,,,,
+752b65e3-e82b-55dd-867e-16a5f9db72fe,Ruby,0.846587,Ruby:0.847;JavaScript:0.102;Node.js:0.013,Ruby (computer programming);JavaScript;react;Angular;SQL;node.js;express;selenium;ruby on rails;html;CSS;Sass;Python (computer programming);go;docker;numpy;pandas;kanban;scrum,,,,,
+9a11e001-e67c-5eaa-8950-109f24bf53fe,Ruby,0.999012,Ruby:0.999;JavaScript:0.000;PHP:0.000,ruby on rails;Ruby (computer programming);PostgreSQL;MySQL;rest;html;CSS;git;bash,,,,,
+9e743854-4886-5258-8bb8-4b1ac332f52e,Python,0.528216,Python:0.528;Ruby:0.273;DevOps:0.099,Python (computer programming);JavaScript;DevOps;terraform;kubernetes;docker;Chef (tools for software configuration management);Ruby (computer programming);ruby on rails;react;PostgreSQL;elasticsearch;redis;mongodb;kafka;aws;R;algorithms;Jenkins (tools for software configuration management),,,,lead,token
+ae04c13d-01d4-5a0e-a08a-e7b3b017dbff,Java,0.202168,Java:0.202;PHP:0.136;Node.js:0.095,Erlang;elixir,,9.0,statement,lead,token
+c39f76d9-db57-5105-90fb-5edd5d4bbc04,Ruby,0.993897,Ruby:0.994;DevOps:0.001;PHP:0.001,Ruby (computer programming);ruby on rails;PostgreSQL;redis;elasticsearch;aws,,3.0,statement,middle,years
+e7bf9748-d6ed-5d5b-8e77-3c29e9ccbbfd,Ruby,0.474797,Ruby:0.475;JavaScript:0.135;PHP:0.117,PHP;ruby on rails;Angular;ubuntu;jira;agile,,9.0,statement,lead,token
+ed255bde-a1c7-586b-b622-90a63e2da68f,Ruby,0.963146,Ruby:0.963;JavaScript:0.019;Node.js:0.007,Ruby (computer programming);shell;PostgreSQL;react;html;CSS;database;scrum;graphql,,6.0,statement,senior,years
+083eec5e-c91c-5445-8de0-184c6c9297b0,Unity,0.781961,Unity:0.782;.NET:0.128;C++:0.047,have computer literacy;Unity (digital game creation systems);Unreal Engine;C#;C++;computer engineering,,5.0,statement,senior,years
+23944221-e49c-5528-b229-24497428a2d6,SQL,0.979234,SQL:0.979;Data Engineer:0.004;Data Analyst:0.003,"SQL;html;CSS;JavaScript;t-sql;ssis;data extraction, transformation and loading tools;online analytical processing;sap;SQL Server;MDX;ssrs;database;Visual Basic;MySQL;excel;vba",,6.5,ranges,senior,years
+260abe2a-3d74-5997-a5f1-57ef63d1899e,QA,0.993325,QA:0.993;QA Automation:0.005;Unity:0.000,Android (mobile operating systems);iOS;scrum;Unity (digital game creation systems);rest;SQL;jira,,,,middle,token
+6a80bfcb-0b3e-57a1-b723-2e2809fbcf9a,Data Engineer,0.84246,Data Engineer:0.842;Python:0.079;Data Analyst:0.037,"digital data processing;database;oracle;PostgreSQL;aws;snowflake;data extraction, transformation and loading tools;airflow;pyspark;kafka;spark;mongodb;business intelligence;Python (computer programming);tableau;kubernetes",,3.6667,ranges,lead,token
+7a7d9e1a-2c3e-54c8-9f39-b88aeec39917,Data Analyst,0.356717,Data Analyst:0.357;Data Engineer:0.077;Data Science/data scientist:0.074,"ML (computer programming);data extraction, transformation and loading tools;Scratch (computer programming);airflow;docker;tableau;data mining",,,,,
+a3bb3bfc-ac50-5907-91fc-bfa93bb8d722,Marketing,0.269015,Marketing:0.269;Data Engineer:0.111;Python:0.093,"machine learning;data extraction, transformation and loading tools;airflow",,,,,
+ce8cc4e8-0ff5-512f-917b-7b4006ccaad3,Data Engineer,0.678813,Data Engineer:0.679;SQL:0.155;Data Analyst:0.113,"data extraction, transformation and loading tools;azure;SQL;SQL Server;powershell;digital data processing;databricks;power bi;data warehouse;knowledge base;confluence;Python (computer programming)",,,,,
+e41488b1-d27e-58ab-bb1d-ef537f133ecf,Other/other,0.162239,Other/other:0.162;Project Manager:0.079;JavaScript:0.064,industrial software;Assembly (computer programming),,,,,
+e6c86183-c1f8-549a-9c04-d50057051af4,Data Engineer,0.975703,Data Engineer:0.976;SQL:0.010;Scala:0.009,"SQL Server;SQL;Python (computer programming);oracle;mongodb;aws;azure;airflow;data extraction, transformation and loading tools;t-sql;MySQL;Java (computer programming);ASP.NET;splunk;powershell;Jenkins (tools for software configuration management);docker;power bi;ssis;PostgreSQL;database management systems;NoSQL;Scala",,3.1667,ranges,lead,token
+e79eabb1-1b33-5624-b7a9-9cdc924dec67,Data Engineer,0.970156,Data Engineer:0.970;Scala:0.023;Python:0.003,Python (computer programming);Scala;rust;SQL;Hadoop;spark;airflow;git;bash;Jenkins (tools for software configuration management);docker;aws;redshift;dynamodb;digital identity management;gcp;bigquery;firebase;firestore;MySQL;oracle;SQL Server;mongodb,,,,,
+1de88bd4-b04a-53b8-abed-56363b0e1063,Project Manager,0.319553,Project Manager:0.320;Sales:0.132;Marketing:0.117,,,,,,
+257e6585-408f-566b-9a3d-c8881bf30f30,Marketing,0.581138,Marketing:0.581;Sales:0.158;Project Manager:0.084,business intelligence;scrum,,17.0,statement,senior,years
+4205d564-563c-50b7-8b9b-7094206927e8,QA,0.988816,QA:0.989;QA Automation:0.006;Project Manager:0.001,SQL,,,,,
+8e15e56a-99b2-5e2b-97ac-7df6373c668c,Marketing,0.904212,Marketing:0.904;Sales:0.013;Other/other:0.007,,,,,,
+c273878b-949b-5b4a-a61e-ebd2056a8075,Marketing,0.9942,Marketing:0.994;Lead Generation:0.002;Product Manager:0.001,WordPress;create prototype of user experience solutions,,5.0,statement,senior,years
+cf695b0e-557e-55ef-aafb-e29d882db5c3,PHP,0.988427,PHP:0.988;JavaScript:0.009;.NET:0.001,rest;Scratch (computer programming);PHP;JavaScript;html;CSS;jquery;AJAX;MySQL;laravel;git;svn;jira;WordPress;Joomla,,,,,
+d9f513d7-de07-53a0-9af8-495572cb308b,Marketing,0.918991,Marketing:0.919;Other/other:0.020;Sales:0.011,pay-per-click;spreadsheet;database,,,,,
+dc52210a-e5d3-5b66-be58-0fcfac9e2fc6,Marketing,0.672797,Marketing:0.673;Other/other:0.108;Technical Writing:0.097,jira,,,,,
+deba38ca-ee9e-5e23-8f5c-32557cc5e74b,Marketing,0.878338,Marketing:0.878;Project Manager:0.059;Product Manager:0.019,blockchain consensus mechanisms;agile;scrum;kanban;excel;use word processing software;vba,,,,,
+ee893b64-a931-5b60-a017-41b0d5364ca0,Marketing,0.479687,Marketing:0.480;HR:0.409;Other/other:0.036,,,4.0,statement,middle,years
+00694e81-ff07-56c8-8163-162a325b3d1b,Node.js,0.623901,Node.js:0.624;JavaScript:0.367;Python:0.003,html;CSS;react;node.js;mongodb;rest,,,,,
+043dbc58-24fb-58fe-969e-b8dc5edf6057,PHP,0.96748,PHP:0.967;JavaScript:0.017;Node.js:0.013,PHP;SQL;JavaScript;rest;Scratch (computer programming);agile;Perl;bash;symfony;laravel;WordPress;MySQL;PostgreSQL;mongodb;jquery;node.js;express;ember.js;linux;git;npm;html;CSS,,10.0,statement,senior,years
+0f11f25a-f20b-50c4-8a8d-ac4547eb8a2e,PHP,0.91414,PHP:0.914;JavaScript:0.075;Node.js:0.003,JavaScript;jquery;CSS;html;git;PHP;WordPress;laravel,,3.0,statement,junior,token
+11ebf37b-7150-5b02-855f-7cb2c0201fa6,Node.js,0.399517,Node.js:0.400;Java:0.218;.NET:0.117,rest;graphql;NoSQL;MySQL;mongodb,,2.0,statement,middle,years
+1ad5ccc7-9214-59e3-9fc5-aea76399f35f,JavaScript,0.656215,JavaScript:0.656;PHP:0.217;Node.js:0.110,JavaScript;jquery;vue;PHP;laravel;node.js;express;NoSQL;SQL,,5.0,statement,lead,token
+2c4550e5-9903-50b3-8fcb-21b8cc9dd498,QA,0.969211,QA:0.969;QA Automation:0.012;Business Analyst:0.010,agile;scrum;SQL;JavaScript;html;windows;linux;centos;unix;vmware,,2.5,statement,middle,years
+38cf1c81-9c38-574b-865f-f6c5d6d95b7b,JavaScript,0.803768,JavaScript:0.804;Node.js:0.191;PHP:0.001,JavaScript;node.js;express;TypeScript,react,,,,
+8bb84309-4436-571f-9ffb-f9b51c60ffd5,JavaScript,0.816333,JavaScript:0.816;Node.js:0.164;Golang:0.008,computer science;linux;JavaScript;TypeScript;SQL;NoSQL;git;node.js;express;cloud technologies;react,deno,,,junior,token
+b48e9363-a296-534c-8ca2-b1abe9f8674c,Python,0.503663,Python:0.504;Golang:0.270;Node.js:0.129,blockchain openness;aws;Python (computer programming);node.js;kotlin;go,,4.0,statement,lead,token
+d6ec1fa1-7599-5249-a39b-8048b7ae7f81,JavaScript,0.2432,JavaScript:0.243;Java:0.157;.NET:0.061,,,,,,
+0916066e-ccdd-5909-b378-7740f8e48006,QA,0.996581,QA:0.997;QA Automation:0.003;JavaScript:0.000,JavaScript;react;html;CSS;SQL;agile;scrum;jira,,,,,
+22bbac82-4f0d-5a9f-bcf3-bc35fc328150,JavaScript,0.995546,JavaScript:0.996;PHP:0.002;Java:0.000,html;CSS;Sass;jquery;PHP;Java (computer programming);vue,,0.75,ranges,junior,years
+236d208b-d8fd-5eea-a32e-eb53ac5210c5,JavaScript,0.99899,JavaScript:0.999;Node.js:0.001;PHP:0.000,computer technology;react;CSS;TypeScript;rest;github;node.js,,,,,
+27c48f67-5206-507e-8a5b-f34054e2075d,Node.js,0.740831,Node.js:0.741;JavaScript:0.127;Java:0.073,Scratch (computer programming);PostgreSQL;mongodb;node.js;graphql;react;JavaScript;Java (computer programming);kanban;scrum;agile,,4.0,statement,middle,years
+298f675d-239c-58a2-ad84-c824be14cd62,QA,0.994686,QA:0.995;QA Automation:0.003;Project Manager:0.001,ICT project management methodologies;html;CSS;agile;scrum;kanban;jira;trello;macos;windows;Android (mobile operating systems);iOS,,2.5,statement,middle,years
+314931c8-37a1-5a87-9b72-bd0d0513e55d,Design,0.939319,Design:0.939;Artist:0.027;Marketing:0.017,Adobe Illustrator,,7.0,statement,senior,years
+7a6b0a02-4c09-5729-92f1-d22663c60c7f,JavaScript,0.945598,JavaScript:0.946;Node.js:0.010;Java:0.008,Scratch (computer programming);cryptocurrency;Angular;create prototype of user experience solutions,,,,lead,token
+8eb3f8ef-26fb-5d81-832b-5f5c9dfb7611,JavaScript,0.97391,JavaScript:0.974;Node.js:0.011;Java:0.006,react;docker,,0.5,statement,junior,years
+91b5fdb2-6870-5ac3-89a2-5ddefd2a9ebc,JavaScript,0.710893,JavaScript:0.711;Node.js:0.233;Project Manager:0.023,Scratch (computer programming);electronics;react;node.js;express;PostgreSQL;next.js;digital game creation systems,,,,lead,token
+d607310d-4c64-53dd-8195-300d96710218,JavaScript,0.672765,JavaScript:0.673;QA:0.203;Python:0.014,agile,,,,,
+00e44be7-6318-5be8-8bd8-24e81c1a471b,Project Manager,0.971159,Project Manager:0.971;Other/other:0.007;Product Manager:0.005,scrum,,8.0,ranges,lead,token
+16c9d96d-617d-5137-af6d-887d2f333f0a,Golang,0.935482,Golang:0.935;Python:0.010;Android:0.010,go;cryptocurrency;rest;cassandra;PostgreSQL;SQL;Scratch (computer programming);Android (mobile operating systems),,3.0,ranges,middle,years
+1ba10038-c01c-535d-91d6-1cbcac3c756d,Golang,0.967395,Golang:0.967;DevOps:0.005;Node.js:0.004,kubernetes;proxy servers;go;docker;ibm cloud;github;cassandra;redis;Scratch (computer programming);kafka;splunk,,,,,
+23ae8684-ebb9-500c-a1f0-ce5c0505e9f8,Support,0.191459,Support:0.191;JavaScript:0.125;Node.js:0.076,database,,5.0,statement,senior,years
+24a5ced0-6670-5912-8382-278730686eb4,Golang,0.508594,Golang:0.509;JavaScript:0.134;PHP:0.114,PHP;MySQL;PostgreSQL;redis;cloud technologies,,5.0,statement,senior,years
+26097e81-21b1-5876-acbf-3b0ccf3b521d,Golang,0.422718,Golang:0.423;Node.js:0.202;Lead/other:0.194,scrum;clojure;Python (computer programming);go;react;node.js;aws;rest;terraform;Java (computer programming);NoSQL;SQL;kafka;JavaScript;TypeScript;jira;confluence;github,,,,,
+2ef029b9-a564-56b7-8bac-1f6785afe75c,PHP,0.120833,PHP:0.121;.NET:0.094;Java:0.093,scrum;agile,,,,,
+86276482-7505-5eb1-8361-9017e8f16595,Golang,0.746635,Golang:0.747;C++:0.110;Rust:0.047,smart contract;aws;docker;PostgreSQL;redis;JavaScript;Solidity;Source (digital game creation systems);C++;c;augmented reality;unmanned air systems;machine learning,blockchain,,,,
+d3d6ab64-bdb7-5b7f-a1be-ae066284dcaf,Project Manager,0.931729,Project Manager:0.932;QA:0.021;Scrum Master:0.010,agile;scrum,,,,,
+dfb9e653-2d1e-5785-940d-b868d0539821,Node.js,0.293319,Node.js:0.293;JavaScript:0.283;PHP:0.082,mongodb;redis,,,,,
+0294a9a9-aaf1-519b-b0fa-74af9aff366f,JavaScript,0.998872,JavaScript:0.999;Node.js:0.001;.NET:0.000,computer programming;agile;Angular;git;jira;jquery;Sass;html;CSS;AJAX;mongodb;node.js;mercurial;Visual Basic,,9.1667,ranges,senior,years
+1458d7d8-4da6-55e7-b675-66e52fa97c88,Other/other,0.122707,Other/other:0.123;Java:0.094;.NET:0.060,transmission technology,,10.0,statement,senior,years
+172c482e-dcfd-5065-ae85-9381bd613d54,DevOps,0.994141,DevOps:0.994;Lead/other:0.002;Java:0.001,Scratch (computer programming);aws;kubernetes;DevOps;docker;terraform;Jenkins (tools for software configuration management);linux;MySQL;mongodb,,,,,
+1bda4b5a-df52-5823-8112-1b52b8b3b24c,Sysadmin,0.475703,Sysadmin:0.476;Support:0.220;DevOps:0.143,manage closed-circuit television system;windows;terminal;distributed directory information services,,,,,
+3cf2f2c6-811f-5f69-8d05-9ed11f573b89,Support,0.258481,Support:0.258;Other/other:0.162;QA:0.058,,,5.0,statement,senior,years
+4bbae5ef-c905-57e5-bda3-a86f0ac6d3d0,Sysadmin,0.973405,Sysadmin:0.973;DevOps:0.023;Security:0.002,windows;distributed directory information services;domain name service,cloud technologies,,,,
+cab928e1-a4f5-5056-8fda-9fda6a7f5d1c,DevOps,0.986097,DevOps:0.986;Sysadmin:0.014;Security:0.000,domain name service;operating systems;windows;linux;ubuntu;centos;macos;web services;git;Ansible;Jenkins (tools for software configuration management);terraform;kubernetes;Python (computer programming);bash;vmware,,,,,
+eef2b968-5c47-5b2e-ba2a-ebaa8aa56164,Sysadmin,0.269799,Sysadmin:0.270;QA:0.215;C++:0.083,linux;unix;windows,,,,,
+f34493c6-932c-59ef-bdef-cf9b0c873d80,DevOps,0.37947,DevOps:0.379;Data Analyst:0.140;Security:0.139,Python (computer programming);kubernetes;windows;SQL;Cisco;vmware;penetration testing tool;Metasploit;mobile device management;powershell;business intelligence;procurement of ICT network equipment;aws,,,,,
+f8d6ecee-668a-5b2a-b1ba-7f91614d4cec,Java,0.999367,Java:0.999;Node.js:0.000;JavaScript:0.000,Java (computer programming);react;TypeScript;spring;rest;SQL;PostgreSQL;MySQL;elasticsearch;kafka;aws;docker;linux,,6.0,statement,senior,years
+19121db2-75ba-57a4-81a2-20879792daa8,Lead Generation,0.810004,Lead Generation:0.810;Sales:0.167;Marketing:0.008,,,,,,
+3869faec-8fbb-53c3-9264-e567458dcda5,Sales,0.992091,Sales:0.992;Marketing:0.003;Lead Generation:0.003,Scratch (computer programming),,7.0,statement,senior,years
+3932f4d4-7707-537b-aecb-4e6b004c2bea,Marketing,0.94912,Marketing:0.949;Other/other:0.019;Lead Generation:0.008,,,3.0,statement,middle,years
+4b9c7719-02e9-50c5-b297-799e4341f8a1,Sales,0.72488,Sales:0.725;Project Manager:0.196;Other/other:0.032,,,10.0,statement,senior,years
+505fe496-db23-5cd6-a331-ef01e2145bdf,Business Analyst,0.159885,Business Analyst:0.160;Other/other:0.154;Support:0.150,outlook,,0.3333,statement,junior,years
+5410df1b-1106-56d6-94a3-6c79e7e2b21d,Lead Generation,0.964976,Lead Generation:0.965;Sales:0.018;Marketing:0.007,computer programming,,2.0,statement,middle,years
+6eda3128-5c0b-58e8-8e9d-3a599b70ac74,.NET,0.913443,.NET:0.913;JavaScript:0.054;Lead/other:0.014,JavaScript;jquery;C#;ASP.NET;SQL;Visual Basic;azure;vue;react;agile,,10.0,statement,senior,years
+74f9d353-8105-52be-a7ad-48710f2f7a28,JavaScript,0.556858,JavaScript:0.557;Lead Generation:0.099;Other/other:0.080,,,,,intern,token
+8fdde0b9-3a7c-53f8-b768-32ae67026ede,Project Manager,0.228889,Project Manager:0.229;Other/other:0.228;Design:0.105,,,,,,
+db17be18-9b1e-5dc1-83a6-e0dd04307c34,Sales,0.937959,Sales:0.938;Marketing:0.018;Project Manager:0.009,flow;machine learning;stimulate creative processes,,3.0,statement,middle,years
+021a1cc6-0481-5334-a15b-4a1fa0acca1d,DevOps,0.995978,DevOps:0.996;Sysadmin:0.003;Security:0.001,DevOps;linux;debian;ubuntu;centos;docker;kubernetes;gitlab;github;terraform;aws;digital identity management;Ansible;PostgreSQL;MySQL;mongodb;redis;bash;Kali Linux;Cisco,,,,,
+0d041290-7c43-56ef-bcb5-0bde8390f2ca,DevOps,0.869802,DevOps:0.870;Lead/other:0.014;Sysadmin:0.010,DevOps,,,,,
+259d592a-fdf0-5559-a95f-f18ecfe2af02,DevOps,0.903743,DevOps:0.904;Python:0.034;Golang:0.028,kubernetes;docker;gitlab;Ansible;control systems;git;linux;ubuntu;centos;bash;Python (computer programming);web services,,,,,
+34dff99d-2a2d-5d42-8b04-1f0707b5bc6f,Python,0.951676,Python:0.952;Java:0.012;Node.js:0.007,Python (computer programming);rest;docker;aws;redis;SQL;mongodb,,5.0,statement,senior,years
+4a540a6f-5c8c-5b94-bd38-bdb6f3babe5b,DevOps,0.882009,DevOps:0.882;Ruby:0.104;Sysadmin:0.004,windows;Puppet (tools for software configuration management);terraform;aws;atlassian;jira;Jenkins (tools for software configuration management);linux;terminal;implement ICT recovery system;Ruby (computer programming);powershell;kubernetes;docker;gitlab;redis;confluence,,,,,
+91549df1-f01a-5835-b77f-b4a2c8edfe48,Design,0.997142,Design:0.997;Other/other:0.001;Product Manager:0.000,jira;Adobe Illustrator;iOS;Android (mobile operating systems);agile;scrum;kanban;zoom,,1.0,statement,junior,years
+aa41f1e8-137c-546d-a42f-a992a4be8d77,DevOps,0.463281,DevOps:0.463;Data Engineer:0.441;Python:0.047,aws;pandas;data science;Python (computer programming);Source (digital game creation systems);elasticsearch;SQL;bash;powershell;dynamodb;redshift;snowflake;airflow;tools for software configuration management;digital identity management;terraform;Jenkins (tools for software configuration management);Ansible;atlassian;ML (computer programming);tableau,,5.0,statement,senior,years
+d966166a-3aac-55cb-99e5-24799ea0df38,.NET,0.519943,.NET:0.520;JavaScript:0.152;Python:0.139,C#;windows;react;firebase;database;Python (computer programming);C++;SQL;Java (computer programming);JavaScript;html;CSS;django;firestore;linux,,,,,
+da5bc547-917d-5a6e-b66b-911386c3cd15,DevOps,0.859345,DevOps:0.859;Sysadmin:0.068;Support:0.052,DevOps;linux;maintain computer hardware,,4.4167,ranges,middle,years
+f74ffc30-b3ee-54c8-8c21-53b02582e377,DevOps,0.906684,DevOps:0.907;Lead/other:0.025;Sysadmin:0.018,DevOps;flow;react;windows;c;knowledge base;data protection;implement ICT recovery system,,,,,
+1b1eb6ba-e6e2-5c70-b995-f9c8d6d999bb,Design,0.923062,Design:0.923;Artist:0.018;Other/other:0.011,,,,,,
+1bb73e8d-52bd-5d16-a188-3f8536e1f24d,PHP,0.988642,PHP:0.989;JavaScript:0.005;Node.js:0.001,rest;Scratch (computer programming);WordPress;Joomla;PHP;CSS;jquery;MySQL,,,,,
+1f6d4217-09c5-5ff1-bfae-80e7922e3c18,PHP,0.570847,PHP:0.571;Golang:0.163;JavaScript:0.116,PHP;MySQL;JavaScript;html;CSS;Python (computer programming);c;Source (digital game creation systems),,,,,
+2a7b260a-1fb4-53be-9196-10d0e4bdd298,Lead/other,0.300051,Lead/other:0.300;JavaScript:0.198;Golang:0.157,go;node.js;Python (computer programming);aws;MySQL;JavaScript;CSS;linux;mongodb;confluence;html;PHP;Java (computer programming);redis;Angular;Haskell;jira,,,,,
+45331c47-3003-5aee-b4f9-3207bfd9d1ee,PHP,0.892949,PHP:0.893;Node.js:0.048;JavaScript:0.040,PHP;node.js;SQL;MySQL;mariadb;redis;JavaScript;vue;jquery;CSS;linux;docker;firebase;Sass;git;aws;Jenkins (tools for software configuration management);trello;clickup,WordPress,6.0,statement,senior,years
+8b78847e-84a4-516e-aa13-6d2bbcbdc96b,PHP,0.706446,PHP:0.706;Python:0.066;Project Manager:0.055,flow;algorithms;PHP;Python (computer programming);laravel,,5.0833,ranges,senior,years
+9f02c613-ceaa-50bc-b4b8-0d06d47056bb,HR,0.939238,HR:0.939;Recruiter:0.044;Project Manager:0.006,Scratch (computer programming),,10.0,statement,senior,years
+a3b3b297-8317-58fb-808a-6353617bab2a,PHP,0.996328,PHP:0.996;JavaScript:0.002;Lead/other:0.001,PHP;Source (digital game creation systems);WordPress;MySQL;SQL;database;AJAX;jquery;git;github;agile;trello;jira;linux;windows;html;Scratch (computer programming);rest,,10.0,statement,senior,token
+a8762459-a7d1-58f8-98db-112f551f4b1f,PHP,0.99849,PHP:0.998;JavaScript:0.000;Node.js:0.000,PHP;laravel;MySQL;PostgreSQL;JavaScript;scrum;linux;docker;git;bash;computer programming,,2.0,statement,middle,years
+dbe3cd59-1857-5c97-a622-eff89497e87b,PHP,0.400079,PHP:0.400;Node.js:0.101;JavaScript:0.074,WordPress,,2.0,statement,middle,years
+05933697-619b-559f-b28b-b8cabfb6a456,Java,0.981536,Java:0.982;Python:0.003;SQL:0.003,spring;rest;soap;SQL;html;CSS;database;MySQL;PostgreSQL;integrated development environment software;Eclipse (integrated development environment software);git;Apache Maven;Apache Tomcat,,,,,
+1095b1de-d172-569b-ac02-1df8c76dbeea,DevOps,0.527289,DevOps:0.527;Sysadmin:0.437;Lead/other:0.003,docker;linux;vmware;windows;unix;Ansible;centos;oracle;jira;azure;cloud technologies,,,,,
+1675d485-7aa3-5621-9d7b-aaa1097dfa76,DevOps,0.62545,DevOps:0.625;Support:0.142;Sysadmin:0.062,DevOps;gcp;Python (computer programming);airflow;jira;powershell;linux;vmware;knowledge base;Android (mobile operating systems);slack;snowflake;SQL;looker;Cisco;azure;use online tools to collaborate;agile,,4.6667,ranges,senior,token
+18923514-2019-5b6c-83d8-0ab19541ad92,QA Automation,0.143521,QA Automation:0.144;Java:0.112;Security:0.087,cyber security;digital data processing,,6.0,statement,senior,years
+1e11a0d9-a9b0-5d7a-9d59-6669eeb8a44a,DevOps,0.995319,DevOps:0.995;Sysadmin:0.002;Lead/other:0.000,sensors;docker;gitlab;node.js;Ansible;Vagrant;elasticsearch;linux;aws;vmware;PostgreSQL;kubernetes;Python (computer programming);SQL;unified modelling language;git;Jenkins (tools for software configuration management),,,,,
+70d5de6e-b819-57c4-a518-e2130d17ede6,DevOps,0.908725,DevOps:0.909;Sysadmin:0.081;Python:0.005,azure;Python (computer programming);powershell;bash;linux;kali;ubuntu;aws,,,,,
+75a00c43-a33f-5343-9941-b9122118a777,Project Manager,0.88242,Project Manager:0.882;JavaScript:0.059;QA:0.011,control systems;html;CSS;agile;scrum,,,,lead,token
+7eadbc50-8219-514d-b92f-a3fb08bc5f4a,DevOps,0.95977,DevOps:0.960;PHP:0.033;Python:0.002,PHP;DevOps;terraform;linux;ubuntu;aws;digital identity management,,0.5,statement,junior,years
+9938e1a6-2e20-5f32-a79c-141fd509e01f,DevOps,0.938891,DevOps:0.939;Lead/other:0.024;Golang:0.011,aws;kubernetes;terraform;Ansible;Puppet (tools for software configuration management);DevOps;implement ICT recovery system;linux,,15.0,statement,senior,years
+ea6e7da5-eebb-5d61-8374-1781c29b441b,DevOps,0.451987,DevOps:0.452;Python:0.362;Golang:0.057,"TypeScript;aws;terraform;Python (computer programming);kubernetes;data extraction, transformation and loading tools;Hadoop;spark;service-oriented modelling;machine learning;Ruby (computer programming)",,15.0,statement,senior,token
+4ba34626-98a9-5f87-8656-cb6145ea093f,Business Analyst,0.504126,Business Analyst:0.504;QA:0.374;Project Manager:0.076,,,5.0,statement,senior,years
+50ac008f-33b6-5459-bdc6-2f4907e381fb,QA,0.99198,QA:0.992;Project Manager:0.002;QA Automation:0.002,knowledge base;jira;confluence;trello;integrated development environment software;Jenkins (tools for software configuration management);SQL;html;CSS;bitbucket,,,,,
+59b89710-06e3-560a-81ee-d3d663759758,DevOps,0.65794,DevOps:0.658;QA Automation:0.105;Java:0.061,kubernetes;gitlab;Jenkins (tools for software configuration management);linux,,,,,
+783c0f1b-d696-5931-a791-f132a31b685c,QA,0.983004,QA:0.983;QA Automation:0.007;Other/other:0.004,jira;SQL;html;CSS;database;slack;trello,,,,,
+9b261f5c-4411-5cbf-bcad-3a147596f16c,QA,0.994277,QA:0.994;QA Automation:0.005;Java:0.000,git,,0.5,statement,junior,years
+cfeb4920-f241-506a-9718-23e4a8037a4e,QA,0.959355,QA:0.959;QA Automation:0.019;Business Analyst:0.010,Scratch (computer programming);jira;confluence;MySQL;aws,,3.0,statement,middle,years
+d3a1a42f-dd89-50b1-9319-0eece9bcdcae,QA Automation,0.790657,QA Automation:0.791;QA:0.203;Java:0.005,SQL;selenium;Java (computer programming);agile,,,,,
+db861200-6524-5ea4-99e0-081ad801db60,QA,0.914932,QA:0.915;QA Automation:0.053;Lead/other:0.009,vue;sap;knowledge base;jira;confluence;scrum,TypeScript,9.0,statement,lead,token
+f2cc0a64-4ac4-54f4-bdd9-c42dd1681519,JavaScript,0.461683,JavaScript:0.462;QA:0.438;Project Manager:0.011,jira;agile,html,,,lead,token
+fac3c719-b829-5934-a5e3-9447587b1012,Marketing,0.293236,Marketing:0.293;Design:0.290;Project Manager:0.067,,,,,,
+0fdbb527-53f7-5121-a03c-02d3c574b54c,HR,0.700839,HR:0.701;Recruiter:0.292;Project Manager:0.004,,,,,,
+10021134-c7d0-51c9-9f3f-9da25fc63d56,Project Manager,0.614361,Project Manager:0.614;Marketing:0.329;Other/other:0.027,,,1.3333,ranges,intern,token
+29170d58-2655-558a-8779-e85179b4c589,Support,0.62868,Support:0.629;Other/other:0.080;Project Manager:0.051,,,,,,
+4e1676e0-762f-55bc-875c-02579d612187,Design,0.285213,Design:0.285;JavaScript:0.206;Other/other:0.088,learning management systems,,6.0,statement,senior,token
+55801404-ab1b-5a30-8cea-276434fd9cad,Python,0.816568,Python:0.817;.NET:0.036;Node.js:0.018,Python (computer programming);aws;gcp,,5.0,statement,senior,years
+78bc4803-0958-5ada-9cbf-52c153bcdeb8,HR,0.972541,HR:0.973;Recruiter:0.009;Other/other:0.007,,,,,,
+ae57c944-ccca-51bb-95f9-10b6bcb93787,SQL,0.550529,SQL:0.551;Data Engineer:0.211;Data Analyst:0.120,"Scratch (computer programming);PostgreSQL;SQL;Python (computer programming);data extraction, transformation and loading tools;aws;SQL Server",,5.0,statement,senior,years
+bf8879ee-a6d1-544f-a086-1b3361bff19e,HR,0.885507,HR:0.886;Recruiter:0.099;Other/other:0.007,,,,,lead,token
+deb09834-1f9c-5070-8d44-d06796c64826,HR,0.853366,HR:0.853;Recruiter:0.146;Other/other:0.000,zoom,,6.0,statement,intern,token
+f481bbc8-7d80-5e4a-985c-2c216e556a85,Recruiter,0.978631,Recruiter:0.979;HR:0.019;Python:0.001,Python (computer programming);django;DevOps;aws;azure;search engines,,3.0,statement,middle,token
+0782979e-c1fa-5d84-9379-1a946fd6d7c2,DevOps,0.9115,DevOps:0.911;Sysadmin:0.048;Support:0.005,azure;DevOps;bitbucket;windows;powershell;bash;jira;gcp,,,,junior,token
+09601e8f-50e7-5389-9be2-c1736657e870,JavaScript,0.981599,JavaScript:0.982;PHP:0.014;Node.js:0.003,JavaScript;TypeScript;react;flow;html;CSS;windows;mongodb;WordPress;PHP;laravel;process data;MySQL,agile,,,,
+5be00ea1-3098-587b-8e81-8dff8e559177,DevOps,0.992914,DevOps:0.993;Sysadmin:0.004;Python:0.001,Puppet (tools for software configuration management);Ansible;DevOps;Python (computer programming);Jenkins (tools for software configuration management);aws;bash;Chef (tools for software configuration management);MySQL;redis;cassandra;gitlab;svn;jira;confluence,,,,,
+72c0508d-68ca-524b-bceb-2571e4bb348c,DevOps,0.141884,DevOps:0.142;Lead/other:0.130;Sysadmin:0.057,windows,,,,,
+74915d0f-2c31-5b10-b5b3-983d6abaefea,Java,0.971012,Java:0.971;Node.js:0.005;Python:0.004,Java (computer programming);rest;database,,1.0,ranges,junior,years
+8d31878b-9a4b-59ea-9bf4-b90ac401645d,DevOps,0.99752,DevOps:0.998;Sysadmin:0.001;Python:0.000,DevOps;aws;terraform;linux;docker;kubernetes;gitlab;digital identity management;Android (mobile operating systems);iOS;macos;Jenkins (tools for software configuration management);bitbucket;git;Ansible;database;transmission technology;bash;Python (computer programming);machine learning;scrum,,,,junior,token
+9448f69d-de41-5c9f-81d7-4bb555372c29,DevOps,0.98855,DevOps:0.989;Sysadmin:0.004;Java:0.001,aws;digital identity management;Jenkins (tools for software configuration management);ubuntu;git;terraform;docker;DevOps,,,,,
+c1ccce27-0177-52bd-bdbe-906289266cf3,Design,0.999892,Design:1.000;Other/other:0.000;iOS:0.000,create prototype of user experience solutions;iOS;Android (mobile operating systems);flow,,0.5,statement,junior,years
+df0f75e4-8656-523a-8681-fdca8f581844,DevOps,0.99781,DevOps:0.998;Python:0.001;C++:0.000,aws;DevOps;Jenkins (tools for software configuration management);gitlab;digital identity management;bash;Python (computer programming),,1.5,statement,junior,years
+ec9c3d56-86d2-512a-a1b4-f8a5ba7da544,DevOps,0.971641,DevOps:0.972;Java:0.010;Sysadmin:0.005,programmable logic controller;git;Jenkins (tools for software configuration management);Source (digital game creation systems);kubernetes;ICT encryption;elasticsearch;windows;linux;Python (computer programming);Java (computer programming);DevOps;gitlab;docker,,0.5833,ranges,intern,token
+01da3e11-2ca0-57a6-a9b0-8bd26a86d0ef,JavaScript,0.875402,JavaScript:0.875;Node.js:0.025;Project Manager:0.024,html;CSS,,,,lead,token
+055cf969-9491-5d1e-b3ef-ebba544aecad,JavaScript,0.904971,JavaScript:0.905;PHP:0.080;Node.js:0.006,WordPress;Scratch (computer programming);electron;react;TypeScript,,4.0,statement,middle,years
+254305a0-9aa0-531f-8698-aa9d5f36c5d7,JavaScript,0.927306,JavaScript:0.927;Node.js:0.071;Lead/other:0.001,react;vue;Scratch (computer programming);node.js;aws;Sass;JavaScript;express;query languages;dynamodb;PostgreSQL;mongodb;graphql;bitbucket;github;firebase;redshift;docker;bash,,,,,
+383dd957-914e-51c2-8be0-9eed3401b4cd,JavaScript,0.991373,JavaScript:0.991;Node.js:0.002;Python:0.001,JavaScript;react;control systems;git;graphql,learning technologies,,,,
+4560e90a-8c6c-5d11-85d5-c3274855f788,Java,0.997011,Java:0.997;JavaScript:0.002;Node.js:0.001,Java (computer programming);spring;react;rest;MySQL;kafka;elasticsearch,,,,intern,token
+632683ff-2c22-58c2-8d41-8f21e688db43,JavaScript,0.386706,JavaScript:0.387;.NET:0.089;Python:0.081,github,,,,,
+9474c542-af35-5752-8ba4-57ca9fb6227b,JavaScript,0.99812,JavaScript:0.998;Node.js:0.000;Java:0.000,JavaScript;jquery;react,,,,,
+9905a086-0963-5076-be7d-658db0422c35,JavaScript,0.92585,JavaScript:0.926;.NET:0.021;Java:0.012,html;CSS;TypeScript,,,,,
+cde32b32-32e0-59df-a2b4-2f64d6974a27,Marketing,0.968816,Marketing:0.969;Design:0.006;Technical Writing:0.006,,,7.4167,ranges,senior,years
+ecd6c8f7-3770-5c20-8d4c-cbc68c1257da,Design,0.538335,Design:0.538;JavaScript:0.277;.NET:0.023,,,,,,
+0b760cc7-5751-5a61-986d-c7571c10add6,Python,0.712587,Python:0.713;.NET:0.080;C++:0.062,Python (computer programming);Scratch (computer programming);scrum;DevOps;iOS;Android (mobile operating systems);azure;rest;signal processing;algorithms;C++;qt;MySQL;PostgreSQL,,,,,
+17d85254-ea16-5687-ba9a-d5bbd03c749f,Python,0.978405,Python:0.978;JavaScript:0.004;QA:0.003,Python (computer programming);django;flask;html;CSS;jquery;SQL;PostgreSQL;sqlite;MySQL;git;linux,,,,,
+22a41009-1ee8-57c5-bb7c-cb6b308f51c6,Marketing,0.968127,Marketing:0.968;Project Manager:0.011;Other/other:0.004,,,,,,
+26ebc4d9-e4fc-5be6-9885-ce7411734366,JavaScript,0.626764,JavaScript:0.627;Python:0.069;PHP:0.041,JavaScript;html;CSS;sqlite;flask;c;jquery;AJAX;mongodb,,,,,
+2d825abe-56b4-5699-b268-e5d1f995ca8b,Python,0.952332,Python:0.952;Data Engineer:0.022;DevOps:0.004,gcp;flow;Python (computer programming);fastapi;rest;flask;SQL;sqlite;PostgreSQL;NoSQL;dynamodb;git;github;Internet of Things,,,,,
+3d20dcee-509f-527c-8cbd-80d8dc4f408d,JavaScript,0.368143,JavaScript:0.368;Python:0.158;Design:0.051,mongodb;flask;github,,,,,
+4b0982a4-9097-532c-b8e2-0dc5d5563906,Python,0.580168,Python:0.580;PHP:0.375;DevOps:0.012,Python (computer programming);PHP;SQL;flask;django;symfony;laravel;WordPress;aws;jquery;AJAX;web services;soap;rest;MySQL;redis;linux;bash;shell,,10.0,statement,senior,years
+6b50de09-072e-53b6-8105-97e9bf0603c4,Python,0.972966,Python:0.973;DevOps:0.017;PHP:0.003,Python (computer programming);PHP;django;proxy servers;DevOps;gitlab;kubernetes;PostgreSQL,,,,,
+8f31c09e-08cf-5a4e-aef5-34b5ecf0f7d3,Flutter,0.715184,Flutter:0.715;iOS:0.151;Android:0.063,flutter;rest;dart;git;gitlab;jira,Android (mobile operating systems);iOS,,,,
+e3175d9e-55f6-5596-b2cc-370d3552c7ee,Python,0.999594,Python:1.000;Node.js:0.000;PHP:0.000,django;rest;fastapi;mongodb;Python (computer programming),,,,,
+11ccd989-4ccf-50c4-9060-968b9ba02a3f,JavaScript,0.999977,JavaScript:1.000;Node.js:0.000;.NET:0.000,react;Angular;ionic;TypeScript;JavaScript,,4.0,statement,middle,years
+49d4dda3-4911-573d-808d-d129acbc0308,JavaScript,0.993808,JavaScript:0.994;Node.js:0.005;PHP:0.001,JavaScript;node.js;rest;computer programming;jquery;SQL;TypeScript;CSS;html;react;graphql;vue;laravel;mongodb;git;Angular;JavaScript Framework;ember.js;next.js;integrated development environment software;Jenkins (tools for software configuration management);gitlab;Scratch (computer programming),,7.0,statement,senior,years
+693ebf28-505d-5e25-a5de-dd23d11a5702,JavaScript,0.80512,JavaScript:0.805;Design:0.029;Other/other:0.020,,,,,,
+7fe0407c-0d65-5f6c-a2d0-c7ebb21303a1,JavaScript,0.997542,JavaScript:0.998;Node.js:0.001;.NET:0.000,react;TypeScript;flow;rest;git;control systems;scrum,,,,,
+9041f671-0dad-56c1-90d6-925f16cb3592,JavaScript,0.832471,JavaScript:0.832;Project Manager:0.121;Marketing:0.015,jquery;html;CSS;WordPress;graphics editor software;Angular;JavaScript;Adobe Photoshop;jira;git;scrum;online ads campaign techniques,,,,,
+ab054fda-374d-5dbd-bb4d-a7e28ad9c9cb,JavaScript,0.999696,JavaScript:1.000;Node.js:0.000;Other/other:0.000,Angular;JavaScript;TypeScript;CSS;Sass;git;npm;vue;react;node.js;create prototype of user experience solutions,,,,,
+d31d100e-0a67-5e13-9525-6de583a977f5,Java,0.869873,Java:0.870;Golang:0.070;JavaScript:0.006,Java (computer programming),,,,,
+d5388710-d97b-5173-8c66-2a50704d1ff4,Product Manager,0.977617,Product Manager:0.978;Project Manager:0.005;Other/other:0.005,blockchain;scrum;DevOps;flow;cryptocurrency,,5.0,statement,senior,years
+d7ff4398-71d3-5e06-b8fe-358951c2e83b,JavaScript,0.695476,JavaScript:0.695;Python:0.043;Design:0.038,,,,,,
+eebbcede-0967-5ce3-8a97-4af232cc0bfd,QA,0.971187,QA:0.971;QA Automation:0.012;JavaScript:0.011,git;github;html;CSS,,,,intern,token
+0f6ce2fc-14db-52ba-ad18-5fb79dc20c04,Design,0.365393,Design:0.365;Artist:0.251;Other/other:0.238,,,10.0,statement,senior,years
+273ffbb8-5682-5a89-823e-4d4bf695e7d3,Design,0.823256,Design:0.823;JavaScript:0.021;Artist:0.016,create prototype of user experience solutions,,,,,
+442cc484-a390-54e7-b252-91f59013cd5d,Design,0.99734,Design:0.997;Other/other:0.001;Artist:0.001,wire;graphics editor software;create prototype of user experience solutions,,,,,
+5bb1c363-7d2f-5c94-bf37-c6438dec793c,Design,0.904039,Design:0.904;Artist:0.027;Other/other:0.011,graphic design,,3.0,statement,intern,token
+66067664-f72a-5f9a-a288-a9ead14a7573,Design,0.991598,Design:0.992;Other/other:0.003;Artist:0.002,Scratch (computer programming);Adobe Photoshop,,,,,
+b4f69139-0b6d-56e0-b823-ccc85e127a57,Design,0.99226,Design:0.992;Business Analyst:0.002;Product Manager:0.001,create prototype of user experience solutions,,3.0,statement,middle,years
+ca3750b6-dcf3-5801-a7d6-d8e04b504f2b,JavaScript,0.996341,JavaScript:0.996;Design:0.002;Node.js:0.001,vue;graphql;create prototype of user experience solutions;JavaScript;react,Angular,4.0,statement,senior,token
+dd5ee566-c08d-550c-adab-bc3010470bf9,Design,0.808076,Design:0.808;Other/other:0.070;Unity:0.014,blockchain;cryptocurrency;create prototype of user experience solutions,,5.0,statement,senior,years
+e0aa9af6-760c-594e-8abf-11f4fb7c5ef5,SQL,0.910041,SQL:0.910;.NET:0.045;Data Engineer:0.020,"Oracle WebLogic;SQL;oracle;SQL Server;data extraction, transformation and loading tools;flow;Visual Basic;C#;t-sql;powershell;ssis;ssrs;sharepoint;windows",,4.0,statement,middle,years
+e312f4e8-da98-5a41-85b4-02d4141574a7,Design,0.986012,Design:0.986;Product Manager:0.003;Other/other:0.002,create prototype of user experience solutions;service-oriented modelling;Source (digital game creation systems);design process,,4.0,statement,middle,years
+10769d21-7691-502b-81e8-3d73a273ffa6,Python,0.962354,Python:0.962;Data Analyst:0.013;Data Science/data scientist:0.007,Python (computer programming);fastapi;digital data processing;pandas;PostgreSQL;mongodb,,2.0,statement,middle,years
+4ffc7419-5b05-51d3-8c22-7eb95b4c79a0,JavaScript,0.97473,JavaScript:0.975;Design:0.019;QA:0.002,computer technology;Sass;Angular;html;CSS;create prototype of user experience solutions;git;github;bitbucket;gitlab,,4.0,statement,middle,years
+5a3826eb-4f5b-56c1-8d36-9f43eab3b139,Python,0.990234,Python:0.990;JavaScript:0.004;Other/other:0.001,Python (computer programming);django;rest;JavaScript,,,,,
+6fdd506a-75c7-5795-a9ee-80ecfd4e0aba,Python,0.918343,Python:0.918;Support:0.008;Data Science/data scientist:0.008,Python (computer programming);django,,1.0,statement,junior,years
+84a0997f-9fa5-5a2b-8c88-4339ae15ebef,Python,0.976149,Python:0.976;SQL:0.005;Data Analyst:0.004,algorithms;flask;django;SQL;Python (computer programming);github;graphql;docker,,,,,
+98806985-b67a-5d63-9a2f-9086f53d597c,Java,0.825151,Java:0.825;Python:0.136;DevOps:0.007,rest;Python (computer programming);Java (computer programming);spring;PostgreSQL;redis;elasticsearch;docker;kubernetes;aws;xamarin;azure;Internet of Things,,,,,
+b1aec9bf-c61f-5b69-a075-7dc75834f58b,Python,0.423739,Python:0.424;Data Science/data scientist:0.378;QA:0.046,Python (computer programming);machine learning;deep learning,,,,,
+cbe3890f-93a2-562d-807c-afdff218d500,HR,0.95456,HR:0.955;Recruiter:0.041;Other/other:0.001,Scratch (computer programming);c,,,,,
+e5cf42dc-ba3c-5b0a-91d9-8e71f14154ef,QA,0.937646,QA:0.938;QA Automation:0.016;Other/other:0.013,Source (digital game creation systems),,,,,
+ff6ef9e8-6043-5eef-84ff-c3c454de5b90,Data Science/data scientist,0.729958,Data Science/data scientist:0.730;Data Science/other:0.201;Data Analyst:0.037,ML (computer programming);deep learning;machine learning,artificial neural networks,,,junior,token
+0ed1737c-5a87-5413-afc1-622b69b60eec,Data Analyst,0.698042,Data Analyst:0.698;Data Engineer:0.142;Python:0.095,Python (computer programming);SQL,,,,,
+2c5cb801-8718-5f3e-adae-b3c051b8d361,Node.js,0.871834,Node.js:0.872;JavaScript:0.076;Java:0.014,node.js,,2.0,statement,junior,token
+2c76a6bc-3642-5042-bd53-6668bb154a26,Node.js,0.860864,Node.js:0.861;JavaScript:0.095;PHP:0.017,concepts of telecommunications;JavaScript;node.js;Jenkins (tools for software configuration management);gitlab;docker;kubernetes,,5.0,statement,senior,years
+6e543cfc-6969-561b-a304-4a894840c0c0,Java,0.303057,Java:0.303;JavaScript:0.170;.NET:0.158,computer engineering,,,,,
+6ec9a81d-86a3-5e21-aca2-8802a9fb468d,Product Manager,0.926499,Product Manager:0.926;Project Manager:0.064;Business Analyst:0.004,kanban,,2.0,statement,lead,token
+7c99dbb8-8d26-5388-9db1-aa083602ef04,Node.js,0.801706,Node.js:0.802;JavaScript:0.148;PHP:0.012,TypeScript;node.js;redis;PostgreSQL;graphql;Solidity;blockchain;cryptocurrency,,10.0,statement,senior,years
+82c8eb8c-f4cb-5e24-98f9-97e37ebc8297,JavaScript,0.963451,JavaScript:0.963;Node.js:0.034;Python:0.001,react;next.js;node.js;blockchain,,,,,
+a2adf90d-8c9c-5f05-9317-d52ff2c2c8d6,Node.js,0.680181,Node.js:0.680;JavaScript:0.299;.NET:0.004,database;firebase;react;airflow;gcp;firestore;NoSQL;bigquery;JavaScript;express;docker;vue;PostgreSQL;kubernetes;Jenkins (tools for software configuration management);node.js;cloud technologies;aws,,,,senior,token
+d7870c97-0f9e-5c41-8d9a-4a7dd5a71244,DevOps,0.266404,DevOps:0.266;Java:0.231;Security:0.201,computer engineering;azure;DevOps;Java (computer programming);JavaScript;PHP;SQL;agile,,5.0,statement,senior,years
+fb7b80da-4538-54b5-841d-109e5ce907be,JavaScript,0.451852,JavaScript:0.452;Node.js:0.377;PHP:0.038,database;TypeScript;PostgreSQL;react;redis;elasticsearch;cryptocurrency,,,,,
+00d2b67c-2e91-52e4-bf10-3b038f34da30,QA Automation,0.97933,QA Automation:0.979;Java:0.006;Python:0.004,Scratch (computer programming);blockchain;cryptocurrency;scrum;agile;Python (computer programming);Java (computer programming);aws;TypeScript;computer programming;rest,,,,lead,token
+109d93b4-b388-50c5-af64-1335ad0c6b33,QA Automation,0.88406,QA Automation:0.884;Java:0.098;QA:0.012,Java (computer programming);MySQL;jira;confluence;bitbucket;git;Jenkins (tools for software configuration management);github;Apache Maven;selenium;rest;SQL;spring;html;CSS;agile;scrum;azure;docker;penetration testing tool,,2.0,statement,middle,years
+18911562-0180-52af-ba83-f5aa0a93884c,QA,0.482453,QA:0.482;QA Automation:0.470;Project Manager:0.007,core banking software;selenium;agile;scrum,,,,,
+3689e151-a5b2-5880-9ecb-85e002a8fccd,QA Automation,0.694955,QA Automation:0.695;QA:0.272;Business Analyst:0.012,,,,,,
+a111aaab-5433-500f-a136-48ab409bd036,JavaScript,0.66766,JavaScript:0.668;Node.js:0.110;PHP:0.061,aws;vmware;JavaScript,,4.0,statement,middle,years
+cd440589-9c76-567a-9fdc-00857832bde3,QA,0.516657,QA:0.517;QA Automation:0.339;Python:0.048,Python (computer programming);Java (computer programming);html;CSS;SQL,,,,,
+d9c9dd48-138b-576c-aa70-d51a5a9d6249,QA,0.692427,QA:0.692;QA Automation:0.217;JavaScript:0.019,selenium,,6.0,statement,senior,years
+e36ac282-9a53-59b4-9e22-bdfffdf889e9,QA Automation,0.991822,QA Automation:0.992;Java:0.004;QA:0.003,Scratch (computer programming);web services;e-learning;Java (computer programming);selenium;docker;Apache Maven;Jenkins (tools for software configuration management);Groovy;JavaScript;html;CSS;jira;oracle;DB2;mongodb;git;operating systems;windows;linux,,5.0,statement,senior,years
+e517c3bb-784c-5052-bfc9-536cb7eaca1d,QA Automation,0.937346,QA Automation:0.937;QA:0.042;Lead/other:0.005,JavaScript;TypeScript;selenium;query languages;SQL;graphql;web services;rest;Jenkins (tools for software configuration management);docker;azure;jira;confluence;windows;linux;macos,,,,,
+fe427543-2071-5a8a-8b8f-521f9ceae2a2,QA,0.599476,QA:0.599;Python:0.288;QA Automation:0.064,Python (computer programming);c,,,,,
+115c329b-6639-5ea4-b285-8fed24dbaf97,Marketing,0.213294,Marketing:0.213;Other/other:0.180;Product Manager:0.132,blockchain;cryptocurrency;R,,,,,
+2682b655-d94b-57b9-84fb-d3aa94510343,QA,0.99644,QA:0.996;QA Automation:0.003;Project Manager:0.000,jira;SQL;MySQL;scrum;agile;html;CSS,,,,,
+2d346185-0004-54cf-a7cd-7a86c84d3bc7,Technical Writing,0.649869,Technical Writing:0.650;Sales:0.119;Marketing:0.054,,,10.0,statement,intern,token
+531e263d-5d87-5135-97dc-358931505d29,Marketing,0.291406,Marketing:0.291;Other/other:0.291;Project Manager:0.065,database;algorithms,,2.3333,ranges,intern,token
+838c819a-c24c-522c-a27b-b274a1752358,Design,0.651412,Design:0.651;Artist:0.175;Other/other:0.044,,,,,,
+85e228ee-508b-5707-8579-83bc82515f47,Other/other,0.21242,Other/other:0.212;Marketing:0.149;JavaScript:0.115,SQL;CSS;html,,,,,
+a3888d5c-d42c-5173-b2d7-23d7483ad881,Support,0.451263,Support:0.451;Other/other:0.174;Sales:0.091,cryptocurrency,,6.0,ranges,lead,token
+a6c1db10-3ee9-57ab-9221-980bbbd12fbf,JavaScript,0.999335,JavaScript:0.999;Node.js:0.000;Design:0.000,github;rest;AJAX;react;html;Sass;CSS;JavaScript;agile;scrum,,,,lead,token
+ac71c182-e8b9-5001-ab62-42a827e64b1b,Support,0.829553,Support:0.830;Data Analyst:0.077;Other/other:0.043,SQL,,,,,
+c76dae81-7a70-5408-9fad-df8f3125f919,Project Manager,0.438309,Project Manager:0.438;Support:0.151;Business Analyst:0.121,,,,,lead,token
+1c07c53a-d2a6-5f10-92cf-eb0d3cd790b7,.NET,0.968858,.NET:0.969;JavaScript:0.029;Python:0.001,C#;JavaScript;TypeScript;react;vue;Python (computer programming);django;ASP.NET;computer programming;database;SQL;git;Jenkins (tools for software configuration management);azure;Visual Basic;asp.net core;service-oriented modelling;jquery;PostgreSQL;aws;Angular,,5.5,ranges,senior,years
+1ec4fd00-9df3-52eb-9ef3-642024e5d0be,DevOps,0.899555,DevOps:0.900;Sysadmin:0.011;Java:0.010,gcp;aws;docker;Ansible;terraform,,,,senior,token
+2b063201-a742-5ec0-9089-fb8a0c2761c2,.NET,0.906558,.NET:0.907;Lead/other:0.047;SQL:0.014,"business intelligence;azure;JavaScript;Visual Basic;ASP.NET;C#;rest;distributed directory information services;SQL Server;ssis;excel;power bi;ssrs;MDX;data mining;data extraction, transformation and loading tools;TypeScript;Angular;computer programming;react;DevOps",,10.0,statement,lead,token
+319a220f-5609-5beb-b380-c927d8b1ace8,QA,0.916169,QA:0.916;JavaScript:0.021;QA Automation:0.021,html;CSS;rest;agile;scrum;kanban;jira;trello;github;selenium;integrated development environment software;SQL Server;SQL;t-sql;Visual Basic;Adobe Photoshop,,,,,
+432d02bb-6a36-536b-b3bb-b3070d1d3063,.NET,0.632772,.NET:0.633;C++:0.279;SQL:0.019,SQL;arch;database;C#;c;Perl;computer programming;JavaScript;Erlang;C++;Visual Basic;unified modelling language;integrated development environment software;windows;database management systems,,,,,
+856c3af0-3aed-5f5a-9e90-0136a1ead306,.NET,0.829622,.NET:0.830;Android:0.034;iOS:0.026,Android (mobile operating systems);windows;C#;xamarin;iOS;Objective-C;Visual Basic;ASP.NET;jquery;Xcode;Eclipse (integrated development environment software);git;scrum;JavaScript,,13.0,statement,lead,token
+8ba187fd-328a-5f14-bf4a-210342dc40cf,.NET,0.990208,.NET:0.990;JavaScript:0.004;PHP:0.001,ASP.NET;html;Canvas (learning management systems);Visual Basic;C#;JavaScript;react;database;PostgreSQL;mongodb;system design;kafka;redis,,10.0,statement,lead,token
+999c8852-06fa-51f5-bf3a-5927406b4cf6,JavaScript,0.295996,JavaScript:0.296;PHP:0.089;Java:0.082,,,6.0,statement,senior,token
+bec49d1e-8c29-5991-9663-4281418729f8,.NET,0.997189,.NET:0.997;JavaScript:0.002;PHP:0.000,Visual Basic;C#;JavaScript;SQL;azure;git;ASP.NET;vue;rest;LINQ,,4.0,ranges,middle,years
+c19c7a8b-4497-50d5-bb78-76314b5816c3,.NET,0.959189,.NET:0.959;JavaScript:0.016;Java:0.006,Visual Basic;windows;C#;excel;system design,,15.0,statement,senior,years
+2a8a1702-a7ad-5f43-9ffa-4bdeb527ae67,QA,0.986958,QA:0.987;QA Automation:0.003;Java:0.002,create prototype of user experience solutions;SQL;computer science,,6.0,statement,senior,token
+4737f067-5a6d-5267-b8cf-184ab356c986,Marketing,0.89453,Marketing:0.895;Sales:0.027;Support:0.022,cryptocurrency;pay-per-click;use spreadsheets software,,3.0,statement,middle,years
+5b1a5ba4-2d0a-51bd-b62c-77f58c98c47c,HR,0.96442,HR:0.964;Recruiter:0.014;Other/other:0.011,sap;sharepoint;zoom;slack,,10.0,statement,senior,years
+5b2ec097-2d9d-54af-8a3c-77292aa40799,Recruiter,0.775694,Recruiter:0.776;HR:0.224;Other/other:0.000,database,,,,,
+6e46559d-1fdc-5306-a27a-eba3676b28f6,HR,0.926794,HR:0.927;Recruiter:0.030;Project Manager:0.011,,,10.0,statement,senior,years
+828dfdf3-64c2-58df-a0d4-befd5b8d081d,Design,0.456083,Design:0.456;JavaScript:0.273;Android:0.037,iOS;Android (mobile operating systems),,,,,
+9779b983-34fa-5987-a8ae-3cab617ca9e6,HR,0.969279,HR:0.969;Recruiter:0.012;Other/other:0.006,agile,,4.0,statement,middle,years
+a3e30e54-5159-5138-a21d-2b049964da7f,Recruiter,0.808416,Recruiter:0.808;HR:0.153;Other/other:0.007,github;Source (digital game creation systems),,0.25,statement,junior,years
+b3daf54d-39eb-560f-8de6-1ea162c68534,HR,0.707689,HR:0.708;Recruiter:0.283;Other/other:0.002,Visual Basic;iOS;Android (mobile operating systems);PHP;SQL;DevOps,,,,,
+f5bc3dfc-0c15-587e-905a-6086b34a8ba2,HR,0.92801,HR:0.928;Other/other:0.020;Recruiter:0.015,,,25.0,statement,senior,years
+057da75a-d8d4-5621-8a1e-c527e6ab620e,Sales,0.846527,Sales:0.847;Lead Generation:0.063;Marketing:0.052,excel;social media management;word;powerpoint,,,,lead,token
+3a67fda3-29c5-5195-9127-ba07eb902bec,Sales,0.843565,Sales:0.844;Lead Generation:0.078;Marketing:0.022,,,,,,
+60f5e194-8db4-5f38-87fd-c2cd836f4ca2,Sales,0.55845,Sales:0.558;Other/other:0.159;Marketing:0.089,cryptocurrency;blockchain;Scratch (computer programming);smart contract;blockchain applications;blockchain applications security principles,,2.0,ranges,middle,years
+7704e412-cf11-5764-ab4d-a93191277e04,Business Analyst,0.572354,Business Analyst:0.572;Sales:0.161;Product Manager:0.076,,,5.3333,ranges,senior,years
+8787b185-c3f4-5e68-95f1-e2727837804b,Sales,0.377041,Sales:0.377;Project Manager:0.167;Marketing:0.156,create prototype of user experience solutions;macos;linux;windows;iOS;Android (mobile operating systems);graphic design,,,,,
+ad5ea57e-eec7-5da2-868c-7429f78e62a7,Sales,0.870193,Sales:0.870;Marketing:0.033;Support:0.019,,,16.0,statement,senior,years
+b6cddfda-38af-5c6b-becd-41a820c304c9,JavaScript,0.999161,JavaScript:0.999;Node.js:0.000;.NET:0.000,JavaScript;TypeScript;html;react;Sass,,,,,
+b9310de6-53ef-59f9-9612-480c65d99c58,Sales,0.875238,Sales:0.875;Marketing:0.038;HR:0.015,,,5.0,statement,lead,token
+d556bf2a-0cc6-59a2-8968-1ccc8c1ee2b7,Project Manager,0.315062,Project Manager:0.315;Python:0.247;Product Manager:0.201,agile;Python (computer programming);Ruby (computer programming);data engineering,,0.4167,statement,junior,years
+fd6f9d71-1578-5207-8b25-cee4beb063d4,Support,0.37261,Support:0.373;Marketing:0.129;Other/other:0.125,,,,,,
+076105dc-4eb3-5b13-b2fd-b4b1b4b86e9b,Project Manager,0.716258,Project Manager:0.716;Business Analyst:0.050;Other/other:0.046,agile;jira;confluence,,,,,
+23cbb5a1-aa0b-530e-a778-35f35ffb9c74,Project Manager,0.92665,Project Manager:0.927;Business Analyst:0.040;Product Manager:0.018,jira;confluence;iOS;system design;WordPress,,,,,
+2c96305a-3d5f-56a1-a438-b08acc919139,Project Manager,0.6988,Project Manager:0.699;Support:0.255;Other/other:0.013,jira;confluence,,5.0833,ranges,senior,years
+47c08bed-89ea-5358-8243-301ad4aa2a14,Business Analyst,0.951331,Business Analyst:0.951;HR:0.020;Project Manager:0.017,,,7.0,statement,senior,years
+6ddec077-343b-5ef1-b857-0c1eda584674,Project Manager,0.848018,Project Manager:0.848;QA:0.054;Business Analyst:0.045,,,,,,
+8b06938c-3478-542c-8d17-f9084b8d91f0,Other/other,0.252118,Other/other:0.252;Project Manager:0.144;Sales:0.053,scrum,,10.0,statement,senior,years
+d95a1b01-7596-5ab4-8cf6-e5fb95f13594,Marketing,0.895927,Marketing:0.896;Product Manager:0.074;Project Manager:0.012,database;pay-per-click;data analytics;data models;information architecture,,15.0,statement,lead,token
+db7b58bd-e63a-58f1-87aa-f39989dc56a4,Project Manager,0.695058,Project Manager:0.695;JavaScript:0.116;PHP:0.057,JavaScript;PHP;symfony;node.js;Angular;agile;scrum,,,,,
+efbfb668-4cca-5f0e-8c82-d4438c7dab1c,Recruiter,0.98088,Recruiter:0.981;HR:0.019;Other/other:0.000,database;search engines;jira,,3.0,statement,middle,years
+f7d9bbca-8511-52d8-8768-09db4dc149e8,Marketing,0.886179,Marketing:0.886;Other/other:0.023;Support:0.019,pay-per-click;database,,,,,
+17a39077-3653-5169-bc4f-a54ddde09f8f,Marketing,0.731397,Marketing:0.731;Other/other:0.094;Sales:0.051,,,14.0,statement,senior,years
+1ffe959b-0749-5572-a221-0b06d0becfd3,Marketing,0.98224,Marketing:0.982;SEO:0.002;Design:0.002,,,2.0,statement,middle,years
+2d6d79a0-4b81-58df-b2a3-cfa0132ed3a9,Marketing,0.972302,Marketing:0.972;Other/other:0.006;Project Manager:0.003,,,7.0,statement,senior,years
+6ab4089c-eede-521c-adc1-d0d905747d24,Marketing,0.878057,Marketing:0.878;Other/other:0.025;SEO:0.022,,,5.0,statement,senior,years
+7f396603-e171-5856-a721-f1b4a7a7a8c7,Design,0.765904,Design:0.766;Artist:0.076;Other/other:0.043,graphic design;electronics,,,,,
+81308987-cf54-5227-9923-4634922dd764,Android,0.985624,Android:0.986;Unity:0.006;Flutter:0.002,Android (mobile operating systems),,4.0,statement,middle,years
+ba3665d5-646c-5db9-88e3-e42788bcbfa9,Marketing,0.986359,Marketing:0.986;SEO:0.007;Other/other:0.002,search engines;WordPress,,4.0833,ranges,intern,token
+eb2b23d4-ea93-55c5-a256-efc81e152caa,Marketing,0.954373,Marketing:0.954;Project Manager:0.027;Other/other:0.007,agile;notion;flow;slack,,6.0,statement,senior,years
+fa395bb1-550e-5c97-9998-7aef933b1fdc,Support,0.194403,Support:0.194;Marketing:0.145;Technical Writing:0.107,,,,,,
+fb85be5d-7144-5f6d-bbaf-9db441e9c778,Marketing,0.726835,Marketing:0.727;SEO:0.184;Product Manager:0.012,Scratch (computer programming),,8.0,statement,senior,years
+11e99f67-9a49-5441-9bb8-579beafd5d04,Java,0.887911,Java:0.888;Project Manager:0.020;Other/other:0.009,Java (computer programming),,6.0,statement,senior,years
+15447000-270e-5419-ad9e-499f8cd64082,Java,0.996265,Java:0.996;DevOps:0.002;QA Automation:0.001,Java (computer programming);rest;oracle;mongodb;kafka;gcp;azure;spark;spring;Apache Maven;Jenkins (tools for software configuration management);docker;kubernetes;git;gitlab;linux;WildFly,,,,,
+1e9b5932-e5fb-55d5-921a-17aad6493c00,JavaScript,0.961289,JavaScript:0.961;Python:0.006;Node.js:0.004,react;git;rest;scrum;bitbucket;jira,,,,,
+20b998a9-6c8f-50d3-925d-ddcc1e49368f,Java,0.969385,Java:0.969;JavaScript:0.023;Node.js:0.001,trello;kubernetes;Angular;github;Java (computer programming);spring;SQL;MySQL;oracle;NoSQL;cassandra,,,,,
+67b1c500-708c-5a09-948c-e2cbbd884c74,Java,0.725999,Java:0.726;.NET:0.080;Node.js:0.045,blockchain consensus mechanisms;concepts of telecommunications;spring,,,,,
+797978ca-0dda-5c36-a4a3-742a0ab50933,Java,0.263576,Java:0.264;Python:0.164;.NET:0.106,Scratch (computer programming);PostgreSQL;redis;gitlab;SQL;algorithms;confluence,,,,senior,token
+9258a2d9-1c82-54da-9925-7b8990781546,Project Manager,0.99804,Project Manager:0.998;Scrum Master:0.001;Product Manager:0.000,machine learning;scrum;jira;trello;ML (computer programming);natural language processing;agile,computer vision,2.0,statement,middle,years
+a8ca84fc-5208-5159-be71-f5681b24a1cd,Java,0.994839,Java:0.995;JavaScript:0.002;.NET:0.001,Java (computer programming);spring;git;SQL,,,,,
+ae7e29dd-69d7-5998-aa6e-4cefb704ffd7,Java,0.802554,Java:0.803;.NET:0.102;SQL:0.021,aws;dynamodb;Java (computer programming);database;SQL;NoSQL;rest;C#,,,,lead,token
+bc249f8f-e754-5941-a708-f82a26b29b54,Java,0.995862,Java:0.996;JavaScript:0.002;Node.js:0.000,Java (computer programming);html;spring;PostgreSQL;rest,,,,,
+20436e2e-72fb-5dd9-8f4d-861104db4467,Marketing,0.849063,Marketing:0.849;Design:0.033;Other/other:0.032,,,5.0,statement,senior,years
+403718f4-9f02-5a22-a2dc-9742f799c72e,JavaScript,0.999064,JavaScript:0.999;PHP:0.000;Node.js:0.000,computer engineering;react,,,,,
+4af85b34-8264-5f8b-a753-ae7fd13c2a35,JavaScript,0.987148,JavaScript:0.987;Node.js:0.006;.NET:0.003,create prototype of user experience solutions;JavaScript;react,,,,intern,token
+4be663f6-78a0-571f-a6df-69a4e80bd7a0,JavaScript,0.928184,JavaScript:0.928;PHP:0.011;Design:0.010,create prototype of user experience solutions;html,,,,,
+63607f63-dbb2-53c4-93df-c5ad3fd479e8,Marketing,0.993497,Marketing:0.993;SEO:0.002;Technical Writing:0.002,blockchain;Scratch (computer programming);cryptocurrency,,10.0,statement,senior,years
+75b6a497-ac18-56f6-ae36-b937e1258754,JavaScript,0.994392,JavaScript:0.994;PHP:0.001;Node.js:0.000,JavaScript;html;CSS;Sass;jquery;computer programming;ionic;git,,,,,
+9f7fb0ee-3c9d-5943-8337-3bf4feac7d9f,JavaScript,0.999547,JavaScript:1.000;PHP:0.000;Node.js:0.000,vue;react;JavaScript;WordPress,,,,,
+a3a74f30-4dc4-5508-98b4-bc37a4533b2d,JavaScript,0.10063,JavaScript:0.101;Python:0.092;QA:0.085,,,,,,
+a6692210-0397-5f26-8b4e-0c9bfe642e65,JavaScript,0.717445,JavaScript:0.717;PHP:0.231;Node.js:0.032,vue;PHP;html;CSS;Sass;SQL;TypeScript;laravel;NoSQL;Angular;ionic;node.js;agile,,15.0,statement,senior,years
+f53703a3-8e52-5a80-8ebc-f72f6f032918,JavaScript,0.995992,JavaScript:0.996;Node.js:0.003;Other/other:0.000,algorithms;JavaScript;TypeScript;react;html;CSS;express;node.js;github,vue;Angular,2.0,statement,middle,years
+22145491-8b35-55c1-bf85-d5ca7d75458d,QA,0.848898,QA:0.849;QA Automation:0.139;Business Analyst:0.005,Scratch (computer programming);scrum;html;CSS;SQL;selenium;Python (computer programming);agile,,9.0,statement,senior,years
+419f00bf-896a-537c-99ee-1f7d08547108,QA,0.968258,QA:0.968;QA Automation:0.011;Java:0.010,jira;scrum;agile;kanban;html;CSS;database;MySQL;Wireshark;git;Java (computer programming),,,,intern,token
+53fcccc4-4f70-5ef6-955f-c54285766934,Unity,0.77998,Unity:0.780;C++:0.193;.NET:0.015,Unity (digital game creation systems);C++;computer programming;lua;C#;PHP;Wireshark;Adobe Photoshop;operating systems;windows;linux;arch;ubuntu;integrated development environment software;Visual Basic;sqlite;Unreal Engine;Source (digital game creation systems);database development tools,,2.0,ranges,middle,years
+60cad7d6-c0e6-5ad0-9166-660b70bb0b6c,QA,0.985913,QA:0.986;QA Automation:0.008;Project Manager:0.002,scrum;kanban;agile;git;JavaScript;SQL;html;CSS;jira;selenium;integrated development environment software;database,,5.25,ranges,lead,token
+65de8b73-1f47-503d-8d6b-74999467c5a2,QA,0.971087,QA:0.971;QA Automation:0.027;Business Analyst:0.001,web services;confluence;jira;SQL;create prototype of user experience solutions,,,,junior,token
+6b46051c-6c6d-5f6c-aab2-f54d8b513dfb,QA,0.987503,QA:0.988;QA Automation:0.008;JavaScript:0.001,html;SQL;usability engineering;database,,7.6667,ranges,senior,years
+751ef1b9-fba5-570b-9ebe-91b4266fa1f6,.NET,0.998867,.NET:0.999;JavaScript:0.000;Java:0.000,C#;Visual Basic;xamarin;windows;LINQ;ASP.NET,,3.0,statement,middle,years
+7896a6e0-53f7-5b6f-b245-5c7f55d17b67,QA,0.989009,QA:0.989;QA Automation:0.007;Project Manager:0.004,WordPress;jira;confluence;use word processing software,,,,,
+800417ab-e081-5b35-9709-ee3370e8b032,QA,0.996231,QA:0.996;QA Automation:0.004;Other/other:0.000,jira;slack,,,,,
+f2c437dd-3cba-56dd-8607-37f7bb346833,QA,0.853516,QA:0.854;QA Automation:0.113;Support:0.003,control systems;sensors,,2.1667,ranges,lead,token
+1093937a-bfc0-5cb8-a58d-40a6d6fea922,Sysadmin,0.184027,Sysadmin:0.184;Support:0.163;DevOps:0.163,transmission technology;linux;windows;vmware,,,,,
+138b5d15-0599-5bd3-8a0b-106788133582,Other/other,0.319348,Other/other:0.319;Artist:0.300;Design:0.207,Adobe Illustrator;Adobe Photoshop;excel;graphic design,publishing strategy,,,,
+6e8fd565-5bac-5116-bed2-dd616d3b6f46,Project Manager,0.308318,Project Manager:0.308;HR:0.274;Recruiter:0.089,,,,,,
+8b435e93-fbff-5bbf-a858-f2cc355869e1,Project Manager,0.225974,Project Manager:0.226;HR:0.219;Other/other:0.133,learning technologies,,8.0,statement,intern,token
+934aa88e-06e6-5b7b-9c17-e3720d61c0c7,DevOps,0.356348,DevOps:0.356;Lead/other:0.118;SQL:0.090,Scratch (computer programming);aws;SQL;NoSQL;database;Source (digital game creation systems),,9.0,statement,senior,years
+9b5b5412-1470-5ffc-91d4-95e07742f548,Project Manager,0.219625,Project Manager:0.220;Other/other:0.143;Marketing:0.108,spring,,9.0,statement,senior,years
+a0a8b5b1-b482-58ec-b039-860d0b0b46c9,Technical Writing,0.420905,Technical Writing:0.421;Marketing:0.258;SEO:0.245,,,20.0,statement,senior,years
+ab289407-1399-5791-9858-127dbc91d8e4,Marketing,0.26929,Marketing:0.269;Project Manager:0.269;Other/other:0.095,,,,,,
+cca4d4c6-a85a-5ea0-95d8-3ecfacad88f9,Project Manager,0.977105,Project Manager:0.977;Scrum Master:0.003;Other/other:0.003,,,,,,
+f7224b08-5c5d-5890-a631-869e00a68abb,Python,0.220593,Python:0.221;Node.js:0.190;Java:0.185,AJAX,,,,junior,token
+01df051c-6281-5e68-b6f0-8b984ac2ddc3,Sales,0.916458,Sales:0.916;Other/other:0.020;Marketing:0.017,Scratch (computer programming),,3.0,statement,lead,token
+571a6955-10da-5826-9223-f45db6371b55,Sales,0.973078,Sales:0.973;Other/other:0.006;Project Manager:0.005,Scratch (computer programming);express,,10.0,statement,senior,years
+7da7583c-231f-5b23-95cb-d8dcdd6743f8,Sales,0.88913,Sales:0.889;Project Manager:0.054;Other/other:0.021,Scratch (computer programming);C++;Python (computer programming),,3.0,statement,middle,years
+7dc97ffe-4aca-55db-a58b-e6856d5e4cac,Support,0.550655,Support:0.551;Sales:0.091;Other/other:0.064,computer science;computer engineering;Cisco,,1.0,statement,junior,years
+98932f26-ce6c-5932-88eb-df0720b5e752,Sales,0.856797,Sales:0.857;Lead Generation:0.063;Recruiter:0.041,,,,,lead,token
+bc495dfc-1fc1-5f22-be90-90d1b751e31c,Sales,0.413167,Sales:0.413;Support:0.102;Other/other:0.060,,,4.1667,ranges,middle,years
+c52a42b5-b422-51a0-b461-25ae09c24bd4,Project Manager,0.570494,Project Manager:0.570;Product Manager:0.220;Sales:0.094,,,8.5833,ranges,senior,token
+e3de6473-003f-5a63-b7ee-e4a0415a6dd4,Design,0.814726,Design:0.815;Other/other:0.048;Project Manager:0.012,graphic design,,,,,
+e8074212-f0ad-5709-9f81-bb2c9e13dcaa,HR,0.915448,HR:0.915;Recruiter:0.084;Other/other:0.000,,,5.0,statement,senior,years
+eb2f3534-889a-5df2-a7bc-087ebac9e9ae,Sales,0.331765,Sales:0.332;Other/other:0.188;Design:0.080,,,5.0,statement,senior,years
+184ba62c-5736-5b3e-a4ea-ad274d785371,Java,0.997273,Java:0.997;QA Automation:0.001;DevOps:0.000,Java (computer programming);DevOps;rest;spring;Apache Maven;Jenkins (tools for software configuration management);oracle;gitlab;docker;aws,,5.0,statement,lead,token
+23cc8da8-ab71-5797-a310-b4709f078fbe,Java,0.969276,Java:0.969;Python:0.008;Node.js:0.003,Java (computer programming);spring;mongodb;aws;docker;elasticsearch;Jenkins (tools for software configuration management);azure;integrated development environment software;rest;SQL;database;jira;scrum,,1.0833,ranges,junior,years
+5c032033-b1f3-503a-96d8-aadc2761b716,DevOps,0.368303,DevOps:0.368;Java:0.123;QA Automation:0.117,Python (computer programming);Android (mobile operating systems);Java (computer programming);spring;html;CSS;jquery;git;DevOps;Vagrant;docker;shell;selenium;vmware;domain name service;MySQL;unix;PHP;mariadb;windows;ubuntu;agile,,,,,
+6cca647e-69c3-5d09-a828-c1fd6860f141,QA,0.974037,QA:0.974;QA Automation:0.026;Java:0.000,agile;scrum;kanban;Visual Basic;control systems;git,,2.0,statement,middle,years
+6e17928a-c034-575a-8a33-f80bd0fb2b87,JavaScript,0.999021,JavaScript:0.999;Node.js:0.001;PHP:0.000,github;react;CSS;zoom;scrum;vue;JavaScript;TypeScript;rest;graphql,,3.5,statement,middle,years
+73eb3a71-91c0-5b7d-a037-20b39dbba1f6,Java,0.931217,Java:0.931;QA:0.012;QA Automation:0.006,Java (computer programming),,2.1667,ranges,middle,years
+a7ce6c66-8f6b-544a-a39b-1858dffcbe6b,Java,0.696551,Java:0.697;JavaScript:0.268;Node.js:0.009,sap;Java (computer programming);JavaScript;vue;scrum;oracle,,5.0,statement,senior,years
+c4a2a4b2-591b-5964-8efb-5ebde824ab05,Python,0.429014,Python:0.429;Node.js:0.167;DevOps:0.111,blockchain;aws;digital identity management;Python (computer programming);node.js;spring;bash;kafka;Jenkins (tools for software configuration management);firebase;bitbucket;jira;confluence;Agile development,,,,,
+d1c19bdd-856a-5c6e-999c-7495eb471479,Java,0.975025,Java:0.975;JavaScript:0.014;Node.js:0.001,industrial software;Java (computer programming);electronics;spring;react;MySQL;docker;linux,,10.0,statement,senior,years
+dfc37872-0d4b-5597-b4af-fb5603ba36e6,Java,0.993598,Java:0.994;JavaScript:0.003;QA Automation:0.001,Java (computer programming);spring;Apache Tomcat;MySQL;html;CSS,,,,,
+003b3db8-11b0-559a-a47f-4ffbdc636d7c,Project Manager,0.758789,Project Manager:0.759;Support:0.064;Other/other:0.042,slack,,3.5,ranges,middle,years
+1c4a5279-82a0-54b8-a1c9-9462eb657c92,Android,0.949987,Android:0.950;Java:0.027;Flutter:0.012,Android (mobile operating systems);Scratch (computer programming);rest;github;git;database;sqlite;firebase;Java (computer programming),,,,intern,token
+2f32798e-d1a2-5fae-9353-53cabb5b5db9,Support,0.91208,Support:0.912;QA:0.027;Other/other:0.017,,,4.0,statement,middle,years
+356da634-2ce7-5868-8bb3-ea2e5af44a29,Support,0.991674,Support:0.992;Other/other:0.002;Sysadmin:0.001,solve technical problems,,,,,
+36733bdc-ed04-5b04-b402-58bf774c9976,Support,0.624935,Support:0.625;Marketing:0.141;Project Manager:0.075,knowledge base,,2.1667,ranges,middle,years
+94aeb14f-c6ca-5ee9-9757-d40da10f379d,Support,0.947896,Support:0.948;Sales:0.015;Other/other:0.006,word;excel,,5.0,statement,senior,years
+baa1e7fb-35ea-512a-ab7f-53fe7e625612,Support,0.615227,Support:0.615;Other/other:0.090;Product Manager:0.066,Scratch (computer programming),,5.5,statement,senior,years
+d513a119-8b7c-588c-a4f8-775adf341919,HR,0.337484,HR:0.337;Recruiter:0.166;Other/other:0.114,,,3.0,ranges,middle,years
+e2f36843-8ae2-50b8-add7-f61c68588d8b,Support,0.993981,Support:0.994;Other/other:0.002;Sales:0.001,,,3.0,statement,middle,years
+ffe18c6d-fcd2-5476-8cf5-c915f7277a4e,C++,0.336218,C++:0.336;Support:0.280;Other/other:0.095,office software;lua;c;C++;html;CSS,,,,,
+1d5228f9-d77a-5b0c-af9b-80c0cd1848f3,Other/other,0.148936,Other/other:0.149;Lead/other:0.112;Data Engineer:0.057,"business intelligence;scrum;oracle;data extraction, transformation and loading tools;aws;redshift;qlik;Ansible;terraform;Jenkins (tools for software configuration management);git;control systems",,,,,
+340fde1d-aa87-5f15-83f2-0d5c4689d876,JavaScript,0.760531,JavaScript:0.761;Node.js:0.201;Java:0.016,JavaScript;Java (computer programming);SQL;html;CSS;node.js;rest;computer programming;cordova;ionic;express;MySQL;mongodb;redis;Jenkins (tools for software configuration management);gitlab;git;mercurial;jira;trello;heroku;github;bitbucket;scrum;Scratch (computer programming);Angular,,,,,
+442a484c-b14b-509e-b136-2b96f209f22b,SQL,0.892803,SQL:0.893;Data Analyst:0.047;Data Engineer:0.024,"oracle;database;Oracle Data Integrator;Oracle WebLogic;database management systems;business intelligence;data extraction, transformation and loading tools;SQL;data warehouse;Source (digital game creation systems);data models;snowflake;algorithms;SQL Server;ssis",,,,,
+4d06e60d-1ca9-5ca9-b89a-fe9bfcbef683,SQL,0.964375,SQL:0.964;Data Engineer:0.026;Data Analyst:0.002,"SQL;data warehouse;data extraction, transformation and loading tools;t-sql;windows;SQL Server;business intelligence;online analytical processing;PHP;CSS;Java (computer programming)",,2.0,ranges,middle,years
+5fa2ee92-e34b-51f4-89df-f57eeae6ffcb,Data Engineer,0.965476,Data Engineer:0.965;SQL:0.033;Data Analyst:0.000,"business intelligence;database;data extraction, transformation and loading tools;data engineering;azure;oracle;SQL;t-sql;SQL Server;databricks;Oracle Data Integrator;SAP Data Services;power bi;data warehouse;DevOps;git;agile;scrum;kanban",,4.0,statement,middle,years
+748c02c8-c72d-56db-bb70-69b2b3a88377,Python,0.22612,Python:0.226;Java:0.192;Node.js:0.101,aws,,,,,
+942ef470-a918-5157-ab06-5d8829c6df2c,SQL,0.259523,SQL:0.260;.NET:0.228;Data Engineer:0.102,"concepts of telecommunications;data extraction, transformation and loading tools;database",,,,,
+a5070ede-22a0-5f2c-98ac-4c772d26857a,Python,0.537441,Python:0.537;Data Engineer:0.452;Java:0.003,"Python (computer programming);fastapi;data extraction, transformation and loading tools;digital data processing;airflow;Java (computer programming);algorithms;database",,,,,
+d2d03fab-94f7-5e46-8181-04394ba65f80,QA,0.958755,QA:0.959;QA Automation:0.032;Project Manager:0.005,agile;scrum;kanban;jira;use spreadsheets software;trello;MySQL;selenium,,,,,
+fc29d69e-5ddf-5ef6-8898-6ae11a623f66,Data Engineer,0.979305,Data Engineer:0.979;Python:0.009;SQL:0.007,"database;SQL;Python (computer programming);spark;kafka;data extraction, transformation and loading tools;machine learning",digital data processing,2.0,statement,junior,token
+0926c9fb-8762-5f43-9745-a597738d1159,Business Analyst,0.839549,Business Analyst:0.840;Product Manager:0.148;Project Manager:0.009,scrum;agile,,10.0,statement,senior,years
+18cd3272-edba-5512-b82a-fb2e6b9f599d,Business Analyst,0.960925,Business Analyst:0.961;Product Manager:0.037;Project Manager:0.000,agile;computer programming;create prototype of user experience solutions;Scratch (computer programming),,2.5,statement,middle,years
+3d3fc8f4-759e-586b-a323-06cc348f878f,Business Analyst,0.95199,Business Analyst:0.952;Project Manager:0.007;Design:0.005,,,,,,
+67dd00bd-444a-5280-98b8-f358c02e2fab,Business Analyst,0.998497,Business Analyst:0.998;Project Manager:0.000;Product Manager:0.000,unified modelling language;scrum;agile;MySQL;SQL;jira;confluence;outlook;computer programming;visio;use spreadsheets software;word;powerpoint;rest;soap,,1.0,statement,junior,years
+8df9e919-e55c-5c40-be8c-75055e8c9e67,Product Manager,0.415275,Product Manager:0.415;Java:0.234;.NET:0.090,Java (computer programming);Python (computer programming);JavaScript;Haskell;spring;ASP.NET;aws;gcp;terraform;database;MySQL;neo4j;mongodb;PostgreSQL,,,,,
+a53dd65a-4248-5d75-b362-933babe6bb81,Business Analyst,0.994414,Business Analyst:0.994;Product Manager:0.001;Project Manager:0.001,unified modelling language,,14.4167,ranges,lead,token
+a92f47ca-2d13-513b-aed5-4f910a0795ef,Business Analyst,0.628248,Business Analyst:0.628;QA:0.355;Project Manager:0.005,SQL;rest;scrum,,5.0,ranges,senior,years
+bb465b7b-ec4c-5945-9177-c8b13161510e,Project Manager,0.907254,Project Manager:0.907;Product Manager:0.049;Business Analyst:0.030,computer technology;computer science;property management software;Agile development;agile;scrum;create prototype of user experience solutions,,9.0,statement,junior,token
+bb91ca26-9576-5a30-a880-2283ce329b3f,Data Analyst,0.258057,Data Analyst:0.258;Support:0.244;Business Analyst:0.220,business intelligence;power bi;tableau;SAP Data Services;SAP R3;oracle;sharepoint,,,,,
+ef6d441e-40a2-5931-af54-ddf501b42f52,Data Science/data scientist,0.458818,Data Science/data scientist:0.459;Data Science/other:0.136;Business Analyst:0.099,data mining;machine learning;R;SQL;database;Hadoop;node.js;Agile development;unified modelling language,,,,,
+0a46c8a3-af89-5f59-ac54-302fe79c046c,Python,0.735788,Python:0.736;Data Engineer:0.244;SQL:0.011,tableau;SQL;Python (computer programming);airflow;redshift;SQL Server;docker;jupyter;spark;matplotlib;data engineering;Hadoop;flask;MySQL;aws;aurora;git;PostgreSQL;mongodb;html;CSS;computer science,,0.75,statement,intern,token
+4a57c819-1d39-57a8-bcf5-d90e7daf821a,SQL,0.427109,SQL:0.427;Data Engineer:0.333;Data Analyst:0.212,"SQL;Python (computer programming);power bi;tableau;data extraction, transformation and loading tools;azure;database;aws;dynamodb",,,,,
+63bbb2a3-ad95-5b31-bfc4-087c1d26591d,Data Engineer,0.952009,Data Engineer:0.952;SQL:0.040;Data Analyst:0.003,"azure;scrum;databricks;data engineering;data models;data extraction, transformation and loading tools;Source (digital game creation systems);business intelligence;SQL Server;ssrs;ssis;power bi;SQL",,11.0,statement,senior,years
+7888124e-ddab-54b2-9483-c9784d85e768,Data Engineer,0.509519,Data Engineer:0.510;Python:0.459;Data Analyst:0.012,aws;Python (computer programming);digital data processing;data engineering;data analytics,,,,,
+7abafd55-47eb-5dd8-90ae-e9ba84c73e83,Data Engineer,0.710483,Data Engineer:0.710;SQL:0.264;Data Analyst:0.019,"SQL Server;mongodb;data extraction, transformation and loading tools;Source (digital game creation systems);business intelligence",,,,,
+883a0253-e193-51b9-b92a-b99182ed6b03,QA,0.986932,QA:0.987;QA Automation:0.005;Business Analyst:0.004,html;CSS;SQL;docker;linux;git;redis;scrum;jira;confluence;bitbucket;Jenkins (tools for software configuration management);kafka;Android (mobile operating systems),,,,,
+b87b9c95-40b6-57d5-b541-a560f0cfc9bb,Data Engineer,0.398933,Data Engineer:0.399;Lead/other:0.133;Golang:0.123,"data warehouse;data extraction, transformation and loading tools;kubernetes;Python (computer programming);aws;redshift;SQL;elasticsearch;kafka;docker;airflow;git;jira;Java (computer programming);MySQL;PostgreSQL;redis;dynamodb;bigquery;power bi;tableau;business intelligence",,20.0,statement,lead,token
+c81a5ff8-0439-554a-a1b7-3c5625af6d40,Data Engineer,0.960452,Data Engineer:0.960;SQL:0.028;Data Analyst:0.009,"SQL;PostgreSQL;database management systems;oracle;aws;docker;kafka;linux;airflow;Python (computer programming);pyspark;Hadoop;ssis;excel;powerpoint;data extraction, transformation and loading tools;Source (digital game creation systems);data engineering",,,,,
+ccf47979-40ca-5e8a-835d-a274baf35ff3,Data Engineer,0.547395,Data Engineer:0.547;.NET:0.308;SQL:0.112,"C#;Visual Basic;rest;svn;git;data extraction, transformation and loading tools;business intelligence;azure;DevOps;aws;t-sql;SQL Server;MySQL",,7.0,statement,senior,years
+e4fd0734-f42b-56d5-960b-fa0aded4976e,Python,0.967733,Python:0.968;Data Analyst:0.007;Data Engineer:0.006,Python (computer programming);data mining;Source (digital game creation systems),,8.4167,ranges,senior,years
+0dcfc0ec-9a00-5a9b-ba23-83f8bed454b2,Flutter,0.981091,Flutter:0.981;iOS:0.008;Android:0.007,flutter;Android (mobile operating systems);iOS;firestore;mongodb;cassandra;PostgreSQL;firebase;node.js;Python (computer programming),,4.0,statement,middle,years
+3329cb9f-1213-51ce-84fc-38c22b186d96,JavaScript,0.16321,JavaScript:0.163;Java:0.096;Python:0.066,,,,,,
+6fdeaec8-1928-51f1-aefc-3283fae84c4b,Recruiter,0.367897,Recruiter:0.368;HR:0.243;Design:0.133,Scratch (computer programming),,9.0,statement,lead,token
+97ce16b0-e36d-588b-82f9-e61c89e7faca,Data Analyst,0.135267,Data Analyst:0.135;JavaScript:0.088;Python:0.079,,,,,,
+9d8f7402-ccff-5ffe-9cba-42c00d2363a4,Data Engineer,0.496604,Data Engineer:0.497;Python:0.327;SQL:0.056,SQL;database;PostgreSQL;pyspark;airflow;aws,,3.0,statement,lead,token
+b6347d4d-87a0-57b9-9265-4f284823d2e3,SQL,0.949258,SQL:0.949;Sysadmin:0.022;DevOps:0.007,"oracle;database;SQL;linux;windows;unix;vmware;Oracle Data Integrator;data extraction, transformation and loading tools",,20.0,statement,senior,years
+d644a00c-7476-511b-adf0-8f3eed453a18,Python,0.801846,Python:0.802;Data Engineer:0.168;Data Analyst:0.014,Python (computer programming);scrum,,4.0,statement,middle,years
+e54c3e20-efab-594f-8106-4e00a0d60214,Python,0.546228,Python:0.546;Data Science/data scientist:0.167;Data Analyst:0.039,Internet of Things;wsl;Python (computer programming);machine learning;aws,excel,,,,
+f4dcc9cc-abf2-5fb0-b5c9-b236e5ab7653,SQL,0.815958,SQL:0.816;Data Engineer:0.108;Data Analyst:0.043,"oracle;SQL;data extraction, transformation and loading tools;database management systems;business intelligence;snowflake;SAP Data Services;jira;data warehouse;Oracle Data Integrator;database;ABAP;sap",,,,,
+f8469308-dd9b-57e6-aaa0-3b5d86670294,Scala,0.721413,Scala:0.721;Java:0.268;Data Engineer:0.004,Java (computer programming);Scala;database;spark,DevOps,,,,
+20c5b812-c95c-5c02-8558-d14e5c64f417,Project Manager,0.662274,Project Manager:0.662;Support:0.205;Other/other:0.073,jira,,6.0,ranges,senior,token
+21e99480-a930-522e-8c6c-74a1faad3d64,Python,0.567864,Python:0.568;Data Science/data scientist:0.170;Data Science/other:0.042,Python (computer programming);scikit-learn;ML (computer programming),numpy;pandas;MySQL,,,,
+3c5752ef-9651-55a9-887b-099b5441ca2f,Data Science/data scientist,0.6561,Data Science/data scientist:0.656;Data Science/other:0.133;Python:0.066,machine learning;c;C++;Python (computer programming);SQL,data science,,,,
+6631c8cf-4bc1-56a0-892c-2e51818e6aa7,Data Science/data scientist,0.629178,Data Science/data scientist:0.629;Data Science/other:0.254;Data Analyst:0.063,data science;ML (computer programming);algorithms;power bi;terminal;search engines,,,,lead,token
+68ecbbe8-1ca8-53c2-a00a-b9036862232a,Data Science/data scientist,0.433689,Data Science/data scientist:0.434;Data Science/other:0.305;Data Science/ml engineer:0.175,machine learning;algorithms;data science;data analytics;ML (computer programming),,6.0,statement,senior,years
+6e7bde4d-79d9-5640-ae55-4e50053ee51d,Data Science/data scientist,0.083672,Data Science/data scientist:0.084;Other/other:0.079;.NET:0.073,machine learning,,,,,
+85120d61-2bbd-550e-aea4-99781a6e730c,Data Science/data scientist,0.663702,Data Science/data scientist:0.664;Data Science/other:0.210;Data Science/ml engineer:0.066,natural language processing;spring;artificial neural networks;deep learning;ML (computer programming);SQL;NoSQL,,,,,
+a961948b-a031-5c5e-8fda-050ca4060d00,Python,0.416215,Python:0.416;Data Science/other:0.311;Data Science/data scientist:0.198,deep learning;machine learning;numpy;JavaScript;oracle;MySQL;sqlite;scikit-learn;docker,Python (computer programming);Java (computer programming);computer vision;natural language processing;signal processing;scientific computing;theano;keras;tensorflow;chainer;pytorch;nltk;opencv;aws,,,,
+de52c5b5-4325-5027-bb52-d7e97f7eb209,Marketing,0.704613,Marketing:0.705;Product Manager:0.169;Sales:0.032,ML (computer programming);augmented reality,,15.0,statement,senior,years
+faf9e716-0b3a-5d00-93ed-0c9a4ff2301d,Data Analyst,0.919168,Data Analyst:0.919;Support:0.023;Other/other:0.020,blockchain consensus mechanisms;excel;data warehouse;use spreadsheets software,,,,,
+00173db7-5050-516a-87c2-ff4e97c191fa,Data Engineer,0.384769,Data Engineer:0.385;Data Analyst:0.059;Other/other:0.051,"data extraction, transformation and loading tools;business intelligence",,2.0,statement,middle,years
+2299c455-4c6e-573c-a4c7-20eeca8dae88,Data Analyst,0.473564,Data Analyst:0.474;Business Analyst:0.058;JavaScript:0.051,business intelligence;data analytics,,,,,
+35b4f8ae-c223-5a50-8642-0aab0d3a745d,Python,0.114954,Python:0.115;JavaScript:0.083;Data Science/data scientist:0.064,cyber security;artificial neural networks,,,,,
+5a8e14e7-338e-5189-9372-2d5e80b752fe,Product Manager,0.362377,Product Manager:0.362;QA:0.287;Project Manager:0.175,,,,,,
+7cee9b79-78b2-5b3e-839f-4f87b6725505,Data Analyst,0.093922,Data Analyst:0.094;Java:0.087;DevOps:0.085,"R;looker;bigquery;gcp;azure;terraform;docker;data extraction, transformation and loading tools",aws,0.5833,statement,junior,years
+84405bea-4bb6-514b-907c-1da38763c366,Python,0.580497,Python:0.580;Data Engineer:0.353;Data Science/data scientist:0.016,"business intelligence;data extraction, transformation and loading tools;excel;sheets;Python (computer programming);aws;ssis;airflow;database;online analytical processing;data warehouse;docker;selenium;pyspark;machine learning",,,,,
+a79dea42-aded-54df-9b5d-66d683d45be2,Data Engineer,0.699495,Data Engineer:0.699;Scala:0.139;Data Science/other:0.046,aws;Source (digital game creation systems);process data;data science;spring;computer vision;tensorflow;keras;deep learning;machine learning;Android (mobile operating systems);ML (computer programming);gcp;computer science;Python (computer programming);Scala;Java (computer programming);dynamodb;digital identity management;elasticsearch;spark;airflow;docker;SQL;kafka;Jenkins (tools for software configuration management);redis;mongodb,,5.0,statement,intern,token
+c95756a6-af5c-5a24-af2c-8cde2f6c1f15,Data Engineer,0.967512,Data Engineer:0.968;Python:0.007;Data Analyst:0.004,"data extraction, transformation and loading tools;information architecture;information structure",,5.0,statement,senior,token
+f4d1a459-4fc0-5f06-b70f-197da13ab948,Project Manager,0.673308,Project Manager:0.673;Other/other:0.030;Lead/other:0.030,agile;scrum,,10.0,statement,senior,years
+fe3cefae-0687-57cf-8526-6f460269cd98,SQL,0.31229,SQL:0.312;Data Engineer:0.272;Data Analyst:0.168,Hadoop;database;t-sql;MySQL;pyspark,,,,,
+371785c3-986a-5995-9d75-b27c52d3c2ad,Business Analyst,0.5413,Business Analyst:0.541;Product Manager:0.219;Project Manager:0.174,agile;scrum;kanban;confluence;unified modelling language;computer science;Visual Basic,,,,intern,token
+382ab170-7fc2-52ea-93bd-0ab16ef7db87,Business Analyst,0.674513,Business Analyst:0.675;Project Manager:0.116;Product Manager:0.076,DevOps,,8.0,statement,senior,years
+5b8119cf-4b2b-5ee0-9720-eb94ad516f48,JavaScript,0.980914,JavaScript:0.981;Node.js:0.018;Lead/other:0.001,Scratch (computer programming);Sass;react;next.js;vue;rest;node.js;express;mongodb;SQL;TypeScript;Solidity;jira;git;github;gitlab,,,,lead,token
+6075af4d-47e8-5c60-82a6-799125f79010,Business Analyst,0.958369,Business Analyst:0.958;QA:0.012;Data Analyst:0.006,Scratch (computer programming);geographic information systems,,,,junior,token
+73805ac0-c0d2-5e46-9c76-8189096e6bac,Product Manager,0.403887,Product Manager:0.404;Business Analyst:0.302;Project Manager:0.047,,,,,,
+7d0b00fa-1219-5f49-bda2-27ba8b2636a5,Business Analyst,0.763037,Business Analyst:0.763;Project Manager:0.184;Product Manager:0.014,unified modelling language;create prototype of user experience solutions;agile;scrum;MySQL;html;CSS,,,,,
+9620b250-7a7d-5a2e-846b-f4a6434676fa,Business Analyst,0.885577,Business Analyst:0.886;QA:0.033;Python:0.022,Python (computer programming);jira;kafka;unify,,1.0,statement,junior,years
+a7134aac-16f7-5b6a-9a42-4e4de3fc9f24,Business Analyst,0.982144,Business Analyst:0.982;Project Manager:0.006;Product Manager:0.002,unified modelling language,,,,,
+e99f0fbd-0ef5-5990-bec9-97a5afca5b51,Project Manager,0.980965,Project Manager:0.981;Product Manager:0.008;Design:0.003,agile;scrum;kanban;create prototype of user experience solutions;html;CSS;jira;trello;cryptocurrency,,4.0,statement,middle,years
+fd8ee08b-8b9f-5828-8dae-454a18414a2f,Business Analyst,0.773956,Business Analyst:0.774;SQL:0.152;Project Manager:0.021,"SQL Server;PostgreSQL;MySQL;oracle;SQL;ssrs;business intelligence;power bi;data extraction, transformation and loading tools;unified modelling language;visio;Java (computer programming);Python (computer programming);delphi;jira;confluence;scrum;agile",,,,,
+1b1f5121-86ce-5363-b012-76c16c6af432,Business Analyst,0.887489,Business Analyst:0.887;Design:0.029;Project Manager:0.017,agile,,4.0,statement,middle,years
+4d8619fe-d3b4-5549-988c-55c42e04c55d,Business Analyst,0.977721,Business Analyst:0.978;Lead/other:0.005;Product Manager:0.003,business intelligence;azure;DevOps;power bi;scrum;Eclipse (integrated development environment software);jira;Jenkins (tools for software configuration management);svn;SQL;computer programming;Apache Tomcat;shell;ms access;SAP R3,,10.0,statement,lead,token
+59dfd08f-fa42-5d34-88c2-109e0ad6e837,Marketing,0.43733,Marketing:0.437;Business Analyst:0.358;Other/other:0.045,,,,,junior,token
+631e6744-de02-5df1-b80b-f60b34cd11c9,Other/other,0.193197,Other/other:0.193;Data Analyst:0.134;Marketing:0.095,planner,,,,,
+8c65c10e-752f-57f2-a6ad-9f1091c56aa6,Business Analyst,0.992634,Business Analyst:0.993;Project Manager:0.003;Product Manager:0.002,PHP;flow,,2.0,statement,middle,years
+c9ad45b7-d5ab-51af-8266-4de5af6e3f14,Business Analyst,0.681146,Business Analyst:0.681;Project Manager:0.095;Product Manager:0.067,,,,,,
+e9cb08d6-d597-56b5-aedc-7fabe2a616b4,.NET,0.691463,.NET:0.691;Unity:0.189;Lead/other:0.012,C#;Unity (digital game creation systems);R,,4.0,statement,lead,token
+f45f4bcf-6855-56b3-876c-bca8f4d3b196,Flutter,0.989853,Flutter:0.990;Android:0.004;JavaScript:0.003,firebase;flutter;dart,,2.5,statement,middle,years
+f8041fd9-1899-50df-8076-4d80e0ec15d0,Business Analyst,0.762962,Business Analyst:0.763;Project Manager:0.097;Other/other:0.059,jira;confluence;sharepoint;oracle;SQL;c,,2.0,statement,lead,token
+fd5d7de5-015e-5db2-89e8-b5d9ee1714f0,Business Analyst,0.922739,Business Analyst:0.923;Product Manager:0.034;Project Manager:0.029,Java (computer programming);computer technology;digital data processing;SQL;database;scrum;transmission technology;Assembly (computer programming),,6.0,statement,senior,years
+1086b55d-a6f2-5d5f-bcdb-6fd5745ea1fd,Business Analyst,0.714947,Business Analyst:0.715;HR:0.115;Recruiter:0.035,hardware components;iOS;Android (mobile operating systems);react;Unity (digital game creation systems),,6.0,statement,intern,token
+223a1ccb-2542-54c4-b188-41f40e512e5c,JavaScript,0.834041,JavaScript:0.834;Support:0.024;Node.js:0.020,vue,,,,,
+3b6f04c0-6af0-5437-bd46-f10af23d4bf0,Data Analyst,0.237161,Data Analyst:0.237;Scala:0.193;Other/other:0.165,analyse big data;oracle;R;MATLAB;sas;business intelligence;tableau;sap;Scala;C++;algorithms,,,,,
+75bde58e-d6f5-54c8-83d6-dfa48f32f76a,Business Analyst,0.990225,Business Analyst:0.990;Project Manager:0.006;Product Manager:0.002,knowledge base;Scratch (computer programming);unified modelling language;confluence;use word processing software;Visual Basic;jira,,12.0833,ranges,senior,years
+b3471393-4254-5dff-bdce-0528ba607d69,Business Analyst,0.982327,Business Analyst:0.982;Data Analyst:0.011;Project Manager:0.002,flow;excel;SQL;tableau;power bi;Python (computer programming);jira;trello;asana;microsoft teams;slack,,,,,
+b455e92a-2134-5c39-9679-00ccb66b76e5,Recruiter,0.299178,Recruiter:0.299;Project Manager:0.124;Support:0.086,flow,,,,,
+b662369d-f906-5bed-abde-a472f284c359,Business Analyst,0.974859,Business Analyst:0.975;Product Manager:0.005;Project Manager:0.004,unified modelling language,,,,,
+e6a4369c-4e05-5b57-9af4-ababdc977595,Data Analyst,0.369991,Data Analyst:0.370;Business Analyst:0.341;Data Science/data scientist:0.194,Python (computer programming);data science;confluence;SQL;tableau,,,,,
+e8e2545c-0a06-5bf3-b00c-24c2bbfbd51a,Sales,0.327946,Sales:0.328;Other/other:0.321;Project Manager:0.135,,,12.0,statement,lead,token
+fd3cac68-42e7-5dd7-80cd-ec60d8bce4f6,Business Analyst,0.857114,Business Analyst:0.857;Project Manager:0.122;Product Manager:0.006,,,,,,
+0ff20d14-74aa-5786-bece-46e388020d07,Data Science/data scientist,0.332179,Data Science/data scientist:0.332;Data Analyst:0.260;Data Science/other:0.171,business intelligence;data mining;machine learning,,7.0,statement,senior,years
+43b419a7-88d4-53fe-bb6d-4987666af3a4,Data Science/data scientist,0.923804,Data Science/data scientist:0.924;Data Science/other:0.039;Data Analyst:0.019,Python (computer programming);pandas;numpy;matplotlib;seaborn;plotly;machine learning;scikit-learn;pytorch;tensorflow;opencv;database;MySQL;git;jupyter;data science;algorithms;manage quantitative data,,,,junior,token
+7186102a-4a32-5b62-84e5-e39037393ed1,Python,0.55686,Python:0.557;Data Engineer:0.235;Data Analyst:0.106,SQL;PostgreSQL;Python (computer programming);flask,,,,,
+7aec7523-9ca8-5a16-949e-30a945bdae05,JavaScript,0.856645,JavaScript:0.857;PHP:0.073;Node.js:0.018,Scratch (computer programming);vue;CSS;github;AJAX;windows,,1.6667,ranges,junior,years
+800a9c0d-3659-5f1d-9967-d207ab68807f,Data Analyst,0.432577,Data Analyst:0.433;Data Science/data scientist:0.241;Data Science/other:0.070,data science,,,,,
+8abdb85a-8920-51c5-b5a3-e838aace88bb,Data Science/data scientist,0.859286,Data Science/data scientist:0.859;Data Science/other:0.043;Python:0.019,gcp;algorithms;data mining;R;opencv;pandas;numpy;matplotlib;plotly;seaborn;ML (computer programming);scikit-learn;nltk;deep learning;machine learning,keras;pytorch;natural language processing,,,,
+b1a8efc1-a619-521e-8055-db9379a4fcb2,Data Science/data scientist,0.19376,Data Science/data scientist:0.194;JavaScript:0.193;Java:0.078,,,,,intern,token
+ba454e60-07e3-5e6d-9d03-cddd89e67a06,Java,0.995547,Java:0.996;Android:0.001;.NET:0.001,Java (computer programming);spring;git;gitlab;github;computer programming;docker;aws;azure;PostgreSQL;MySQL;SQL Server;Jenkins (tools for software configuration management);Apache Maven;windows;linux;scrum;kanban;jira;Android (mobile operating systems),,,,middle,token
+c59b4411-67d3-57b2-bd99-a59544c96c17,Data Science/data scientist,0.714387,Data Science/data scientist:0.714;Data Science/other:0.138;Data Science/ml engineer:0.045,data science;ML (computer programming);computer vision;natural language processing;Python (computer programming);SQL;git;aws;docker;linux;jupyter,,,,,
+dd115fa1-61b3-5f44-a6ec-997e3924b343,Data Science/data scientist,0.774582,Data Science/data scientist:0.775;Data Science/other:0.083;Python:0.058,data science;machine learning;natural language processing;database;Python (computer programming);opencv;MATLAB,,,,,
+21b26c99-aa43-50a4-8fb7-1f23cfea777f,Python,0.400859,Python:0.401;C++:0.199;Data Science/data scientist:0.137,Python (computer programming);algorithms;computer vision;artificial neural networks;geographic information systems;c;Android (mobile operating systems);machine learning;ML (computer programming);github;robotics,,,,,
+26f50761-33a5-5e2a-9267-db95f7aef960,Data Science/data scientist,0.357271,Data Science/data scientist:0.357;Python:0.251;Data Analyst:0.099,R;Python (computer programming),,,,,
+650efda1-fe1f-5eca-a52b-b97f22648275,Data Science/ml engineer,0.527182,Data Science/ml engineer:0.527;Data Science/data scientist:0.271;Data Science/other:0.195,machine learning;ML (computer programming);Python (computer programming);computer vision;opencv;deep learning;pytorch;natural language processing;MATLAB;pandas;numpy;matplotlib;rest;data science;algorithms;docker;PostgreSQL;github;linux;couchbase,tensorflow;keras,,,,
+9787be75-53f2-5629-ad91-56fb15582ee0,Python,0.930435,Python:0.930;JavaScript:0.011;C++:0.006,Python (computer programming),,,,,
+aa4bbfb6-5fd0-5be2-b5a2-29e1764b75c5,Data Analyst,0.668363,Data Analyst:0.668;Data Science/other:0.152;Data Science/data scientist:0.061,data science;ML (computer programming);Python (computer programming);R;spss;sas;business intelligence;power bi;tableau;online analytical processing;SQL;MySQL;PostgreSQL;Hadoop,,7.0,statement,senior,years
+ad6fe2da-b054-5cf5-9d01-8257bc50fe08,Sales,0.383831,Sales:0.384;Project Manager:0.059;Other/other:0.054,,,,,,
+c4fa531e-87f6-5f71-b968-647ae794f6b5,Other/other,0.282911,Other/other:0.283;Project Manager:0.123;Support:0.120,sap;Internet of Things;machine learning;blockchain,,17.0,statement,senior,years
+c93d9810-9d7d-5374-b553-97e3b66a867e,Data Science/data scientist,0.907408,Data Science/data scientist:0.907;Data Analyst:0.079;Data Science/other:0.011,vba;use spreadsheets software;cybernetics;SQL;Python (computer programming);pandas;numpy;matplotlib;plotly;tableau;machine learning,,2.0,statement,middle,years
+d40c07e6-2748-5518-af43-0c3dc40db7c3,Data Science/data scientist,0.592652,Data Science/data scientist:0.593;Data Science/other:0.124;Data Science/ml engineer:0.070,data science;machine learning;ML (computer programming);algorithms;artificial neural networks,,,,,
+d959c78c-8c8b-5dec-9d35-eba361135cc2,Python,0.954053,Python:0.954;Data Analyst:0.010;SQL:0.006,Python (computer programming);flask;database;SQL,,,,,
+187e3933-aaab-58b2-985e-e3c7b2003814,Business Analyst,0.950428,Business Analyst:0.950;Golang:0.009;Lead/other:0.007,,,9.0,statement,senior,years
+29feec70-cfb6-57f3-8462-7bf2418658a6,Business Analyst,0.959091,Business Analyst:0.959;QA:0.013;Project Manager:0.007,scrum,,4.0,ranges,middle,token
+2e847480-62ce-55f0-b480-4bc09faf4e88,Design,0.999973,Design:1.000;Other/other:0.000;Artist:0.000,create prototype of user experience solutions;Android (mobile operating systems);iOS;Adobe Photoshop;Adobe Illustrator,,3.0,statement,middle,years
+4a0b9f20-1852-5af2-9412-4bdb98cd6b70,Business Analyst,0.956527,Business Analyst:0.957;Product Manager:0.024;Project Manager:0.009,blockchain;artificial neural networks;cryptocurrency;speech recognition;crowdfunding,,,,intern,token
+79215ce6-7217-517b-b94f-d5fd593f6545,Business Analyst,0.959055,Business Analyst:0.959;Project Manager:0.009;Data Analyst:0.005,jira;confluence,,0.5,statement,junior,years
+937f63be-b781-572e-b24b-13a4264ab2f9,Business Analyst,0.670279,Business Analyst:0.670;QA:0.175;Project Manager:0.077,scrum;kanban;jira;SQL;confluence;trello;excel,,5.0,statement,senior,token
+a0e6be39-baf1-5896-bf7f-5fc73b31d563,Business Analyst,0.980496,Business Analyst:0.980;Project Manager:0.007;Product Manager:0.005,agile;scrum;unified modelling language;Microsoft Visio;jira;confluence;graphics editor software;computer programming,,,,,
+a5a24b2d-6952-59bd-b46e-aa7e72651e6d,.NET,0.974183,.NET:0.974;QA:0.003;JavaScript:0.002,Visual Basic,,,,middle,token
+c4696565-38cd-519e-bc1c-8f2a2010e3e6,Business Analyst,0.868233,Business Analyst:0.868;Product Manager:0.050;Sales:0.043,service-oriented modelling;R;c;WordPress,,1.5,statement,junior,years
+ef7d3b6c-96d1-5692-8d62-af79bd0df829,Business Analyst,0.940154,Business Analyst:0.940;Product Manager:0.045;Project Manager:0.008,jira;Visual Basic;create prototype of user experience solutions;graphics editor software;unified modelling language;Microsoft Visio;agile;scrum;kanban,,,,lead,token
+0dc1da24-b562-53f5-97d1-49901ed57013,Project Manager,0.831678,Project Manager:0.832;iOS:0.044;Product Manager:0.023,sap;digital systems;iOS,,,,,
+2cbf7ced-c5d5-5531-9243-9ed46380956c,Other/other,0.33674,Other/other:0.337;Support:0.229;Sales:0.094,computer programming,,4.0,ranges,middle,years
+319a00a3-325a-5469-b604-47fbb3f1143f,Business Analyst,0.991128,Business Analyst:0.991;Product Manager:0.004;Project Manager:0.003,jira;trello;notion;confluence;unified modelling language;graphics editor software;scrum,,,,,
+339e53e8-ed08-502f-bb8e-dc6ecfa083c6,QA,0.97618,QA:0.976;QA Automation:0.014;Project Manager:0.002,agile;scrum;jira;bitbucket;JavaScript;Android (mobile operating systems);iOS;windows;macos;database;mongodb;MySQL,,1.0,statement,junior,years
+47bf89bd-9691-5180-b3b9-9f7b02ab4b8f,Business Analyst,0.943261,Business Analyst:0.943;Data Analyst:0.029;Product Manager:0.008,Python (computer programming);SQL;Java (computer programming);Internet of Things;ML (computer programming);kanban;scrum;agile;c,business intelligence,4.0,statement,middle,years
+afb659ff-2627-5d43-b16b-8161568eb304,Business Analyst,0.120722,Business Analyst:0.121;Java:0.084;Project Manager:0.077,database management systems;database,,7.5833,ranges,senior,years
+b6c530f1-e7a2-5b01-a02c-beb1170b8962,JavaScript,0.158485,JavaScript:0.158;QA:0.150;.NET:0.136,,,,,,
+c6c837d6-b819-5a66-a4b7-adc122f394e4,Business Analyst,0.930053,Business Analyst:0.930;Product Manager:0.056;Project Manager:0.007,agile;scrum,,,,,
+e783ba0d-1310-5128-8af4-20437b77af7b,Business Analyst,0.883435,Business Analyst:0.883;Product Manager:0.084;Project Manager:0.020,computer science;scrum,,7.0,statement,senior,token
+ec2150f0-9598-5c21-8d80-698a83dc0ed7,Business Analyst,0.893036,Business Analyst:0.893;QA:0.066;Project Manager:0.024,scrum;kanban;visio;jira;confluence;graphics editor software;SQL;html,,,,,
+1146a607-d470-586a-bc39-b73e93b5cdcd,Data Analyst,0.736976,Data Analyst:0.737;SQL:0.121;Business Analyst:0.074,"excel;t-sql;tableau;redshift;airflow;data extraction, transformation and loading tools;slack;atlassian;jira;SQL;alteryx",,,,middle,token
+2b05f73d-3097-51b1-8d10-a41f7e77dadb,Data Analyst,0.979209,Data Analyst:0.979;Data Science/data scientist:0.011;Data Science/other:0.004,data science;Python (computer programming);excel;SQL;power bi;tableau;process data,machine learning;data engineering;information architecture;aws;Hadoop;natural language processing,,,junior,token
+306b9e00-bce3-59a0-b5ab-4cde049aa328,Data Analyst,0.517178,Data Analyst:0.517;Python:0.167;Data Engineer:0.089,"data extraction, transformation and loading tools;Hadoop;oracle;Python (computer programming);excel;power bi;data storage;data science;SQL;Scratch (computer programming)",,,,,
+54cd0941-cd70-5249-adb5-56acc7589641,Data Analyst,0.946543,Data Analyst:0.947;Business Analyst:0.019;Data Science/data scientist:0.011,R;power bi,,,,,
+687cbecb-f9bd-52b0-bc50-1c74d3f70f97,JavaScript,0.92607,JavaScript:0.926;Node.js:0.067;PHP:0.002,html;CSS;JavaScript;node.js,,2.0,statement,middle,years
+814c2844-3019-5bad-ab55-f6769c71d912,QA,0.776284,QA:0.776;QA Automation:0.040;Project Manager:0.028,,,,,junior,token
+912d1318-af63-5873-a540-899677ea6224,Data Analyst,0.930805,Data Analyst:0.931;SQL:0.039;Business Analyst:0.009,Java (computer programming);C#;PHP;database;SQL;Eclipse (integrated development environment software);excel;power bi;tableau;Python (computer programming);R;business intelligence,,5.1667,ranges,senior,years
+b314f96e-5695-5c34-9666-fc3349a2c908,Data Analyst,0.888581,Data Analyst:0.889;Other/other:0.031;Data Science/other:0.026,excel;power bi;Python (computer programming);SQL,,,,,
+c993b740-bdc8-527d-b298-957b78b43e74,C++,0.486807,C++:0.487;Unity:0.180;Other/other:0.060,MATLAB;C++;MySQL;ms access;database;html;CSS;PHP;Java (computer programming);Joomla;blockchain;cryptocurrency;algorithms;deep learning;machine learning,,3.0,ranges,middle,years
+d4b62c6a-5815-581a-82b7-84ab58a08e27,Data Analyst,0.853023,Data Analyst:0.853;SQL:0.026;Marketing:0.025,use spreadsheets software;power bi;SQL,,,,,
+1b69d5db-595c-5901-8418-0d051f6c0d1f,Data Science/data scientist,0.845689,Data Science/data scientist:0.846;Data Science/ml engineer:0.081;Data Science/other:0.042,machine learning;ML (computer programming);data mining;PHP;MATLAB,data science,4.0,statement,middle,years
+20113ebb-6db2-55c2-932e-1a4e2c44847c,Data Science/data scientist,0.640466,Data Science/data scientist:0.640;Python:0.121;Data Science/other:0.111,data science;machine learning;algorithms;computer vision;Python (computer programming);tensorflow;pytorch;scikit-learn;tableau;SQL,pandas;web services;deep learning,,,,
+27d31d98-8b8f-542c-a85b-c029530c7312,Python,0.498086,Python:0.498;Data Science/data scientist:0.261;Data Science/other:0.154,artificial neural networks;machine learning;Python (computer programming);tensorflow;pytorch;scikit-learn;deep learning;natural language processing;computer vision,algorithms,,,,
+4c94cbf4-82c8-5bac-aeb6-fc4145a8c789,Python,0.643014,Python:0.643;Data Science/data scientist:0.259;Data Science/other:0.029,aws;ML (computer programming);data science;pytorch;machine learning;computer vision;natural language processing;docker;PostgreSQL;jupyter;github;rest;flask;database,,,,,
+4cc295c5-179b-5a4f-8a88-dbabd7ff7eef,Java,0.999853,Java:1.000;SQL:0.000;QA Automation:0.000,Java (computer programming);Scratch (computer programming);MySQL;PostgreSQL;oracle;SQL;spring;aws;elasticsearch;Apache Maven;git;docker;linux;Jenkins (tools for software configuration management),,,,,
+7d277bee-7e98-59e6-a2b4-674f158dc764,Java,0.101274,Java:0.101;.NET:0.096;Other/other:0.088,computer science,,2.0,statement,middle,years
+b332cac5-1e07-5911-8608-bc49a32d0660,Python,0.23976,Python:0.240;Data Science/other:0.195;Data Science/ml engineer:0.123,ML (computer programming);computer vision;machine learning;electronics,,,,,
+ca48282d-1523-5ba0-a0fa-f11a69d4af66,Data Analyst,0.905774,Data Analyst:0.906;Business Analyst:0.036;SQL:0.009,power bi;computer science;Source (digital game creation systems);use spreadsheets software;excel,,4.3333,ranges,middle,years
+ceca0589-94db-57f9-b2f1-6812f7216315,Data Science/data scientist,0.872467,Data Science/data scientist:0.872;Data Science/other:0.081;Data Science/ml engineer:0.028,Python (computer programming);numpy;pandas;matplotlib;scikit-learn;C++;R;MATLAB;artificial neural networks;tensorflow;machine learning;data science,deep learning;computer vision,,,,
+daf4f4bd-a0a6-5904-be8c-d6d1ea45a395,Python,0.633429,Python:0.633;JavaScript:0.255;Recruiter:0.016,express;natural language processing;nltk;Python (computer programming);JavaScript;django;github;react;computer programming;TypeScript;graphql;bitbucket;jquery,,1.5,statement,junior,years
+00d04928-0ee7-560a-ba3e-f8f8d14a8dfd,Data Analyst,0.812737,Data Analyst:0.813;Python:0.043;SQL:0.043,excel;SQL;tableau;Python (computer programming),,,,,
+015060eb-c922-54ac-9a54-16341ef6d126,Data Analyst,0.979654,Data Analyst:0.980;SQL:0.006;Data Engineer:0.005,"data extraction, transformation and loading tools;SQL;tableau;power bi;Python (computer programming);excel;databricks;aws",,5.0,statement,senior,years
+3367d74c-494f-5b34-b2cd-b85d8e9a5a96,JavaScript,0.906209,JavaScript:0.906;QA:0.016;Data Analyst:0.011,data analytics;JavaScript,,,,,
+4406b154-b686-528d-8bd8-78fad22be4ff,DevOps,0.514001,DevOps:0.514;.NET:0.099;Node.js:0.071,kubernetes;DevOps;flow;github;gitlab,,,,,
+4ceff4ca-1d3e-572d-a144-b29e2210cc20,Data Analyst,0.772432,Data Analyst:0.772;SQL:0.070;Business Analyst:0.043,"business intelligence;qlik;data extraction, transformation and loading tools;excel;digital data processing;computer programming;power bi;tableau;Python (computer programming);vba;SQL;aws;Scratch (computer programming);sharepoint",,,,,
+4dda44d1-bd76-5a42-9129-358f283cc6ed,Scala,0.941311,Scala:0.941;Java:0.028;Other/other:0.007,Scala;Java (computer programming),,,,,
+579acba5-26db-5c1b-9d50-ac3d472e0827,Data Analyst,0.899244,Data Analyst:0.899;Data Science/data scientist:0.043;Data Science/other:0.042,data science;data analytics;Python (computer programming);SQL;tableau;power bi;excel,,,,,
+8329834a-e4d7-51f7-89d2-58fcaa983152,Data Analyst,0.910445,Data Analyst:0.910;Business Analyst:0.053;Data Science/data scientist:0.008,digital data processing;database,,3.25,ranges,middle,years
+d0096e63-043e-5de5-9992-70119ab14b10,Data Analyst,0.153645,Data Analyst:0.154;Other/other:0.124;Support:0.061,database;data models,,3.0,statement,middle,years
+d3cb9b58-5fe3-5f76-8d88-847889fe347c,Data Science/data scientist,0.375676,Data Science/data scientist:0.376;Python:0.336;Data Analyst:0.217,Python (computer programming);pandas;R;SQL;perform data analysis;machine learning,,,,,
+176a05ab-fdb2-53da-924d-58a7f6453842,QA,0.526375,QA:0.526;Other/other:0.136;PHP:0.065,html;CSS;PHP;JavaScript;SQL;Adobe Photoshop;Adobe Illustrator;delphi;jira;confluence,,,,,
+191d8c11-eea4-5f65-9504-666ea180da6e,Lead/other,0.157382,Lead/other:0.157;Node.js:0.125;JavaScript:0.122,spark;Scratch (computer programming);aws;DevOps,,,,,
+2e21c93c-cb6e-58e2-be1b-d9ecb5d64e97,Business Analyst,0.898333,Business Analyst:0.898;Lead/other:0.021;Other/other:0.018,,,15.0,statement,senior,years
+50c9fc0a-d058-539d-a921-24e14ba1458c,Business Analyst,0.330773,Business Analyst:0.331;Sales:0.117;Other/other:0.103,product data management,,3.0,statement,middle,years
+676082c3-5589-5b2d-a1e8-b0f595cdfc9d,Java,0.970096,Java:0.970;Android:0.006;JavaScript:0.005,Java (computer programming);Scratch (computer programming),,4.0,statement,middle,years
+92332264-f2b9-5cef-8391-3c58cc6792ca,Business Analyst,0.578384,Business Analyst:0.578;Data Analyst:0.187;Other/other:0.064,,,10.0,statement,senior,years
+b9b9668e-b15a-555e-a6a6-44d5f559ca13,Business Analyst,0.972228,Business Analyst:0.972;Other/other:0.007;Product Manager:0.006,sharepoint;scrum;Android (mobile operating systems),,1.0,statement,junior,years
+c10e6ca6-2a0e-57ab-9212-1e53497be003,Business Analyst,0.770968,Business Analyst:0.771;Project Manager:0.105;Other/other:0.050,scrum;jira;confluence;windows;sap,,9.0,statement,lead,token
+e4e4bd58-b228-5988-ab91-87d04ab77e89,Business Analyst,0.607352,Business Analyst:0.607;Product Manager:0.342;Project Manager:0.029,blockchain;cryptocurrency;data warehouse;business intelligence,,5.0,statement,lead,token
+eadab7a4-3c41-533a-b858-97752197536f,Business Analyst,0.980137,Business Analyst:0.980;Product Manager:0.005;Project Manager:0.003,knowledge base,,2.5,ranges,middle,years
+397408fd-db63-5f4a-8618-59119f9e5c34,Data Science/data scientist,0.414343,Data Science/data scientist:0.414;Data Science/other:0.202;Data Analyst:0.174,c,,,,,
+51a68d4f-cdf3-5c20-a544-79bf73f0aceb,Other/other,0.784862,Other/other:0.785;Other/lawyer:0.079;Marketing:0.045,cryptocurrency,,6.0,statement,lead,token
+522fcc52-472e-50b8-80dc-45d939d3fea2,Data Science/data scientist,0.935404,Data Science/data scientist:0.935;Python:0.031;Data Science/ml engineer:0.017,data science;machine learning;Python (computer programming);numpy;pandas;flask;scikit-learn,matplotlib,,,,
+5bcb1446-c6be-5df6-b0c4-a419822307b3,Data Science/data scientist,0.86616,Data Science/data scientist:0.866;Data Science/other:0.058;Python:0.045,Scratch (computer programming);machine learning;natural language processing;algorithms,flow,,,,
+62024b1c-d989-55d9-9980-16981d07f2f4,Data Science/data scientist,0.7653,Data Science/data scientist:0.765;Data Science/other:0.135;Data Science/ml engineer:0.090,computer vision;SQL;data science;machine learning;artificial neural networks;pytorch;ML (computer programming);natural language processing;analyse music score,,,,,
+6a3ae6a4-0ecb-5ad3-8389-e62c0ca1d357,Data Science/data scientist,0.89351,Data Science/data scientist:0.894;Python:0.055;Data Science/other:0.024,data science;ML (computer programming);Python (computer programming),,2.5,statement,middle,years
+9badec81-628b-5dc6-83a5-3534462deda6,JavaScript,0.990648,JavaScript:0.991;PHP:0.003;Node.js:0.002,vue;Scratch (computer programming);nuxt.js,,,,middle,token
+aaf8e4c7-bfbe-57cc-86b0-03c1f02bf3ce,Data Analyst,0.84754,Data Analyst:0.848;Data Science/data scientist:0.068;Data Engineer:0.028,data analytics;pandas;power bi;SQL;algorithms;Python (computer programming);scikit-learn,,,,,
+c14984a5-68fa-5b4c-ba71-471847182680,Product Manager,0.352291,Product Manager:0.352;Marketing:0.099;Data Analyst:0.098,business intelligence;databricks;tableau;Scratch (computer programming),,10.0,statement,senior,years
+cc529e27-e77f-5133-b503-e69790a08f82,Data Science/data scientist,0.606667,Data Science/data scientist:0.607;Data Science/other:0.152;Data Science/ml engineer:0.069,data science;deep learning;keras;natural language processing;pytorch;numpy;pandas,,,,,
+23076291-76f4-5d64-849b-4e3a29a2befc,Data Engineer,0.89657,Data Engineer:0.897;SQL:0.056;Data Analyst:0.024,"oracle;PostgreSQL;MySQL;DB2;SQL Server;SQL;Python (computer programming);pandas;Visual Basic;qlik;sap;power bi;business intelligence;spss;Oracle Data Integrator;Scala;Hadoop;spark;azure;data extraction, transformation and loading tools;database;marketing analytics;vba",computer science,4.0,statement,intern,token
+4ef163d7-dbac-557e-8232-60ce927f042c,SQL,0.653899,SQL:0.654;Lead/other:0.094;Project Manager:0.060,"ssis;data extraction, transformation and loading tools;sap;oracle;Oracle Data Integrator;power bi;qlik;ssrs;business intelligence;agile;concepts of telecommunications;SAP R3;Java (computer programming);SQL;terminal;Visual Basic",,9.9167,ranges,senior,token
+a64f4424-7818-51aa-b978-d2accdb151cb,JavaScript,0.956759,JavaScript:0.957;Node.js:0.039;.NET:0.001,Scratch (computer programming);react;TypeScript;html;CSS;JavaScript;node.js;git;aws;terraform;kubernetes,,8.0,statement,lead,token
+a7d2b4e3-41d6-5430-90d6-9cbc3b38c0bc,Data Engineer,0.801632,Data Engineer:0.802;Business Analyst:0.045;Python:0.035,databricks;aws;azure;spark;airflow;MySQL;mariadb;mongodb;Source (digital game creation systems),,4.0,statement,middle,token
+ab7b09a8-2ee2-56fd-9c47-0cce71ea5811,Lead/other,0.355786,Lead/other:0.356;Project Manager:0.178;DevOps:0.148,"Scratch (computer programming);azure;data extraction, transformation and loading tools;SQL;gcp;oracle;PostgreSQL;DevOps;snowflake;Teradata Database;Hadoop;cloud technologies;aws",,,,lead,token
+abcb5278-ee20-5c1b-a07c-479f1ea286e5,Node.js,0.37287,Node.js:0.373;JavaScript:0.160;Python:0.072,Source (digital game creation systems);express;mongodb;PostgreSQL;github,,,,,
+ac6e80ef-e804-5cb7-a367-18dbbbc3e013,Python,0.297607,Python:0.298;Data Science/ml engineer:0.186;Data Science/data scientist:0.167,ML (computer programming);computer vision;algorithms;Python (computer programming);C++;signal processing;docker;cassandra;kafka;deep learning,,1.5,statement,junior,years
+baf9d3d7-866f-59a0-8b6b-637be8589e35,Data Engineer,0.47658,Data Engineer:0.477;Python:0.265;Scala:0.091,data engineering;redshift;MySQL;mongodb;airflow;tableau;aws;Python (computer programming);Java (computer programming);Scala;cloud technologies,,,,,
+e11cacff-d1b8-5f3d-b89e-380cd3c5da4d,Data Engineer,0.921211,Data Engineer:0.921;Data Analyst:0.064;SQL:0.009,"data engineering;data extraction, transformation and loading tools;power bi;excel;data warehouse;business intelligence;database;data storage;machine learning",,,,,
+ec5013e8-75ed-52fd-8240-2dad8e323c1a,Data Engineer,0.701747,Data Engineer:0.702;SQL:0.075;Data Analyst:0.065,"Scratch (computer programming);airflow;data extraction, transformation and loading tools;spark;SQL",,,,,
+0207241f-d534-594d-bf0d-645f15b12675,Data Analyst,0.261806,Data Analyst:0.262;Python:0.163;SQL:0.129,SQL;database;ML (computer programming),,0.6667,ranges,junior,years
+312c73bb-9601-5a63-a2b5-8d49104fc6e4,JavaScript,0.99851,JavaScript:0.999;Node.js:0.000;Java:0.000,github;JavaScript;TypeScript;react;html;CSS;Sass,,,,,
+31673cb1-3552-5f6a-b136-30aa59da3e28,Data Analyst,0.769329,Data Analyst:0.769;Data Science/data scientist:0.140;Data Science/other:0.051,tableau;algorithms;data science;Python (computer programming),,,,,
+577d8377-2940-5452-8e6c-8088c4973b69,Data Science/ml engineer,0.627846,Data Science/ml engineer:0.628;Data Science/other:0.231;Data Science/data scientist:0.097,machine learning;computer vision;docker;kubernetes;github,natural language processing,5.0,statement,senior,years
+6cb100df-17ab-5401-8b56-1fef1953cd70,Data Science/data scientist,0.761283,Data Science/data scientist:0.761;Python:0.155;Data Analyst:0.051,machine learning;Python (computer programming);pandas;matplotlib;numpy,,,,,
+73a7c1c6-af40-5df8-87c6-ef4232513e17,Data Analyst,0.341568,Data Analyst:0.342;SQL:0.164;Python:0.088,tableau;Source (digital game creation systems);Scratch (computer programming);PostgreSQL;database;SQL Server;excel,,,,,
+8c2dce8f-887d-5cab-b12c-0281b76fb504,Data Science/data scientist,0.71819,Data Science/data scientist:0.718;Data Science/other:0.122;Data Analyst:0.121,data mining;data science;data analytics,,,,lead,token
+9ec65202-5ab0-5974-98e9-19a2be51c560,Data Science/ml engineer,0.622996,Data Science/ml engineer:0.623;Data Science/data scientist:0.173;Data Science/other:0.130,computer vision;machine learning;algorithms;flow,tensorflow;pytorch;opencv;pandas;numpy,3.0,statement,middle,years
+dc3da8f0-5549-55d2-8b70-b5f61af3a73a,Data Analyst,0.694758,Data Analyst:0.695;Data Science/data scientist:0.107;Data Science/other:0.071,data science;power bi;excel;ML (computer programming);Python (computer programming);SQL,,1.0,statement,junior,years
+f26508d4-21c7-553a-8809-8f58d0b9d7a5,Marketing,0.626528,Marketing:0.627;Other/other:0.089;Technical Writing:0.030,,,,,,

@@ -49,7 +49,8 @@ output/baselines/           committed model record — figures and config, never
                             a1_secondary, latency, metrics with their reporting guards
   matching/                 the ladder: rules, lexical, SBERT, cross-encoders, hybrids
   extraction/               skill vocabulary, rules matcher, MiniLM NER, normalisation
-  evidence/, pipeline.py    requirements, verbatim evidence, end-to-end `screen()`
+  inference/                the reported system (D63/D64) as an API for apps: `Screener`
+  evidence/, pipeline.py    requirements, verbatim evidence, end-to-end `screen()` (deprecated draft)
   app/                      frozen screening snapshots, grounded QA + Streamlit transport
   llm/                      local extractive QA and historical Qwen service; no annotation or training
   annotation/               the frozen annotation instrument (D42)
@@ -96,6 +97,49 @@ uv run python -m candidate_screener.checks --warm --all    # every live record (
 uv run python -m candidate_screener.checks --cold --all    # every record from scratch (~50 min)
 uv run python -m candidate_screener.checks --list          # the registry, with measured times
 ```
+
+## Using the system from an app
+
+`candidate_screener.inference` serves the reported system to an app (plan
+`2026-10-23-inference-api`). It imports no Streamlit and fits nothing: every part (role model,
+vocabulary, concept frequencies, TF-IDF space, SBERT weak, the frozen L1) is loaded, so a new JD
+or an uploaded CV is inference only. It runs locally on a machine with `data/`; once per machine:
+
+```bash
+uv sync --all-groups
+uv run python -m candidate_screener.inference --cache-parts   # saved concept df + TF-IDF space (~40 s)
+uv run python -m candidate_screener.inference --demo <final-set jd_id>   # smoke: a top 10, no CV text
+```
+
+```python
+from candidate_screener import inference
+
+s = inference.Screener.load()                        # ~4 s; wrap in st.cache_resource
+res = s.rank(jd_text, cvs, jd_title="QA Engineer")   # cvs: cv_id + cv_text only (D53)
+for r in res.top(10):                                # what the UI shows
+    print(r.rank, r.cv_id, r.score)
+why = s.explain(res, res.top(1)[0].cv_id)            # for the recruiter: reasons, skills, years
+```
+
+- **System.** D63 by default: the frozen L1 (`output/rerank/l1-chat3-model.json`) on F12 ranks
+  every CV passed in. `rerank=True` is D64: L1's top 50 reordered by min-max L1 + 0.25 × min-max
+  C2 (Qwen3-Reranker-0.6B, zero-shot). C2 costs ~2.5-7 s of CPU per pair, so up to a few minutes
+  per JD; `progress(done, total)` reports it. `system="X2"` gives the baseline.
+- **Uploads only.** CVs come from the caller; there is no CV store or search.
+- **Scaling (`scaling="background"`, the default).** `tfidf_scaled` is min-max scaled over the
+  CVs scored together, and L1 was trained on 500-CV pools. The CVs passed in are therefore padded
+  to 500 with a fixed sample of A2 train-region CVs that are scored but never returned. Scaling
+  over the uploads alone (`scaling="pool"`) reorders small pools: at 10 CVs the top candidate
+  differs about 1 time in 7 (`output/inference/pool-scaling.json`). The first background call
+  takes ~18 s (the 500 background CVs are embedded once and cached), later calls ~1 s.
+- **`reference_date`.** "present" in a CV's date range: today by default (uploads); A2 documents
+  use 2023-09-01 (`Screener.a2_pool` returns it).
+- **Output.** Frozen dataclasses (`Screening`, `Ranked`, `JDProfile`, `CVProfile`), each with
+  `as_dict()` (JSON-safe); `Screening.to_frame()`. No CV text is returned: anything an app
+  displays from a CV passes `annotation.redact`.
+- **Demo data.** `Screener.a2_pool(jd_id)` gives a final-set JD's text, title and 500-CV pool;
+  pass `jd_id=` to `rank` so the C2 scores already cached are reused.
+- **Check.** `inference --check` drives the API against the committed records (~12 min).
 
 ## Acquire the data (~676 MB)
 
@@ -299,22 +343,31 @@ saved locally. Resume/edit a draft, confirm the preview, then publish and reques
 candidate ranking. Operational JDs and ranking snapshots live separately from
 benchmark labels and training data in the local workspace database.
 
-Connect the teammate's live model with trusted runtime configuration:
+New JDs rank through the inference API (`inference.Screener`, plan
+[2026-10-24-hiring-desk-inference-api](plan/2026-10-24-hiring-desk-inference-api/README.md)).
+Once per machine, `uv run python -m candidate_screener.inference --cache-parts`; then launch with:
 
 ```bash
-export HR_PORTAL_RANKING_ADAPTER=your_package.your_module:rank_adapter
-export HR_PORTAL_CANDIDATE_POOL=your-authorized-pool
+export HR_PORTAL_RANKING_ADAPTER=candidate_screener.app.portal_inference:adapter
+export HR_PORTAL_CANDIDATE_POOL=a2-final-cvs
+uv run streamlit run src/candidate_screener/app/streamlit_app.py --server.address 127.0.0.1 --server.port 8503
 ```
 
-The adapter implements `adapter(operation, payload) -> dict` for `submit` and
-`status`, with request/revision identity, model/pool provenance and validated
-candidate results. Long inference returns a queued/running handle promptly; use
-**Refresh ranking status** to check completion. See the
-[adapter contract](plan/2026-10-23-hiring-desk-v1/05-live-ranking-contract.md) and
-the detailed schema in `app/portal_ranking.py`. Until connected, new JDs remain
-saved with an explicit unavailable state; existing CSV reviews still work. No
-model is trained at startup. A real run with the teammate's interface remains
-necessary to verify live integration.
+The pool is the 600 A2 final-set CVs (reference date 2023-09-01); no labels are read. **Rank
+candidates** runs D63 and usually returns within the click (the first request also loads the model,
+about half a minute). Tick **Refine the top 50 with the reranker** for D64: it runs in the
+background for a few minutes (210 s for a new JD on 24 Oct 2026; seconds once its C2 scores are
+cached, peak RSS 4.6 GB while the reranker loads); use **Refresh ranking status** to fetch it. Each
+ranking stores the model's `explain()` reasons with its snapshot, but the review does not show them:
+they compare skills and years, which the score barely weighs (L1 is driven by role-family match and
+text similarity), so they would contradict the order. The model reads the JD text only: skills
+outside its vocabulary (ESCO ICT + data_jobs) are invisible to it, required and preferred count
+alike, and it ignores experience requirements above 20 years. Failures show in the app as a generic message; the
+cause is in `logs/hiring-desk-adapter.log`. Any other adapter implementing the
+[contract](plan/2026-10-23-hiring-desk-v1/05-live-ranking-contract.md) (`adapter(operation,
+payload) -> dict`, schema in `app/portal_ranking.py`) can be configured instead. Without an
+adapter, new JDs stay saved with an explicit unavailable state; existing CSV reviews still work. No
+model is trained at startup.
 
 **Alerts** records JD publication, ranking ready/failed and local email
 captured/failed events. Read/unread controls and Open job preserve access checks.

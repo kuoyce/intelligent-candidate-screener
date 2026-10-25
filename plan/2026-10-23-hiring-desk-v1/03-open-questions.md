@@ -10,7 +10,7 @@ flow; implementation choice is delegated. Use local MIME-message capture.
 
 | ID | Decision | Proposed v1 choice | Status |
 |---|---|---|---|
-| Q1 | Do newly created JDs rank candidates? | Yes; request/status/result adapter described in `05-live-ranking-contract.md`. Teammate owns inference and candidate pool. | Scope confirmed; boundary proposed |
+| Q1 | Do newly created JDs rank candidates? | Yes; request/status/result adapter described in `05-live-ranking-contract.md`. Teammate owns inference and candidate pool. | Resolved 24 Oct 2026: `app/portal_inference.py` over `inference.Screener`; the model owner chose the pool `a2-final-cvs` (the 600 A2 final-set CVs); plan `2026-10-24-hiring-desk-inference-api` |
 | Q2 | Which email setup? | Local `.eml` capture, preview, explicit confirmation and download; example Tech/Business addresses. | Choice delegated; specified in design |
 | Q3 | Are real addresses/mail credentials needed? | No; reserved example addresses and local capture meet the demonstration scope. | Resolved by reduced scope |
 | Q4 | What should trigger alerts? | JD publication, ranking ready/failed, email captured/failed. No applicant-arrival alerts without a source. | Approved; implemented |

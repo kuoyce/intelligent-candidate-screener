@@ -38,9 +38,11 @@ class ExtractedRule(BaseSystem):
                   "rules, nothing fitted (P4)")
     can_explain = True
 
-    def __init__(self, role_model=None) -> None:
+    def __init__(self, role_model=None, reference=None) -> None:
         super().__init__()
         self.role_model = role_model
+        #: "present" in CV date ranges; None = `experience.REFERENCE_DATE` (A2's 2023-09-01).
+        self.reference = reference
 
     def _fit(self, train):
         if self.role_model is None:
@@ -56,7 +58,8 @@ class ExtractedRule(BaseSystem):
         return pd.DataFrame({
             "role_match": role_family.role_match(jd, cv, self.role_model),
             "experience_compatible": experience.experience_compatible_extracted(
-                jd, cv, unknown_compatible=True).to_numpy()})
+                jd, cv, reference=self.reference or experience.REFERENCE_DATE,
+                unknown_compatible=True).to_numpy()})
 
     def _score(self, pairs):
         c = self.components(pairs)

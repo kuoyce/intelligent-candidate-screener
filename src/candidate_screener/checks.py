@@ -133,6 +133,11 @@ REGISTRY: tuple[Check, ...] = (
     # cache (warm_s is an estimate, not yet run).
     Check("c2_validation", "evaluation.c2_validation", ("--check",), W, run_alone=True,
           cold_s=15608.0, warm_s=600.0),
+    # inference (plan 2026-10-23-inference-api): the API vs the a2-* tables, the frozen L1 (refit),
+    # chat3-l1-pool.json and c2-validation-test.json. Always reads C2 from its cache (refuses to
+    # score; c2_validation's cold tier re-scores C2), so the tiers coincide. Measured 23 Oct 2026,
+    # 9 min 16 s, peak 2.2 GB.
+    Check("inference", "inference.__main__", ("--check",), cold_s=556.0),
     # stage2: cold measured 22 Oct 2026, 6.2 h (12 grid points, R3 slowest).
     Check("stage2", "evaluation.stage2", ("--check",), W, run_alone=True, cold_s=22389.5,
           warm_s=251.5),

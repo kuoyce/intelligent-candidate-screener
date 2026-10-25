@@ -3,6 +3,9 @@
 Status: approved by the user on 23 October 2026; application implemented and
 validated 24 October. Live-model binding remains pending the teammate's actual
 interface. The plan is not declared complete under D55.
+*Update 24 October:* the live binding is done by plan
+`2026-10-24-hiring-desk-inference-api` (adapter `app/portal_inference.py` over
+`inference.Screener`; pool `a2-final-cvs`, chosen by the model owner).
 On 23 October the user
 confirmed new-JD candidate ranking through a teammate's live-model integration
 and requested a lightweight demonstration of email procedure.
