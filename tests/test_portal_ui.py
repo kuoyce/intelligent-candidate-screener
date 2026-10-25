@@ -23,6 +23,9 @@ def local_workspace(monkeypatch, tmp_path):
     monkeypatch.setattr(PortalDataset, "from_folder", lambda *a, **k: fixture)
     monkeypatch.setattr(ui, "PROCESSED", tmp_path)
     monkeypatch.setenv("SCREENER_QWEN_DISABLED", "true")
+    # The app script defaults to the live adapter; empty values keep UI tests offline.
+    monkeypatch.setenv("HR_PORTAL_RANKING_ADAPTER", "")
+    monkeypatch.setenv("HR_PORTAL_CANDIDATE_POOL", "")
 
 
 def app():

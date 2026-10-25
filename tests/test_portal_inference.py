@@ -310,3 +310,15 @@ def test_the_default_entry_point_is_built_lazily(monkeypatch):
     portal_inference.adapter("status", payload())
     assert len(built) == 1 and built[0][1] == ["a2-final-cvs"]
     assert built[0][2]["log_path"] == portal_inference.LOG
+
+
+def test_default_environment_configures_the_desk_and_yields_to_exports():
+    environ = {}
+    portal_inference.use_as_default(environ)
+    assert environ == {"HR_PORTAL_RANKING_ADAPTER": "candidate_screener.app.portal_inference:adapter",
+                       "HR_PORTAL_CANDIDATE_POOL": "a2-final-cvs"}
+    module, function = environ["HR_PORTAL_RANKING_ADAPTER"].split(":")
+    assert module == portal_inference.__name__ and callable(getattr(portal_inference, function))
+    exported = {"HR_PORTAL_RANKING_ADAPTER": "", "HR_PORTAL_CANDIDATE_POOL": "other-pool"}
+    portal_inference.use_as_default(exported)
+    assert exported == {"HR_PORTAL_RANKING_ADAPTER": "", "HR_PORTAL_CANDIDATE_POOL": "other-pool"}

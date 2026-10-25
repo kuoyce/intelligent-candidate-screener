@@ -21,6 +21,9 @@ def workspace(monkeypatch, tmp_path):
                                   auth_guard=lambda: True)
     monkeypatch.setattr(ui, "_controller", lambda *args: controller)
     monkeypatch.setenv("SCREENER_QWEN_DISABLED", "true")
+    # The app script defaults to the live adapter; empty values keep UI tests offline.
+    monkeypatch.setenv("HR_PORTAL_RANKING_ADAPTER", "")
+    monkeypatch.setenv("HR_PORTAL_CANDIDATE_POOL", "")
     return controller
 
 
