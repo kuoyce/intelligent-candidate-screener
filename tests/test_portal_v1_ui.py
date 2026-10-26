@@ -274,3 +274,20 @@ def test_live_review_stores_the_reasons_but_shows_no_why_panel(workspace):
     assert not any(item.label.startswith("Why #") for item in at.expander)
     assert not any(reason in item.value for item in at.markdown)
     assert workspace.dataset.snapshot(job_id).candidates[0]["evidence_provenance"]["reasons"] == [reason]
+
+
+def test_rerank_moves_the_open_review_to_the_new_ranking(workspace):
+    """A finished re-rank changes the snapshot digest; the open review follows it instead of
+    landing on the historical "Recover review" screen."""
+    from test_portal_workspace import ready_adapter
+    job_id = live_job(workspace, ready_adapter)
+    at = app()
+    next(item for item in at.button if item.key == "portal_card_" + job_id).click().run()
+    next(item for item in at.button if item.label == "Rank candidates").click().run()
+    first, before = at.session_state["portal_session_id"], workspace.dataset.snapshot(job_id).digest
+    next(item for item in at.button if item.label == "Re-rank candidates").click().run()
+    assert not at.exception
+    assert workspace.dataset.snapshot(job_id).digest != before
+    assert not any(item.label == "Recover review" for item in at.selectbox)
+    assert at.session_state["portal_session_id"] != first
+    assert any(item.label == "Review action" for item in at.selectbox)

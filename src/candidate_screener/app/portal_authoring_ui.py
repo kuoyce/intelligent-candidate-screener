@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import math
 import os
+import time
 
 import streamlit as st
 
@@ -138,6 +139,48 @@ def render_authoring(controller):
                 st.rerun()
 
 
+def _follow_current_ranking(controller, job_id):
+    """Move an open review to the job's new ranking snapshot, so a finished (re-)rank does not
+    leave it historical. Other jobs' sessions and reviews not yet outdated are left alone."""
+    session_id = st.session_state.get("portal_session_id")
+    if not session_id:
+        return
+    try:
+        record = controller.load_session(session_id)
+        if record["jd_id"] != job_id or controller.dataset.snapshot(job_id).digest == record["source_fingerprint"]:
+            return
+    except ValueError:      # no ready ranking yet: the review stays as it is
+        return
+    from .portal_ui import _switch_job
+    _switch_job(controller, job_id, session_id=controller.open_job(job_id)["session_id"])
+
+
+POLL_SECONDS, POLL_LIMIT_SECONDS = 10, 900
+
+
+def _poll_ranking(controller, job, request_id):
+    """Check a running ranking every POLL_SECONDS for at most POLL_LIMIT_SECONDS. A fragment only
+    runs while its page is shown, so leaving the page stops it; any full render of the page
+    (returning, or an action on it) starts a new window."""
+    key = "portal_poll_" + request_id
+    if st.session_state.get(key, {}).get("stop_pending"):    # the rerun the timeout itself asked for
+        st.session_state[key] = {"stopped": True}
+        st.caption(f"Automatic checking stopped after {POLL_LIMIT_SECONDS // 60} minutes. Use Refresh ranking status.")
+        return
+    st.session_state[key] = {"start": time.monotonic()}
+
+    @st.fragment(run_every=POLL_SECONDS)
+    def poll():
+        if time.monotonic() - st.session_state[key]["start"] >= POLL_LIMIT_SECONDS:
+            st.session_state[key]["stop_pending"] = True
+            st.rerun()
+        if controller.ranking_service.refresh(request_id)["status"] not in {"queued", "running"}:
+            _follow_current_ranking(controller, job["job_id"])
+            st.rerun()
+        st.caption("Checking the ranking service automatically every 10 seconds.")
+    poll()
+
+
 def _ranking_controls(controller, job):
     if not job.get("can_edit", True):
         st.caption("Published job shared with your workspace. Its author manages requirements and ranking requests.")
@@ -155,9 +198,11 @@ def _ranking_controls(controller, job):
         request = service.get(request_id)
         if request["status"] in {"queued", "running"}:
             st.caption("Ranking runs in the background; the D64 reranker takes a few minutes. Use Refresh ranking status to fetch the result.")
+            _poll_ranking(controller, job, request_id)
             if st.button("Refresh ranking status", key="portal_refresh_rank_" + job["job_id"]):
                 with st.spinner("Checking the ranking service…"):
                     service.refresh(request_id)
+                _follow_current_ranking(controller, job["job_id"])
                 st.rerun()
         elif request["status"] in {"failed", "service_unavailable"}:
             st.warning(request.get("error") or "The ranking request could not complete. Retry when the service is available.")
@@ -172,6 +217,7 @@ def _ranking_controls(controller, job):
         if st.button(label, key="portal_rank_" + job["job_id"], type="primary"):
             with st.spinner("Submitting the confirmed JD for ranking…"):
                 service.rank(job["job_id"], job["revision"], rerank=bool(request_id), system="D64" if refine else "D63")
+            _follow_current_ranking(controller, job["job_id"])
             st.rerun()
 
 
