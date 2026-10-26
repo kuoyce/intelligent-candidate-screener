@@ -195,7 +195,7 @@ demo alone is not completion. No external deployment/push is requested by this p
 
 | ID | Question / proposed default | Blocks |
 |---|---|---|
-| V2-01 | Approve hybrid composition as a v2 amendment to D61 (entity/app)? Recommended; preserve v1 safeguards | Implementation |
+| V2-01 | Resolved: owner approved implementation24Oct2026 and resumed25Oct2026; hybrid scope recorded as D65 | None |
 | V2-02 | What hardware/RAM/device is available, and is a larger local checkpoint acceptable? Default existing 0.5B inference only until measured | Capacity experiment and training, not state/matrix work |
 | V2-03 | If 0.5B underperforms, prioritize one 1.5B frozen trial or LoRA? Default trial the frozen configuration before training, subject to hardware | Optional model refinement |
 | V2-04 | Who reviews synthetic targets and blinded conversations? Default two independent project reviewers; identities unassigned | Scored human evaluation/data acceptance |

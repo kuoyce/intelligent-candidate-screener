@@ -170,7 +170,30 @@ def _history_once(controller, session_id, action, answer, *, menu=None, extra=No
 def _chat_answer(answer):
     st.write(redact_text(answer["text"]))
     mode = answer.get("mode", "deterministic_evidence")
-    if answer.get("status") == "insufficient_evidence" and not answer.get("citations"):
+    if mode == "conversation_v3":
+        generation = answer.get("generation_mode", "controlled")
+        if generation == "qwen_prose":
+            st.caption("Hiring Desk v3 · conversational answer · experimental")
+        elif generation in {"model_fallback", "qwen_fallback", "prose_fallback"}:
+            st.caption("Hiring Desk v3 · evidence fallback")
+        else:
+            st.caption("Hiring Desk v3 · review guidance")
+        with st.expander("Answer details", expanded=False):
+            st.write({"mode": generation, "model": answer.get("model"),
+                      "provenance": answer.get("generation_provenance", {})})
+    elif mode == "jd_search":
+        st.caption("Authorized job descriptions · source-based search")
+    elif mode == "conversation_v2":
+        generation = answer.get("generation_mode", "controlled")
+        if generation == "qwen_answer_plan":
+            st.caption("Hiring Desk v2 · Qwen selected validated comparison points · application-written factual clauses")
+        elif generation in {"model_fallback", "qwen_fallback"}:
+            st.caption("Hiring Desk v2 · Qwen unavailable or rejected · application comparison")
+        else:
+            st.caption("Hiring Desk v2 · evidence-grounded application conversation")
+        if answer.get("comparison_scope") == "recognized_jd_criteria":
+            st.caption("Comparing recognized JD criteria; this is not an exhaustive review of every requirement. Ask about a specific criterion to explore it.")
+    elif answer.get("status") == "insufficient_evidence" and not answer.get("citations"):
         st.caption("No matching source evidence · no validated model answer")
     elif mode == "extractive_qa":
         st.caption("RoBERTa-SQuAD2 · extracted answer spans validated against source")
@@ -190,13 +213,16 @@ def _chat_answer(answer):
         st.caption("Review guidance · deterministic response")
     for citation in answer.get("citations", []):
         try:
-            owner = _opaque_identity(citation["owner"])
+            owner = answer.get("candidate_labels", {}).get(citation["owner"]) or _opaque_identity(citation["owner"])
         except ValueError:
             owner = redact_text(str(citation["owner"]))
         evidence_id = str(citation["evidence_id"])
         if not re.fullmatch(r"qa:[a-f0-9]{24}", evidence_id):
             evidence_id = redact_text(evidence_id)
-        with st.expander(f"Supporting source: {owner} · {evidence_id}", expanded=False):
+        evidence_id = answer.get("citation_labels", {}).get(citation["evidence_id"], evidence_id)
+        heading = (f"View supporting source: {owner}" if mode in {"conversation_v3", "jd_search"}
+                   else f"Supporting source: {owner} · {evidence_id}")
+        with st.expander(heading, expanded=False):
             st.text(redact_text(citation["quote"]))
             st.caption(f"Redacted text offsets {citation['start']}–{citation['end']}; original PDF pages unavailable.")
 
@@ -207,14 +233,15 @@ def _comparison_table(result, *, labels=None):
         rows = rows.get("rows", [])
     if not rows:
         return
-    labels = labels or {}
+    labels = labels or result.get("candidate_labels", {})
     def cell_text(cell):
         if not isinstance(cell, dict):
             return str(cell)
         answer = cell.get("answer", cell.get("text")) or "Not found in reviewed text"
         context = cell.get("context") or ""
         if context and context not in answer:
-            answer += "\nSource context: " + context
+            # answer += "
+            answer += ""
         return answer
     display = []
     for row in rows:
@@ -245,18 +272,27 @@ def _chat(controller, session_id, snapshot):
 
 def _chat_content(controller, session_id, snapshot):
     st.subheader("Ask Hiring Desk")
-    st.caption("Extractive QA: RoBERTa-SQuAD2 · entity evidence: GLiNER medium · models load locally on demand")
+    version = os.environ.get("HR_PORTAL_CHAT_VERSION", "v1").lower()
+    v2 = version in {"v2", "v3"}
+    st.caption("Hiring Desk v3 · evidence-backed conversation · experimental" if version == "v3" else
+               "Hiring Desk v2 · conversational comparisons with source evidence" if v2 else
+               "Extractive QA: RoBERTa-SQuAD2 · entity evidence: GLiNER medium · models load locally on demand")
     history = controller.chat_history(session_id)
     if not history:
         with st.chat_message("assistant"):
-            st.write("Ask me about this role and its ranked applicants. For example: ‘What does this role require?’, ‘Compare candidates 1 and 2’, or ‘What degree does candidate 1 have?’")
+            st.write(f"You're reviewing {redact_text(snapshot.jd_title)}. I can explain the requirements or compare the selected candidates. Try ‘Compare candidates 1 and 2’, then ‘What about their qualifications?’" if v2 else
+                     "Ask me about this role and its ranked applicants. For example: ‘What does this role require?’, ‘Compare candidates 1 and 2’, or ‘What degree does candidate 1 have?’")
     for turn in history:
         with st.chat_message("user"):
             st.write(redact_text(turn["question"]))
         with st.chat_message("assistant"):
             _chat_answer(turn["answer"])
-            if turn["answer"].get("mode") == "comparison":
-                _comparison_table(turn["answer"])
+            if turn["answer"].get("mode") == "comparison" or turn["answer"].get("show_comparison_table"):
+                if turn["answer"].get("comparison_table_expandable"):
+                    with st.expander("View comparison table", expanded=False):
+                        _comparison_table(turn["answer"])
+                else:
+                    _comparison_table(turn["answer"])
     pending_key = "portal_pending_chat_" + session_id
     pending = st.session_state.get(pending_key)
     if pending:
@@ -342,9 +378,10 @@ def _review(controller, session_id):
     with st.expander("Ranking details"):
         st.caption(f"Snapshot {snapshot.snapshot_id} · {snapshot.model_id}")
         st.write(snapshot.candidates[0].get("score_semantics", "Backend ordering score") if snapshot.candidates else "No candidates returned by the ranking service.")
-    actions = ["Top10 ranked CVs", "Requirement evidence", "Open CV", "Compare candidates",
-               "Generate session report", "Prepare top10 package", "Send to hiring department", "Save session", "Review another job"]
-    if len(snapshot.candidates) < 2:
+    actions = ["Top10 ranked CVs", "Open CV",
+               "Generate session report", "Send to hiring department", "Review another job"]
+    # not required these actions -  "Requirement evidence", "Compare candidates", "Prepare top10 package", "Save session"
+    if len(snapshot.candidates) < 2 and "Compare candidates" in actions:
         actions.remove("Compare candidates")
     if not snapshot.candidates:
         actions = ["Generate session report", "Save session", "Review another job"]
@@ -360,7 +397,7 @@ def _review(controller, session_id):
     if action == "Top10 ranked CVs":
         st.dataframe(pd.DataFrame([{"Rank": c["rank"], "Applicant": c["cv_id"], "Ranking score": c["score"],
                                    "CV preview": "Available" if c["preview_status"] != "unavailable" else "Unavailable"} for c in candidates]), hide_index=True)
-        st.caption("Scores are copied from the backend. See Ranking details for their meaning; inspect source evidence for context.")
+        st.caption("See Ranking details for their meaning; inspect source evidence for context.")
     elif action == "Requirement evidence":
         category = st.selectbox("Which requirement category?", CATEGORIES, key="portal_category_" + session_id)
         st.write("**JD mentions:** " + evidence_text(snapshot.jd_entities[category]))
@@ -466,6 +503,17 @@ def _switch_job(controller, jd_id, *, session_id=None):
 
 def _job_browser(controller):
     st.subheader("Find your next review")
+    if os.environ.get("HR_PORTAL_CHAT_VERSION", "v1").lower() == "v3":
+        with st.expander("Find jobs by requirement", expanded=False):
+            with st.form("portal_jd_requirement_search"):
+                requirement_question = st.text_input("Ask about job requirements", max_chars=2000,
+                                                    placeholder="Which JD requires Flutter?")
+                search_requirements = st.form_submit_button("Search requirements")
+            if search_requirements:
+                try:
+                    _chat_answer(controller.search_job_requirements(requirement_question))
+                except (ValueError, PermissionError) as exc:
+                    st.warning(str(exc))
     if st.session_state.pop("portal_clear_search", False):
         st.session_state.portal_job_search = ""
     search = st.text_input("Search job titles", key="portal_job_search", placeholder="Search by role or job title")
@@ -625,6 +673,17 @@ def _capture_history(controller, session_id):
 def _operational_review(controller, jd_id):
     from .portal_authoring_ui import render_published_job
     render_published_job(controller, jd_id)
+    if os.environ.get("HR_PORTAL_CHAT_VERSION", "v1").lower() == "v3":
+        with st.expander("Ask about this job description", expanded=False):
+            st.caption("Ask a standalone question about the JD. Candidate discussion becomes available after ranking.")
+            with st.form("portal_jd_only_" + jd_id):
+                question = st.text_input("Question about this role", max_chars=2000)
+                submitted = st.form_submit_button("Ask about the JD")
+            if submitted:
+                try:
+                    _chat_answer(controller.ask_job(jd_id, question))
+                except (ValueError, PermissionError) as exc:
+                    st.warning(str(exc))
 
 
 def main():

@@ -57,7 +57,7 @@ def _event_id(principal,event_id):
 
 _DIGEST_FIELDS=frozenset({'report_sha256','report_digest','snapshot_sha256','source_digest',
                          'source_sha256','package_digest','document_digest','directory_digest',
-                         'preview_digest','message_sha256'})
+                         'preview_digest','message_sha256','source_scope_sha256','scope_digest','prompt_sha256'})
 _ID_FIELDS=frozenset({'snapshot_id','session_id','candidate_id','cv_id','jd_id','run_id','package_id','report_id'})
 _ID_LIST_FIELDS=frozenset({'candidate_ids','comparison_ids','selected_candidates','top8_ids','shortlist_ids'})
 

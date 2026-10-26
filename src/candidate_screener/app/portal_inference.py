@@ -27,6 +27,7 @@ import hashlib
 import json
 import logging
 import math
+import os
 from pathlib import Path
 import queue
 import re
@@ -127,7 +128,11 @@ class InferenceAdapter:
     ``cv_id``/``cv_text``, reference date). ``model_digest`` names the frozen L1 record
     (default: SHA-256 of ``inference.model.RECORD``)."""
 
-    def __init__(self, screener_factory, pools, *, wait_seconds=45.0, model_digest=None, log_path=None):
+    def __init__(self, screener_factory, pools, *, wait_seconds=45.0, model_digest=None, log_path=None,
+                 embedding_backend="torch"):
+        if embedding_backend not in {"torch", "onnx"}:
+            raise ValueError("Unsupported inference embedding backend")
+        self.embedding_backend = embedding_backend
         self.screener_factory, self.pools = screener_factory, dict(pools)
         self.wait_seconds, self.model_digest = float(wait_seconds), model_digest
         self.screener, self._pools = None, {}
@@ -142,6 +147,9 @@ class InferenceAdapter:
         request_id, system = payload.get("request_id"), payload.get("ranking_system", "D63")
         if not isinstance(request_id, str) or not request_id:
             raise ValueError("A ranking request ID is required")
+        if self.embedding_backend == "onnx" and system == "D64":
+            _log.warning("request %s: D64 is unavailable with the ONNX embedding backend", request_id)
+            return {**echo, "status": "service_unavailable", "handle": None}
         wait = False
         with self._lock:
             job = self._jobs.get(request_id)
@@ -257,13 +265,24 @@ class InferenceAdapter:
             model_id = f"D63 frozen L1 (l1-chat3-model.json {record})"
             semantics = ("D63: frozen-L1 ordering score over the configured candidate pool. "
                          "Higher ranks first; not a Fit probability or a calibrated score.")
+        if self.embedding_backend == "onnx":
+            model_id += "; SBERT onnx"
         result_provenance = {"system": result.system, "scaling": result.scaling, "pool_size": result.pool_size,
+                             "embedding_backend": self.embedding_backend,
                              "reference_date": result.reference_date, "top_k": TOP_K,
                              "l1_record_sha256": self.model_digest, "jd_role": jd.role, "jd_role_prob": jd.role_prob,
                              "jd_years": {"min": jd.min_years, "max": jd.max_years}}
         if system == "D64":
             result_provenance.update(c2_k=k, c2_w=w)
-        body = {"run_id": f"{system.lower()}-" + _digest(json.dumps([payload["request_id"], version, self.model_digest, system]))[:24],
+        embedding_digest = getattr(self.screener, "embedding_artifact_sha256", None)
+        if self.embedding_backend == "onnx" and isinstance(embedding_digest, str):
+            if not re.fullmatch(r"[a-f0-9]{64}", embedding_digest):
+                raise ValueError("Invalid embedding artifact identity")
+            result_provenance["embedding_artifact_sha256"] = embedding_digest
+        identity = [payload["request_id"], version, self.model_digest, system]
+        if self.embedding_backend == "onnx":
+            identity.extend(["onnx", embedding_digest])
+        body = {"run_id": f"{system.lower()}-" + _digest(json.dumps(identity))[:24],
                 "model_id": model_id, "candidate_pool_version": version, "score_semantics": semantics,
                 "eligible_candidate_ids": [str(i) for i in pool.cv_id], "candidates": candidates,
                 "jd_entities": jd_entities, "evidence_provenance": _plain(result_provenance)}
@@ -283,9 +302,10 @@ def _log_to(path):
     _handlers.add(path)
 
 
-def _load_screener():
+def _load_screener(embedding_backend=None):
     from candidate_screener.inference import Screener
-    return Screener.load()
+    backend = embedding_backend or os.environ.get("HR_PORTAL_EMBEDDING_BACKEND", "torch").strip().lower()
+    return Screener.load(embedding_backend=backend)
 
 
 _DEFAULT, _DEFAULT_LOCK = None, threading.Lock()
@@ -296,5 +316,7 @@ def adapter(operation, payload):
     global _DEFAULT
     with _DEFAULT_LOCK:
         if _DEFAULT is None:
-            _DEFAULT = InferenceAdapter(_load_screener, {"a2-final-cvs": a2_final_cvs}, log_path=LOG)
+            backend = os.environ.get("HR_PORTAL_EMBEDDING_BACKEND", "torch").strip().lower()
+            _DEFAULT = InferenceAdapter(lambda: _load_screener(backend), {"a2-final-cvs": a2_final_cvs},
+                                        log_path=LOG, embedding_backend=backend)
     return _DEFAULT(operation, payload)

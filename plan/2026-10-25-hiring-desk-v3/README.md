@@ -44,6 +44,8 @@ prompt/orchestration experiment.
    system prompt, model inputs, memory, answer validation and fallback behavior.
 2. [Implementation and evaluation](02-implementation-and-evaluation.md): file ownership,
    delivery order, happy flows, negative cases, promotion gates and open questions.
+3. [Implementation record](03-implementation-record.md): delivered code, regression
+   evidence, real-model development findings and experimental rollout decision.
 
 ## Approval and rollout boundary
 
@@ -69,7 +71,7 @@ vertical slice before full integration. Establish that natural paraphrases can p
 support checks at a useful acceptance rate; a longer system prompt alone cannot
 establish this. Explicit comparison requests retain the application-built table.
 
-Inspected the ownership requirements, conversation design, v2 prompt and worker,
-controller persistence, dialogue frame and provider budgets. An independent agent
-reviewed the gaps. This is planning only: no inference benchmark, runtime restart,
-dataset collection or test-suite run is claimed.
+The approved implementation has undergone independent code review and synthetic
+development walkthroughs against the existing local Qwen. See the implementation
+record for measured failures and validation. Quality promotion remains pending;
+there has been no model training, dataset collection or active-service migration.

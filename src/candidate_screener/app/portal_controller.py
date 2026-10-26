@@ -47,6 +47,68 @@ class PortalController:
         self._guard(fresh=True)
         return self.dataset.jobs()
 
+    def job_documents(self):
+        """Only current, authorized JD text; no candidate retrieval or inference."""
+        self._guard(fresh=True)
+        accessor = getattr(self.dataset, "job_documents", None)
+        if accessor is not None:
+            documents = accessor()
+        else:
+            documents = []
+            for job in self.dataset.jobs():
+                snapshot = self.dataset.snapshot(job["jd_id"])
+                documents.append({"jd_id": snapshot.jd_id, "title": snapshot.jd_title,
+                                  "text": snapshot.jd_text, "source_version": snapshot.digest})
+        self._guard(fresh=True)
+        return documents
+
+    def search_job_requirements(self, question):
+        from .jd_search import search_jobs
+        if not isinstance(question, str) or not question.strip() or len(question) > 2000:
+            raise ValueError("Enter a question between 1 and 2000 characters")
+        documents = self.job_documents()
+        result = search_jobs(documents, redact_text(question.strip()))
+        if self.job_documents() != documents:
+            raise StaleReview("Job sources changed while searching. Please search again.")
+        result["source_scope_sha256"] = self._job_scope(documents)
+        return result
+
+    @staticmethod
+    def _job_scope(documents):
+        return hashlib.sha256(json.dumps(documents, sort_keys=True, ensure_ascii=False).encode()).hexdigest()
+
+    def _visible_chat_answer(self, answer, *, job_scope=None):
+        if answer.get("mode") != "jd_search":
+            return answer
+        current_scope = job_scope or self._job_scope(self.job_documents())
+        if answer.get("source_scope_sha256") == current_scope:
+            return answer
+        # Do not display titles or quotes from a now-revoked cross-job source.
+        return {"mode": "jd_search", "generation_mode": "controlled", "status": "stale_sources",
+                "text": "The available job sources have changed. Please repeat this search for current results.",
+                "citations": [], "claims": [], "matches": [], "comparison": [],
+                "context": answer.get("context"), "model": None}
+
+    def ask_job(self, jd_id, question):
+        """Read-only JD question without inventing a candidate-ranking snapshot."""
+        from types import SimpleNamespace
+        if not isinstance(question, str) or not question.strip() or len(question) > 2000:
+            raise ValueError("Enter a question between 1 and 2000 characters")
+        if not getattr(self.qa_service, "accepts_history", False):
+            raise ValueError("JD-only conversation requires the v3 service")
+        documents = self.job_documents()
+        document = next((item for item in documents if item["jd_id"] == jd_id), None)
+        if document is None:
+            raise PermissionError("Job is not available in this workspace")
+        snapshot = SimpleNamespace(jd_id=jd_id, jd_title=document["title"],
+            jd_text=document["text"], candidates=(), jd_entities={},
+            snapshot_id="jd-only:" + document["source_version"], digest=document["source_version"])
+        result = self.qa_service.answer(snapshot, redact_text(question.strip()), history=[])
+        current = next((item for item in self.job_documents() if item["jd_id"] == jd_id), None)
+        if current != document:
+            raise StaleReview("Job source changed while answering. Please ask again.")
+        return result
+
     def open_job(self, jd_id):
         self._guard(fresh=True)
         if jd_id not in {job["jd_id"] for job in self.dataset.jobs()}:
@@ -110,7 +172,9 @@ class PortalController:
     def chat_history(self, session_id):
         """Return only the authorized, current snapshot's saved conversation."""
         self.snapshot(session_id)
-        return self.load_session(session_id)["state"].get("qa_turns", [])
+        turns = self.load_session(session_id)["state"].get("qa_turns", [])
+        scope = self._job_scope(self.job_documents()) if any(t["answer"].get("mode") == "jd_search" for t in turns) else None
+        return [{**turn, "answer": self._visible_chat_answer(turn["answer"], job_scope=scope)} for turn in turns]
 
     def compare(self, session_id, candidate_ids):
         """Compare only explicitly selected source owners, with current guards."""
@@ -157,7 +221,7 @@ class PortalController:
                 if turn["turn_id"] == identity:
                     if turn["question"] != question:
                         raise RevisionConflict("Submission identifier was reused for a different question")
-                    return turn["answer"]
+                    return self._visible_chat_answer(turn["answer"])
             return None
 
         existing = prior(record["state"])
@@ -168,7 +232,17 @@ class PortalController:
         if dropdown_revision is not None and dropdown_revision != record["state"].get("qa_dropdown_consumed"):
             context = record["state"].get("qa_dropdown_context")
         if self.qa_service is not None:
-            result = self.qa_service.answer(snapshot, question, context=context)
+            if getattr(self.qa_service, "accepts_history", False):
+                from .jd_search import is_jd_search
+                if is_jd_search(question):
+                    result = self.search_job_requirements(question)
+                    # A cross-JD lookup does not switch the active candidate discussion.
+                    result["context"] = context
+                else:
+                    result = self.qa_service.answer(snapshot, question, context=context,
+                                                    history=record["state"].get("qa_turns", []))
+            else:
+                result = self.qa_service.answer(snapshot, question, context=context)
         else:
             # Compatibility for callers of the historical controller API. The
             # primary app attaches its extractive service before any review.

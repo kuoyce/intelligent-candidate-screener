@@ -310,3 +310,51 @@ def test_the_default_entry_point_is_built_lazily(monkeypatch):
     portal_inference.adapter("status", payload())
     assert len(built) == 1 and built[0][1] == ["a2-final-cvs"]
     assert built[0][2]["log_path"] == portal_inference.LOG
+
+
+def test_onnx_rejects_d64_without_loading_a_model_or_starting_a_job():
+    loads = []
+    def factory():
+        loads.append(1)
+        return Recording()
+    adapter = InferenceAdapter(factory, {POOL: pool}, model_digest=DIGEST, embedding_backend="onnx")
+    response = adapter("submit", payload(system="D64"))
+    assert response["status"] == "service_unavailable"
+    assert loads == [] and not adapter._jobs and adapter._worker is None
+
+
+def test_onnx_d63_preserves_rank_math_and_records_backend_provenance():
+    current = Recording()
+    current.embedding_artifact_sha256 = "a" * 64
+    adapter = InferenceAdapter(lambda: current, {POOL: pool}, wait_seconds=10, model_digest=DIGEST,
+                               embedding_backend="onnx")
+    response = adapter("submit", payload())
+    assert response["status"] == "ready"
+    assert current.calls[0]["kwargs"]["system"] == "D63"
+    assert current.calls[0]["kwargs"]["rerank"] is False
+    assert response["evidence_provenance"]["embedding_backend"] == "onnx"
+    assert response["evidence_provenance"]["embedding_artifact_sha256"] == "a" * 64
+    assert "SBERT onnx" in response["model_id"]
+    assert [item["rank"] for item in response["candidates"]] == list(range(1, 11))
+
+
+def test_onnx_artifact_change_cannot_reuse_the_previous_backend_run_identity():
+    results = []
+    for digest in ("a" * 64, "b" * 64):
+        current = Recording()
+        current.embedding_artifact_sha256 = digest
+        adapter = InferenceAdapter(lambda: current, {POOL: pool}, wait_seconds=10, model_digest=DIGEST,
+                                   embedding_backend="onnx")
+        results.append(adapter("submit", payload()))
+    assert results[0]["run_id"] != results[1]["run_id"]
+    assert results[0]["candidates"] == results[1]["candidates"]
+
+
+def test_configured_screener_passes_explicit_backend_to_api(monkeypatch):
+    calls = []
+    monkeypatch.setattr(Screener, "load", lambda **kwargs: calls.append(kwargs) or object())
+    monkeypatch.setenv("HR_PORTAL_EMBEDDING_BACKEND", "onnx")
+    portal_inference._load_screener()
+    assert calls == [{"embedding_backend": "onnx"}]
+    portal_inference._load_screener("torch")
+    assert calls[-1] == {"embedding_backend": "torch"}

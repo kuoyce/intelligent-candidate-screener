@@ -122,11 +122,25 @@ class QaClient:
         atexit.register(self.close)
 
     def answer(self, question, passages):
+        return self.answer_before(question, passages, time.monotonic() + self.timeout)
+
+    def answer_before(self, question, passages, absolute_deadline):
+        """Share the caller's deadline across lock contention and worker exchange."""
+        if (isinstance(absolute_deadline, bool) or not isinstance(absolute_deadline, (int, float))
+                or not math.isfinite(absolute_deadline)):
+            raise ValueError("QA requires a finite absolute deadline")
+        unavailable = {"status": "unavailable", "spans": [], "exhaustive": False}
         if not Path(self.manifest_path).is_file():
-            return {"status": "unavailable", "spans": [], "exhaustive": False}
-        with self._lock:
+            return unavailable
+        deadline = min(absolute_deadline, time.monotonic() + self.timeout)
+        remaining = deadline - time.monotonic()
+        if remaining <= 0 or not self._lock.acquire(timeout=remaining):
+            # Another turn owns the worker: a queued timeout must not kill it.
+            return unavailable
+        try:
             try:
-                deadline = time.monotonic() + self.timeout
+                if time.monotonic() >= deadline:
+                    return unavailable
                 if self._process is None or self._process.poll() is not None:
                     self.close()
                     environment = dict(os.environ, PYTHONPATH=str(PROJECT_ROOT / "src"), HF_HUB_OFFLINE="1", TRANSFORMERS_OFFLINE="1")
@@ -136,8 +150,10 @@ class QaClient:
                 payload = (json.dumps({"question": question, "passages": [passage_dict(p) for p in passages]}) + "\n").encode("utf-8")
                 return self._exchange(payload, deadline)
             except (OSError, ValueError, TimeoutError, BrokenPipeError):
-                self.close()
-                return {"status": "unavailable", "spans": [], "exhaustive": False}
+                self.close(force=time.monotonic() >= deadline)
+                return unavailable
+        finally:
+            self._lock.release()
 
     def _exchange(self, payload, deadline):
         """One newline-delimited response, with a shared write/read deadline."""
@@ -169,10 +185,10 @@ class QaClient:
         line, self._buffer = self._buffer.split(b"\n", 1)
         return json.loads(line)
 
-    def close(self):
+    def close(self, *, force=False):
         if self._process is not None and self._process.poll() is None:
             try:
-                os.killpg(self._process.pid, signal.SIGTERM)
+                os.killpg(self._process.pid, signal.SIGKILL if force else signal.SIGTERM)
                 self._process.wait(timeout=2)
             except subprocess.TimeoutExpired:
                 os.killpg(self._process.pid, signal.SIGKILL)

@@ -55,8 +55,13 @@ the application test suite was not rerun for this documentation task.
 
 ## Approval boundary
 
-Plan approval would authorize v2 application implementation and bounded inference
+Plan approval authorizes v2 application implementation and bounded inference
 experiments using available local weights. The optional training phases require
 their dataset, runtime, measured pilot cost and resource configuration to be
 reviewed before launch. No startup training or automatic large model download.
 Open resource questions and proposed defaults are recorded in document 03.
+
+The opt-in application is implemented; see the [implementation record](04-implementation-record.md)
+for verification and limitations. V1 remains the default while the independent
+human quality study and broader synthetic evaluation remain pending. The whole
+historical plan is not marked complete and no model adaptation is claimed.

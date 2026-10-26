@@ -202,12 +202,12 @@ for this acceptance or reopen relevance/entity annotation.
 
 | ID | Proposed default / question | Blocks |
 |---|---|---|
-| V3-01 | Approve this actual prose-generation scope, replacing v2's ID-only role for v3? | Implementation |
-| V3-02 | Branch choice: preserve current work; default a scoped v3 branch after approval unless owner requests same branch | Branch/plan commit |
-| V3-03 | Sources on demand, without routine inline citations/raw quotes; source request is explicit exception | UI contract approval |
-| V3-04 | Keep existing4096/256runtime and one-to-three-sentence replies initially | Any budget/runtime expansion |
+| V3-01 | Resolved: owner approved and instructed execution | None |
+| V3-02 | Resolved: approved scoped default branch `feat/hiring-desk-v3-inference-prompt`; plan commit `d35d632` | None |
+| V3-03 | Resolved by plan approval: sources on demand, with an explicit-source-request exception | None |
+| V3-04 | Resolved by plan approval: retain 4096/256 runtime limits | Any future budget/runtime expansion |
 | V3-05 | Who are the two reviewers, and is32-family initial authoring scope acceptable? | Independent final quality acceptance |
-| V3-06 | Explicit comparison/table requests show the application-built table; prose “why” includes an expandable table | UI acceptance |
+| V3-06 | Resolved by plan approval: explicit comparison/table requests show the application-built table; prose “why” includes an expandable table | Verification |
 
 Resolved by the ownership requirement: natural conversational output, extracted
 background context and conversation memory are in scope; JSON/code/chunk-reference

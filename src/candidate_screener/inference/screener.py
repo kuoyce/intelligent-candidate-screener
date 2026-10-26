@@ -111,18 +111,23 @@ class Screener:
     `c2(pairs, progress) -> scores by pair_id`; `background()` -> frame of `id`, `cv_text`."""
 
     def __init__(self, featurize, l1, extract_jds, extract_cvs, c2=None, background=None,
-                 c2_k: int = 50, c2_w: float = 0.25) -> None:
+                 c2_k: int = 50, c2_w: float = 0.25, embedding_backend: str = "injected") -> None:
         self.featurize, self.l1 = featurize, l1
         self._extract_jds, self._extract_cvs = extract_jds, extract_cvs
         self.c2, self._background, self.c2_k, self.c2_w = c2, background, c2_k, c2_w
+        self.embedding_backend = embedding_backend
+        self.embedding_artifact_sha256 = None
         self._jd_cache: dict = {}
         self._cv_cache: dict = {}
         self._lock = threading.RLock()
 
     @classmethod
-    def load(cls, parts_fingerprint: str | None = None, c2_cached_only: bool = False) -> "Screener":
+    def load(cls, parts_fingerprint: str | None = None, c2_cached_only: bool = False,
+             *, embedding_backend: str = "torch") -> "Screener":
         """The real parts, loaded, never refitted (needs `--cache-parts` and `--freeze` once).
         `c2_cached_only` makes D64 refuse to score a C2 pair that is not cached (`--check`)."""
+        if embedding_backend not in {"torch", "onnx"}:
+            raise ValueError("embedding_backend must be 'torch' or 'onnx'")
         from candidate_screener.extraction import role_family, rules
         from candidate_screener.inference import parts, profiles
         from candidate_screener.inference.model import L1Model
@@ -140,9 +145,15 @@ class Screener:
         scorer = EntityWeightedX2(0.5, False, True, extractor=extractor, frequencies=p.frequencies,
                                   rule=rule, text_system=text)
         weak = sbert.SbertWeak("v2")
-        if not (sbert.WEIGHTS / weak.cache_key("v2") / "config.json").exists():
-            raise FileNotFoundError("SBERT weak weights are missing; inference never trains them")
-        weak.fit(None)
+        if embedding_backend == "onnx":
+            from candidate_screener.inference.onnx_encoder import OnnxEncoder
+            # Reuse the same cosine scorer/F12 feature, without invoking the
+            # Torch encoder's fit/load path or changing the frozen regressor.
+            weak.encoder = OnnxEncoder()
+        else:
+            if not (sbert.WEIGHTS / weak.cache_key("v2") / "config.json").exists():
+                raise FileNotFoundError("SBERT weak weights are missing; inference never trains them")
+            weak.fit(None)
         features = learned.Features()
         features.scorer, features.sbert = scorer, weak    # one definition of the F12 maths
 
@@ -156,10 +167,14 @@ class Screener:
                                      cached_only=c2_cached_only)
 
         win = json.loads(C2_RECORD.read_text(encoding="utf-8"))["winner"]
-        return cls(featurize, L1Model.load(),
+        loaded = cls(featurize, L1Model.load(),
                    lambda texts, titles: profiles.extract_jds(texts, titles, role, matcher),
                    lambda texts, reference: profiles.extract_cvs(texts, role, matcher, reference),
-                   c2=c2, background=a2_background, c2_k=int(win["k"]), c2_w=float(win["w"]))
+                   c2=c2 if embedding_backend == "torch" else None, background=a2_background,
+                   c2_k=int(win["k"]), c2_w=float(win["w"]), embedding_backend=embedding_backend)
+        if embedding_backend == "onnx":
+            loaded.embedding_artifact_sha256 = getattr(weak.encoder, "artifact_sha256", None)
+        return loaded
 
     # --- documents -----------------------------------------------------------------------
 
@@ -253,6 +268,8 @@ class Screener:
             raise ValueError(f"system must be one of {SYSTEMS}")
         if rerank and system != "D63":
             raise ValueError("rerank (D64) reorders D63's top 50; use system='D63'")
+        if rerank and self.c2 is None:
+            raise ValueError("no C2 reranker configured for this embedding backend; use D63")
         if top_k < 1:
             raise ValueError("top_k must be >= 1")
         cvs = _cvs_frame(cvs)

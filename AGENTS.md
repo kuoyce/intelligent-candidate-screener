@@ -113,6 +113,20 @@ evidence; Qwen generation and Qwen fine-tuning are outside this flow (D61 (entit
 Preserve qualification context, explicit no-answer/partial states and source
 ownership on every cache read. Entities cannot establish skill-specific tenure.
 
+Experimental Hiring Desk v3 (`HR_PORTAL_CHAT_VERSION=v3`, D66) uses frozen Qwen
+for plain prose over current source-owned evidence and bounded scoped history.
+History is discourse context, never factual evidence. Keep source reauthorization,
+qualification context and explicit fallback provenance. Registered paraphrase
+checks are conservative grammar checks, not general semantic entailment. Keep v3
+opt-in until quality acceptance; no training or model downloads at startup.
+
+Optional Hiring Desk v2 (`HR_PORTAL_CHAT_VERSION=v2`, D65) adds snapshot-scoped
+dialogue state and checked criterion comparisons. Qwen can select/order validated
+comparison relations; application code writes the factual clauses. Preserve full
+qualification context, participant coverage, explicit fallback provenance and
+per-turn inference deadlines. V1 remains the default/rollback. V2 authorization
+does not authorize model training, downloads or changes to the research ranking.
+
 ## Evaluation rules
 
 1. **Systems are scored against one reference: the final set** (D41). It is Fit / No Fit,

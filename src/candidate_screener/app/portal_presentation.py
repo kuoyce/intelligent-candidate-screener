@@ -40,10 +40,11 @@ def source_label(snapshot):
 
 
 STYLES = """<style>
-:root {--hd-ink:#172b4d; --hd-muted:#43536b; --hd-accent:#174ea6;}
-.stApp {background:#f6f8fc; color:var(--hd-ink);}
+:root {--hd-ink:#171717; --hd-muted:#4b4b4b; --hd-accent:#a11224; --hd-accent-hover:#790d1a; --hd-line:#e5c7cc;}
+.stApp {background:#ffffff; color:var(--hd-ink);}
+[data-testid="stHeader"] {background:#ffffff;}
 [data-testid="stMainBlockContainer"] {max-width:1320px; padding-top:2.2rem; padding-bottom:4rem;}
-[data-testid="stSidebar"] {background:#eef2f8; border-right:1px solid #d4dce8;}
+[data-testid="stSidebar"] {background:#faf5f6; border-right:1px solid var(--hd-line);}
 [data-testid="stSidebarUserContent"] {display:flex; flex-direction:column; min-height:100%;}
 [data-testid="stSidebarUserContent"] > [data-testid="stVerticalBlock"] {flex:1; min-height:calc(100dvh - 6rem);}
 [data-testid="stSidebarUserContent"] > [data-testid="stVerticalBlock"] > div:has(.st-key-portal_logout_footer) {margin-top:auto;}
@@ -55,9 +56,17 @@ h1 {font-size:2.25rem !important;} h2 {font-size:1.5rem !important;}
 [data-testid="stCaptionContainer"], [data-testid="stCaption"] {color:var(--hd-muted) !important;}
 [data-testid="stCaptionContainer"] *, [data-testid="stCaption"] * {color:var(--hd-muted) !important;}
 .stButton button {min-height:2.75rem; border-radius:.65rem;}
-.stButton button:focus-visible, input:focus-visible, textarea:focus-visible, a:focus-visible {outline:3px solid #174ea6; outline-offset:3px;}
+.stApp a {color:var(--hd-accent); text-decoration:underline; text-underline-offset:.15em;}
+.stApp a:visited {color:#7e1423;}
+.stApp a:hover {color:var(--hd-accent-hover);}
+[data-testid="stBaseButton-primary"] {background:var(--hd-accent); border-color:var(--hd-accent); color:#ffffff;}
+[data-testid="stBaseButton-primary"]:hover:not(:disabled) {background:var(--hd-accent-hover); border-color:var(--hd-accent-hover); color:#ffffff;}
+[data-testid="stBaseButton-secondary"] {background:#ffffff; border-color:var(--hd-line); color:var(--hd-ink);}
+[data-testid="stBaseButton-secondary"]:hover:not(:disabled) {background:#fff4f5; border-color:var(--hd-accent); color:var(--hd-accent);}
+.stButton button:disabled, [data-testid="stDownloadButton"] button:disabled {background:#f0ecec; border-color:#d8cbcd; color:#635b5c; opacity:1;}
+.stButton button:focus-visible, input:focus-visible, textarea:focus-visible, a:focus-visible {outline:3px solid var(--hd-accent); outline-offset:3px;}
 [data-testid="stVerticalBlockBorderWrapper"] {border-radius:1rem;}
-.st-key-portal_jd_source {background:white; border:1px solid #d4dce8; border-radius:1rem; padding:1.25rem;}
+.st-key-portal_jd_source {background:#ffffff; border:1px solid var(--hd-line); border-radius:1rem; padding:1.25rem;}
 .st-key-portal_jd_source [data-testid="stText"] {white-space:pre-wrap; overflow-wrap:anywhere; font-family:inherit; font-size:1rem; line-height:1.7; max-width:85ch;}
 .st-key-portal_job_cards button {text-align:left;}
 @media (max-width:640px) {

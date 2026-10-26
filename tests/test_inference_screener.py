@@ -61,6 +61,76 @@ def screener(calls=None, c2=None, c2_k=50):
                     c2=c2, background=lambda: BACKGROUND, c2_k=c2_k, c2_w=0.25)
 
 
+def test_unavailable_reranker_is_rejected_before_any_feature_computation():
+    calls = []
+    current = screener(calls=calls)
+    with pytest.raises(ValueError, match="C2|rerank"):
+        current.rank(JD, cvs(3), rerank=True)
+    assert calls == [], "An unavailable reranker must not start expensive SBERT work"
+
+
+def test_onnx_loader_keeps_sbert_cosine_and_f12_without_torch_loading(monkeypatch, tmp_path):
+    import builtins
+    import sys
+    from types import ModuleType, SimpleNamespace
+    from candidate_screener.extraction import role_family, rules
+    from candidate_screener.inference import parts
+    from candidate_screener.inference import screener as api
+    from candidate_screener.matching import extracted, entity_weighted, learned, lexical, neural, sbert
+
+    monkeypatch.setattr(role_family, "load_role_model", lambda: object())
+    monkeypatch.setattr(rules, "default_matcher", lambda: object())
+    monkeypatch.setattr(parts, "load_parts", lambda *a, **k: SimpleNamespace(frequencies=object(), vectorizer=object()))
+    monkeypatch.setattr(extracted, "ExtractedRule", lambda **k: SimpleNamespace(fit=lambda value: None))
+    monkeypatch.setattr(entity_weighted, "ConceptExtractor", lambda: object())
+    monkeypatch.setattr(entity_weighted, "EntityWeightedX2", lambda *a, **k: object())
+    monkeypatch.setattr(lexical, "Tfidf", lambda *a: SimpleNamespace())
+    monkeypatch.setattr(sbert.SbertWeak, "fit", lambda *a: pytest.fail("ONNX must not invoke the Torch encoder load/train path"))
+    monkeypatch.setattr(neural, "require_torch", lambda: pytest.fail("ONNX must not require Torch"))
+    seen = []
+
+    class Features:
+        def __call__(self, pairs, columns, reference=None):
+            seen.append(tuple(columns))
+            output = pd.DataFrame(0., index=pairs.pair_id.to_numpy(), columns=columns)
+            output["sbert"] = self.sbert.score(pairs)
+            return output
+
+    class Encoder:
+        artifact_sha256 = "a" * 64
+        def encode(self, texts):
+            return np.array([[1., 0.] if text == "python" else [0., 1.] for text in texts], dtype=np.float32)
+
+    monkeypatch.setattr(learned, "Features", Features)
+    fake = ModuleType("candidate_screener.inference.onnx_encoder")
+    fake.OnnxEncoder = Encoder
+    monkeypatch.setitem(sys.modules, fake.__name__, fake)
+    monkeypatch.setattr(L1Model, "load", lambda: L1)
+    record = tmp_path / "c2.json"
+    record.write_text(json.dumps({"winner": {"k": 50, "w": .25}}))
+    monkeypatch.setattr(api, "C2_RECORD", record)
+    original_import = builtins.__import__
+
+    def guarded(name, *args, **kwargs):
+        if name.split(".")[0] in {"torch", "sentence_transformers", "transformers"}:
+            pytest.fail("ONNX inference imported a Torch-based model stack")
+        return original_import(name, *args, **kwargs)
+
+    monkeypatch.setattr(builtins, "__import__", guarded)
+    loaded = Screener.load(embedding_backend="onnx")
+    pairs = pd.DataFrame({"pair_id": ["a", "b"], "jd_text": ["python", "python"], "cv_text": ["python", "sql"]})
+    features = loaded.featurize(pairs, dt.date(2023, 9, 1))
+    assert seen == [tuple(F12)] and list(features.columns) == list(L1.columns)
+    assert features.sbert.tolist() == [1., 0.]
+    assert loaded.c2 is None and loaded.embedding_backend == "onnx"
+    assert loaded.embedding_artifact_sha256 == "a" * 64
+
+
+def test_unknown_embedding_backend_is_rejected_before_loading_assets():
+    with pytest.raises(ValueError, match="embedding_backend"):
+        Screener.load(embedding_backend="automatic")
+
+
 def cvs(n=6):
     texts = ["python sql docker developer", "java developer", "python only", "sql docker ops",
              "python sql", "docker", "python docker sql java", "nothing relevant"]

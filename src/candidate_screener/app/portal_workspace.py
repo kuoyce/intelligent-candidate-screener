@@ -1,6 +1,8 @@
 """Join CSV and operational jobs without changing either source's rankings."""
 from __future__ import annotations
 
+import os
+
 from .portal_jobs import JobService
 from .portal_ranking import RankingService
 
@@ -29,6 +31,19 @@ class ReviewDataset:
             raise ValueError("This JD has no ready live ranking")
         return snapshot
 
+    def job_documents(self):
+        """JD source access never starts or requires candidate ranking."""
+        documents = []
+        for job in self.exports.jobs():
+            snapshot = self.exports.snapshot(job["jd_id"])
+            documents.append({"jd_id": snapshot.jd_id, "title": snapshot.jd_title,
+                              "text": snapshot.jd_text, "source_version": snapshot.digest})
+        for job in self.job_service.list():
+            if job["status"] == "published":
+                documents.append({"jd_id": job["jd_id"], "title": job["jd_title"],
+                                  "text": job["jd_text"], "source_version": job["content_digest"]})
+        return documents
+
 
 def attach_services(controller):
     """Bind revocation guards once without making the guard depend on the dataset."""
@@ -43,4 +58,13 @@ def attach_services(controller):
         controller.entity_service = PortalEntityService(controller.store.path.parent / "entity-cache",
                                                         controller.principal, guard=controller._guard)
         controller.qa_service = PortalExtractiveService(controller.entity_service, shared_qa_client())
+        version = os.environ.get("HR_PORTAL_CHAT_VERSION", "v1").lower()
+        if version == "v3":
+            from .conversation_v3 import ConversationV3Service
+            from candidate_screener.llm.conversation_prose import configured_prose_composer
+            controller.qa_service = ConversationV3Service(controller.qa_service, composer=configured_prose_composer())
+        elif version == "v2":
+            from .conversation_service import ConversationService
+            from candidate_screener.llm.conversation_qwen import configured_composer
+            controller.qa_service = ConversationService(controller.qa_service, composer=configured_composer())
     return controller

@@ -204,7 +204,8 @@ def _visible(cell):
     text, context = cell["text"], cell["context"]
     # Preserve status wording regardless of how the source expresses it.
     if context and context not in text:
-        text += "\nSource context: " + context
+        # text += "\nSource context: " + context
+        text += ""
     return text
 
 
@@ -402,7 +403,7 @@ class PortalExtractiveService:
                          qa_status="partial" if response.get("incomplete") is True or len(accepted) > 4 else "supported")
         fallback = self._source_cell(snapshot, document, relevant, citations, claims)
         fallback.update(status="source_only", qa_status=qa_status)
-        label = ("QA found no answer. Source excerpt: " if qa_status == "not_found"
+        label = ("" if qa_status == "not_found"
                  else "QA found insufficient evidence for skill-specific tenure. Source excerpt: "
                  if qa_status == "insufficient_evidence" else "QA unavailable or rejected. Source excerpt: ")
         fallback["text"] = label + fallback["context"]
@@ -460,9 +461,7 @@ class PortalExtractiveService:
         result["source_status"] = _aggregate(doc["status"] for doc in documents.values())
         if any(doc["status"] == "partial" for doc in documents.values()):
             result["status"] = "partial"
-        result["text"] = ("Source-linked comparison; missing evidence does not establish absence. "
-                          "Mentions do not verify proficiency, credential validity or completion. "
-                          "Total experience does not establish years using a particular skill.")
+        result["text"] = ("Bot can make mistake. Review source evidence and citations before acting. ")
         if not selected:
             result["mode"] = "extractive_qa" if any(c["kind"] == "model_span" for c in claims) else "source_only"
             result["text"] = "\n\n".join(row["requirement"] for row in result["comparison"])

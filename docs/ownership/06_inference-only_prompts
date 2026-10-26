@@ -1,0 +1,50 @@
+# Requirements in v3 of the app:
+
+## Goal: Inference-only System prompt:
+You are an empathetic, conversational HR assistant. Your goal is to discuss candidates naturally with the user.
+
+CRITICAL RULES:
+1. Use ONLY the provided Background Evidence to formulate your answers.
+2. Speak like a human: Integrate the facts smoothly into conversational sentences. 
+3. DO NOT output code, JSON, raw text snippets, or references like "According to chunk 1...".
+4. If the user asks for a simple greeting or clarification, answer naturally without referencing the evidence.
+
+Background Evidence:
+"""
+[Insert RoBERTa / GLiNER extracted text chunks here]
+"""
+
+Conversation History:
+[Insert Memory Chain here]
+
+User: {user_input}
+Assistant:
+
+## Restructuring v2 pipeline to the new v3
+[User Query] 
+     │
+     ▼
+[RoBERTa / GLiNER] ──► (Extract Exact Evidence Chunks) ──┐
+                                                         ▼
+                                          ┌──────────────────────────────┐
+                                          │     Structured Prompt:       │
+                                          │ - User Query                 │
+                                          │ - Pre-extracted Chunks Only  │
+                                          └──────────────┬───────────────┘
+                                                         │
+                                                         ▼
+                                              [Qwen2.5-0.5B-Instruct]
+                                                         │
+                                                         ▼
+                                              (Natural, Fluid Answer)
+
+## Shifting Qwen’s role from raw extraction to pure context-driven inference
+
+### Pros: 
+powerful, dedicated extraction tools – RoBERTa-base-SQuAD2 excels at pinpointing exact answer spans, and GLiNER-medium is a specialized Zero-Shot Named Entity Recognition (NER) model designed precisely for extracting skills and qualifications.
+
+### Cons: 
+Qwen2.5-0.5B-Instruct is an incredibly small model (500 million parameters), asking it to manage multi-turn chat dynamics while simultaneously handling heavy lifting like factual evidence extraction stresses its capacity. This causes it to become rigid, over-index on raw extraction text, and break down computationally during casual human conversation.
+
+### Methodology Pipeline approach
+use the evidence RoBERTa-base-SQuAD2 and GLiNER-medium extract, and pass it as chunking of the resume and job description to feed as context to the qwen model so it can take the information and talk to user line by line (without extracting reference to the evidence at every answer), and just provide inference. Make the conversation flow more human like. Consider the conversation-design process /Users/user/Downloads/MTECH2526/PLP_project/intelligent-candidate-screener/src/llm-plan/2026-10-19-hr-conversation-design/01-conversation-design.md 

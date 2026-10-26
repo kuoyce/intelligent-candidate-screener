@@ -3,9 +3,45 @@ import json
 import subprocess
 import sys
 import time
+import threading
 import pytest
 from candidate_screener.llm.qa_assets import MODEL_ID, file_digest, verify_manifest
 from candidate_screener.llm.extractive_qa import QaClient, best_context_span, answerable
+
+
+def _before(client, deadline):
+    method = getattr(client, "answer_before", None)
+    return method("question", [], deadline) if method else client.answer("question", [])
+
+
+def test_absolute_turn_deadline_includes_waiting_for_shared_reader_lock(tmp_path):
+    manifest = tmp_path / "manifest.json"
+    manifest.write_text("{}")
+    client = QaClient(manifest, timeout=.5)
+    client._lock.acquire()
+    release = threading.Timer(.3, client._lock.release)
+    release.start()
+    started = time.monotonic()
+    try:
+        result = _before(client, started + .04)
+        assert time.monotonic() - started < .2
+        assert result["status"] == "unavailable"
+    finally:
+        release.join()
+        client.close()
+
+
+def test_absolute_turn_deadline_does_not_restart_for_worker_exchange(synthetic_qa_client):
+    client, processes = synthetic_qa_client(
+        "import sys,time\n"
+        "sys.stdin.readline()\n"
+        "time.sleep(.3)\n"
+        "print('{\\\"status\\\":\\\"not_found\\\",\\\"spans\\\":[]}',flush=True)\n", timeout=.6)
+    started = time.monotonic()
+    result = _before(client, started + .04)
+    assert time.monotonic() - started < .2
+    assert result["status"] == "unavailable"
+    assert processes[0].poll() is not None
 
 
 def test_list_qa_maps_two_unicode_mentions_and_preserves_negation_context():

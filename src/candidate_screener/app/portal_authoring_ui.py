@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import math
+import os
 
 import streamlit as st
 
@@ -162,7 +163,12 @@ def _ranking_controls(controller, job):
             st.warning(request.get("error") or "The ranking request could not complete. Retry when the service is available.")
     if not request_id or job["ranking_status"] in {"ready", "failed", "service_unavailable"}:
         label = "Rank candidates" if not request_id else "Re-rank candidates" if job["ranking_status"] == "ready" else "Retry ranking"
-        refine = st.checkbox("Refine the top 50 with the reranker (D64, a few minutes)", key="portal_rank_d64_" + job["job_id"])
+        onnx = os.environ.get("HR_PORTAL_EMBEDDING_BACKEND", "torch").strip().lower() == "onnx"
+        refine = st.checkbox("Refine the top 50 with the reranker (D64, a few minutes)",
+                             key="portal_rank_d64_" + job["job_id"], disabled=onnx)
+        if onnx:
+            st.caption("Local ONNX mode runs D63. The Torch-based D64 reranker is unavailable in this mode.")
+            refine = False
         if st.button(label, key="portal_rank_" + job["job_id"], type="primary"):
             with st.spinner("Submitting the confirmed JD for ranking…"):
                 service.rank(job["job_id"], job["revision"], rerank=bool(request_id), system="D64" if refine else "D63")
