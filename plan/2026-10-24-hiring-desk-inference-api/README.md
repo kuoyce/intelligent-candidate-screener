@@ -303,6 +303,18 @@ explanation or the chatbot later. `test_live_review_stores_the_reasons_but_shows
 replaces the panel's test: it failed with the panel (`logs/hiring-desk-why-removal-before.log`) and
 passes without it (`logs/hiring-desk-why-removal-after.log`).
 
+### Amendment (owner, 25 Oct 2026): the adapter and pool are defaults
+
+`streamlit_app.py` now calls `portal_inference.use_as_default()`, which sets
+`HR_PORTAL_RANKING_ADAPTER=candidate_screener.app.portal_inference:adapter` and
+`HR_PORTAL_CANDIDATE_POOL=a2-final-cvs` when they are unset, so the launch no longer needs the
+exports. An exported value still wins; an empty one leaves ranking unconfigured (the
+`service_unavailable` state). `RankingService` is unchanged: constructed outside the app script
+with nothing set, it is still unconfigured. The two app-script UI test fixtures export empty
+values so they never load the model. Branch `fix/streamlit-watcher-transformers-noise`, from
+`feat/hiring-desk-v2-conversation`; the same branch filters Streamlit's watcher tracebacks from
+transformers' lazy submodules (`app/watcher_logging.py`).
+
 ### Still lacking (for the owner)
 
 - **No explanation on screen.** A faithful one would lead with L1's stored `feature_shares` (role

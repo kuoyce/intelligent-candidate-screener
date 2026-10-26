@@ -5,6 +5,9 @@ Configure the trusted server environment:
     HR_PORTAL_RANKING_ADAPTER=candidate_screener.app.portal_inference:adapter
     HR_PORTAL_CANDIDATE_POOL=a2-final-cvs
 
+The Hiring Desk entry point applies these as defaults (``use_as_default``): an
+exported value wins, and an empty one leaves live ranking unconfigured.
+
 ``adapter(operation, payload)`` implements the ``portal_ranking`` contract. One
 ``inference.Screener`` (loaded once, never fitted) ranks the configured pool on one
 worker thread, in request order. D63 (the default) waits up to ``wait_seconds`` when
@@ -43,10 +46,20 @@ ECHO = ("request_id", "jd_id", "jd_revision", "jd_digest", "workspace",
 TOP_K, KEEP, MENTIONS, KEYS, CHARS = 10, 200, 50, 40, 2000
 MAX_RESPONSE = 2_000_000
 LOG = PROJECT_ROOT / "logs/hiring-desk-adapter.log"
+DEFAULT_ENVIRONMENT = {
+    "HR_PORTAL_RANKING_ADAPTER": "candidate_screener.app.portal_inference:adapter",
+    "HR_PORTAL_CANDIDATE_POOL": "a2-final-cvs",
+}
 _CONTROL = re.compile(r"[\x00-\x08\x0b-\x1f]")
 _ACTIVE = ("queued", "running")
 _log = logging.getLogger(__name__)
 _handlers = set()
+
+
+def use_as_default(environ=os.environ):
+    """Point the Hiring Desk at this adapter and pool unless the environment says otherwise."""
+    for name, value in DEFAULT_ENVIRONMENT.items():
+        environ.setdefault(name, value)
 
 
 def _digest(value):

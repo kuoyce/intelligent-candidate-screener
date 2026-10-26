@@ -348,10 +348,12 @@ New JDs rank through the inference API (`inference.Screener`, plan
 Once per machine, `uv run python -m candidate_screener.inference --cache-parts`; then launch with:
 
 ```bash
-export HR_PORTAL_RANKING_ADAPTER=candidate_screener.app.portal_inference:adapter
-export HR_PORTAL_CANDIDATE_POOL=a2-final-cvs
 uv run streamlit run src/candidate_screener/app/streamlit_app.py --server.address 127.0.0.1 --server.port 8503
 ```
+
+The entry point defaults `HR_PORTAL_RANKING_ADAPTER=candidate_screener.app.portal_inference:adapter`
+and `HR_PORTAL_CANDIDATE_POOL=a2-final-cvs`. An exported value overrides either; export one as
+empty (`HR_PORTAL_RANKING_ADAPTER=`) to run with live ranking unconfigured.
 
 The pool is the 600 A2 final-set CVs (reference date 2023-09-01); no labels are read. **Rank
 candidates** runs D63 and usually returns within the click (the first request also loads the model,

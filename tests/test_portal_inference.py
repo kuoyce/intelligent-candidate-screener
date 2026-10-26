@@ -358,3 +358,15 @@ def test_configured_screener_passes_explicit_backend_to_api(monkeypatch):
     assert calls == [{"embedding_backend": "onnx"}]
     portal_inference._load_screener("torch")
     assert calls[-1] == {"embedding_backend": "torch"}
+
+
+def test_default_environment_configures_the_desk_and_yields_to_exports():
+    environ = {}
+    portal_inference.use_as_default(environ)
+    assert environ == {"HR_PORTAL_RANKING_ADAPTER": "candidate_screener.app.portal_inference:adapter",
+                       "HR_PORTAL_CANDIDATE_POOL": "a2-final-cvs"}
+    module, function = environ["HR_PORTAL_RANKING_ADAPTER"].split(":")
+    assert module == portal_inference.__name__ and callable(getattr(portal_inference, function))
+    exported = {"HR_PORTAL_RANKING_ADAPTER": "", "HR_PORTAL_CANDIDATE_POOL": "other-pool"}
+    portal_inference.use_as_default(exported)
+    assert exported == {"HR_PORTAL_RANKING_ADAPTER": "", "HR_PORTAL_CANDIDATE_POOL": "other-pool"}

@@ -101,7 +101,8 @@ demonstrations, never reported as mailbox delivery (D60 (entity/app)).
 
 New JDs rank through the inference API (plan `2026-10-24-hiring-desk-inference-api`):
 `HR_PORTAL_RANKING_ADAPTER=candidate_screener.app.portal_inference:adapter` with
-`HR_PORTAL_CANDIDATE_POOL=a2-final-cvs`, the 600 A2 final-set CVs (the owner's choice). D63
+`HR_PORTAL_CANDIDATE_POOL=a2-final-cvs`, the 600 A2 final-set CVs (the owner's choice), defaulted
+by `streamlit_app.py` (exports override; an empty value leaves ranking unconfigured). D63
 answers in seconds; D64 is opt-in and runs on the adapter's worker thread (a few minutes, then
 **Refresh ranking status**). The adapter passes the model only the JD text and title and
 each CV's id and text (D53, D54), reads no labels, and logs failures to
