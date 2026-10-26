@@ -121,6 +121,12 @@ qualification context and explicit fallback provenance. Registered paraphrase
 checks are conservative grammar checks, not general semantic entailment. Keep v3
 opt-in until quality acceptance; no training or model downloads at startup.
 
+The owner-approved Qwen3.5-4B trial uses a pinned local GGUF model and isolated
+llama.cpp service (`plan/2026-10-25-hiring-desk-v3/04-qwen35-trial.md`). Explicit
+`SCREENER_QWEN_MANIFEST` selects it. Its shared turn budget is at most60seconds;
+the extraction reader and existing0.5B runtime retain30-second limits. Preserve
+model identity, tokenizer/generation equivalence and source checks on fallback.
+
 Optional Hiring Desk v2 (`HR_PORTAL_CHAT_VERSION=v2`, D65) adds snapshot-scoped
 dialogue state and checked criterion comparisons. Qwen can select/order validated
 comparison relations; application code writes the factual clauses. Preserve full

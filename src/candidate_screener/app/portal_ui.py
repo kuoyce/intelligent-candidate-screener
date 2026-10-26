@@ -167,17 +167,19 @@ def _history_once(controller, session_id, action, answer, *, menu=None, extra=No
         st.session_state.portal_last_action = marker
 
 
-def _chat_answer(answer):
+def _chat_answer(answer, *, source_key=None):
     st.write(redact_text(answer["text"]))
+    if answer.get("status") == "out_of_scope":
+        return
     mode = answer.get("mode", "deterministic_evidence")
     if mode == "conversation_v3":
         generation = answer.get("generation_mode", "controlled")
         if generation == "qwen_prose":
-            st.caption("Hiring Desk v3 · conversational answer · experimental")
+            st.caption("Hiring Desk v3")
         elif generation in {"model_fallback", "qwen_fallback", "prose_fallback"}:
-            st.caption("Hiring Desk v3 · evidence fallback")
+            st.caption("Hiring Desk v3")
         else:
-            st.caption("Hiring Desk v3 · review guidance")
+            st.caption("Hiring Desk v3")
         with st.expander("Answer details", expanded=False):
             st.write({"mode": generation, "model": answer.get("model"),
                       "provenance": answer.get("generation_provenance", {})})
@@ -211,6 +213,11 @@ def _chat_answer(answer):
         st.caption("Source excerpts · deterministic retrieval")
     else:
         st.caption("Review guidance · deterministic response")
+    if (mode in {"conversation_v3", "jd_search"} and answer.get("citations")
+            and answer.get("generation_mode") != "citation_reopen"):
+        identity = source_key or hashlib.sha256(json.dumps(answer, sort_keys=True).encode()).hexdigest()
+        if not st.checkbox("Show supporting sources", key="portal_sources_" + identity):
+            return
     for citation in answer.get("citations", []):
         try:
             owner = answer.get("candidate_labels", {}).get(citation["owner"]) or _opaque_identity(citation["owner"])
@@ -286,7 +293,7 @@ def _chat_content(controller, session_id, snapshot):
         with st.chat_message("user"):
             st.write(redact_text(turn["question"]))
         with st.chat_message("assistant"):
-            _chat_answer(turn["answer"])
+            _chat_answer(turn["answer"], source_key=turn.get("turn_id"))
             if turn["answer"].get("mode") == "comparison" or turn["answer"].get("show_comparison_table"):
                 if turn["answer"].get("comparison_table_expandable"):
                     with st.expander("View comparison table", expanded=False):

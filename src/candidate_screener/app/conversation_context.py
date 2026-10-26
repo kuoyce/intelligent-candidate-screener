@@ -11,7 +11,7 @@ import json
 import re
 
 from candidate_screener.annotation.redact import redact_text
-from .comparison_facts import _citations, build_facts
+from .comparison_facts import _citations, _degree_matches_requirement, build_facts
 
 
 def scope_digest(snapshot):
@@ -50,6 +50,7 @@ def scoped_history(snapshot, history):
 
 def _key(text):
     text = text.casefold().replace("’", "'").strip(" .!;:\n")
+    text = re.sub(r"\b(bachelor|master)'s\b", r"\1", text)
     text = re.sub(r"\b(?:a|an|the)\s+", "", text)
     text = re.sub(r"\b(?:still|currently)\s+(?=in progress|pursuing)", "", text)
     return " ".join(text.split())
@@ -80,16 +81,20 @@ def _assertions(facts, evidence, labels):
         # source controls and the model bundle.
         if ids:
             status = cell["support_status"]
-            if status == "explicit_positive" and cell.get("requirement_evidence_ids"):
-                add(f"{label} has affirmative CV evidence relevant to the role's {criterion} criterion", [cell["owner"]], ids, cells)
+            if (status == "explicit_positive" and cell.get("requirement_evidence_ids")
+                    and (cell["category"] != "DEGREE" or _degree_matches_requirement(cell, criterion))):
+                add(f"{label} describes {criterion} relevant to this role", [cell["owner"]], ids, cells)
             elif status == "qualified":
-                add(f"{label}'s {criterion} evidence includes a status restriction that needs review", [cell["owner"]], ids, cells)
+                text = (f"{label}'s qualification is not confirmed as completed" if cell["category"] == "DEGREE" else
+                        f"{label}'s credential needs a validity check before treating it as current" if cell["category"] == "CERTIFICATION" else
+                        f"{label} describes learning or training in the requested skills, rather than established experience")
+                add(text, [cell["owner"]], ids, cells)
             elif status == "explicit_negative":
-                add(f"{label}'s {criterion} evidence includes an explicit negative statement", [cell["owner"]], ids, cells)
+                add(f"{label} explicitly describes a limitation in the requested {criterion}", [cell["owner"]], ids, cells)
             elif status == "unclear":
-                add(f"{label}'s CV discusses {criterion}, but does not clearly establish the requested qualification", [cell["owner"]], ids, cells)
+                add(f"I can't confirm the requested {criterion} for {label} from what we have", [cell["owner"]], ids, cells)
         if cell["support_status"] in {"not_found_in_retrieved_evidence", "partial_source", "unavailable", "conflicting"}:
-            add(f"I couldn't establish {label}'s {cell['criterion']} from the available information", [cell["owner"]], ids, cells)
+            add(f"I can't confirm the requested {criterion} for {label} from what we have", [cell["owner"]], ids, cells)
             continue
         source = cell["context"].strip().rstrip(".")
         # Full contexts only: splitting sentences could detach a later qualifier.
@@ -107,6 +112,10 @@ def _assertions(facts, evidence, labels):
             add(f"{label} is pursuing a {ongoing[1]}", [cell["owner"]], ids, cells)
             add(f"{label}'s {ongoing[1]} is in progress", [cell["owner"]], ids, cells)
             add(f"{label} has a {ongoing[1]} in progress", [cell["owner"]], ids, cells)
+            add(f"{label} is pursuing a {ongoing[1]}, which does not confirm that they have completed it",
+                [cell["owner"]], ids, cells)
+            if facts.get("participants") == [cell["owner"]]:
+                add("The available evidence only states that the degree is in progress", [cell["owner"]], ids, cells)
         # A reports/lists clause attributes the complete short predicate to its CV,
         # never upgrades it to verified proficiency or completion.
         for verb in ("reports", "lists", "mentions"):
@@ -142,6 +151,8 @@ def build_context(snapshot, result, history=None):
               "selected_candidates": list(selected), "evidence": evidence,
               "intent": result.get("context", {}).get("intent"),
               "cells": facts["cells"], "checked_relations": facts["relations"],
+              "comparison_advantages": [{key: item[key] for key in ("criterion", "stronger_owner", "weaker_owner", "basis")}
+                                        for item in facts.get("advantages", [])],
               "history": scoped_history(snapshot, history)}
     bundle["required_comparison_cells"] = (list(dict.fromkeys(identity for item in facts.get("advantages", [])
                                                for identity in item["cell_ids"]))
@@ -205,20 +216,44 @@ model confidence and being supplied a passage are deliberately insufficient.
 def fallback_text(bundle, reason):
     if reason == "provider_unavailable":
         return "The conversational model is unavailable right now. You can still review the comparison and supporting sources."
-    statements, owners = [], set()
+    explanations, details, caveats = [], [], []
+    advantages = bundle.get("comparison_advantages", [])
     if bundle.get("intent") == "comparison_explanation":
-        statements = [item["text"] for item in bundle["checked_paraphrases"]
-                      if not item["detail"] and item["text"].startswith("For ")]
-        statements.append("I can't establish that either candidate is better overall.")
-    cell_order = {cell["id"]: index for index, cell in enumerate(bundle["cells"])}
-    ordered = sorted(bundle["checked_paraphrases"], key=lambda item:
-                     (min((cell_order.get(identity, len(cell_order)) for identity in item["cell_ids"]), default=len(cell_order)),
-                      0 if re.search(r"\b(?:has completed|is pursuing)\b", item["text"]) else 1))
-    for item in ordered:
-        if set(item["owners"]) <= owners:
+        for item in advantages:
+            lead, other = (bundle["labels"][item[key]] for key in ("stronger_owner", "weaker_owner"))
+            criterion = item["criterion"]
+            if item["basis"] == "coverage":
+                text = f"{lead} has clearer support for {criterion}, but I can't confirm it for {other}"
+            elif item["basis"] == "completion":
+                text = f"{lead} has a clearer match on {criterion} because their qualification is completed and {other}'s completion is not confirmed"
+            elif item["basis"] == "duration":
+                text = f"{lead} reports more experience for {criterion} than {other}"
+                caveats.append("more experience alone doesn't establish proficiency")
+            else:
+                text = f"{lead} has stronger support for {criterion}, while {other} explicitly describes a limitation"
+            explanations.append(text)
+        caveats.append("this is a tradeoff rather than a clear overall advantage" if len({item["stronger_owner"] for item in advantages}) > 1
+                       else "I can't establish that either candidate is better overall")
+    # Select one complete registered summary per cell, retaining all participants
+    # and qualification caveats. Combine claims rather than dumping CV paragraphs.
+    for cell in bundle["cells"]:
+        choices = [item for item in bundle["checked_paraphrases"]
+                   if item["detail"] and item["cell_ids"] == [cell["id"]]]
+        if not choices:
             continue
-        statements.append(item["text"])
-        owners.update(item["owners"])
-    if statements:
-        return " ".join(statements)
+        def priority(item):
+            text = item["text"]
+            if re.search(r"\b(?:has completed|is pursuing)\b", text):
+                return 0
+            if re.search(r"\b(?:reports|lists|mentions)\b", text):
+                return 2
+            return 1
+        selected = min(choices, key=priority)["text"].rstrip(".")
+        if selected not in details:
+            details.append(selected)
+    if any(cell["support_status"] in {"not_found_in_retrieved_evidence", "partial_source", "unavailable"} for cell in bundle["cells"]):
+        caveats.append("missing information doesn't mean the candidate lacks the qualification")
+    paragraphs = ["; ".join(parts) + "." for parts in (explanations, details, list(dict.fromkeys(caveats))) if parts]
+    if paragraphs:
+        return " ".join(paragraphs)
     return "I don't have enough checked information to answer that confidently. You can review the supporting sources."

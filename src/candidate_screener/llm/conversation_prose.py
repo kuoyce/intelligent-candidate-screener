@@ -20,7 +20,7 @@ from time import monotonic
 from .base import ContextOverflow, ProviderUnavailable, redact_content
 
 SYSTEM = files("candidate_screener.llm").joinpath("hr_system_prompt_v3.txt").read_text(encoding="utf-8").strip()
-PROMPT_VERSION = "hiring-desk-v3-grounded-prose-2"
+PROMPT_VERSION = "hiring-desk-v3-grounded-prose-4"
 PROSE_FAILURES = frozenset({"invalid_response_size", "non_prose_output", "invalid_context"})
 
 
@@ -37,6 +37,11 @@ class ProseUnavailable(ProviderUnavailable):
         super().__init__("Conversational generation unavailable: " + self.reason)
 
 
+def deadline_limit(config):
+    """The approved CPU 4B trial has a larger finite budget; v1/v2 stay unchanged."""
+    return 60. if config.model == "Qwen/Qwen3.5-4B" else 30.
+
+
 def configured_prose_composer(values=None):
     """Load provisioned configuration only; never download, fit or start a server."""
     from .qwen import QwenConfig
@@ -47,13 +52,18 @@ def configured_prose_composer(values=None):
         return None
     try:
         if not values.get("SCREENER_QWEN_BASE_URL") and not values.get("SCREENER_QWEN_MODEL"):
-            values = {**local_settings(), **values}
+            selected_manifest = values.get("SCREENER_QWEN_MANIFEST")
+            if selected_manifest:
+                from .gguf_server import local_settings as gguf_settings
+                values = {**gguf_settings(selected_manifest), **values}
+            else:
+                values = {**local_settings(), **values}
         config = QwenConfig.from_mapping(values)
         if config is None:
             return None
         config = replace(config, max_context_tokens=min(config.max_context_tokens, 4096),
                          max_output_tokens=min(config.max_output_tokens, 256),
-                         timeout_seconds=min(config.timeout_seconds, 30.), temperature=0., json_mode=False)
+                         timeout_seconds=min(config.timeout_seconds, deadline_limit(config)), temperature=0., json_mode=False)
         return IsolatedProseComposer(config)
     except (OSError, KeyError, TypeError, ValueError, ProviderUnavailable):
         return None
@@ -148,8 +158,8 @@ def _context_text(question, frame, facts, history):
 class ProseComposer:
     def __init__(self, provider, *, deadline_seconds=30.):
         if (isinstance(deadline_seconds, bool) or not isinstance(deadline_seconds, (int, float))
-                or not math.isfinite(deadline_seconds) or not 0 < deadline_seconds <= 30):
-            raise ValueError("Use a finite generation deadline within 30 seconds")
+                or not math.isfinite(deadline_seconds) or not 0 < deadline_seconds <= 60):
+            raise ValueError("Use a finite generation deadline within 60 seconds")
         self.provider, self.deadline_seconds = provider, float(deadline_seconds)
 
     def compose(self, question, frame, facts):
@@ -233,7 +243,7 @@ def _worker_command():
 class IsolatedProseComposer(ProseComposer):
     """Kill/reap the client worker at deadline; server work has its own bound."""
     def __init__(self, config):
-        super().__init__(None, deadline_seconds=min(config.timeout_seconds, 30.))
+        super().__init__(None, deadline_seconds=min(config.timeout_seconds, deadline_limit(config)))
         self.config = replace(config, max_context_tokens=min(config.max_context_tokens, 4096),
                               max_output_tokens=min(config.max_output_tokens, 256), json_mode=False)
 

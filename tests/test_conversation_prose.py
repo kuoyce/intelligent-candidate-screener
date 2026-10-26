@@ -141,6 +141,65 @@ def test_factory_forces_plaintext_and_existing_runtime_limits():
     assert composer.config.max_output_tokens == 256
 
 
+def test_selected_four_billion_model_gets_bounded_sixty_seconds_only():
+    from candidate_screener.llm.conversation_prose import configured_prose_composer
+    for model, limit in [("Qwen/Qwen3.5-4B", 60.), ("Qwen/Qwen2.5-0.5B-Instruct", 30.)]:
+        values = {**_values(), "SCREENER_QWEN_MODEL": model, "SCREENER_QWEN_TIMEOUT": "90"}
+        composer = configured_prose_composer(values)
+        assert composer.config.timeout_seconds == composer.deadline_seconds == limit
+
+
+@pytest.mark.parametrize("model,deadline,expected", [("Qwen/Qwen3.5-4B", 100., 60.),
+                                                  ("Qwen/Qwen3.5-4B", 50., 10.),
+                                                  ("Qwen/Qwen2.5-0.5B-Instruct", 100., 30.)])
+def test_worker_honors_selected_model_and_remaining_shared_deadline(monkeypatch, model, deadline, expected):
+    from dataclasses import asdict
+    import io
+    from types import SimpleNamespace
+    from candidate_screener.llm import conversation_prose_worker as worker
+    from candidate_screener.llm.qwen import QwenConfig
+    config = QwenConfig.from_mapping({**_values(), "SCREENER_QWEN_MODEL": model, "SCREENER_QWEN_TIMEOUT": "90"})
+    request = {"config": asdict(config), "deadline": deadline, "question": "Question", "frame": {}, "facts": {}}
+    captured = []
+    class Composer:
+        def __init__(self, provider, *, deadline_seconds):
+            captured.append((provider.timeout_seconds, deadline_seconds))
+        def compose_before(self, question, frame, facts, absolute_deadline):
+            assert absolute_deadline == deadline
+            return {"text": "synthetic"}
+    output = io.StringIO()
+    monkeypatch.setattr(worker, "monotonic", lambda: 40.)
+    monkeypatch.setattr(worker, "QwenProvider", lambda value: value)
+    monkeypatch.setattr(worker, "ProseComposer", Composer)
+    monkeypatch.setattr(worker.sys, "stdin", SimpleNamespace(buffer=io.BytesIO(json.dumps(request).encode())))
+    monkeypatch.setattr(worker.sys, "stdout", output)
+    worker.main()
+    assert captured == [(expected, expected)]
+    assert "result" in json.loads(output.getvalue())
+
+
+def test_v3_extended_turn_keeps_extraction_reader_at_thirty_seconds():
+    from candidate_screener.app.conversation_v3 import ConversationV3Service
+    service = ConversationV3Service(object(), turn_timeout=60)
+    assert service.turn_timeout == 60 and service.reader.turn_timeout == 30
+    for invalid in (True, 0, 61, float("inf"), float("nan")):
+        with pytest.raises(ValueError):
+            ConversationV3Service(object(), turn_timeout=invalid)
+
+
+def test_explicit_gguf_manifest_selects_new_model_and_never_silently_uses_old_one(tmp_path):
+    import json
+    from candidate_screener.llm.conversation_prose import configured_prose_composer
+    manifest = tmp_path / "manifest.json"
+    manifest.write_text(json.dumps({"model": "Qwen/Qwen3.5-4B", "revision": "b" * 40,
+                                    "sha256": "a" * 64, "quantization": "Q4_K_M"}))
+    composer = configured_prose_composer({"SCREENER_QWEN_MANIFEST": str(manifest)})
+    assert composer.config.model == "Qwen/Qwen3.5-4B"
+    assert composer.config.base_url == "http://127.0.0.1:8001/v1"
+    assert composer.config.enable_thinking is False
+    assert configured_prose_composer({"SCREENER_QWEN_MANIFEST": str(tmp_path / "missing.json")}) is None
+
+
 def test_disabled_and_incomplete_explicit_config_never_load_defaults(monkeypatch):
     from candidate_screener.llm import qwen_assets
     from candidate_screener.llm.conversation_prose import configured_prose_composer

@@ -50,4 +50,16 @@ def test_owner_happy_and_negative_flows_are_available_in_v3_ui(workspace, monkey
             assert answer["mode"] == "jd_search"
         if index >= 5:
             assert not answer["citations"]
-            assert "job-related" in answer["text"]
+            assert answer["text"] == "I am not able to answer this question. It is out of my scope."
+
+
+def test_v3_sources_are_only_rendered_after_user_requests_them(workspace, monkeypatch):
+    monkeypatch.setenv("HR_PORTAL_CHAT_VERSION", "v3")
+    at = app()
+    at.chat_input[0].set_value("Compare candidates 1 and 2").run()
+    assert not at.exception
+    assert not any("View supporting source:" in item.label for item in at.expander)
+    show = next(item for item in at.checkbox if item.label == "Show supporting sources")
+    show.check().run()
+    assert not at.exception
+    assert any("View supporting source:" in item.label for item in at.expander)

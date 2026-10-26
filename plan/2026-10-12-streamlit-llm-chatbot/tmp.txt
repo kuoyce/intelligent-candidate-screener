@@ -1,0 +1,27 @@
+Gathering requirements. 
+    - Users/target audience: 
+        HR employees whos is in the hiring team. 
+        Day to day job includes flipping through multiple JD and CV. 
+        In today's world they complete this task by looking through each applicant resume manually and checked for the requirements if matched properly with the job descriptions. 
+        As HR, they should be formal and critical about these requirements hiring. 
+        Whenever there is a new job hiring posted from any of the department, they should be alerted , as well as if there is applicant submitting the resume into the company job portal.
+    - Technical capabilities:
+        Chatbot should be able to identify different HRs, as they login, should be prompted to authenticate themselves with their loginID or token.
+        Chatbot serves as an intelligent candidate screener so in scope tasks include checking for the top 10 ranked CVs for each JD using the ranking results database, and processing their entities to provide terms on each JD such as skills, knowledge, title, degree, number of years of experience.
+        In-scope tasks also include allowing the user / HR to open up each of the 10 best ranked CVs in preview mode to see the resume in either PDFs form or text in a pop-up window. Chatbot should also generate a report for each session, based on the top 8 ranked candidates CVs for each JD.
+        In-scope tasks also includes HR emailing a collated list of 8 shortlisted candidates's profiles / CVs to hail the hiring department for interview, by sending them along with a report on how the 10 CVs compare against each other.
+        Out of scope tasks include Hr directly making contact such as emailing or calling the shortlisted candidates. 
+        Out of scope tasks include scheduling appointment with the hiring department head directly.
+        Chatbot should allows the conversation sessions to be stored.
+        HR can only select from dropdown menu, it cannot insert images or uploads videos or files of any type.
+    - Persona:
+        Warm, on-brand, memorable
+    - Style of sample dialog:
+        No monologue. Keep turns brief and relevant from the user's point of view. 
+        Only allow for narrrow-focus question.     
+    - High level flow – happy paths and error flows:
+        <AI to suggest with a mermaid diagram>
+    
+Pending works after final merge:
+1. Fix readme.md --> having outdated info
+2.  

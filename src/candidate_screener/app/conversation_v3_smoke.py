@@ -33,7 +33,8 @@ class RecordingComposer:
 
 def walkthrough(composer):
     recorder = RecordingComposer(composer) if composer else None
-    service = ConversationV3Service(PortalExtractiveService(qa_client=SourceOnlyQA()), recorder)
+    service = ConversationV3Service(PortalExtractiveService(qa_client=SourceOnlyQA()), recorder,
+                                    turn_timeout=getattr(composer, "deadline_seconds", 30.))
     snapshot, history, context, records = fixture(), [], None, []
     for question in ["Hi", "What degree does candidate 1 have?",
                      "Compare candidates 1 and 2 on qualifications",

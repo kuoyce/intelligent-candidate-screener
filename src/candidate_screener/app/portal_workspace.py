@@ -62,7 +62,9 @@ def attach_services(controller):
         if version == "v3":
             from .conversation_v3 import ConversationV3Service
             from candidate_screener.llm.conversation_prose import configured_prose_composer
-            controller.qa_service = ConversationV3Service(controller.qa_service, composer=configured_prose_composer())
+            composer = configured_prose_composer()
+            controller.qa_service = ConversationV3Service(controller.qa_service, composer=composer,
+                                                          turn_timeout=getattr(composer, "deadline_seconds", 30.))
         elif version == "v2":
             from .conversation_service import ConversationService
             from candidate_screener.llm.conversation_qwen import configured_composer

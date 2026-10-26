@@ -227,6 +227,31 @@ def test_has_qualification_in_progress_keeps_the_completion_qualifier():
     assert rejected["generation_mode"] == "qwen_fallback"
 
 
+def test_degree_possessive_wording_preserves_supported_completion():
+    result = service(Composer("Candidate 1 has completed a Bachelor's degree.")).answer(
+        snapshot(), "What degree does candidate 1 have?")
+    assert result["generation_mode"] == "qwen_prose"
+    rejected = service(Composer("Candidate 2 has completed a Master's degree.")).answer(
+        snapshot(), "What degree does candidate 2 have?")
+    assert rejected["generation_mode"] == "qwen_fallback"
+
+
+def test_ongoing_degree_explanation_preserves_owner_and_noncompletion():
+    text = ("Candidate 2 is currently pursuing a Master's degree, which does not confirm that they have completed it. "
+            "The available evidence only states that the degree is in progress.")
+    assert service(Composer(text)).answer(snapshot(), "So candidate 2 has completed a Master degree?")["generation_mode"] == "qwen_prose"
+    assert service(Composer(text.replace("Candidate 2", "Candidate 1"))).answer(
+        snapshot(), "What degree does candidate 1 have?")["generation_mode"] == "qwen_fallback"
+
+
+def test_why_fallback_preserves_both_qualification_states_without_repeated_advantage():
+    engine = service(Composer("Candidate 1 is fully verified and better overall."))
+    first = engine.answer(snapshot(), "Compare candidates 1 and 2 on qualifications")
+    answer = engine.answer(snapshot(), "Why is 1 better than 2?", context=first["context"])
+    assert "Candidate 2 is pursuing" in answer["text"]
+    assert answer["text"].count("stronger documented evidence") <= 1
+
+
 def test_good_fit_summary_uses_job_criteria_without_authoring_fit_call():
     current = snapshot()
     current.jd_text = "Python skills required. Bachelor degree required."
@@ -255,3 +280,35 @@ def test_long_source_fallback_summarizes_evidence_state_without_raw_dump():
     assert "Python" in result["text"]
     assert "Candidate 1" in result["text"]
     assert "building reliable services building" not in result["text"]
+
+
+def test_fallback_explains_multiple_role_strengths_in_plain_language():
+    current = snapshot()
+    current.jd_text = "Python skills required. Bachelor degree required."
+    current.candidates[0]["preview_text"] = "Python programming skills. Completed Bachelor degree."
+    result = service(Composer("unsupported")).answer(current, "Summarise why candidate 1 is a good fit to this JD")
+    assert "Python" in result["text"] and "Bachelor" in result["text"]
+    assert "relevant to this role" in result["text"]
+    assert "affirmative CV evidence" not in result["text"]
+    assert len(result["text"].split(". ")) <= 3
+
+
+def test_long_qualified_fallback_explains_noncompletion_without_technical_language():
+    current = snapshot()
+    current.candidates[1]["preview_text"] = "Master degree in progress with " + "advanced research modules " * 10 + "."
+    result = service(Composer("unsupported")).answer(current, "What degree does candidate 2 have?")
+    assert "not confirmed as completed" in result["text"]
+    assert "status restriction" not in result["text"]
+    assert "advanced research modules advanced" not in result["text"]
+
+
+def test_reasoning_fallback_retains_reverse_advantage_and_missing_evidence_caveat():
+    current = snapshot()
+    current.jd_text = "Python skills required. Cloud skills required."
+    current.candidates[0]["preview_text"] = "Python programming skills."
+    current.candidates[1]["preview_text"] = "Cloud engineering skills."
+    result = service(Composer("unsupported")).answer(current, "Why is 1 better than 2?")
+    assert "Python" in result["text"] and "Cloud" in result["text"]
+    assert "tradeoff" in result["text"].lower()
+    assert "doesn't mean" in result["text"]
+    assert len(result["text"].split(". ")) <= 3

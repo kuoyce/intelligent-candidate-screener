@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+import math
 import re
 import time
 
@@ -17,7 +18,10 @@ class ConversationV3Service:
     accepts_history = True
 
     def __init__(self, base, composer=None, *, turn_timeout=30.):
-        self.reader = ConversationService(base, composer=None, turn_timeout=turn_timeout)
+        if (isinstance(turn_timeout, bool) or not isinstance(turn_timeout, (int, float))
+                or not math.isfinite(turn_timeout) or not 0 < turn_timeout <= 60):
+            raise ValueError("V3 turn timeout must be finite and within 60 seconds")
+        self.reader = ConversationService(base, composer=None, turn_timeout=min(turn_timeout, 30.))
         self.composer, self.turn_timeout = composer, float(turn_timeout)
 
     def prepare(self, *args, **kwargs):
@@ -30,10 +34,10 @@ class ConversationV3Service:
             return None
         text = ("You're welcome." if greeting and greeting[0].strip(".! ").casefold() in {"thanks", "thank you"}
                 else "Hi! What would you like to review?" if greeting
-                else "I can help compare job-related skills, qualifications and experience for the selected role.")
+                else OUT_OF_SCOPE_REPLY)
         return {"text": text, "citations": [], "claims": [], "comparison": [],
                 "context": frame_for(snapshot, context), "mode": "conversation_v3", "answer_version": 3,
-                "generation_mode": "controlled", "status": "answered", "model": None,
+                "generation_mode": "controlled", "status": "out_of_scope" if unrelated else "answered", "model": None,
                 "suggested_actions": [], "entity_status": "not_run", "qa_status": "not_run",
                 "generation_provenance": {"composer": "application", "scope_digest": scope_digest(snapshot)}}
 
@@ -158,3 +162,5 @@ class ConversationV3Service:
         if len(json.dumps(result, ensure_ascii=False).encode()) > 23_900:
             raise ValueError("Conversation metadata exceeds its storage budget")
         return result
+OUT_OF_SCOPE_REPLY = "I am not able to answer this question. It is out of my scope."
+

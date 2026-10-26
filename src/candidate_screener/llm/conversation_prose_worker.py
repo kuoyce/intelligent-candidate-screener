@@ -8,7 +8,7 @@ import sys
 from time import monotonic
 
 from .base import ContextOverflow, ProviderUnavailable
-from .conversation_prose import ProseComposer, ProseError, ProseUnavailable
+from .conversation_prose import ProseComposer, ProseError, ProseUnavailable, deadline_limit
 from .qwen import QwenConfig, QwenProvider
 
 
@@ -21,11 +21,14 @@ def main():
         deadline = request["deadline"]
         if type(deadline) not in {int, float} or not math.isfinite(deadline):
             raise ValueError("Invalid deadline")
-        remaining = min(30., deadline - monotonic())
-        if remaining <= 0:
+        if deadline <= monotonic():
             response = {"error": "deadline_exceeded"}
         else:
-            config = replace(QwenConfig(**request["config"]), timeout_seconds=remaining, json_mode=False)
+            config = QwenConfig(**request["config"])
+            remaining = min(deadline_limit(config), config.timeout_seconds, deadline - monotonic())
+            if remaining <= 0:
+                raise ProseUnavailable("deadline_exceeded")
+            config = replace(config, timeout_seconds=remaining, json_mode=False)
             composer = ProseComposer(QwenProvider(config), deadline_seconds=remaining)
             result = composer.compose_before(request["question"], request["frame"], request["facts"], deadline)
             response = {"result": result}
