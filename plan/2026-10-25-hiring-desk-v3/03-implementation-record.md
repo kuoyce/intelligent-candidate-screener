@@ -102,3 +102,9 @@ completion of general quality acceptance. The proposed 32-family dataset and two
 reviewers are not yet established; no held-out benchmark is claimed. Continue
 only after recording acceptable model-authored answer coverage and human quality
 review. V1/v2 and existing ranking configuration remain available unchanged.
+
+## Launch defaults (27 Oct 2026, owner)
+
+Ranking adapter and pool are defaulted by the entry point (`portal_inference.use_as_default`); exports
+override. `HR_PORTAL_CHAT_VERSION` stays `v1` by default while v3 is experimental. **Open item: when v3
+is completed, change the default to `v3`** (entry point, README, AGENTS.md).

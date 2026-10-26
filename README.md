@@ -399,7 +399,7 @@ Unsupported generated wording falls back to checked statements; this conservativ
 validator does not establish general semantic entailment. V3 remains experimental
 pending the [quality gates](plan/2026-10-25-hiring-desk-v3/02-implementation-and-evaluation.md).
 Its system prompt is `src/candidate_screener/llm/hr_system_prompt_v3.txt`.
-Set the version back to `v2` or `v1` to roll back; no running service is migrated
+The entry point leaves `HR_PORTAL_CHAT_VERSION` at `v1`; export `v3` to try it. **When v3 is completed (its quality gates pass), make `v3` the default in `streamlit_app.py` and update this section and AGENTS.md.** Set the version back to `v2` or `v1` to roll back; no running service is migrated
 automatically. An invented-source development smoke is available as
 `uv run python -m candidate_screener.app.conversation_v3_smoke --real-model --output logs/v3-smoke.json`.
 
