@@ -61,8 +61,8 @@ needs the image, so it runs after the Dockerfile; the cheap measurements (1b-1c)
 | S3 | `Dockerfile`, `compose.yaml`, `compose.dev.yaml`, `.env.example`, `tests/test_docker_contract.py`; build `app` and `test` | sub-agent writes; parent builds (long job) | 0.5 day / build est. 20-40 min | both images build; pushed | **done** `9c7b5e3` (built, record below) |
 | S4 | Run-time audit: the image with the owner's `data/` mounted read-only and scratch copies for write paths; a scripted session with an `open` audit hook | parent | 0.25 day / minutes | the folder's file list and write paths recorded; `04` amended | **done** (record below) |
 | S5 | `candidate_screener.datapack` (`create`, `--with-workspace`, `--source`, `verify`, `handover`, `purge`) and tests; then the owner's `create --with-workspace` | sub-agent; parent runs `create` | 0.5 day / minutes | tests pass; `data/datapack/` verified; pushed | **done** `4e8fb6d` (record below) |
-| S6 | Verification V1-V9, V11 (V10 deferred) | parent | 0.5 day / V8 cold build est. 20-40 min, V2 ~15 min | every row recorded; pushed | **done, V2b awaits the owner** (record below) |
-| S7 | Docs: `docs/docker.md`, README, AGENTS.md, `data/README.md`, the workspace card, `docs/project-overview.md` §7, D68, `docs/docker-optional-parts.md` | sub-agent | 0.25-0.5 day | contract test passes; pushed | pending |
+| S6 | Verification V1-V9, V11 (V10 deferred) | parent | 0.5 day / V8 cold build est. 20-40 min, V2 ~15 min | every row recorded; pushed | **done** (record below; V2b and V4 settled by the owner, 28 Oct 2026) |
+| S7 | Docs: `docs/docker.md`, README, AGENTS.md, `data/README.md`, the workspace card, `docs/project-overview.md` §7, D68, `docs/docker-optional-parts.md` | sub-agent | 0.25-0.5 day | contract test passes; pushed | **in progress** (sub-agent) |
 | S8 | Independent review; fixes; `uv run pytest`; the warm affected check run (long job); phase 1 marked complete | reviewer sub-agent; parent | 0.25 day / ~70 min | review findings closed; checks pass; pushed | pending |
 | S9 | Phase 2: the `llm` profile (Qwen2.5-0.5B service) and V3's v2/v3 rows | parent or sub-agent | 0.25 day | v2 and v3 answers composed by Qwen in the container; pushed | pending |
 | S10 | Account-creation screen, on its **own branch** (below) | sub-agent | 0.5 day | tests pass; branch pushed; merge left to the owner | pending |
@@ -290,3 +290,14 @@ changed. The default builder's cache grew from 6.35 to 14.26 GB (V7b; not pruned
 checkout gets CRLF in `uv.lock`, `runtime/*/uv.lock` and `.python-version` (outside V9's set; uv
 accepts them). The WSL VM was suspended for about 5 hours during V5+V6 (host sleep); timings use
 the monotonic clock.
+
+**Owner, 28 Oct 2026.**
+- **V2b passes** under the owner's amended bar, "5 dp", recorded as every score within 1e-5:
+  the largest gap is 4e-6 (JD-B D63); the other three rankings are identical. (Rounding both runs
+  to 5 dp would still differ once, because a 4e-6 gap can straddle a rounding boundary; a
+  tolerance avoids that.) Same top 10, same order, in all four rankings.
+- **Known app issue (not Docker):** C2's loader sets `torch.set_num_threads(6)` for the whole
+  process, so scores of a JD embedded after C2 first loads can differ in the 6th decimal; the
+  embedding cache keeps the first value. Recorded for the guide's known limitations; no change.
+- **V4 passes:** the owner ran `docker compose up`, signed in through the frontend, opened a JD,
+  re-ranked with C2 and asked chat questions; all worked.
