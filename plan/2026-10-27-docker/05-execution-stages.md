@@ -64,8 +64,8 @@ needs the image, so it runs after the Dockerfile; the cheap measurements (1b-1c)
 | S6 | Verification V1-V9, V11 (V10 deferred) | parent | 0.5 day / V8 cold build est. 20-40 min, V2 ~15 min | every row recorded; pushed | **done** (record below; V2b and V4 settled by the owner, 28 Oct 2026) |
 | S7 | Docs: `docs/docker.md`, README, AGENTS.md, `data/README.md`, the workspace card, `docs/project-overview.md` §7, D68, `docs/docker-optional-parts.md` | sub-agent | 0.25-0.5 day | contract test passes; pushed | **done** (record below) |
 | S8 | Independent review; fixes; `uv run pytest`; the warm affected check run (long job); phase 1 marked complete | reviewer sub-agent; parent | 0.25 day / ~70 min | review findings closed; checks pass; pushed | **done** (phase 1 complete, 28 Oct 2026) |
-| S9 | Phase 2: the `llm` profile (Qwen2.5-0.5B service) and V3's v2/v3 rows | parent or sub-agent | 0.25 day | v2 and v3 answers composed by Qwen in the container; pushed | pending |
-| S10 | Account-creation screen, on its **own branch** (below) | sub-agent | 0.5 day | tests pass; branch pushed; merge left to the owner | pending |
+| S9 | Phase 2: the `llm` profile (Qwen2.5-0.5B service) and V3's v2/v3 rows | parent or sub-agent | 0.25 day | v2 and v3 answers composed by Qwen in the container; pushed | **in progress** (sub-agent; started 28 Oct 2026) |
+| S10 | Account-creation screen, on its **own branch** (below) | sub-agent | 0.5 day | tests pass; branch pushed; merge left to the owner | **in progress** (sub-agent, `feat/account-create-screen`; started 28 Oct 2026) |
 | S11 | Apple Silicon (arm64) test under emulation (below) | parent | 0.25 day / several hours of emulated runs | V10 recorded against its registered bar; emulation removed; pushed | pending |
 
 ## After v1: continue with v2 without waiting (owner, 27 Oct 2026)
@@ -382,6 +382,10 @@ S0-S8 are done: the image builds and runs the Hiring Desk on the data folder, ev
 passes (V2b under the owner's 5 dp bar, V4 by the owner, V10 deferred to S11), the 32 affected
 checks pass warm (cold skipped, Q17), the review's findings are fixed and the guide was walked
 through on a fresh clone. **v2 (S9-S11) is paused until the owner resumes it** (owner, 28 Oct 2026).
+
+**v2 resumed by the owner ("start v2", 28 Oct 2026).** S9 and S10 run in parallel (S10 touches
+no Docker file); S11 follows S9 so the emulated arm64 runs do not compete with S9's measurements
+for memory. `docker buildx ls` lists `linux/arm64` (the emulation is still registered).
 
 Open items for the owner (none blocks phase 1):
 - A person new to the project following the guide on Windows (Docker Desktop, PowerShell) and on

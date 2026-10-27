@@ -1,6 +1,6 @@
 # Docker: run the Hiring Desk on any OS, from one Dockerfile and one data folder
 
-Status: **approved by the owner (27 Oct 2026); phase 1 complete on `feat/docker-v1` (28 Oct 2026); v2 paused until the owner resumes it** (off
+Status: **approved by the owner (27 Oct 2026); phase 1 complete on `feat/docker-v1` (28 Oct 2026); v2 (S9-S11) started 28 Oct 2026** (off
 `e530659`; [`05-execution-stages.md`](05-execution-stages.md) holds the stage table and the resume
 rules).
 
