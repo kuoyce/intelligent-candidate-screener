@@ -410,6 +410,47 @@ def data_folder_problems(compose: str, services=("app", "tools")) -> list[str]:
     return problems
 
 
+def service_environment(compose: str, service: str) -> dict[str, str]:
+    """A service's own `environment:`: a block mapping, a `- KEY=value` list or a flow mapping."""
+    lines = (_service_block(compose, service) or "").splitlines()
+    for index, line in enumerate(lines):
+        match = re.match(r"^\s*environment:\s*(.*)$", line)
+        if not match:
+            continue
+        flow = _strip_comment(match.group(1))
+        entries = flow.strip("{}").split(",") if flow.startswith("{") else _block(lines, index)
+        result = {}
+        for entry in entries:
+            entry = _strip_comment(entry.strip())
+            if not entry:
+                continue
+            if entry.startswith("- "):
+                key, _, value = _unquote(entry[2:]).partition("=")
+            else:
+                key, _, value = entry.partition(":")
+            result[_unquote(key)] = _unquote(value)
+        return result
+    return {}
+
+
+def tools_settings_problems(compose: str) -> list[str]:
+    """The tools service tells `datapack` where its folders are: SCREENER_DATAPACK_DEST is the
+    data folder's mount (/app/data), SCREENER_DATAPACK_SOURCE the container side of a read-only
+    mount (the source is never written)."""
+    env = service_environment(compose, "tools")
+    problems = []
+    if env.get("SCREENER_DATAPACK_DEST") != DATA_FOLDER[1]:
+        problems.append(f"the tools service sets SCREENER_DATAPACK_DEST={env.get('SCREENER_DATAPACK_DEST')!r}, "
+                        f"not {DATA_FOLDER[1]}")
+    source = env.get("SCREENER_DATAPACK_SOURCE")
+    mounts = [split_mount(item) for item in service_volumes(compose, "tools")]
+    if not source or not any(container == source.rstrip("/") and "ro" in mode.split(",")
+                             for _, container, mode in mounts):
+        problems.append(f"the tools service sets SCREENER_DATAPACK_SOURCE={source!r}, which is not "
+                        "the container side of one of its read-only mounts")
+    return problems
+
+
 # ---------------------------------------------------------------------- the committed files
 
 def test_ports_are_published_on_host_loopback_only():
@@ -447,6 +488,10 @@ def test_c2_download_matches_the_code_pin():
 def test_compose_mounts_the_data_folder_read_write():
     assert data_folder_problems(read("compose.yaml")) == []
     assert data_folder_problems(read("compose.dev.yaml"), services=()) == []
+
+
+def test_tools_service_points_datapack_at_its_mounts():
+    assert tools_settings_problems(read("compose.yaml")) == []
 
 
 # ------------------------------------------------------------- negative cases: broken texts
@@ -495,6 +540,9 @@ services:
     volumes:
       - ./data/datapack:/app/data
       - "${SCREENER_DATA_SOURCE:-./data}:/source:ro"
+    environment:
+      SCREENER_DATAPACK_SOURCE: /source
+      SCREENER_DATAPACK_DEST: /app/data
 """
 
 
@@ -515,6 +563,11 @@ def test_every_check_passes_on_the_good_texts():
     assert gitattributes_problems(GOOD_GITATTRIBUTES) == []
     assert published_port_problems(GOOD_COMPOSE) == []
     assert data_folder_problems(GOOD_COMPOSE) == []
+    assert tools_settings_problems(GOOD_COMPOSE) == []
+    for other_form in ('    environment:\n      - SCREENER_DATAPACK_SOURCE=/source\n'
+                       '      - "SCREENER_DATAPACK_DEST=/app/data"\n',
+                       "    environment: {SCREENER_DATAPACK_SOURCE: /source, SCREENER_DATAPACK_DEST: /app/data}\n"):
+        assert tools_settings_problems(broken(GOOD_COMPOSE, (TOOLS_SETTINGS, other_form))) == []
 
 
 APP_OFFLINE_ENV = "ENV SCREENER_MODELS_ROOT=/opt/models \\\n    HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 UV_OFFLINE=1\n"
@@ -603,6 +656,7 @@ def test_ignore_and_attribute_checks_fail_on_broken_texts(case):
 
 
 PUBLISHED = '      - "127.0.0.1:${HIRING_DESK_PORT:-8503}:8503"\n'
+TOOLS_SETTINGS = "    environment:\n      SCREENER_DATAPACK_SOURCE: /source\n      SCREENER_DATAPACK_DEST: /app/data\n"
 APP_SERVICE = "  app:\n    <<: *run\n"
 
 BROKEN_COMPOSE = {
@@ -625,6 +679,14 @@ BROKEN_COMPOSE = {
         GOOD_COMPOSE, ("      - ./data/datapack:/app/data\n", ""))),
     "anchor-without-the-data-folder": (data_folder_problems, broken(
         GOOD_COMPOSE, ("    - ./data/datapack:/app/data\n    - ./logs", "    - ./logs"))),
+    "tools-without-the-datapack-settings": (tools_settings_problems, broken(GOOD_COMPOSE, (TOOLS_SETTINGS, ""))),
+    "tools-datapack-dest-elsewhere": (tools_settings_problems, broken(
+        GOOD_COMPOSE, ("SCREENER_DATAPACK_DEST: /app/data", "SCREENER_DATAPACK_DEST: /app/data/datapack"))),
+    "tools-datapack-source-not-mounted": (tools_settings_problems, broken(
+        GOOD_COMPOSE, ("SCREENER_DATAPACK_SOURCE: /source", "SCREENER_DATAPACK_SOURCE: /src"))),
+    "tools-source-mounted-read-write": (tools_settings_problems, broken(GOOD_COMPOSE, (":/source:ro", ":/source"))),
+    "tools-settings-on-another-service": (tools_settings_problems, broken(
+        GOOD_COMPOSE, (TOOLS_SETTINGS, ""), (APP_SERVICE, APP_SERVICE + TOOLS_SETTINGS))),
 }
 
 

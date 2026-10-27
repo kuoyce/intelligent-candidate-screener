@@ -64,6 +64,10 @@ services:
       - ./data/datapack:/app/data
       - ./logs:/app/logs
       - "${SCREENER_DATA_SOURCE:-./data}:/source:ro"
+    # The commands' defaults: create reads /source and every command works on /app/data.
+    environment:
+      SCREENER_DATAPACK_SOURCE: /source
+      SCREENER_DATAPACK_DEST: /app/data
     entrypoint: [python, -m, candidate_screener.datapack]
 
   test:
