@@ -60,8 +60,8 @@ needs the image, so it runs after the Dockerfile; the cheap measurements (1b-1c)
 | S2 | Repository changes: `.gitattributes`, `.dockerignore`, `.env` ignored; `config.MODELS` and the three asset modules; the two download pins; runtime locks on the CPU index (Linux only); tests shown failing first | sub-agent | 0.25-0.5 day / minutes | `uv run pytest` = the base failures only; pushed | **done** `907c61c`, D68 `75ef929` |
 | S3 | `Dockerfile`, `compose.yaml`, `compose.dev.yaml`, `.env.example`, `tests/test_docker_contract.py`; build `app` and `test` | sub-agent writes; parent builds (long job) | 0.5 day / build est. 20-40 min | both images build; pushed | **done** `9c7b5e3` (built, record below) |
 | S4 | Run-time audit: the image with the owner's `data/` mounted read-only and scratch copies for write paths; a scripted session with an `open` audit hook | parent | 0.25 day / minutes | the folder's file list and write paths recorded; `04` amended | **done** (record below) |
-| S5 | `candidate_screener.datapack` (`create`, `--with-workspace`, `--source`, `verify`, `handover`, `purge`) and tests; then the owner's `create --with-workspace` | sub-agent; parent runs `create` | 0.5 day / minutes | tests pass; `data/datapack/` verified; pushed | **in progress** (sub-agent) |
-| S6 | Verification V1-V9, V11 (V10 deferred) | parent | 0.5 day / V8 cold build est. 20-40 min, V2 ~15 min | every row recorded; pushed | pending |
+| S5 | `candidate_screener.datapack` (`create`, `--with-workspace`, `--source`, `verify`, `handover`, `purge`) and tests; then the owner's `create --with-workspace` | sub-agent; parent runs `create` | 0.5 day / minutes | tests pass; `data/datapack/` verified; pushed | **done** `4e8fb6d` (record below) |
+| S6 | Verification V1-V9, V11 (V10 deferred) | parent | 0.5 day / V8 cold build est. 20-40 min, V2 ~15 min | every row recorded; pushed | **in progress** (sub-agent; results `logs/docker/s6-results.md`) |
 | S7 | Docs: `docs/docker.md`, README, AGENTS.md, `data/README.md`, the workspace card, `docs/project-overview.md` §7, D68, `docs/docker-optional-parts.md` | sub-agent | 0.25-0.5 day | contract test passes; pushed | pending |
 | S8 | Independent review; fixes; `uv run pytest`; the warm affected check run (long job); phase 1 marked complete | reviewer sub-agent; parent | 0.25 day / ~70 min | review findings closed; checks pass; pushed | pending |
 | S9 | Phase 2: the `llm` profile (Qwen2.5-0.5B service) and V3's v2/v3 rows | parent or sub-agent | 0.25 day | v2 and v3 answers composed by Qwen in the container; pushed | pending |
@@ -236,3 +236,25 @@ Plan committed and pushed as `4a00c14` on `feat/docker-v1`, off `e530659`.
      JDs, including the first): their IDs fail the store's check after redaction. A JD whose
      candidates pass (the second) saves its report and captures the mail.
   Items 1-3 are verified in S6 (V5, V6).
+
+### S5: the data folder commands (27 Oct 2026, `4e8fb6d`; sub-agent, reviewed by the parent)
+
+- `src/candidate_screener/datapack.py` (`create`, `verify`, `handover`, `purge`) and
+  `tests/test_datapack.py` (30 tests; 20 deliberate breakages caught,
+  `logs/s5-tests-evidence.log`); compose's `tools` service sets `SCREENER_DATAPACK_SOURCE=/source`
+  and `SCREENER_DATAPACK_DEST=/app/data`; the contract tests grew to 72. Full suite: the 17 known
+  frontend failures (`logs/pytest-s5.log`). Importing the module loads no torch.
+- Names come from the code that reads each file (`corpus`, `SbertWeak.cache_key("v2")`, the role
+  and parts `LATEST` pointers, `rules.VOCAB_CSV`), so `verify` reports when the code expects a
+  different file. It also reports the workspace's format (accounts 1, sqlite 2 today).
+- Accepted choices beyond the brief: `config.DATA` is allowed as the destination only when
+  `SCREENER_DATAPACK_DEST` names it (the `tools` container); `create` refuses unknown non-empty
+  folders, a source inside the destination and symbolic links inside it; in Docker the vocabulary
+  comes from the source (the repository copy is hidden by the mount), so a Docker `create` needs a
+  source with `vocab/skills.csv` (a handover copy has it; the main checkout's `data/` does not);
+  `handover` is best run natively (in Docker its destination must be on a mount).
+- **The owner's folder** (27 Oct 2026, native, no native app running): `create --with-workspace`
+  copied 24 inputs, 256.8 MB (4 from committed copies, 20 from `data/`), emptied the caches and
+  copied the workspace (3 files, 0600 in a 0700 folder; inputs 0644/0755); its closing full verify
+  said OK at commit `4e8fb6d` (`logs/docker/s5-create.log`). `purge` without `--yes` lists 28 files
+  and deletes nothing.
