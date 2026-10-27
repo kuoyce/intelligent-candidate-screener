@@ -19,7 +19,8 @@ import streamlit as st
 
 from candidate_screener.annotation.redact import redact_text
 from candidate_screener.config import PROCESSED
-from .portal_auth import DEFAULT_ACCOUNTS, TokenAuthenticator
+from .portal_auth import (DEFAULT_ACCOUNT_HOURS, DEFAULT_ACCOUNTS, AccountsExist, TokenAuthenticator,
+                          has_accounts, submit_first_account)
 from .portal_controller import PortalController, StaleReview
 from .portal_data import CATEGORIES, PortalDataset
 from .portal_store import PortalStore, RevisionConflict, _opaque_identity
@@ -110,6 +111,37 @@ def _preview(controller, session_id, candidate_id):
         st.text(candidate["preview_text"])
 
 
+def _first_account(accounts):
+    """Shown only while no account exists. Accepted risk (owner, plan 2026-10-27-docker S10):
+    whoever opens the page first creates the first account; the Docker port is host-loopback
+    only. If the port is ever exposed on a network, add a one-time setup code first.
+    Further accounts use the portal_auth command; there is no administrator role."""
+    st.subheader("Create the first account")
+    st.info("Local reviewer accounts are not configured yet. Create the first account here; further "
+            "accounts are created with the command below. This is local token authentication, not company SSO.")
+    st.code("uv run python -m candidate_screener.app.portal_auth --create-local-user reviewer --department benchmark", language="bash")
+    with st.form("local_first_account"):
+        login_id = st.text_input("Login ID", max_chars=100)
+        departments = st.text_input("Departments (comma-separated)", placeholder="benchmark",
+                                    help="The departments whose jobs this account may open, e.g. benchmark.")
+        token = st.text_input("Access token", type="password", max_chars=512,
+                              help="At least 24 characters. It is not displayed or stored in plain text.")
+        confirmation = st.text_input("Confirm access token", type="password", max_chars=512)
+        days = st.number_input("Account expiry (days)", min_value=1, max_value=DEFAULT_ACCOUNT_HOURS // 24,
+                               value=DEFAULT_ACCOUNT_HOURS // 24, step=1)
+        submitted = st.form_submit_button("Create the first account")
+    if submitted:
+        try:
+            submit_first_account(accounts, login_id, departments, token, confirmation, days)
+        except AccountsExist:
+            st.error("An account already exists. Reload the page and sign in.")
+        except (ValueError, OSError) as error:
+            st.error(str(error) if isinstance(error, ValueError) else "The account could not be saved.")
+        else:
+            st.session_state.portal_first_account_created = True
+            st.rerun()
+
+
 def _login():
     accounts = Path(os.environ.get("HR_PORTAL_ACCOUNTS", str(DEFAULT_ACCOUNTS)))
     authenticator = TokenAuthenticator(accounts)
@@ -124,12 +156,13 @@ def _login():
             return principal, lambda: authenticator.current(principal, version)
         _clear_review()
         st.warning("Your sign-in expired or access changed. Sign in again.")
+    if not has_accounts(accounts):
+        _first_account(accounts)
+        return None, None
     st.subheader("Local reviewer sign-in")
     st.caption("This uses an explicitly provisioned local login ID and access token. Company SSO is not configured.")
-    if not accounts.is_file():
-        st.info("Local reviewer accounts are not configured. An administrator must provision an account before real extraction data can be opened.")
-        st.code("uv run python -m candidate_screener.app.portal_auth --create-local-user reviewer --department benchmark", language="bash")
-        return None, None
+    if st.session_state.pop("portal_first_account_created", None):
+        st.success("The first account was created. Sign in with its login ID and access token.")
     with st.form("local_reviewer_sign_in"):
         login_id = st.text_input("Login ID", max_chars=100)
         token = st.text_input("Access token", type="password", max_chars=512)
