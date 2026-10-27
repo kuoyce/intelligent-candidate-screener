@@ -70,6 +70,9 @@ needs the image, so it runs after the Dockerfile; the cheap measurements (1b-1c)
 
 ## After v1: continue with v2 without waiting (owner, 27 Oct 2026)
 
+**Superseded (owner, 28 Oct 2026): "pause after phase 1 is complete."** When S8 is done and
+phase 1 is recorded complete, stop and wait for the owner before starting any v2 stage (S9-S11).
+
 "If I do not respond after v1 is completed, continue with v2 (test the Apple Silicon files) unless
 there are blocking items that need my response."
 
