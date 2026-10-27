@@ -55,8 +55,8 @@ needs the image, so it runs after the Dockerfile; the cheap measurements (1b-1c)
 
 | Stage | What | Who | Estimate (agent / machine) | Done when | Status |
 |---|---|---|---|---|---|
-| S0 | Commit the approved plan on `feat/docker-v1`; push | parent | minutes | plan pushed | **in progress** |
-| S1 | Cheap measurements: aarch64 resolution of the three locks (dry run, no emulation); `torch==2.2.2` from the CPU index for linux x86_64/aarch64 (trial relock in a scratch copy); `COPY --exclude` on this engine; every place a runtime version string is compared | parent | 0.25 day / minutes | findings recorded below; design amended if needed | pending |
+| S0 | Commit the approved plan on `feat/docker-v1`; push | parent | minutes | plan pushed | **done** `4a00c14` |
+| S1 | Cheap measurements: aarch64 resolution of the three locks (dry run, no emulation); `torch==2.2.2` from the CPU index for linux x86_64/aarch64 (trial relock in a scratch copy); `COPY --exclude` on this engine; every place a runtime version string is compared | parent | 0.25 day / minutes | findings recorded below; design amended if needed | **done** (record below) |
 | S2 | Repository changes: `.gitattributes`, `.dockerignore`, `.env` ignored; `config.MODELS` and the three asset modules; the two download pins; runtime locks on the CPU index (Linux only); tests shown failing first | sub-agent | 0.25-0.5 day / minutes | `uv run pytest` = the base failures only; pushed | pending |
 | S3 | `Dockerfile`, `compose.yaml`, `compose.dev.yaml`, `.env.example`, `tests/test_docker_contract.py`; build `app` and `test` | sub-agent writes; parent builds (long job) | 0.5 day / build est. 20-40 min | both images build; pushed | pending |
 | S4 | Run-time audit: the image with the owner's `data/` mounted read-only and scratch copies for write paths; a scripted session with an `open` audit hook | parent | 0.25 day / minutes | the folder's file list and write paths recorded; `04` amended | pending |
@@ -90,3 +90,32 @@ needs the image, so it runs after the Dockerfile; the cheap measurements (1b-1c)
 
 (Each stage appends its results here: commits, measurements, interruptions and restarts,
 deviations.)
+
+### S0 (27 Oct 2026)
+
+Plan committed and pushed as `4a00c14` on `feat/docker-v1`, off `e530659`.
+
+### S1: cheap measurements (27 Oct 2026, uv 0.12.7, Docker Engine 27.5.1, BuildKit 0.18.2)
+
+1. **arm64 without emulation.** `uv sync --frozen --dry-run --python-platform …` resolves every
+   lock for `aarch64-unknown-linux-gnu` and `x86_64-unknown-linux-gnu`: the main lock with all
+   groups (torch `2.14.0+cpu` on both), `runtime/transformer` and `runtime/gliner-medium` (torch
+   `2.2.2`). On x86_64 the two runtimes still pull the CUDA build plus 12 `nvidia-*` packages; on
+   aarch64 they get a CPU wheel.
+2. **CPU torch for the runtimes (trial relock of a scratch copy of `runtime/transformer`).**
+   Adding `[tool.uv.sources] torch = [{ index = "pytorch-cpu", marker = "sys_platform == 'linux'" }]`
+   with the explicit PyTorch CPU index, then `uv lock`: linux x86_64 gets `torch 2.2.2+cpu`
+   (`linux_x86_64` wheel), linux aarch64 `torch 2.2.2` from the CPU index; the macOS and Windows
+   entries stay on PyPI's `2.2.2` (the teammate's native runtime is unchanged); every `nvidia-*`
+   package and triton leave the lock; no other package changes version. S2 applies this to both
+   runtimes.
+3. **`COPY --exclude` works** with `# syntax=docker/dockerfile:1`, which resolved to
+   `docker/dockerfile:1@sha256:4edf897a3ffa55b89f906fc8cc78afdb3f1834cc9c7083565e611a8a7d5fe99e`
+   (S3 pins that digest). Patterns are **relative to the source path**: with source `pkg/`,
+   `--exclude=app` drops `pkg/app`, while `--exclude=pkg/app/**` drops nothing; from the context
+   root, `--exclude=src/candidate_screener/app` works. The explicit-list fallback is not needed.
+4. **Runtime version strings.** The portal's GLiNER-medium path stores the worker's versions but
+   compares them with nothing; `llm/qa_assets.py` records `torch 2.2.2` as a literal and compares
+   nothing. Only research campaign modules (`extraction/live.py`, `medium_run.py`, `fit_run.py`,
+   `transformer_run.py`) compare against recorded files, and those run natively. A `2.2.2+cpu`
+   torch therefore changes nothing in the app.
