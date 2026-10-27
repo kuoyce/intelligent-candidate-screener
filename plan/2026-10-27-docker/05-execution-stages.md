@@ -82,10 +82,13 @@ there are blocking items that need my response."
 
 ### S11: the Apple Silicon test
 
-- This machine has no arm64 CPU, so S11 registers QEMU emulation when it starts
-  (`docker run --privileged --rm tonistiigi/binfmt --install arm64`, the image pinned by digest)
-  and removes it when it ends (`--uninstall qemu-aarch64`). This reads the owner's "test the Apple
-  Silicon files" as permission for that, in v2 only; the owner can veto before S11 starts.
+- This machine has no arm64 CPU. **The owner installed the QEMU emulation themselves on
+  27 Oct 2026** (`tonistiigi/binfmt --install arm64`). The agent never runs the install or
+  uninstall commands. S11 first confirms that `docker buildx ls` lists `linux/arm64`. The
+  registration does not survive a WSL restart; if it is gone, that is a blocking item: ask the
+  owner to reinstall it.
+- **When everything is done** (S11 and the rest of v2), remind the owner to uninstall it
+  (`docker run --privileged --rm tonistiigi/binfmt --uninstall qemu-aarch64`).
 - Build the arm64 image (`--platform linux/arm64`, its own tag, never replacing the amd64 image),
   then V1 (tests), V3 (smoke) and V2b (parity) against the amd64 results with the bar registered
   in the README's V10 row. Emulation is slow: D64 runs on a handful of C2 pairs rather than 50, and
