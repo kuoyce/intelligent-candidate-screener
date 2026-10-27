@@ -16,6 +16,12 @@ The app also writes its workspace (accounts, reviews: `processed/hr-portal/`) an
 the folder. `create` keeps the workspace and empties the caches; `handover` leaves both out;
 `purge --yes` deletes everything. Every command runs by hand, never at app start.
 
+`create` fills only a new or empty folder, a data folder (one with the manifest) or a folder holding
+nothing but the workspace and caches. Before it changes anything it writes a provisional manifest
+listing what it may leave behind: a create that stops leaves a data folder that the same create,
+run again, completes, and `verify` and `handover` say it did not finish. `handover` writes only
+outside the clone or in the git- and Docker-ignored part of its `data/`.
+
 File copies only: importing this module and computing the list import no torch, so it runs in the
 main environment, natively or in the `tools` service, whose `SCREENER_DATAPACK_SOURCE` and
 `SCREENER_DATAPACK_DEST` give the defaults there. The project's own `data/` is never filled or
@@ -349,6 +355,10 @@ def _count(path: Path) -> int:
     return sum(len(names) for _, _, names in os.walk(path))
 
 
+def _now() -> str:
+    return dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+
 def _write_json(path: Path, value: dict) -> None:
     temporary = path.with_name(f".{path.name}{TMP}")
     temporary.write_text(json.dumps(value, indent=2) + "\n", encoding="utf-8")
@@ -409,6 +419,12 @@ def _read_manifest(folder: Path) -> tuple[dict, dict]:
             raise DatapackError(f"{path} lists {rel} twice")
         entries[rel] = item
     manifest["empty_directories"] = [_clean(rel) for rel in manifest.get("empty_directories") or []]
+    if "pending" in manifest:            # a provisional manifest: a create started and did not finish
+        if not isinstance(manifest["pending"], list):
+            raise DatapackError(f"{path} has a malformed pending list")
+        manifest["pending"] = [_clean(rel) for rel in manifest["pending"]]
+        if MANIFEST in manifest["pending"]:
+            raise DatapackError(f"{path} lists {MANIFEST} as pending")
     return manifest, entries
 
 
@@ -422,22 +438,48 @@ def _refuse_private(exp: Expected, entries) -> None:
         raise DatapackError(f"{MANIFEST} lists {listed[0]}, inside the workspace or a cache; refusing")
 
 
+def _not_the_apps(real: Path, exp: Expected) -> list[str]:
+    """What a folder holds besides the app's workspace and caches, the real folders leading to them
+    (processed/, processed/rerank/) and temporary files a create left; links are not followed, so a
+    linked folder on the way is listed itself."""
+    private = _private(exp)
+    found = []
+    for current, dirs, names in os.walk(real):
+        here = Path(current).relative_to(real)
+        kept = []
+        for name in dirs:
+            rel = (here / name).as_posix()
+            if name.endswith(TMP) or _under(rel, private):
+                continue
+            if (Path(current) / name).is_symlink():
+                found.append(f"{rel} (a symbolic link)")
+            elif any(prefix.startswith(rel + "/") for prefix in private):
+                kept.append(name)
+            else:
+                found.append(f"{rel}/")
+        dirs[:] = kept
+        found += [(here / name).as_posix() for name in names
+                  if not name.endswith(TMP) and not _under((here / name).as_posix(), private)]
+    return sorted(found)
+
+
 def _check_fillable(real: Path, exp: Expected) -> None:
-    """`create` fills a new or empty folder, a data folder, or one holding only what the app (or an
-    interrupted create) writes; never a folder of other things."""
+    """`create` fills a new or empty folder, a data folder (it has a manifest, perhaps the provisional
+    one of a create that did not finish), or a folder holding only what the app writes there (the
+    workspace, the caches) and a create's temporary files. Never anything else, such as a trimmed
+    copy of data/, whose processed/ and vocab/ hold research files."""
     if not real.exists():
         return
     if not real.is_dir():
         raise DatapackError(f"{real} is not a folder")
-    names = {entry.name for entry in real.iterdir()}
-    if not names or MANIFEST in names:
+    if (real / MANIFEST).is_file():
         return
-    layout = {PurePosixPath(rel).parts[0] for rel in (*exp.committed, *exp.files, *exp.folders,
-                                                      *exp.pointers, *_private(exp))}
-    stray = sorted(name for name in names - layout if not name.endswith(TMP))
-    if stray:
-        raise DatapackError(f"{real} is not empty, has no {MANIFEST} and holds {', '.join(stray[:5])}: "
-                            "create fills only a new or empty folder or a data folder; refusing")
+    others = _not_the_apps(real, exp)
+    if others:
+        shown = ", ".join(others[:5]) + (f" and {len(others) - 5} more" if len(others) > 5 else "")
+        raise DatapackError(f"{real} has no {MANIFEST} and holds {shown}: create fills only a new or "
+                            f"empty folder, a data folder, or one holding only the app's workspace "
+                            f"({exp.workspace}/) and caches; refusing")
 
 
 # ---------------------------------------------------------------------------------------- create
@@ -492,14 +534,16 @@ def _workspace_plan(exp: Expected, source: Path, real: Path, replace: bool):
 
 
 def _old_inputs(real: Path, exp: Expected) -> list[str]:
-    if not (real / MANIFEST).exists():
+    """The inputs the manifest lists, and the files a create that did not finish may have written."""
+    if not (real / MANIFEST).is_file():
         return []
-    _, entries = _read_manifest(real)
-    _refuse_private(exp, entries)
-    linked = [rel for rel in entries if _linked(real, posixpath.dirname(rel))]
+    manifest, entries = _read_manifest(real)
+    old = list(dict.fromkeys([*entries, *manifest.get("pending", [])]))
+    _refuse_private(exp, old)
+    linked = [rel for rel in old if _linked(real, posixpath.dirname(rel))]
     if linked:
         raise DatapackError(f"{real / linked[0]} is reached through a symbolic link inside the folder; refusing")
-    return list(entries)
+    return old
 
 
 def _empty(path: Path) -> int:
@@ -576,14 +620,21 @@ def create(source: Path, dest: Path, given: str, with_workspace: bool = False,
     old = _old_inputs(real, exp)
     workspace = _workspace_plan(exp, source, real, replace_workspace) if with_workspace else None
     plan, empty, values, folders = _plan(exp, source, real)
+    header = {"format": FORMAT, "created": None, "source": given, "source_commit": _commit(),
+              "fingerprints": exp.fingerprints, "latest": values}
 
     # Nothing has been written up to here.
     made = not real.exists()
     real.mkdir(parents=True, exist_ok=True)
     if made:
         os.chmod(real, DIR_MODE)
+    # First a provisional manifest, so a create that stops is still a data folder (the next create
+    # fills it; verify and handover say it did not finish), listing as `pending` what this run may
+    # leave behind (the old inputs and the new ones): the next create removes what its plan lacks.
+    _write_json(real / MANIFEST, {**header, "created": _now(), "inputs": [], "empty_directories": [],
+                                  "pending": sorted({*old, *plan})})
     _clear_leftovers(real, exp)
-    removed = [rel for rel in old if rel not in plan]
+    removed = [rel for rel in old if rel not in plan and os.path.lexists(real / rel)]
     for rel in removed:
         (real / rel).unlink(missing_ok=True)
     emptied = {cache: _empty(real / cache) for cache in exp.caches}
@@ -601,16 +652,7 @@ def create(source: Path, dest: Path, given: str, with_workspace: bool = False,
     else:
         target = real / exp.workspace
         kept = "kept" if target.is_dir() and any(target.iterdir()) else "none"
-    _write_json(real / MANIFEST, {
-        "format": FORMAT,
-        "created": dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
-        "source": given,
-        "source_commit": _commit(),
-        "fingerprints": exp.fingerprints,
-        "latest": values,
-        "inputs": inputs,
-        "empty_directories": empty,
-    })
+    _write_json(real / MANIFEST, {**header, "created": _now(), "inputs": inputs, "empty_directories": empty})
 
     total = sum(item["bytes"] for item in inputs)
     committed = sum(item["origin"] == "committed" for item in inputs)
@@ -631,25 +673,44 @@ def create(source: Path, dest: Path, given: str, with_workspace: bool = False,
 
 # ---------------------------------------------------------------------------------------- verify
 
+class _Unreadable(Exception):
+    """A workspace file whose format version cannot be read: damaged or locked, not a new format."""
+
+
 def _recorded_version(path: Path):
-    """The format version a workspace file records, None when it records none."""
+    """The format version a workspace file records, None when it records none. Raises _Unreadable
+    when the file cannot be read: verify opens a database read-only and never repairs it."""
     try:
         if path.suffix == ".json":
             value = json.loads(path.read_text(encoding="utf-8"))
-            return value.get("version") if isinstance(value, dict) else "unreadable"
-        uri = path.resolve().as_uri() + "?mode=ro"
-        with closing(sqlite3.connect(uri, uri=True, timeout=5)) as db:
-            tables = {row[0] for row in db.execute("SELECT name FROM sqlite_master WHERE type='table'")}
-            if "portal_store_migrations" not in tables:
-                return None
-            return db.execute("SELECT MAX(version) FROM portal_store_migrations").fetchone()[0]
-    except (OSError, ValueError, sqlite3.Error):
-        return "unreadable"
+            if not isinstance(value, dict):
+                raise _Unreadable("not a JSON object")
+            found = value.get("version")
+        else:
+            uri = path.resolve().as_uri() + "?mode=ro"
+            with closing(sqlite3.connect(uri, uri=True, timeout=5)) as db:
+                tables = {row[0] for row in db.execute("SELECT name FROM sqlite_master WHERE type='table'")}
+                if "portal_store_migrations" not in tables:
+                    return None
+                found = db.execute("SELECT MAX(version) FROM portal_store_migrations").fetchone()[0]
+    except sqlite3.Error as error:
+        if getattr(error, "sqlite_errorname", None) == "SQLITE_READONLY_ROLLBACK":
+            raise _Unreadable(f"an interrupted write left {path.name}-journal beside it") from None
+        raise _Unreadable(str(error)) from None
+    except OSError as error:
+        raise _Unreadable(error.strerror or str(error)) from None
+    except ValueError as error:          # not UTF-8, or not JSON
+        raise _Unreadable(str(error)) from None
+    if found is not None and type(found) is not int:
+        raise _Unreadable(f"its format version {found!r} is not a whole number")
+    return found
 
 
 def _workspace_line(folder: Path, exp: Expected, problems: list) -> str:
     """The workspace's recorded format versions beside the code's (accounts.json must match; the
-    store migrates an older database forward, so only a newer one is a problem)."""
+    store migrates an older database forward, so only a newer one is a problem). A file that cannot
+    be read is reported as such, never as a breaking change: purging would delete what a repair or
+    a backup can save."""
     workspace = folder / exp.workspace
     if not workspace.is_dir() or not any(workspace.iterdir()):
         return f"workspace {exp.workspace}/: none"
@@ -657,14 +718,20 @@ def _workspace_line(folder: Path, exp: Expected, problems: list) -> str:
     for name, code in exp.workspace_versions.items():
         if not (workspace / name).is_file():
             continue
-        found = _recorded_version(workspace / name)
+        rel = f"{exp.workspace}/{name}"
+        try:
+            found = _recorded_version(workspace / name)
+        except _Unreadable as error:
+            parts.append(f"{name} cannot be read")
+            problems.append(f"workspace: cannot read {rel} ({error}): fix it or restore it from a backup")
+            continue
         parts.append(f"{name} format {found if found is not None else 'not recorded'} "
                      f"(the code: {code if code is not None else 'unknown'})")
         if code is None or found is None:
             continue
         exact = name.endswith(".json")
-        if not isinstance(found, int) or (found != code if exact else found > code):
-            problems.append(f"workspace: {exp.workspace}/{name} has format {found}; the code "
+        if found != code if exact else found > code:
+            problems.append(f"workspace: {rel} has format {found}; the code "
                             f"{'reads' if exact else 'writes'} {code} (a breaking change: purge, or "
                             "create --with-workspace --replace-workspace)")
     return f"workspace {exp.workspace}/: " + ("; ".join(parts) or "present, no recorded format version")
@@ -685,8 +752,12 @@ def check(folder: Path, full: bool = False, exp: Expected | None = None) -> Repo
         return report
     report.lines.append(f"manifest: created {manifest.get('created')} from {manifest.get('source')} "
                         f"at commit {str(manifest.get('source_commit'))[:12]}")
-    report.inputs, report.size = len(entries), sum(item["bytes"] for item in entries.values())
     problems = report.problems
+    if "pending" in manifest:
+        problems.append(f"{MANIFEST} is provisional: the last create did not finish (run create again)")
+        report.lines.append(_workspace_line(folder, exp, problems))
+        return report
+    report.inputs, report.size = len(entries), sum(item["bytes"] for item in entries.values())
     private = _private(exp)
     for rel, item in sorted(entries.items()):
         path = folder / rel
@@ -749,19 +820,46 @@ def _print_report(report: Report, out) -> int:
 
 # -------------------------------------------------------------------------------------- handover
 
+#: What git and the Docker build context keep of data/ (`!data/README.md`, `!data/vocab/` in
+#: .gitignore and .dockerignore): a handover copy there would be committed or built into an image.
+_KEPT_IN_DATA = ("README.md", "vocab")
+
+
+def _handover_target(target: Path, given) -> Path:
+    """`target` resolved, unless it lies in the project outside the ignored part of its data/,
+    where `git add -A` or the Docker build context would pick up the copy (Djinni-derived text and
+    the project's models)."""
+    real = target.resolve()
+    project, data = Path(config.PROJECT_ROOT).resolve(), Path(config.DATA).resolve()
+    if real == project or _inside(real, project):
+        kept = [data / name for name in _KEPT_IN_DATA]
+        if not _inside(real, data) or any(real == path or _inside(real, path) for path in kept):
+            raise DatapackError(f"{given} lies inside the project folder, where git or the Docker build "
+                                "context would pick up the copy; use a folder outside the clone (or under "
+                                "its data/, which both ignore, except data/vocab/); refusing")
+    return real
+
+
 def handover(dest: Path, folder: Path, out=print) -> int:
     """Copy `folder`'s inputs and manifest (never the workspace or caches) into a new or empty
-    `dest`; return the full verification's exit status."""
+    `dest` outside the clone (or in its ignored data/); return the full verification's exit status."""
     exp = expected()
     folder = Path(folder)
     manifest, entries = _read_manifest(folder)
+    if "pending" in manifest:
+        raise DatapackError(f"the last create in {folder} did not finish ({MANIFEST} is provisional): "
+                            "run create again; nothing was copied")
     _refuse_private(exp, [*entries, *manifest["empty_directories"]])
     target = Path(dest)
     if os.path.lexists(target) and (target.is_symlink() or not target.is_dir() or any(target.iterdir())):
         raise DatapackError(f"{dest} is not a new or empty folder; refusing")
-    real, origin = target.resolve(), folder.resolve()
+    real, origin = _handover_target(target, dest), folder.resolve()
     if real == origin or _inside(real, origin):
         raise DatapackError(f"{dest} lies inside the data folder; refusing")
+    linked = [rel for rel in entries if _linked(folder, rel)]
+    if linked:
+        raise DatapackError(f"{folder / linked[0]} is (or is reached through) a symbolic link; the folder "
+                            "must hold copies (verify lists every problem); nothing was copied")
     missing = [rel for rel in entries if not (folder / rel).is_file()]
     if missing:
         raise DatapackError(f"the folder lacks {missing[0]} (verify lists every problem); nothing was copied")
@@ -799,7 +897,8 @@ def purge(dest: Path, yes: bool = False, out=print) -> int:
     if not (real / MANIFEST).is_file():
         raise DatapackError(f"{real} is not a data folder (no {MANIFEST}, and not empty); nothing deleted")
     try:
-        inputs = set(_read_manifest(real)[1])
+        manifest, listed = _read_manifest(real)
+        inputs = {*listed, *manifest.get("pending", [])}
     except DatapackError:
         inputs = set()
     groups = {"inputs and the manifest": [0, 0], f"workspace {exp.workspace}/": [0, 0],
@@ -854,8 +953,9 @@ def _parser() -> argparse.ArgumentParser:
                        "caches, keep the workspace.",
         description="Copy the app's inputs from a source (symbolic links followed) into the data "
                     "folder, replacing old ones; empty the caches; keep a workspace; write "
-                    f"{MANIFEST}; then verify the folder fully. Exit 1 if verification finds a "
-                    "problem; 2 if refused (nothing changed) or stopped by a file error (run "
+                    f"{MANIFEST}; then verify the folder fully. Refuses a folder without {MANIFEST} "
+                    "that holds anything but the app's workspace and caches. Exit 1 if verification "
+                    "finds a problem; 2 if refused (nothing changed) or stopped by a file error (run "
                     "create again).")
     create_.add_argument("--source", metavar="PATH",
                          help=f"a data/ folder or a received handover copy (default: ${SOURCE_ENV}, "
@@ -881,7 +981,9 @@ def _parser() -> argparse.ArgumentParser:
         description="Make a copy of the data folder to pass on privately: its inputs and "
                     f"{MANIFEST} only, never the workspace or the caches; then verify the copy "
                     "fully. Its receiver runs `create --source DEST`.")
-    handover_.add_argument("dest", metavar="DEST", help="a new or empty folder for the copy")
+    handover_.add_argument("dest", metavar="DEST",
+                           help="a new or empty folder for the copy, outside the clone (or under its "
+                                "git-ignored data/, not data/vocab/)")
     handover_.add_argument("--from", dest="origin", metavar="PATH",
                            help=f"the data folder to copy (default: ${DEST_ENV}, else "
                                 f"{_shown(config.PROJECT_ROOT / 'data' / 'datapack')})")

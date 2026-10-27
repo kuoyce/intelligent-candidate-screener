@@ -302,6 +302,9 @@ the monotonic clock.
 - **V4 passes:** the owner ran `docker compose up`, signed in through the frontend, opened a JD,
   re-ranked with C2 and asked chat questions; all worked.
 
+**Deviation (recorded in S8):** V1 ran at `f8dc77b`, the same code as `4e8fb6d` (`f8dc77b` changed
+only this record), not at the branch's base commit `e530659` as the README's V1 row says.
+
 ### S7: documentation (28 Oct 2026; sub-agent, reviewed by the parent)
 
 - New: `docs/docker.md` (the maintainer guide, sections 1-16 of `02`), `docs/docker-optional-parts.md`
@@ -316,7 +319,38 @@ the monotonic clock.
   V3 the app process peaked at 5.26 GB and the whole container at 7.56 GB including page cache
   (hence the guide's "at least 10 GB of Docker memory for all of phase 1; 4 GB for D63 only");
   `tools verify` takes about 2 s. V8's download is 4,382 MiB = 4.60 GB (4.28 GiB), not "4.4 GB".
+  Added in S8: the cold build's run 1 took 328 s with the models step 280 s
+  (`logs/docker/s6-v8-run1.log`), run 2, the measured one, 202.6 s with the models step 156 s
+  (`s6-v8-run2.log`); the deps step took 24.2 s in V7(b); a rebuild with nothing changed took
+  5.5 s (`s6-results.md`).
 - Not exercised, and said so in the guide: a Docker `tools create`, typing the hidden token prompt
   in a container, `compose.dev.yaml`, the `hf_token` secret, proxies, PowerShell forms.
 - Parent fixes: `04` §3 now removes old images with `docker image prune` (`docker compose down
   --rmi local` skips custom tags); `.env.example` gives the PowerShell form of `GIT_COMMIT`.
+
+### S8: review, fixes and checks (28 Oct 2026)
+
+- **Independent review** (sub-agent) of `e530659..2834ca4`: no data-loss or security defect in the
+  shipped paths; 1 must-fix (the guide's fresh-clone walkthrough was never run), 7 should-fix and 6
+  notes. Fixed by a sub-agent, reviewed by the parent:
+  - `verify` reports an unreadable workspace file as "cannot read …: fix it or restore it from a
+    backup" (a hand-edited `accounts.json`, a hot SQLite journal), never as a breaking change;
+  - `create` accepts a folder without a manifest only when it holds nothing but the workspace,
+    the caches or leftover temporary files, and writes a provisional manifest before its first
+    copy, so an interrupted first `create` is recognised;
+  - `handover` refuses a destination inside the clone (outside `data/`) and linked inputs;
+  - `.gitignore` adds `compose.override.y*ml` and `.streamlit/secrets.toml`; `.dockerignore`
+    adds `compose.override.y*ml`;
+  - `compose.yaml` disables the image healthcheck for `tools` and `qwen` (it probes Streamlit;
+    phase 2 gives `qwen` its own check);
+  - new tests: link guards in `create` and `purge`, the `SCREENER_DATAPACK_DEST` guard, the S4
+    network flags in the Dockerfile and `compose.dev.yaml`, the healthcheck and ignore rules;
+    23 of 23 deliberate breakages of the module and 14 of 14 of the real files caught
+    (`logs/s8-fix-evidence.log`);
+  - the guide: stop the app before changing the folder, the restore keeps the old workspace
+    outside it, the `verify` table, the cold-build figures, shared image tags, Windows terminals.
+- **Checks** (approved by the owner on 27 Oct 2026): `checks --warm --affected e530659` selected
+  all 32 (the `config.py` change): **32 passed, 0 failed**, 1 h 13 min wall, peak RSS 7.7 GB
+  (`logs/docker/s8-checks.log`). Cold skipped (Q17).
+- **Full suite** after the fixes (`logs/pytest-s8.log`): 17 failed (the known frontend ids: 11
+  `test_portal_extractive.py`, 3 `test_portal_ui.py`, 3 `test_portal_v1_ui.py`), 2285 passed.

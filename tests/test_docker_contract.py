@@ -5,13 +5,15 @@ the problems it finds. One test applies it to the committed file; the negative c
 small broken texts to show that it fails when its rule is broken (AGENTS testing rule 2).
 
 Dockerfile syntax understood: comments, `\\` continuations, ENV and ARG (`k=v`, and the legacy
-`ENV k v`), COPY/ADD flags and the JSON form; no heredocs. Compose: block (`- item`) and flow
-(`[a, b]`) sequences, `<<: *anchor` merges. The guide (`docs/docker.md`): its "Configuration
-reference" section's Markdown tables, first column; fenced code skipped.
+`ENV k v`), COPY/ADD flags, CMD and the JSON form; no heredocs. Compose: block (`- item`) and flow
+(`[a, b]`) sequences, a string `command:`, block and flow mappings under `healthcheck:`,
+`<<: *anchor` merges. The guide (`docs/docker.md`): its "Configuration reference" section's Markdown
+tables, first column; fenced code skipped.
 """
 from __future__ import annotations
 
 import ast
+import fnmatch
 import json
 import re
 import shlex
@@ -104,8 +106,14 @@ def build_args(dockerfile: str) -> dict[str, str]:
 
 # ------------------------------------------------------------------------------ Dockerfile rules
 
-#: The image people run must not download anything at run time (AGENTS: no downloads at startup).
-APP_OFFLINE = {"HF_HUB_OFFLINE": "1", "TRANSFORMERS_OFFLINE": "1", "UV_OFFLINE": "1"}
+#: The image people run must not download anything at run time (AGENTS: no downloads at startup),
+#: and onnxruntime (imported by GLiNER) must not write or send telemetry (S4).
+APP_OFFLINE = {"HF_HUB_OFFLINE": "1", "TRANSFORMERS_OFFLINE": "1", "UV_OFFLINE": "1",
+               "ORT_DISABLE_TELEMETRY": "1"}
+#: Streamlit's flags that keep it off the network (S4): no usage statistics, no lookup of the host's
+#: external IP (it prints localhost instead), no browser to open.
+STREAMLIT_FLAGS = {"--server.headless": "true", "--browser.serverAddress": "localhost",
+                   "--browser.gatherUsageStats": "false"}
 #: Self-contained (standard library plus `config`), so no other change invalidates the downloads.
 MODELS_STAGE_FILES = frozenset({
     "src/candidate_screener/__init__.py",
@@ -192,6 +200,40 @@ def frontend_order_problems(dockerfile: str) -> list[str]:
     return problems
 
 
+def command_flags(command: list[str]) -> dict[str, str]:
+    """`--name=value` and `--name value` options of a command; a later one wins, as in Streamlit."""
+    flags = {}
+    for index, word in enumerate(command):
+        if word.startswith("--"):
+            name, equals, value = word.partition("=")
+            if not equals:
+                following = command[index + 1:index + 2]
+                value = following[0] if following and not following[0].startswith("--") else ""
+            flags[name] = value
+    return flags
+
+
+def streamlit_flag_problems(command: list[str] | None, where: str) -> list[str]:
+    """A command that runs Streamlit passes the flags that keep it off the network."""
+    if not command or "streamlit" not in command:
+        return [f"{where} does not run streamlit"]
+    flags = command_flags(command)
+    return [f"{where} does not pass {name}={value}" for name, value in STREAMLIT_FLAGS.items()
+            if flags.get(name) != value]
+
+
+def app_command(dockerfile: str) -> list[str] | None:
+    """The app stage's own CMD (its last), as words; None when it sets none."""
+    commands = [arguments for keyword, arguments in stages(dockerfile).get("app", []) if keyword == "CMD"]
+    if not commands:
+        return None
+    return json.loads(commands[-1]) if commands[-1].startswith("[") else shlex.split(commands[-1])
+
+
+def app_command_problems(dockerfile: str) -> list[str]:
+    return streamlit_flag_problems(app_command(dockerfile), "the app stage's CMD")
+
+
 def c2_pin(cross_source: str) -> dict:
     """The C2 pin of `rerank/cross.py` (its `QWEN` assignment)."""
     for node in ast.parse(cross_source).body:
@@ -215,7 +257,12 @@ def c2_pin_problems(dockerfile: str, cross_source: str) -> list[str]:
 # ------------------------------------------------------------------------ ignore and attributes
 
 DOCKERIGNORE_LINES = ("data/*", "!data/README.md", "!data/vocab/", ".git", ".venv", "**/.venv",
-                      "logs", ".env", ".streamlit/secrets.toml")
+                      "logs", ".env", ".streamlit/secrets.toml", "compose.override.y*ml")
+#: One machine's settings and secrets (Docker's .env and compose override, Streamlit's secrets)
+#: are never committed.
+GITIGNORE_LINES = (".env", "compose.override.yaml", "compose.override.yml", ".streamlit/secrets.toml")
+#: The files a glob line is there for; a literal line is there for its own path.
+COVERS = {"compose.override.y*ml": ("compose.override.yaml", "compose.override.yml")}
 #: Their SHA-256 digests enter cache fingerprints, so Git never converts their line endings.
 BYTE_EXACT = ("docs/data/**", "output/**", "data/vocab/**")
 
@@ -223,6 +270,16 @@ BYTE_EXACT = ("docs/data/**", "output/**", "data/vocab/**")
 def _rules(text: str) -> list[str]:
     return [line.strip() for line in text.splitlines()
             if line.strip() and not line.strip().startswith("#")]
+
+
+def _lets_back(later: str, pattern: str) -> bool:
+    """Whether a later `!` line re-includes what `pattern` excludes: the same pattern, a catch-all,
+    or a glob matching a file the pattern is there for."""
+    if not later.startswith("!"):
+        return False
+    target = later[1:].lstrip("/").removesuffix("/**").rstrip("/")
+    return (target in {pattern.rstrip("/"), "*", "**", "**/*"}
+            or any(fnmatch.fnmatchcase(name, target) for name in COVERS.get(pattern, (pattern.rstrip("/"),))))
 
 
 def dockerignore_problems(text: str) -> list[str]:
@@ -237,10 +294,20 @@ def dockerignore_problems(text: str) -> list[str]:
     for pattern in DOCKERIGNORE_LINES:
         if pattern.startswith("!") or pattern not in last:
             continue
-        for later in lines[last[pattern] + 1:]:
-            target = later[1:].removesuffix("/**").rstrip("/") if later.startswith("!") else None
-            if target in {pattern.rstrip("/"), "*", "**", "**/*"}:
-                problems.append(f"{later} lets {pattern} back into the build context")
+        problems += [f"{later} lets {pattern} back into the build context"
+                     for later in lines[last[pattern] + 1:] if _lets_back(later, pattern)]
+    return problems
+
+
+def gitignore_problems(text: str) -> list[str]:
+    """One machine's settings and secrets stay out of commits, and nothing later lets them back."""
+    lines = _rules(text)
+    problems = [f".gitignore lacks {line}" for line in GITIGNORE_LINES if line not in lines]
+    last = {line: index for index, line in enumerate(lines)}
+    for pattern in GITIGNORE_LINES:
+        if pattern in last:
+            problems += [f"{later} lets {pattern} back into commits"
+                         for later in lines[last[pattern] + 1:] if _lets_back(later, pattern)]
     return problems
 
 
@@ -452,6 +519,48 @@ def tools_settings_problems(compose: str) -> list[str]:
     return problems
 
 
+def service_command(compose: str, service: str) -> list[str] | None:
+    """A service's own `command:` as words (a sequence, or a string split as a shell would); None
+    when it sets none."""
+    block = _service_block(compose, service)
+    if block is None:
+        return None
+    found = sequences(block, "command")
+    if found:
+        return found[0]
+    match = re.search(r"^\s*command:\s*(\S.*)$", block, re.MULTILINE)
+    return shlex.split(_unquote(_strip_comment(match.group(1)))) if match else None
+
+
+def dev_command_problems(compose: str) -> list[str]:
+    """compose.dev.yaml replaces the image's command (polling, rerun on save); the replacement keeps
+    the image's Streamlit flags."""
+    return streamlit_flag_problems(service_command(compose, "app"), "the app service's command")
+
+
+def healthcheck_disabled(compose: str, service: str) -> bool:
+    """Whether a service sets `healthcheck: disable: true` (block or flow mapping)."""
+    lines = (_service_block(compose, service) or "").splitlines()
+    for index, line in enumerate(lines):
+        match = re.match(r"^(\s*)healthcheck:\s*(.*)$", line)
+        if not match:
+            continue
+        flow = _strip_comment(match.group(2))
+        entries = flow.strip("{}").split(",") if flow.startswith("{") else _block(lines, index)
+        for entry in entries:
+            key, _, value = _strip_comment(entry.strip()).partition(":")
+            if key.strip() == "disable" and _unquote(value.strip()).lower() == "true":
+                return True
+    return False
+
+
+def healthcheck_problems(compose: str, services=("qwen", "tools")) -> list[str]:
+    """Services that run the app image without Streamlit disable its healthcheck, which probes
+    Streamlit: in app's network namespace (qwen) it would report the app's health."""
+    return [f"the {service} service keeps the image's Streamlit healthcheck (set healthcheck: "
+            "disable: true)" for service in services if not healthcheck_disabled(compose, service)]
+
+
 # ------------------------------------------------------------------ the guide's settings table
 
 GUIDE = "docs/docker.md"
@@ -529,6 +638,19 @@ def test_app_stage_runs_offline_as_a_non_root_user():
     assert app_stage_problems(read("Dockerfile")) == []
 
 
+def test_streamlit_runs_with_its_network_flags_in_the_image_and_the_dev_compose():
+    assert app_command_problems(read("Dockerfile")) == []
+    assert dev_command_problems(read("compose.dev.yaml")) == []
+    # The commands are found, so an empty parse cannot pass.
+    assert app_command(read("Dockerfile"))[:2] == ["streamlit", "run"]
+    assert service_command(read("compose.dev.yaml"), "app")[:2] == ["streamlit", "run"]
+
+
+def test_services_without_streamlit_disable_the_image_healthcheck():
+    assert healthcheck_problems(read("compose.yaml")) == []
+    assert not healthcheck_disabled(read("compose.yaml"), "app")
+
+
 def test_models_stage_copies_only_the_five_asset_files():
     assert models_stage_problems(read("Dockerfile")) == []
 
@@ -539,6 +661,10 @@ def test_frontend_is_copied_after_the_backend():
 
 def test_dockerignore_keeps_data_environments_logs_and_secrets_out():
     assert dockerignore_problems(read(".dockerignore")) == []
+
+
+def test_gitignore_keeps_this_machines_settings_and_secrets_out():
+    assert gitignore_problems(read(".gitignore")) == []
 
 
 def test_gitattributes_keeps_digested_files_byte_exact():
@@ -585,10 +711,15 @@ RUN python -m compileall /app/src
 COPY src/candidate_screener/app/ /app/src/candidate_screener/app/
 ENV SCREENER_MODELS_ROOT=/opt/models \\
     HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 UV_OFFLINE=1
+ENV ORT_DISABLE_TELEMETRY=1
 USER 1000:1000
+HEALTHCHECK --interval=30s \\
+    CMD ["python", "-c", "print('ok')"]
+CMD ["streamlit", "run", "app.py", "--server.headless=true", "--browser.serverAddress=localhost", "--browser.gatherUsageStats=false"]
 """
 GOOD_CROSS = 'QWEN ={"model": "Qwen/Qwen3-Reranker-0.6B", "revision": "e61197ed45024b0ed8a2d74b80b4d909f1255473"}\n'
 GOOD_DOCKERIGNORE = "\n".join(DOCKERIGNORE_LINES) + "\n"
+GOOD_GITIGNORE = "data/*\n!data/README.md\nlogs/\n" + "\n".join(GITIGNORE_LINES) + "\n"
 GOOD_GITATTRIBUTES = """\
 * text=auto
 docs/data/** -text
@@ -607,6 +738,11 @@ services:
     <<: *run
     ports:
       - "127.0.0.1:${HIRING_DESK_PORT:-8503}:8503"
+  qwen:
+    <<: *run
+    network_mode: "service:app"
+    healthcheck:
+      disable: true
   tools:
     <<: *run
     volumes:
@@ -615,7 +751,19 @@ services:
     environment:
       SCREENER_DATAPACK_SOURCE: /source
       SCREENER_DATAPACK_DEST: /app/data
+    healthcheck: {disable: true}
 """
+DEV_COMMAND = """\
+    command:
+      - streamlit
+      - run
+      - src/candidate_screener/app/streamlit_app.py
+      - --server.headless=true
+      - --browser.serverAddress=localhost
+      - --browser.gatherUsageStats=false
+      - --server.runOnSave=true
+"""
+GOOD_DEV_COMPOSE = "services:\n  app:\n    volumes:\n      - ./src:/app/src:ro\n" + DEV_COMMAND
 
 
 def broken(text: str, *replacements: tuple[str, str]) -> str:
@@ -628,21 +776,34 @@ def broken(text: str, *replacements: tuple[str, str]) -> str:
 
 def test_every_check_passes_on_the_good_texts():
     assert app_stage_problems(GOOD_DOCKERFILE) == []
+    assert app_command_problems(GOOD_DOCKERFILE) == []
     assert models_stage_problems(GOOD_DOCKERFILE) == []
     assert frontend_order_problems(GOOD_DOCKERFILE) == []
     assert c2_pin_problems(GOOD_DOCKERFILE, GOOD_CROSS) == []
     assert dockerignore_problems(GOOD_DOCKERIGNORE) == []
+    assert gitignore_problems(GOOD_GITIGNORE) == []
     assert gitattributes_problems(GOOD_GITATTRIBUTES) == []
     assert published_port_problems(GOOD_COMPOSE) == []
     assert data_folder_problems(GOOD_COMPOSE) == []
     assert tools_settings_problems(GOOD_COMPOSE) == []
+    assert healthcheck_problems(GOOD_COMPOSE) == []
+    assert dev_command_problems(GOOD_DEV_COMPOSE) == []
     for other_form in ('    environment:\n      - SCREENER_DATAPACK_SOURCE=/source\n'
                        '      - "SCREENER_DATAPACK_DEST=/app/data"\n',
                        "    environment: {SCREENER_DATAPACK_SOURCE: /source, SCREENER_DATAPACK_DEST: /app/data}\n"):
         assert tools_settings_problems(broken(GOOD_COMPOSE, (TOOLS_SETTINGS, other_form))) == []
+    shell_form = ("CMD streamlit run app.py --server.headless true --browser.serverAddress localhost "
+                  "--browser.gatherUsageStats=false\n")
+    assert app_command_problems(broken(GOOD_DOCKERFILE, (APP_CMD, shell_form))) == []
+    flags = "--server.headless=true, --browser.serverAddress=localhost, --browser.gatherUsageStats=false"
+    for other_form in (f"    command: [streamlit, run, app.py, {flags}]\n",
+                       f'    command: "streamlit run app.py {flags.replace(",", "")}"\n'):
+        assert dev_command_problems(broken(GOOD_DEV_COMPOSE, (DEV_COMMAND, other_form))) == []
 
 
 APP_OFFLINE_ENV = "ENV SCREENER_MODELS_ROOT=/opt/models \\\n    HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 UV_OFFLINE=1\n"
+APP_CMD = ('CMD ["streamlit", "run", "app.py", "--server.headless=true", "--browser.serverAddress=localhost", '
+           '"--browser.gatherUsageStats=false"]\n')
 FRONTEND_COPY = "COPY src/candidate_screener/app/ /app/src/candidate_screener/app/\n"
 BACKEND_COPY = "COPY --exclude=candidate_screener/app src/ /app/src/\n"
 QA_COPY = "COPY src/candidate_screener/llm/qa_assets.py /app/src/candidate_screener/llm/\n"
@@ -663,6 +824,25 @@ BROKEN_DOCKERFILES = {
     "app-runs-as-uid-0": (app_stage_problems, broken(GOOD_DOCKERFILE, ("USER 1000:1000", "USER 0:0"))),
     "app-without-USER": (app_stage_problems, broken(GOOD_DOCKERFILE, ("USER 1000:1000\n", ""))),
     "app-not-the-last-stage": (app_stage_problems, GOOD_DOCKERFILE + "FROM base AS test\n"),
+    "app-without-ORT_DISABLE_TELEMETRY": (app_stage_problems, broken(GOOD_DOCKERFILE, ("ENV ORT_DISABLE_TELEMETRY=1\n", ""))),
+    "app-with-ORT_DISABLE_TELEMETRY=0": (app_stage_problems, broken(
+        GOOD_DOCKERFILE, ("ORT_DISABLE_TELEMETRY=1", "ORT_DISABLE_TELEMETRY=0"))),
+    # the app stage's Streamlit command
+    "cmd-without-headless": (app_command_problems, broken(GOOD_DOCKERFILE, ('"--server.headless=true", ', ""))),
+    "cmd-without-serverAddress": (app_command_problems, broken(
+        GOOD_DOCKERFILE, ('"--browser.serverAddress=localhost", ', ""))),
+    "cmd-without-gatherUsageStats": (app_command_problems, broken(
+        GOOD_DOCKERFILE, (', "--browser.gatherUsageStats=false"', ""))),
+    "cmd-gathers-usage-stats": (app_command_problems, broken(
+        GOOD_DOCKERFILE, ("gatherUsageStats=false", "gatherUsageStats=true"))),
+    "cmd-flag-overridden-later": (app_command_problems, broken(
+        GOOD_DOCKERFILE, ('gatherUsageStats=false"]', 'gatherUsageStats=false", "--server.headless=false"]'))),
+    "cmd-shell-form-without-a-flag": (app_command_problems, broken(
+        GOOD_DOCKERFILE, (APP_CMD, "CMD streamlit run app.py --server.headless=true --browser.gatherUsageStats=false\n"))),
+    "cmd-space-separated-wrong-value": (app_command_problems, broken(GOOD_DOCKERFILE, (
+        APP_CMD, "CMD streamlit run app.py --server.headless true --browser.serverAddress 0.0.0.0 "
+                 "--browser.gatherUsageStats false\n"))),
+    "app-stage-has-only-the-healthcheck-cmd": (app_command_problems, broken(GOOD_DOCKERFILE, (APP_CMD, ""))),
     # models stage
     "models-copies-all-of-src": (models_stage_problems, broken(GOOD_DOCKERFILE, (QA_COPY, QA_COPY + "COPY src/ /app/src/\n"))),
     "models-copies-a-frontend-file": (models_stage_problems, broken(
@@ -712,6 +892,11 @@ BROKEN_IGNORE_AND_ATTRIBUTES = {
     "dockerignore-lets-.env-back": (dockerignore_problems, GOOD_DOCKERIGNORE + "!.env\n"),
     "dockerignore-lets-everything-back": (dockerignore_problems, GOOD_DOCKERIGNORE + "!**\n"),
     "dockerignore-exception-before-data": (dockerignore_problems, GOOD_DOCKERIGNORE + "data/*\n"),
+    "dockerignore-lets-the-compose-override-back": (dockerignore_problems, GOOD_DOCKERIGNORE + "!compose.override.yaml\n"),
+    **{f"gitignore-lacks-{line}": (gitignore_problems, broken(GOOD_GITIGNORE, (f"\n{line}\n", "\n")))
+       for line in GITIGNORE_LINES},
+    "gitignore-lets-secrets-back": (gitignore_problems, GOOD_GITIGNORE + "!.streamlit/secrets.toml\n"),
+    "gitignore-lets-the-override-back-by-glob": (gitignore_problems, GOOD_GITIGNORE + "!compose.override.*\n"),
     "gitattributes-lacks-output": (gitattributes_problems, broken(GOOD_GITATTRIBUTES, ("output/** -text\n", ""))),
     "gitattributes-converts-output": (gitattributes_problems, broken(GOOD_GITATTRIBUTES, ("output/** -text", "output/** text"))),
     "gitattributes-later-text-auto": (gitattributes_problems, GOOD_GITATTRIBUTES + "* text=auto\n"),
@@ -730,6 +915,7 @@ def test_ignore_and_attribute_checks_fail_on_broken_texts(case):
 PUBLISHED = '      - "127.0.0.1:${HIRING_DESK_PORT:-8503}:8503"\n'
 TOOLS_SETTINGS = "    environment:\n      SCREENER_DATAPACK_SOURCE: /source\n      SCREENER_DATAPACK_DEST: /app/data\n"
 APP_SERVICE = "  app:\n    <<: *run\n"
+QWEN_HEALTHCHECK = "    healthcheck:\n      disable: true\n"
 
 BROKEN_COMPOSE = {
     "port-on-all-interfaces": (published_port_problems, broken(GOOD_COMPOSE, (PUBLISHED, '      - "8503:8503"\n'))),
@@ -759,6 +945,27 @@ BROKEN_COMPOSE = {
     "tools-source-mounted-read-write": (tools_settings_problems, broken(GOOD_COMPOSE, (":/source:ro", ":/source"))),
     "tools-settings-on-another-service": (tools_settings_problems, broken(
         GOOD_COMPOSE, (TOOLS_SETTINGS, ""), (APP_SERVICE, APP_SERVICE + TOOLS_SETTINGS))),
+    # the image's healthcheck probes Streamlit
+    "qwen-keeps-the-healthcheck": (healthcheck_problems, broken(GOOD_COMPOSE, (QWEN_HEALTHCHECK, ""))),
+    "tools-keeps-the-healthcheck": (healthcheck_problems, broken(GOOD_COMPOSE, ("    healthcheck: {disable: true}\n", ""))),
+    "healthcheck-disable-false": (healthcheck_problems, broken(GOOD_COMPOSE, ("      disable: true\n", "      disable: false\n"))),
+    "healthcheck-disabled-on-app-not-qwen": (healthcheck_problems, broken(
+        GOOD_COMPOSE, (QWEN_HEALTHCHECK, ""), (APP_SERVICE, APP_SERVICE + QWEN_HEALTHCHECK))),
+    # compose.dev.yaml's Streamlit command
+    "dev-without-headless": (dev_command_problems, broken(GOOD_DEV_COMPOSE, ("      - --server.headless=true\n", ""))),
+    "dev-without-serverAddress": (dev_command_problems, broken(
+        GOOD_DEV_COMPOSE, ("      - --browser.serverAddress=localhost\n", ""))),
+    "dev-without-gatherUsageStats": (dev_command_problems, broken(
+        GOOD_DEV_COMPOSE, ("      - --browser.gatherUsageStats=false\n", ""))),
+    "dev-gathers-usage-stats": (dev_command_problems, broken(
+        GOOD_DEV_COMPOSE, ("gatherUsageStats=false", "gatherUsageStats=true"))),
+    "dev-flag-overridden-later": (dev_command_problems, GOOD_DEV_COMPOSE + "      - --browser.serverAddress=0.0.0.0\n"),
+    "dev-flow-command-without-a-flag": (dev_command_problems, broken(GOOD_DEV_COMPOSE, (
+        DEV_COMMAND, "    command: [streamlit, run, app.py, --server.headless=true, --browser.gatherUsageStats=false]\n"))),
+    "dev-string-command-without-a-flag": (dev_command_problems, broken(GOOD_DEV_COMPOSE, (
+        DEV_COMMAND, "    command: streamlit run app.py --server.headless=true --browser.serverAddress=localhost\n"))),
+    "dev-command-on-another-service": (dev_command_problems, broken(GOOD_DEV_COMPOSE, (DEV_COMMAND, ""))
+                                       + "  tools:\n" + DEV_COMMAND),
 }
 
 

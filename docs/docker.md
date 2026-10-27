@@ -118,8 +118,9 @@ measured here). With WSL2, Docker's memory is the WSL2 virtual machine's. Set it
 memory=10GB
 ```
 
-Then run `wsl --shutdown` in PowerShell and start Docker again. Create accounts from PowerShell or
-Windows Terminal, not Git Bash ([§7](#7-accounts)).
+Then run `wsl --shutdown` in PowerShell and start Docker again. Create accounts from a terminal that
+can hide what you type ([§7](#7-accounts)): with Docker Engine inside WSL2, a WSL2 terminal; with
+Docker Desktop, PowerShell or a WSL2 terminal. Not Git Bash.
 
 **macOS.** Install Docker Desktop and set its memory under Settings → Resources. The clone must sit
 in a folder that Docker Desktop shares with containers (Settings → Resources → File sharing; your
@@ -142,7 +143,7 @@ root and the app cannot write there.
 | Memory, chat v2/v3 (Qwen, `llm` profile) | Not measured (phase 2) | Measure before relying on it: the Qwen service is a third model process |
 | Disk | Image 7.98 GB. Build cache after a cold build 14.74 GB (the layers, plus a second copy of the weights and wheels in the cache mounts). Test image 4.59 GB. Data folder: 256.8 MB of inputs, plus the workspace (2.6 MB on the owner's machine) and caches (1.1 MB after the owner's browser session), both measured 28 Oct 2026 | **About 25 GB free** for the first build, **30 GB** if you also build the test image: the sum of the measured sizes, rounded up. It is an upper bound, because the image's layers can also appear in the build cache. Afterwards `docker builder prune` returns most of the build cache, at the price of downloading again at the next build |
 | Network | The cold build downloaded 4,382 MiB (4.60 GB): base images, Debian packages, Python wheels and model weights | Needed **only to build**. The app ran every step of the smoke test with the container's network disabled (V6) |
-| Time | Cold build: 3 min 23 s, and 5 min 28 s in a second run. The model downloads took 156 s and 280 s of that | Your download speed decides it |
+| Time | Cold build: 3 min 23 s (V8, the measured run), and 5 min 28 s in an earlier run. The model downloads took 156 s of the measured run and 280 s of the earlier one | Your download speed decides it |
 
 Docker versions used: Engine 27.5.1, Compose 2.32.4, buildx 0.20.0 (BuildKit 0.18.2 in the
 default builder). The Dockerfile needs BuildKit features (`COPY --exclude`, symbolic `--chmod`,
@@ -193,9 +194,10 @@ bash, zsh and PowerShell.
    docker compose build
    ```
 
-   The output ends with ` app  Built`. From an empty cache this took 3 min 23 s (5 min 28 s in a
-   second run) and downloaded 4.60 GB; the image is 7.98 GB. With nothing changed, a rebuild takes
-   a few seconds (5.5 s).
+   The output ends with ` app  Built`. From an empty cache this took 3 min 23 s (5 min 28 s in an
+   earlier run) and downloaded 4.60 GB; the image is 7.98 GB. With nothing changed, a rebuild takes
+   a few seconds (5.5 s). Build in the clone you run the app from: the image's name is shared by
+   every clone on the machine ([§10](#10-releasing-an-update-developer)).
 
 5. **Check the folder.**
 
@@ -215,8 +217,10 @@ bash, zsh and PowerShell.
 
    Replace `reviewer` with your login ID. The command asks twice, hidden, for an access token of
    at least 24 characters, then prints `Local reviewer account created. This is local token
-   authentication, not company SSO.` (about 2 s, 28 Oct 2026). On Windows, use PowerShell or
-   Windows Terminal.
+   authentication, not company SSO.` (about 2 s, 28 Oct 2026). On Windows, run it where the token
+   can be hidden: with Docker Engine inside WSL2 (the verified set-up), a WSL2 terminal, for example
+   in Windows Terminal; with Docker Desktop, any terminal where `docker` works (PowerShell or a WSL2
+   terminal). Not Git Bash.
 
 7. **Start the app.**
 
@@ -234,7 +238,8 @@ bash, zsh and PowerShell.
 
 To stop the app: `docker compose stop`. The owner, who has the full `data/`, fills the folder in
 step 2 with `uv run python -m candidate_screener.datapack create --with-workspace` instead
-([§5](#5-the-data-folder)).
+([§5](#5-the-data-folder)), with the native Hiring Desk stopped, so that its workspace is not
+copied in the middle of a write.
 
 ## 5. The data folder
 
@@ -274,10 +279,10 @@ folder named by `SCREENER_DATA_SOURCE` in `.env` mounted read-only at `/source`.
 
 | Command | What it does | Native form | Docker form |
 |---|---|---|---|
-| `create` | Fills the folder from a source (a full `data/`, following its symbolic links, or a received copy): replaces the old inputs, empties the caches, **keeps an existing workspace**, writes the manifest, then verifies the folder fully | `uv run python -m candidate_screener.datapack create --source PATH` (default source: `data/`) | set `SCREENER_DATA_SOURCE` in `.env`, then `docker compose --profile tools run --rm tools create` |
-| `create --with-workspace` | Also copies the source's `processed/hr-portal/` (the owner's local accounts and reviews). Refuses to overwrite a workspace already in the folder unless `--replace-workspace` is added | `uv run python -m candidate_screener.datapack create --with-workspace` | `docker compose --profile tools run --rm tools create --with-workspace` |
+| `create` | Fills the folder from a source (a full `data/`, following its symbolic links, or a received copy): replaces the old inputs, empties the caches, **keeps an existing workspace**, writes the manifest, then verifies the folder fully. Fills only a new or empty folder, a data folder (it has `pack-manifest.json`) or one holding nothing but a workspace and caches; it refuses anything else, such as a copy of `data/`, and names what it found. Run it with the app stopped | `uv run python -m candidate_screener.datapack create --source PATH` (default source: `data/`) | set `SCREENER_DATA_SOURCE` in `.env`, then `docker compose --profile tools run --rm tools create` |
+| `create --with-workspace` | Also copies the source's `processed/hr-portal/` (the owner's local accounts and reviews). Refuses to overwrite a workspace already in the folder unless `--replace-workspace` is added. Stop the native Hiring Desk first, so its workspace is not copied in the middle of a write | `uv run python -m candidate_screener.datapack create --with-workspace` | `docker compose --profile tools run --rm tools create --with-workspace` |
 | `verify` | Compares the folder with its manifest and with what the code expects; prints every problem and the workspace's format version. `--full` also compares every SHA-256 | `uv run python -m candidate_screener.datapack verify` | `docker compose --profile tools run --rm tools verify` |
-| `handover DEST` | Copies the inputs and the manifest, **never the workspace or the caches**, into a new or empty folder, then verifies the copy | `uv run python -m candidate_screener.datapack handover ../datapack-handover` (any new folder outside the clone) | not recommended: its destination would have to be inside a mounted folder |
+| `handover DEST` | Copies the inputs and the manifest, **never the workspace or the caches**, into a new or empty folder, then verifies the copy. Refuses a destination inside the clone, where `git add -A` or the Docker build context would pick up the copy, except under the git-ignored `data/` (not `data/vocab/`). Also refuses to copy a folder that holds symbolic links or whose last `create` did not finish | `uv run python -m candidate_screener.datapack handover ../datapack-handover` (any new folder outside the clone) | not available: the container's writable mounts are all inside the clone; run it natively |
 | `purge` | Lists what it would delete. With `--yes` it empties the folder, workspace included (for a breaking change) | `uv run python -m candidate_screener.datapack purge` | `docker compose --profile tools run --rm tools purge` |
 
 What has been run on real folders: natively `create --with-workspace` (0.85 s), `verify --full`,
@@ -290,6 +295,10 @@ run `create` natively there) and with `vocab/skills.csv` (a handover copy has it
 
 Exit status: 0 when clean; 1 when verification finds a problem (also at the end of `create` and
 `handover`); 2 when refused (nothing was changed) or stopped by a file error (run `create` again).
+Before it changes anything, `create` writes a provisional manifest, so a `create` that stops part
+way (a full disk, a closed terminal) still leaves a data folder: `verify` says the last `create`
+did not finish, `handover` refuses it, and the same `create` run again completes it and removes
+what the stopped run left behind.
 
 ### Who runs what
 
@@ -314,14 +323,16 @@ Every upgrade also rebuilds the image and runs `verify` ([§10](#10-releasing-an
 | `OK: 24 inputs (256.8 MB) match the manifest and what the code expects` | Clean | Nothing |
 | `missing: PATH` | An input in the manifest is not in the folder | `create` again (from your source or a new copy) |
 | `changed: PATH (N bytes; the manifest says M)`, or `… its SHA-256 differs …` | A file was modified: an editor, a copy tool, or a line-ending conversion on Windows | `create` again; on Windows, copy the folder with a tool that does not convert text |
-| `unexpected: PATH` | A file outside the inputs, the workspace and the caches | Remove it, or `create` again |
-| `linked: PATH …` | The folder holds a symbolic link where it needs a copy | `create` again |
+| `unexpected: PATH` | A file outside the inputs, the workspace and the caches | Remove it (`create` leaves files it did not write in place) |
+| `linked: PATH …` | The folder holds a symbolic link where it needs a copy | A linked file: `create` again replaces it with a copy. A linked folder: `create` refuses it, so first remove the link itself (not what it points to), then `create` again |
+| `pack-manifest.json is provisional: the last create did not finish (run create again)` | A `create` stopped part way | Run the same `create` again |
 | `the code expects PATH (…); the folder lacks it` | The code moved on: it now reads a file this folder does not have (a new input or a new fingerprint) | Refresh the folder from a source that has it; an operator needs a new copy from the developer |
 | `stale: PATH is no longer read by the code` | An old input | `create` removes it |
 | `stale: …/LATEST names X; the code's committed record names Y` | The folder's role model is not the one the code's record expects | Refresh from a source with the right model |
 | `stale: …/parts.json records …: refit them for this folder` | The inference parts were fitted against another role model or vocabulary | Developer: refit natively (`inference --cache-parts`), then `create` |
 | `stale: PATH differs from the committed …` | A copied review table or the vocabulary differs from the repository's | `create` again |
-| `workspace: …/accounts.json has format N; the code reads M …` (or `workspace.sqlite` is newer than the code) | The workspace was written by another version of the app: a breaking change | Back up, then `purge --yes` and `create`, or `create --with-workspace --replace-workspace` |
+| `workspace: …/accounts.json has format N; the code reads M …` (or `workspace.sqlite` is newer than the code) | The workspace was written by another version of the app: a breaking change. Reported only for a file `verify` can read | Back up, stop the app, then `purge --yes` and `create`, or `create --with-workspace --replace-workspace` ([§10](#10-releasing-an-update-developer)) |
+| `workspace: cannot read …/accounts.json (…): fix it or restore it from a backup` (or `…/workspace.sqlite`) | The file is damaged (for example a hand edit left invalid JSON), locked by a running app, or left by a write that was cut short. It is not a format change | **Do not purge.** Fix the file or restore the workspace from a backup ([§12](#12-troubleshooting), [§9](#9-backups-operator)) |
 | `… has no pack-manifest.json: not a data folder (run create)` | The folder is empty or not a data folder. On macOS this also happens when the clone is not shared with Docker Desktop (the mount appears empty) | Put the folder in place, or `create`; on macOS check file sharing |
 
 On Linux, if the app cannot write its workspace or logs, look at the owners of `data/datapack/`
@@ -338,7 +349,8 @@ and `logs/` ([§12](#12-troubleshooting)).
 | Status and health | `docker compose ps` (`Up … (healthy)` when Streamlit answers) |
 | The app's output | `docker compose logs app`, or `docker compose logs -f --tail 100 app` to follow it |
 
-The healthcheck asks Streamlit's `/_stcore/health` every 30 s and verifies nothing else. Nothing is
+The healthcheck asks Streamlit's `/_stcore/health` every 30 s and verifies nothing else; only the
+app has it (the `qwen` and `tools` services, which run no Streamlit, disable it). Nothing is
 checked when the container starts. The container has `restart: unless-stopped`: it comes back when
 Docker starts again, unless you stopped it.
 
@@ -371,8 +383,10 @@ What survives what:
   512 at sign-in). It stores only a salted PBKDF2-SHA256 hash (310,000 iterations), the
   departments and the expiry; the token itself is never stored or printed. Keep it in a password
   manager.
-- **The hidden prompt needs a real terminal.** On Windows use PowerShell or Windows Terminal; Git
-  Bash (mintty) cannot show it. Without a terminal, Python warns `GetPassWarning: Can not control
+- **The hidden prompt needs a real terminal.** On Windows with Docker Engine inside WSL2 (the
+  verified set-up), use a WSL2 terminal, for example in Windows Terminal; with Docker Desktop, any
+  terminal where `docker` works, PowerShell or a WSL2 terminal. Not Git Bash (mintty), which cannot
+  show it. Without a terminal, Python warns `GetPassWarning: Can not control
   echo on the terminal` and `Password input may be echoed`: stop with Ctrl+C and run the command
   from a real terminal. (On 28 Oct 2026 the command was run in the container with its input piped,
   which printed those warnings and created the account in a throw-away file; typing at the hidden
@@ -390,7 +404,8 @@ What survives what:
     with it; a new login ID does not see the old one's reviews.
 
   Edit the file with a text editor, keep it valid JSON (`{"users": {…}, "version": 1}`), and copy
-  it first ([§9](#9-backups-operator)). Any change to a login's entry signs that reviewer out.
+  it first ([§9](#9-backups-operator)); `verify` reports a file that is not valid JSON as one it
+  cannot read. Any change to a login's entry signs that reviewer out.
 - **The app's own hint.** With no accounts, the sign-in page says that accounts are not configured
   and shows the native command (`uv run python -m …`). In Docker, use the `docker compose run`
   form above.
@@ -411,8 +426,9 @@ settings worth knowing. `tests/test_docker_contract.py` fails when the code read
 **How settings reach the app.** Compose reads `.env` (copy it from
 [`.env.example`](../.env.example); it is git-ignored) for the settings in the first table, and
 passes only `HR_PORTAL_CHAT_VERSION` into the app container. To pass another setting, add a
-`compose.override.yaml` beside `compose.yaml` (Compose reads it automatically unless you name files
-with `-f`; keep it out of commits), for example:
+`compose.override.yaml` (or `.yml`) beside `compose.yaml`. Compose reads it automatically unless
+you name files with `-f`. Like `.env`, it is git-ignored and docker-ignored, so it stays out of
+commits and images and can hold this machine's secrets. For example:
 
 ```yaml
 services:
@@ -534,18 +550,20 @@ docker compose start app
 ```
 
 Keep the archive private: it holds the account hashes, the saved reviews and redacted document
-text. To restore, move the current workspace aside and unpack the archive in its place:
+text. To restore, move the current workspace out of the data folder, into `../backups/` beside the
+archives, and unpack the archive in its place. (A copy left inside the data folder would be
+reported by `verify` as unexpected files and deleted by `purge --yes`.)
 
 ```
 docker compose stop app
-mv data/datapack/processed/hr-portal data/datapack/processed/hr-portal-before-restore
+mv data/datapack/processed/hr-portal ../backups/hr-portal-before-restore-2026-10-28
 tar -xzf ../backups/hr-portal-2026-10-28.tar.gz -C data/datapack/processed
 docker compose start app
 ```
 
 The `mkdir`, `tar` and `mv` lines were checked in bash on a synthetic folder (28 Oct 2026): the
-restored workspace was identical, with its private permissions (0700, 0600). The PowerShell forms
-were not run.
+restored workspace was identical, with its private permissions (0700, 0600), and the replaced one
+was in `../backups/`. The PowerShell forms were not run.
 
 ## 10. Releasing an update (developer)
 
@@ -561,27 +579,36 @@ the code does not read.
 
 1. Back up the workspace ([§9](#9-backups-operator)).
 2. Get the release: `git pull` (or check out the release commit).
-3. Rebuild the image, recording the commit:
+3. Rebuild the image, recording the commit, in the clone you run the app from:
    - bash, zsh: `GIT_COMMIT=$(git rev-parse HEAD) docker compose build`
    - PowerShell: `$env:GIT_COMMIT = git rev-parse HEAD; docker compose build`
-4. Refresh the folder: `uv run python -m candidate_screener.datapack create` (the owner, natively:
+
+   The image names `candidate-screener/hiring-desk:local` and `:test` are shared by every clone and
+   worktree on the machine, so `up` or `tools` in one checkout runs whichever image was built last,
+   in any of them. Rebuild in the checkout you run from before `up` or `tools`.
+4. Stop the app: `docker compose stop app`. `create` replaces the files the app reads and empties
+   its caches, so the app must not be running.
+5. Refresh the folder: `uv run python -m candidate_screener.datapack create` (the owner, natively:
    new inputs, empty caches, the Docker workspace kept), or, for an operator, `create` from the new
    copy ([§5](#5-the-data-folder)).
-5. `verify` (inside `create` already; run it again after any manual step).
-6. `docker compose up -d`, which recreates the container from the new image.
-7. Remove the old image. A rebuild moves the tag to the new image and leaves the old one untagged
+6. `verify` (inside `create` already; run it again after any manual step).
+7. `docker compose up -d`, which recreates the container from the new image and starts it.
+8. Remove the old image. A rebuild moves the tag to the new image and leaves the old one untagged
    (`<none>`, about 8 GB): `docker image prune` removes untagged images (all of them on the
    machine, not only this project's), or `docker rmi IMAGE_ID` removes one. (`docker compose down
    --rmi local` does not: it skips images with a custom tag, and this one has one.)
 
-**Breaking:** as above, but in step 4 run `purge` (it lists), then `purge --yes`, then
-`create --with-workspace` (the owner, copying the local workspace again) or `create` (to start
-empty); an operator runs `create` from the new copy. Accounts must then be created again unless
-the workspace was copied.
+**Breaking:** as above, but in step 5, with the app stopped, run `purge` (it lists), then
+`purge --yes`, then `create --with-workspace` (the owner, copying the local workspace again, with
+the native Hiring Desk stopped) or `create` (to start empty); an operator runs `create` from the new
+copy. Replacing only the workspace, `create --with-workspace --replace-workspace`, likewise runs
+between `docker compose stop app` and `docker compose up -d`. Accounts must then be created again
+unless the workspace was copied.
 
 **Handing the folder over.** `uv run python -m candidate_screener.datapack handover DEST` (DEST: a
-new or empty folder outside the clone) copies the inputs and the manifest, never the workspace or
-the caches, and verifies the copy. Pass it privately ([§14](#14-security-and-privacy)).
+new or empty folder outside the clone; inside the clone it accepts only the git-ignored `data/`,
+not `data/vocab/`) copies the inputs and the manifest, never the workspace or the caches, and
+verifies the copy. Pass it privately ([§14](#14-security-and-privacy)).
 
 **Checklist for each change.**
 
@@ -597,7 +624,7 @@ the caches, and verifies the copy. Pass it privately ([§14](#14-security-and-pr
   revision the code pins (a contract test for the pin, as for C2).
 - [ ] **Review [`docker-optional-parts.md`](docker-optional-parts.md)**: re-decide each part whose
   trigger has fired, and add a row.
-- [ ] Remove the old image (step 7 above).
+- [ ] Remove the old image (step 8 above).
 
 **Checks on the developer's machine**, for the kind of update (the plan's verification rows;
 never at each start, and never on an operator's machine):
@@ -626,7 +653,9 @@ docker compose --profile test run --rm test
 
 The test image is the `deps` stage plus the `dev` group and the repository as `.dockerignore`
 filters it: of `data/`, only `README.md` and `vocab/`. It runs with no network. It reports; nothing
-depends on it, and the `app` image is built without it.
+depends on it, and the `app` image is built without it. Its name,
+`candidate-screener/hiring-desk:test`, is shared by every clone on the machine, so build it in the
+checkout you test.
 
 At `f8dc77b` (27 Oct 2026) it ended with `17 failed, 2207 passed, 51 skipped, 1 warning in
 98.03s`; natively at `4e8fb6d` the same code gave `17 failed, 2220 passed, 38 skipped`. The
@@ -681,6 +710,23 @@ and the second copy of the model downloads). `docker image prune` removes untagg
 folder copied with a tool that converted line endings; on Linux, `data/datapack/` or `logs/`
 owned by root because Docker created them (fix: `sudo chown -R "$(id -u):$(id -g)" data/datapack
 logs`, bash or zsh); on macOS, a clone outside Docker Desktop's shared folders.
+
+**`verify` cannot read a workspace file** (`workspace: cannot read …: fix it or restore it from a
+backup`). The workspace is the one part of the folder that nothing can rebuild, so this is never a
+reason to `purge`. The reason in brackets says what is wrong:
+
+- `accounts.json`, a JSON error with its line and column: usually a hand edit ([§7](#7-accounts)),
+  for example a comma after the last entry. Correct it in a text editor, or put back the copy you
+  made before editing.
+- `workspace.sqlite`, `database is locked`: the app is writing it. Stop the app
+  (`docker compose stop app`) and run `verify` again.
+- `workspace.sqlite`, `an interrupted write left workspace.sqlite-journal beside it`: a write was cut
+  short (a crash, or a copy taken while the app was writing). SQLite undoes it the next time a
+  program opens the database for writing, which the app does when a reviewer signs in; `verify`
+  only reads. Start the app, sign in once, stop it, and run `verify` again. Never delete the
+  `-journal` file: the undo needs it.
+- Anything else, or if that does not help: restore the workspace from a backup
+  ([§9](#9-backups-operator)).
 
 **The build fails while downloading.** The output names the step. `[models …]` downloads the
 weights from Hugging Face; finished downloads stay in the cache mount, so a second
@@ -739,8 +785,9 @@ llm up -d`. It shares the app container's network namespace (both insist on loop
 `app` restarts or is recreated, restart it too: `docker compose --profile llm restart qwen`. Phase
 2 of the plan has not verified this yet; until then, expect v2/v3 to show their fallback answers.
 
-**The account command cannot hide the token** (Git Bash on Windows, or no terminal). Use
-PowerShell or Windows Terminal ([§7](#7-accounts)).
+**The account command cannot hide the token** (Git Bash on Windows, or no terminal). With Docker
+Engine inside WSL2, run it in a WSL2 terminal (for example in Windows Terminal); with Docker Desktop,
+in PowerShell or a WSL2 terminal ([§7](#7-accounts)).
 
 **A report or the department mail fails for some CSV-backed JDs.** Preparing a report or a mail
 fails with a `ValueError` for 53 of the 600 CSV candidates, in 38 of the 60 JDs (the first one
@@ -832,14 +879,16 @@ expects and the folder lacks.
   decision, which are out of scope.
 - **Local tokens.** Only salted PBKDF2-SHA256 hashes (310,000 iterations) are stored, in a 0600
   file in a 0700 folder. Tokens are never printed, logged or saved in reviews.
-- **No secrets in the image.** `.dockerignore` keeps `.env`, `.streamlit/secrets.toml`, `.git`,
-  `logs/` and all of `data/` except `README.md` and `vocab/` out of the build context. A Hugging
-  Face token enters a build only as a build secret, from a file kept outside the clone. The image
-  holds code, environments and public pretrained weights; no Djinni text.
+- **No secrets in the image or in commits.** `.dockerignore` keeps `.env`, `compose.override.yaml`
+  (and `.yml`), `.streamlit/secrets.toml`, `.git`, `logs/` and all of `data/` except `README.md` and
+  `vocab/` out of the build context; `.gitignore` keeps the same settings and secrets files out of
+  commits. A Hugging Face token enters a build only as a build secret, from a file kept outside the
+  clone. The image holds code, environments and public pretrained weights; no Djinni text.
 - **The data folder is private.** It holds Djinni-derived CV and JD text (MIT-licensed, anonymised
   by the publishers), the project's trained models and this deployment's workspace. Never commit
   it (it is git-ignored) or share it publicly. Pass it on only with `handover`, which leaves the
-  workspace and caches out, and only privately.
+  workspace and caches out and writes its copy only outside the clone or in the git-ignored
+  `data/`, and only privately.
 - **Redaction is unchanged.** Displayed text still passes `annotation.redact`, inside the
   container as natively. Mechanical redaction does not guarantee anonymity.
 - **No network at run time.** The app ran its whole smoke test with the container's network
@@ -865,6 +914,13 @@ expects and the folder lacks.
   threshold.
 - **Only Linux (Docker Engine in WSL2) has been verified**; Docker Desktop on Windows and macOS has
   not. A build or a run under a Docker Desktop memory limit was not measured.
+- **One image name per machine.** Every clone and worktree builds and runs
+  `candidate-screener/hiring-desk:local` (and `:test`), so the last build wins; rebuild in the
+  checkout you run from ([§10](#10-releasing-an-update-developer)).
+- **The `qwen` service has no healthcheck.** The image's healthcheck asks Streamlit, which `qwen`
+  does not run, and in the app's network namespace it would report the app's health, so
+  `compose.yaml` disables it for `qwen` (and for `tools`). Phase 2 (S9) should give `qwen` a check
+  of its own.
 - **The data sources C1 (Kaggle PDFs) and ESCO (D1) are not included**; the app does not read them.
 - **No CI** (Q22). The tests and checks run when someone runs them.
 - **The checks are native.** `checks --affected` and `inference --freeze` need `.git`, which the

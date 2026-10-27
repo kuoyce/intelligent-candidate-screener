@@ -14,10 +14,12 @@ import json
 import os
 import pickle
 import re
+import shutil
 import sqlite3
 import stat
 import subprocess
 import sys
+from contextlib import closing
 from pathlib import Path
 
 import pytest
@@ -195,6 +197,46 @@ def fill_workspace_and_caches(folder: Path, exp) -> None:
         write(folder / cache / "fingerprint" / "scores-0.parquet", b"scores")
 
 
+def move_source_on(world: World) -> tuple[str, str]:
+    """The source retrains the role model and refits the parts with it; the code's record follows.
+    Returns (the old role model, the old parts folder), relative."""
+    role_latest, role = world.pointer(folder_target=False)
+    parts_latest, parts = world.pointer(folder_target=True)
+    write(world.source / Path(role_latest).parent / role.target.format(NEW_ROLE), b"new model")
+    write(world.source / role_latest, NEW_ROLE + "\n")
+    _write_parts(world, parts_latest, parts, NEW_PARTS, NEW_ROLE)
+    world.use(pointers={**world.exp.pointers, role_latest: dataclasses.replace(role, record=NEW_ROLE)})
+    return ((Path(role_latest).parent / role.target.format(ROLE)).as_posix(),
+            (Path(parts_latest).parent / PARTS).as_posix())
+
+
+def elsewhere(world: World, name: str) -> Path:
+    """A folder outside the data folder and the source, for a link to point at."""
+    folder = world.tmp / "elsewhere" / name
+    write(folder / "keep.bin", b"not the data folder's")
+    return folder
+
+
+def hot_journal(database: Path, scratch: Path) -> None:
+    """Leave `database` as a crash in the middle of a write leaves it: beside it a rollback journal
+    that must be rolled back before anyone reads it, which a read-only open cannot do."""
+    scratch.mkdir(parents=True, exist_ok=True)
+    work = shutil.copy(database, scratch / database.name)
+    writer = sqlite3.connect(work, isolation_level=None)
+    try:
+        writer.execute("PRAGMA cache_size=1")        # spill to the file: the journal is written first
+        writer.execute("BEGIN")
+        writer.execute("CREATE TABLE filler(x)")
+        writer.executemany("INSERT INTO filler VALUES(?)", [("x" * 500,)] * 200)
+        journal = Path(f"{work}-journal")
+        assert journal.stat().st_size > 512
+        shutil.copy(work, database)
+        shutil.copy(journal, f"{database}-journal")
+        writer.execute("ROLLBACK")
+    finally:
+        writer.close()
+
+
 # ------------------------------------------------------------------------------------- create
 
 def test_create_copies_exactly_the_listed_inputs_following_symlinks(world, capsys):
@@ -361,6 +403,187 @@ def test_create_refuses_a_source_that_lacks_an_input(world, capsys):
     assert code == 2 and missing in out and not world.dest.exists()
 
 
+# --------------------------------------------------------- which folders create fills (no manifest)
+
+def test_create_refuses_a_research_copy_and_leaves_it_untouched(world, capsys):
+    """A trimmed copy of data/ has processed/ and vocab/ but no manifest: not a data folder."""
+    research = world.dest
+    write(research / "processed" / "matching" / "a2-pairs-v2-0123456789ab.parquet", b"research text")
+    write(research / "vocab" / "skills.csv", "skill\n")
+    for cache in world.exp.caches:                                  # caches it would empty
+        write(research / cache / "fingerprint" / "scores.parquet", b"research scores")
+    write(research / world.exp.workspace / "accounts.json", json.dumps({"version": 1, "users": {}}))
+    before = snapshot(research)
+    code, out = run(capsys, "create", "--source", world.source, "--dest", research)
+    assert code == 2 and f"has no {MANIFEST}" in out and "refusing" in out, out
+    assert "processed/matching/" in out and "vocab/" in out
+    assert snapshot(research) == before
+
+
+def test_create_fills_a_folder_holding_only_the_apps_workspace_caches_and_leftovers(world, capsys):
+    """The app ran on an empty folder before the first create (or a create left temporary files)."""
+    fill_workspace_and_caches(world.dest, world.exp)
+    write(world.dest / f".{MANIFEST}{datapack.TMP}", "{")
+    write(world.dest / "processed" / "rerank" / f"stray{datapack.TMP}", "x")
+    workspace = snapshot(world.dest / world.exp.workspace)
+    code, out = run(capsys, "create", "--source", world.source, "--dest", world.dest)
+    assert code == 0, out
+    kept = {f"{world.exp.workspace}/{rel}" for rel in files_under(world.dest / world.exp.workspace)}
+    assert files_under(world.dest) == world.inputs | {MANIFEST} | kept and kept
+    assert snapshot(world.dest / world.exp.workspace) == workspace
+
+
+def test_an_interrupted_first_create_is_a_data_folder_that_create_finishes(world, capsys, monkeypatch):
+    real_copy, copied = datapack._copy, []
+
+    def disk_full_at_the_fifth_copy(source, target, mode):
+        if len(copied) == 4:
+            raise OSError(28, "No space left on device", str(target))
+        copied.append(target)
+        return real_copy(source, target, mode)
+
+    monkeypatch.setattr(datapack, "_copy", disk_full_at_the_fifth_copy)
+    code, out = run(capsys, "create", "--source", world.source, "--dest", world.dest)
+    monkeypatch.setattr(datapack, "_copy", real_copy)
+    assert code == 2 and "run create again" in out, out
+    manifest = world.manifest()
+    assert manifest["inputs"] == [] and set(manifest["pending"]) == world.inputs
+    assert len(copied) == 4 and all(path.is_file() for path in copied)
+    code, out = run(capsys, "verify", "--dest", world.dest)
+    assert code == 1 and "the last create did not finish" in out, out
+    code, out = run(capsys, "handover", world.tmp / "handover", "--from", world.dest)
+    assert code == 2 and "did not finish" in out and not (world.tmp / "handover").exists()
+    # Before the second run the source moves on: the role model copied above is no longer read.
+    old_model, old_parts = move_source_on(world)
+    assert world.dest.resolve() / old_model in copied and (world.dest / old_parts).is_dir()
+    code, out = run(capsys, "create", "--source", world.source, "--dest", world.dest)
+    assert code == 0, out                          # its closing verify found nothing unexpected
+    manifest = world.manifest()
+    assert "pending" not in manifest and not (world.dest / old_model).exists()
+    assert files_under(world.dest) == {item["path"] for item in manifest["inputs"]} | {MANIFEST}
+
+
+# ----------------------------------------------- symbolic links inside the folder: their targets stay
+
+@pytest.mark.parametrize("rerun", [False, True], ids=["first-run", "re-run"])
+def test_create_refuses_a_linked_processed_folder(world, capsys, rerun):
+    target = world.tmp / "elsewhere" / "processed"
+    if rerun:
+        ok(capsys, "create", "--source", world.source, "--dest", world.dest)
+        target.parent.mkdir(parents=True)
+        (world.dest / "processed").rename(target)             # the folder's own, behind a link
+    else:
+        world.dest.mkdir()
+    for cache in world.exp.caches:
+        write(target / cache.removeprefix("processed/") / "fingerprint" / "scores.parquet", b"theirs")
+    write(target / world.exp.workspace.removeprefix("processed/") / "accounts.json", "{}")
+    (world.dest / "processed").symlink_to(target, target_is_directory=True)
+    before, folder = snapshot(target), snapshot(world.dest)
+    code, out = run(capsys, "create", "--source", world.source, "--dest", world.dest, "--with-workspace",
+                    "--replace-workspace")
+    assert code == 2 and "symbolic link" in out, out
+    assert snapshot(target) == before and snapshot(world.dest) == folder
+
+
+@pytest.mark.parametrize("rerun", [False, True], ids=["first-run", "re-run"])
+def test_create_refuses_a_linked_folder_above_a_cache(world, capsys, rerun):
+    """processed/rerank/ leads to the C2 cache and to no input: only the caches' check sees it."""
+    parent = world.exp.caches[1].rpartition("/")[0]
+    assert parent == "processed/rerank" and not any(rel.startswith(parent + "/") for rel in world.inputs)
+    if rerun:
+        ok(capsys, "create", "--source", world.source, "--dest", world.dest)
+    else:
+        world.dest.mkdir()
+    target = elsewhere(world, "rerank")
+    write(target / "cross" / "fingerprint" / "scores.parquet", b"theirs")
+    (world.dest / parent).parent.mkdir(exist_ok=True)
+    (world.dest / parent).symlink_to(target, target_is_directory=True)
+    before, folder = snapshot(target), snapshot(world.dest)
+    code, out = run(capsys, "create", "--source", world.source, "--dest", world.dest)
+    assert code == 2 and "symbolic link" in out, out
+    assert snapshot(target) == before and snapshot(world.dest) == folder
+
+
+@pytest.mark.parametrize("rerun", [False, True], ids=["first-run", "re-run"])
+def test_create_removes_a_linked_cache_folder_never_its_target(world, capsys, rerun):
+    if rerun:
+        ok(capsys, "create", "--source", world.source, "--dest", world.dest)
+    else:
+        world.dest.mkdir()
+    targets = world.tmp / "elsewhere"
+    for index, cache in enumerate(world.exp.caches):
+        target = elsewhere(world, f"cache-{index}")
+        write(target / "fingerprint" / "scores.parquet", b"theirs")
+        (world.dest / cache).parent.mkdir(parents=True, exist_ok=True)
+        (world.dest / cache).symlink_to(target, target_is_directory=True)
+    before = snapshot(targets)
+    code, out = run(capsys, "create", "--source", world.source, "--dest", world.dest)
+    assert code == 0, out
+    assert not any(os.path.lexists(world.dest / cache) for cache in world.exp.caches)
+    assert snapshot(targets) == before
+
+
+def test_create_refuses_a_link_on_the_way_to_a_new_input_before_changing_anything(world, capsys):
+    ok(capsys, "create", "--source", world.source, "--dest", world.dest)
+    fill_workspace_and_caches(world.dest, world.exp)
+    parts_latest, parts = world.pointer(folder_target=True)
+    _write_parts(world, parts_latest, parts, NEW_PARTS, ROLE)          # the source refits the parts
+    target = elsewhere(world, "parts")
+    (world.dest / Path(parts_latest).parent / NEW_PARTS).symlink_to(target, target_is_directory=True)
+    before, folder = snapshot(target), snapshot(world.dest)
+    code, out = run(capsys, "create", "--source", world.source, "--dest", world.dest)
+    assert code == 2 and "symbolic link" in out, out
+    assert snapshot(target) == before
+    assert snapshot(world.dest) == folder              # refused before anything was written
+
+
+def test_create_refuses_a_link_on_the_way_to_an_old_input(world, capsys):
+    """The old parts folder, behind a link, holds files with the old inputs' names: removing the
+    old inputs through it would delete them."""
+    ok(capsys, "create", "--source", world.source, "--dest", world.dest)
+    parts_latest, parts = world.pointer(folder_target=True)
+    _write_parts(world, parts_latest, parts, NEW_PARTS, ROLE)          # the old parts are not read now
+    old = world.dest / Path(parts_latest).parent / PARTS
+    target = world.tmp / "elsewhere" / "parts"
+    shutil.copytree(old, target)
+    shutil.rmtree(old)
+    old.symlink_to(target, target_is_directory=True)
+    before, folder = snapshot(target), snapshot(world.dest)
+    code, out = run(capsys, "create", "--source", world.source, "--dest", world.dest)
+    assert code == 2 and "symbolic link" in out, out
+    assert snapshot(target) == before and snapshot(world.dest) == folder
+
+
+def test_make_dirs_refuses_a_link_on_the_way_and_leaves_its_target_alone(tmp_path):
+    target = write(tmp_path / "elsewhere" / "keep.bin", b"keep").parent
+    os.chmod(target, 0o700)
+    (tmp_path / "folder" / "processed").mkdir(parents=True)
+    (tmp_path / "folder" / "processed" / "linked").symlink_to(target, target_is_directory=True)
+    with pytest.raises(datapack.DatapackError, match="symbolic link"):
+        datapack._make_dirs(tmp_path / "folder", "processed/linked/inner", datapack.DIR_MODE)
+    assert sorted(path.name for path in target.iterdir()) == ["keep.bin"] and mode(target) == 0o700
+
+
+def test_the_projects_data_is_the_folder_only_where_the_setting_names_it(world, capsys, monkeypatch):
+    """The tools container's SCREENER_DATAPACK_DEST names data/; naming another folder does not
+    make --dest data/ acceptable."""
+    project = world.tmp / "project"
+    data = project / "data"
+    data.mkdir(parents=True)
+    monkeypatch.setattr(config, "PROJECT_ROOT", project)
+    monkeypatch.setattr(config, "DATA", data)
+    monkeypatch.chdir(project)
+    monkeypatch.setenv(datapack.DEST_ENV, str(data))
+    ok(capsys, "create", "--source", world.source)                     # the tools container's folder
+    monkeypatch.setenv(datapack.DEST_ENV, str(world.tmp / "another-folder"))
+    before = snapshot(data)
+    for command in (("create", "--source", world.source, "--dest", "data/"),
+                    ("purge", "--dest", "data/", "--yes")):
+        code, out = run(capsys, *command)
+        assert code == 2 and "the project's data/ folder" in out, (command, out)
+    assert snapshot(data) == before and not (world.tmp / "another-folder").exists()
+
+
 # ------------------------------------------------------------------------------------- verify
 
 def test_verify_passes_a_clean_folder(world, capsys):
@@ -427,6 +650,39 @@ def test_verify_reports_the_workspace_format(world, capsys):
     assert code == 1 and "accounts.json has format 9; the code reads 1" in out
 
 
+def test_verify_reports_an_unreadable_workspace_file_never_as_a_breaking_change(world, capsys):
+    ok(capsys, "create", "--source", world.source, "--dest", world.dest, "--with-workspace")
+    workspace = world.dest / world.exp.workspace
+    (workspace / "accounts.json").write_text('{"version": 1, "users": {"a": {}},}', encoding="utf-8")
+    hot_journal(workspace / "workspace.sqlite", world.tmp / "crash")    # a write cut short
+    code, out = run(capsys, "verify", "--dest", world.dest)
+    assert code == 1, out
+    assert f"workspace: cannot read {world.exp.workspace}/accounts.json (" in out
+    assert (f"workspace: cannot read {world.exp.workspace}/workspace.sqlite (an interrupted write left "
+            "workspace.sqlite-journal beside it): fix it or restore it from a backup") in out
+    assert out.count("fix it or restore it from a backup") == 2
+    assert "breaking" not in out and "purge" not in out
+    (workspace / "accounts.json").write_text('{"version": "1", "users": {}}', encoding="utf-8")
+    code, out = run(capsys, "verify", "--dest", world.dest)
+    assert code == 1 and "its format version '1' is not a whole number" in out and "breaking" not in out
+
+
+def test_verify_reports_a_readable_newer_format_as_a_breaking_change(world, capsys):
+    ok(capsys, "create", "--source", world.source, "--dest", world.dest, "--with-workspace")
+    code = world.exp.workspace_versions["workspace.sqlite"]
+    database = world.dest / world.exp.workspace / "workspace.sqlite"
+    for recorded, problem in ((code + 1, True), (code - 1, False)):   # an older one is migrated forward
+        with closing(sqlite3.connect(database)) as db:
+            db.execute("DELETE FROM portal_store_migrations")
+            db.execute("INSERT INTO portal_store_migrations VALUES(?)", (recorded,))
+            db.commit()
+        status, out = run(capsys, "verify", "--dest", world.dest)
+        assert status == int(problem), out
+        assert (f"workspace.sqlite has format {recorded}; the code writes {code} (a breaking change"
+                in out) == problem
+        assert "cannot read" not in out
+
+
 def test_verify_fails_without_a_manifest(world, capsys):
     world.dest.mkdir()
     code, out = run(capsys, "verify", "--dest", world.dest)
@@ -459,6 +715,40 @@ def test_handover_refuses_a_used_destination_or_one_inside_the_folder(world, cap
     assert not (world.dest / "copy").exists()
 
 
+def test_handover_refuses_a_destination_in_the_clone_outside_its_ignored_data(world, capsys, monkeypatch):
+    """A copy holds Djinni-derived text and the project's models: git and the Docker build context
+    must not pick it up, so only the ignored part of data/ is allowed inside the clone."""
+    ok(capsys, "create", "--source", world.source, "--dest", world.dest)
+    project = world.tmp / "project"
+    data = project / "data"
+    (data / "vocab").mkdir(parents=True)
+    monkeypatch.setattr(config, "PROJECT_ROOT", project)
+    monkeypatch.setattr(config, "DATA", data)
+    for refused in (project / "handover", project / "docs" / "handover", data / "vocab" / "handover"):
+        code, out = run(capsys, "handover", refused, "--from", world.dest)
+        assert code == 2 and "inside the project folder" in out, (refused, out)
+        assert not refused.exists()
+    ok(capsys, "handover", data / "handover", "--from", world.dest)
+    assert (data / "handover" / MANIFEST).is_file()
+
+
+@pytest.mark.parametrize("linked", ["file", "folder"])
+def test_handover_refuses_linked_inputs(world, capsys, linked):
+    ok(capsys, "create", "--source", world.source, "--dest", world.dest)
+    path = world.dest / next(iter(world.exp.files))
+    path = path if linked == "file" else path.parent
+    moved = world.tmp / "elsewhere" / path.name
+    moved.parent.mkdir(parents=True)
+    path.rename(moved)
+    path.symlink_to(moved, target_is_directory=linked == "folder")     # the same bytes, behind a link
+    code, out = run(capsys, "verify", "--dest", world.dest)
+    assert code == 1 and "linked: " in out, out
+    copy = world.tmp / "handover"
+    code, out = run(capsys, "handover", copy, "--from", world.dest)
+    assert code == 2 and "symbolic link" in out, out
+    assert not copy.exists()
+
+
 def test_handover_fails_when_its_copy_does_not_verify(world, capsys):
     ok(capsys, "create", "--source", world.source, "--dest", world.dest)
     target = world.dest / next(iter(world.exp.files))
@@ -486,6 +776,19 @@ def test_purge_with_yes_empties_the_folder(world, capsys):
     code, out = run(capsys, "purge", "--dest", world.dest, "--yes")
     assert code == 0, out
     assert world.dest.is_dir() and list(world.dest.iterdir()) == []
+
+
+def test_purge_deletes_links_never_their_targets(world, capsys):
+    ok(capsys, "create", "--source", world.source, "--dest", world.dest)
+    shutil.rmtree(world.dest / "vocab")
+    (world.dest / "vocab").symlink_to(elsewhere(world, "vocab"), target_is_directory=True)
+    (world.dest / world.exp.caches[0]).symlink_to(elsewhere(world, "cache"), target_is_directory=True)
+    (world.dest / "notes.txt").symlink_to(elsewhere(world, "notes") / "keep.bin")
+    before = snapshot(world.tmp / "elsewhere")
+    code, out = run(capsys, "purge", "--dest", world.dest, "--yes")
+    assert code == 0, out
+    assert list(world.dest.iterdir()) == []
+    assert snapshot(world.tmp / "elsewhere") == before
 
 
 def test_purge_refuses_a_folder_that_is_not_a_data_folder(world, capsys):

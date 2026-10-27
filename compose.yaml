@@ -1,6 +1,6 @@
 # The Hiring Desk in Docker (plan 2026-10-27-docker, 01-design-spec.md §5 and §6). Settings come
 # from `.env` (git-ignored; every one is listed in `.env.example`). The healthcheck is in the
-# Dockerfile. Contract checks: tests/test_docker_contract.py.
+# Dockerfile, for app; qwen and tools disable it. Contract checks: tests/test_docker_contract.py.
 #
 #   docker compose build                                      # the app image, weights included
 #   docker compose up -d                                      # http://localhost:8503
@@ -54,6 +54,10 @@ services:
       - candidate_screener.llm.local_server
       - --manifest
       - /opt/models/chatbot/qwen/manifest.json
+    # The image's healthcheck probes Streamlit, which this service does not run; in app's network
+    # namespace it would report the app's health. Phase 2 (S9) gives qwen a check of its own.
+    healthcheck:
+      disable: true
     stop_grace_period: 30s
 
   tools:
@@ -69,6 +73,9 @@ services:
       SCREENER_DATAPACK_SOURCE: /source
       SCREENER_DATAPACK_DEST: /app/data
     entrypoint: [python, -m, candidate_screener.datapack]
+    # The image's healthcheck probes Streamlit, which the data folder commands do not run.
+    healthcheck:
+      disable: true
 
   test:
     image: candidate-screener/hiring-desk:test
