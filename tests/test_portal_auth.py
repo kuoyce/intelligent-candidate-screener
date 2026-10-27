@@ -147,7 +147,7 @@ def test_concurrent_first_account_submissions_create_exactly_one(tmp_path, monke
 
 @pytest.mark.parametrize("token,confirmation,message", [
     (TOKEN, TOKEN + "x", "differ"),
-    ("short-token", "short-token", "at least 24 characters"),
+    ("short-token", "short-token", "24 to 512 characters"),
 ])
 def test_first_account_form_rejects_bad_tokens_and_creates_nothing(tmp_path, token, confirmation, message):
     from candidate_screener.app.portal_auth import submit_first_account
@@ -171,6 +171,19 @@ def test_first_account_form_parses_departments_and_bounds_expiry(tmp_path):
     assert record["expires_at"] == pytest.approx(time.time() + 10 * 86400, abs=5)
 
 
+def test_account_creation_matches_sign_in_token_length_limit(tmp_path):
+    from candidate_screener.app.portal_auth import submit_first_account
+    path = tmp_path / "accounts.json"
+    with pytest.raises(ValueError, match="24 to 512 characters"):
+        create_account(path, "long", "x" * 513, ["benchmark"])
+    with pytest.raises(ValueError, match="24 to 512 characters"):
+        submit_first_account(path, "long", "benchmark", "x" * 513, "x" * 513, 40)
+    assert not path.exists()
+    create_account(path, "edge", "y" * 512, ["benchmark"])
+    principal, _ = TokenAuthenticator(path).authenticate("edge", "y" * 512)
+    assert principal.subject == "edge"
+
+
 def test_cli_short_token_is_a_clean_error_not_a_traceback(tmp_path, monkeypatch, capsys):
     from candidate_screener.app import portal_auth
     path = tmp_path / "accounts.json"
@@ -184,6 +197,6 @@ def test_cli_short_token_is_a_clean_error_not_a_traceback(tmp_path, monkeypatch,
     with pytest.raises(SystemExit) as exit_info:
         portal_auth.main()
     assert exit_info.value.code == 2
-    assert "at least 24 characters" in capsys.readouterr().err
-    assert "at least 24 characters" in prompts[0]
+    assert "24 to 512 characters" in capsys.readouterr().err
+    assert "24 to 512 characters" in prompts[0]
     assert not path.exists()

@@ -19,7 +19,7 @@ import streamlit as st
 
 from candidate_screener.annotation.redact import redact_text
 from candidate_screener.config import PROCESSED
-from .portal_auth import (DEFAULT_ACCOUNT_HOURS, DEFAULT_ACCOUNTS, AccountsExist, TokenAuthenticator,
+from .portal_auth import (DEFAULT_ACCOUNT_HOURS, DEFAULT_ACCOUNTS, MAX_TOKEN_CHARS, AccountsExist, TokenAuthenticator,
                           has_accounts, submit_first_account)
 from .portal_controller import PortalController, StaleReview
 from .portal_data import CATEGORIES, PortalDataset
@@ -122,11 +122,11 @@ def _first_account(accounts):
     st.code("uv run python -m candidate_screener.app.portal_auth --create-local-user reviewer --department benchmark", language="bash")
     with st.form("local_first_account"):
         login_id = st.text_input("Login ID", max_chars=100)
-        departments = st.text_input("Departments (comma-separated)", placeholder="benchmark",
+        departments = st.text_input("Departments (comma-separated)", value="benchmark",
                                     help="The departments whose jobs this account may open, e.g. benchmark.")
-        token = st.text_input("Access token", type="password", max_chars=512,
-                              help="At least 24 characters. It is not displayed or stored in plain text.")
-        confirmation = st.text_input("Confirm access token", type="password", max_chars=512)
+        token = st.text_input("Access token", type="password", max_chars=MAX_TOKEN_CHARS,
+                              help="24 to 512 characters. It is not displayed or stored in plain text.")
+        confirmation = st.text_input("Confirm access token", type="password", max_chars=MAX_TOKEN_CHARS)
         days = st.number_input("Account expiry (days)", min_value=1, max_value=DEFAULT_ACCOUNT_HOURS // 24,
                                value=DEFAULT_ACCOUNT_HOURS // 24, step=1)
         submitted = st.form_submit_button("Create the first account")
@@ -165,7 +165,7 @@ def _login():
         st.success("The first account was created. Sign in with its login ID and access token.")
     with st.form("local_reviewer_sign_in"):
         login_id = st.text_input("Login ID", max_chars=100)
-        token = st.text_input("Access token", type="password", max_chars=512)
+        token = st.text_input("Access token", type="password", max_chars=MAX_TOKEN_CHARS)
         submitted = st.form_submit_button("Sign in")
     if submitted:
         try:

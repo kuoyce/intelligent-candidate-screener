@@ -63,6 +63,7 @@ def test_create_screen_shows_only_when_no_accounts_exist(accounts):
     assert field(at, "Login ID").proto.type != TextInput.PASSWORD
     days = next(n for n in at.number_input if n.label == "Account expiry (days)")
     assert days.value == 40 and days.max == 40
+    assert field(at, "Departments (comma-separated)").value == "benchmark"
     from candidate_screener.app.portal_auth import create_account
     create_account(accounts, "existing", TOKEN, ["benchmark"])
     at = app()

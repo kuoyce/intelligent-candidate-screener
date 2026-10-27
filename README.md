@@ -313,8 +313,8 @@ JDs. The production app has no workspace/demo selector.
 
 **The first account.** While no account exists (no `accounts.json`, or one with no
 users), the app opens a **Create the first account** screen instead of sign-in: a
-login ID, the departments (comma-separated, e.g. `benchmark`), the access token twice
-(at least 24 characters, hidden) and the expiry in days (default and maximum 40).
+login ID, the departments (comma-separated, pre-filled with `benchmark`), the access token twice
+(24 to 512 characters, hidden) and the expiry in days (default and maximum 40).
 The check that no account exists runs under the account file's lock, so of two
 simultaneous submissions only one succeeds. Mismatched or short tokens create
 nothing. Once an account exists the screen is gone for good and sign-in is shown.
@@ -324,7 +324,7 @@ creates the first account. Serve the app on loopback only (the commands here use
 a network, a one-time setup code must be added first.
 
 **Further accounts** (there is no administrator role in the app): run the command in
-your own terminal and enter a private access token of at least 24 characters at
+your own terminal and enter a private access token of 24 to 512 characters at
 the hidden prompt; no token is printed or stored in conversation history. Two
 different entries, a short token or an existing login ID print an error and
 create nothing:

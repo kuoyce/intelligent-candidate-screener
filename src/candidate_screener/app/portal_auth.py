@@ -21,6 +21,7 @@ from .portal_store import Principal
 DEFAULT_ACCOUNTS = PROCESSED / "hr-portal/accounts.json"
 ITERATIONS = 310_000
 DEFAULT_ACCOUNT_HOURS = 40 * 24
+MIN_TOKEN_CHARS, MAX_TOKEN_CHARS = 24, 512  # one rule for creating and signing in
 
 
 def _key(token, salt, iterations):
@@ -43,7 +44,7 @@ class TokenAuthenticator:
 
     def authenticate(self, login_id, token):
         """Return a verified principal and revocation version, never the credential."""
-        if not isinstance(login_id, str) or not 1 <= len(login_id) <= 100 or not isinstance(token, str) or not 24 <= len(token) <= 512:
+        if not isinstance(login_id, str) or not 1 <= len(login_id) <= 100 or not isinstance(token, str) or not MIN_TOKEN_CHARS <= len(token) <= MAX_TOKEN_CHARS:
             raise PermissionError("Sign-in failed")
         record = self._accounts().get(login_id)
         if not isinstance(record, dict):
@@ -139,8 +140,8 @@ def submit_first_account(path, login_id, departments_text, token, confirmation, 
 
 
 def _create_account_locked(path, login_id, token, departments, *, hours):
-    if not login_id.strip() or len(login_id) > 100 or len(token) < 24 or not departments or not 0 < hours <= DEFAULT_ACCOUNT_HOURS:
-        raise ValueError("Use a bounded login ID, token of at least 24 characters and explicit departments")
+    if not login_id.strip() or len(login_id) > 100 or not MIN_TOKEN_CHARS <= len(token) <= MAX_TOKEN_CHARS or not departments or not 0 < hours <= DEFAULT_ACCOUNT_HOURS:
+        raise ValueError("Use a bounded login ID, token of 24 to 512 characters and explicit departments")
     value = json.loads(path.read_text()) if path.exists() else {"version": 1, "users": {}}
     if value.get("version") != 1 or login_id in value["users"]:
         raise ValueError("Existing login IDs cannot be overwritten")
@@ -170,7 +171,7 @@ def main():
     parser.add_argument("--hours", type=float, default=DEFAULT_ACCOUNT_HOURS,
                         help="Account lifetime in hours (default: 960, or 40 days; maximum: 960)")
     args = parser.parse_args()
-    token = getpass.getpass("Choose an access token (at least 24 characters; not displayed): ")
+    token = getpass.getpass("Choose an access token (24 to 512 characters; not displayed): ")
     if token != getpass.getpass("Confirm access token: "):
         parser.error("Tokens differ")
     try:
