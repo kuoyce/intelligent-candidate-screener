@@ -538,27 +538,79 @@ def dev_command_problems(compose: str) -> list[str]:
     return streamlit_flag_problems(service_command(compose, "app"), "the app service's command")
 
 
-def healthcheck_disabled(compose: str, service: str) -> bool:
-    """Whether a service sets `healthcheck: disable: true` (block or flow mapping)."""
+def _healthcheck(compose: str, service: str) -> tuple[str, list[str]] | None:
+    """A service's own `healthcheck:` as (flow text, nested lines); None when it sets none."""
     lines = (_service_block(compose, service) or "").splitlines()
     for index, line in enumerate(lines):
         match = re.match(r"^(\s*)healthcheck:\s*(.*)$", line)
-        if not match:
-            continue
-        flow = _strip_comment(match.group(2))
-        entries = flow.strip("{}").split(",") if flow.startswith("{") else _block(lines, index)
-        for entry in entries:
-            key, _, value = _strip_comment(entry.strip()).partition(":")
-            if key.strip() == "disable" and _unquote(value.strip()).lower() == "true":
-                return True
+        if match:
+            return _strip_comment(match.group(2)), _block(lines, index)
+    return None
+
+
+def healthcheck_disabled(compose: str, service: str) -> bool:
+    """Whether a service sets `healthcheck: disable: true` (block or flow mapping)."""
+    found = _healthcheck(compose, service)
+    if found is None:
+        return False
+    flow, block = found
+    entries = re.split(r",(?![^\[]*\])", flow.strip("{}")) if flow.startswith("{") else block
+    for entry in entries:
+        key, _, value = _strip_comment(entry.strip()).partition(":")
+        if key.strip() == "disable" and _unquote(value.strip()).lower() == "true":
+            return True
     return False
 
 
-def healthcheck_problems(compose: str, services=("qwen", "tools")) -> list[str]:
-    """Services that run the app image without Streamlit disable its healthcheck, which probes
-    Streamlit: in app's network namespace (qwen) it would report the app's health."""
-    return [f"the {service} service keeps the image's Streamlit healthcheck (set healthcheck: "
-            "disable: true)" for service in services if not healthcheck_disabled(compose, service)]
+def healthcheck_test(compose: str, service: str) -> list[str] | None:
+    """A service's own healthcheck `test:` as words (a sequence, or a string as one word); None
+    when it sets none. Block or flow mapping."""
+    found = _healthcheck(compose, service)
+    if found is None:
+        return None
+    flow, block = found
+    if flow.startswith("{"):
+        match = re.search(r"\btest:\s*(\[[^\]]*\]|[^,}]+)", flow)
+        if not match:
+            return None
+        found_test = sequences("test: " + match.group(1), "test")
+        return found_test[0] if found_test else [_unquote(match.group(1))]
+    text = "\n".join(block)
+    found_test = sequences(text, "test")
+    if found_test:
+        return found_test[0]
+    match = re.search(r"^\s*test:\s*(\S.*)$", text, re.MULTILINE)
+    return [_unquote(_strip_comment(match.group(1)))] if match else None
+
+
+#: The qwen service's own check: the model server's model list on its loopback port.
+QWEN_PROBE = "127.0.0.1:8000/v1/models"
+#: The image's check: Streamlit's health endpoint on the app's port.
+STREAMLIT_PROBES = ("/_stcore/health", ":8503")
+
+
+def healthcheck_problems(compose: str) -> list[str]:
+    """tools runs no server: it disables the image's healthcheck, which probes Streamlit. qwen runs
+    the model server in app's network namespace, where the image's probe would report the app's
+    health: it has a check of its own, enabled, that asks the model server and not Streamlit."""
+    problems = []
+    if not healthcheck_disabled(compose, "tools"):
+        problems.append("the tools service keeps the image's Streamlit healthcheck (set healthcheck: "
+                        "disable: true)")
+    test = healthcheck_test(compose, "qwen")
+    words = " ".join(test or [])
+    if healthcheck_disabled(compose, "qwen") or (test and test[0].upper() == "NONE"):
+        problems.append("the qwen service disables its healthcheck (give it its own check of "
+                        f"{QWEN_PROBE})")
+    elif not test:
+        problems.append("the qwen service has no healthcheck test of its own, so it keeps the image's "
+                        f"Streamlit probe (add one asking {QWEN_PROBE})")
+    elif any(probe in words for probe in STREAMLIT_PROBES):
+        problems.append("the qwen service's healthcheck probes Streamlit, which reports the app's "
+                        "health, not the model server's")
+    elif QWEN_PROBE not in words:
+        problems.append(f"the qwen service's healthcheck does not ask the model server ({QWEN_PROBE})")
+    return problems
 
 
 # ------------------------------------------------------------------ the guide's settings table
@@ -646,9 +698,12 @@ def test_streamlit_runs_with_its_network_flags_in_the_image_and_the_dev_compose(
     assert service_command(read("compose.dev.yaml"), "app")[:2] == ["streamlit", "run"]
 
 
-def test_services_without_streamlit_disable_the_image_healthcheck():
-    assert healthcheck_problems(read("compose.yaml")) == []
-    assert not healthcheck_disabled(read("compose.yaml"), "app")
+def test_qwen_has_its_own_healthcheck_and_tools_disables_the_image_one():
+    compose = read("compose.yaml")
+    assert healthcheck_problems(compose) == []
+    assert not healthcheck_disabled(compose, "app")
+    # The check is found, so an empty parse cannot pass.
+    assert healthcheck_test(compose, "qwen")[:2] == ["CMD", "python"]
 
 
 def test_models_stage_copies_only_the_five_asset_files():
@@ -742,7 +797,8 @@ services:
     <<: *run
     network_mode: "service:app"
     healthcheck:
-      disable: true
+      test: ["CMD", "python", "-c", "open('http://127.0.0.1:8000/v1/models')"]
+      start_period: 120s
   tools:
     <<: *run
     volumes:
@@ -787,6 +843,11 @@ def test_every_check_passes_on_the_good_texts():
     assert data_folder_problems(GOOD_COMPOSE) == []
     assert tools_settings_problems(GOOD_COMPOSE) == []
     assert healthcheck_problems(GOOD_COMPOSE) == []
+    for other_form in ("    healthcheck:\n      test:\n        - CMD\n        - python\n"
+                       "        - http://127.0.0.1:8000/v1/models\n",
+                       '    healthcheck:\n      test: "CMD-SHELL python probe.py http://127.0.0.1:8000/v1/models"\n',
+                       "    healthcheck: {test: [CMD, python, 'http://127.0.0.1:8000/v1/models'], start_period: 120s}\n"):
+        assert healthcheck_problems(broken(GOOD_COMPOSE, (QWEN_HEALTHCHECK, other_form))) == []
     assert dev_command_problems(GOOD_DEV_COMPOSE) == []
     for other_form in ('    environment:\n      - SCREENER_DATAPACK_SOURCE=/source\n'
                        '      - "SCREENER_DATAPACK_DEST=/app/data"\n',
@@ -915,7 +976,9 @@ def test_ignore_and_attribute_checks_fail_on_broken_texts(case):
 PUBLISHED = '      - "127.0.0.1:${HIRING_DESK_PORT:-8503}:8503"\n'
 TOOLS_SETTINGS = "    environment:\n      SCREENER_DATAPACK_SOURCE: /source\n      SCREENER_DATAPACK_DEST: /app/data\n"
 APP_SERVICE = "  app:\n    <<: *run\n"
-QWEN_HEALTHCHECK = "    healthcheck:\n      disable: true\n"
+QWEN_HEALTHCHECK = ("    healthcheck:\n      test: [\"CMD\", \"python\", \"-c\", "
+                    "\"open('http://127.0.0.1:8000/v1/models')\"]\n      start_period: 120s\n")
+QWEN_PROBE_URL = "http://127.0.0.1:8000/v1/models"
 
 BROKEN_COMPOSE = {
     "port-on-all-interfaces": (published_port_problems, broken(GOOD_COMPOSE, (PUBLISHED, '      - "8503:8503"\n'))),
@@ -946,11 +1009,26 @@ BROKEN_COMPOSE = {
     "tools-settings-on-another-service": (tools_settings_problems, broken(
         GOOD_COMPOSE, (TOOLS_SETTINGS, ""), (APP_SERVICE, APP_SERVICE + TOOLS_SETTINGS))),
     # the image's healthcheck probes Streamlit
-    "qwen-keeps-the-healthcheck": (healthcheck_problems, broken(GOOD_COMPOSE, (QWEN_HEALTHCHECK, ""))),
-    "tools-keeps-the-healthcheck": (healthcheck_problems, broken(GOOD_COMPOSE, ("    healthcheck: {disable: true}\n", ""))),
-    "healthcheck-disable-false": (healthcheck_problems, broken(GOOD_COMPOSE, ("      disable: true\n", "      disable: false\n"))),
-    "healthcheck-disabled-on-app-not-qwen": (healthcheck_problems, broken(
+    "qwen-keeps-the-image-healthcheck": (healthcheck_problems, broken(GOOD_COMPOSE, (QWEN_HEALTHCHECK, ""))),
+    "qwen-disables-its-healthcheck": (healthcheck_problems, broken(
+        GOOD_COMPOSE, (QWEN_HEALTHCHECK, "    healthcheck:\n      disable: true\n"))),
+    "qwen-disables-in-flow-form": (healthcheck_problems, broken(
+        GOOD_COMPOSE, (QWEN_HEALTHCHECK, "    healthcheck: {disable: true}\n"))),
+    "qwen-check-plus-disable": (healthcheck_problems, broken(
+        GOOD_COMPOSE, ("      start_period: 120s\n", "      start_period: 120s\n      disable: true\n"))),
+    "qwen-test-NONE": (healthcheck_problems, broken(
+        GOOD_COMPOSE, (QWEN_HEALTHCHECK, '    healthcheck:\n      test: ["NONE"]\n'))),
+    "qwen-probes-streamlit": (healthcheck_problems, broken(
+        GOOD_COMPOSE, (QWEN_PROBE_URL, "http://127.0.0.1:8503/_stcore/health"))),
+    "qwen-probes-another-port": (healthcheck_problems, broken(
+        GOOD_COMPOSE, (QWEN_PROBE_URL, "http://127.0.0.1:8001/v1/models"))),
+    "qwen-healthcheck-without-test": (healthcheck_problems, broken(
+        GOOD_COMPOSE, (QWEN_HEALTHCHECK, "    healthcheck:\n      start_period: 120s\n"))),
+    "qwen-check-on-app-not-qwen": (healthcheck_problems, broken(
         GOOD_COMPOSE, (QWEN_HEALTHCHECK, ""), (APP_SERVICE, APP_SERVICE + QWEN_HEALTHCHECK))),
+    "tools-keeps-the-healthcheck": (healthcheck_problems, broken(GOOD_COMPOSE, ("    healthcheck: {disable: true}\n", ""))),
+    "tools-disable-false": (healthcheck_problems, broken(
+        GOOD_COMPOSE, ("    healthcheck: {disable: true}\n", "    healthcheck:\n      disable: false\n"))),
     # compose.dev.yaml's Streamlit command
     "dev-without-headless": (dev_command_problems, broken(GOOD_DEV_COMPOSE, ("      - --server.headless=true\n", ""))),
     "dev-without-serverAddress": (dev_command_problems, broken(

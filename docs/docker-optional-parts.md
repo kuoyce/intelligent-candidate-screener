@@ -14,7 +14,7 @@ a row; never edit an old row. The log started in the Docker plan
 | Part | In the Docker setup? | Size / cost | Review when |
 |---|---|---|---|
 | C2 reranker, D64 ("Refine the top 50") | **yes**, phase 1 | +1.2 GB image; minutes per new JD; peak RSS 4.6 GB | the reported system changes (D63/D64), or a host has < 8 GB for Docker |
-| Chat v2/v3 with Qwen2.5-0.5B (compose profile `llm`) | **yes**: weights in the image from phase 1, the service in phase 2 | ~1 GB image; one extra container | v3 passes its quality gates and becomes the default, or the chat model changes |
+| Chat v2/v3 with Qwen2.5-0.5B (compose profile `llm`) | **yes**: weights in the image from phase 1; the service with its own healthcheck in phase 2. Qwen composes v2 and v3 answers in the container (28 Oct 2026), but the app cannot yet save them (app issue, owner) | ~1 GB image; one extra container, 3.3 GB resident at peak | the app issue is fixed (then rerun V3's v2/v3 rows); v3 passes its quality gates and becomes the default; or the chat model changes |
 | In-app account creation (frontend) | **after phase 1**, on its own branch (`feat/account-create-screen`): a create screen only when no account exists, no administrator role | ~0.5 day with tests | when an administrator role or network exposure is wanted |
 | Qwen3.5-4B GGUF trial (D67) | no | +2.75 GB; needs a Linux llama.cpp build per architecture (code change in `llm/gguf_assets.py`) | the owner adopts the 4B model for v3 |
 | Research workbench image | no | dev tools plus research data in Docker | someone needs to run `--check`s or notebooks without a native setup |
@@ -38,3 +38,4 @@ a row; never edit an old row. The log started in the Docker plan
 | 2026-10-27 | Account-creation screen | no accounts → create screen, else sign-in; no administrator, no setup code; own branch | owner | simplest useful flow; the port is loopback-only |
 | 2026-10-27 | arm64 test under emulation | in v2 (S11): emulation registered for the test, removed after | owner ("continue with v2, test the Apple Silicon files"), read by the agent as permission | no arm64 machine is available |
 | 2026-10-27 | arm64 emulation | installed by the owner; the agent never installs or uninstalls it and reminds the owner to uninstall when v2 is done | owner | owner's instruction |
+| 2026-10-28 | Qwen2.5-0.5B, chat v2/v3 (`llm` profile) | keep; service verified, V3's v2/v3 rows **not passed** | agent (S9) | the `qwen` service starts, is healthy in 5.7 s and Qwen composes v2 and v3 answers in the container; the review store refuses to save any Qwen-composed answer (provenance key `output_token_budget` read as a credential), an app issue left to the owner |

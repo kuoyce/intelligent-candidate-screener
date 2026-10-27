@@ -24,9 +24,11 @@ verification row, such as V8); figures marked "28 Oct 2026" were taken while thi
 written or in its fresh-clone walkthrough (S8). Your machine and network will give other times. GB
 means 10^9 bytes.
 
-**Not verified yet:** Docker Desktop on Windows or macOS; any arm64 machine (Apple Silicon); chat
-v2/v3 with the `llm` profile (phase 2 of the plan); the PowerShell forms of the commands (every
-command here was run in bash).
+**Not verified yet:** Docker Desktop on Windows or macOS; any arm64 machine (Apple Silicon); the
+PowerShell forms of the commands (every command here was run in bash). **Chat v2/v3 with the `llm`
+profile:** the `qwen` service runs and Qwen composes v2 and v3 answers in the container (S9, 28 Oct
+2026), but the Hiring Desk cannot yet save a Qwen-composed answer (an app issue, not Docker;
+[§6](#chat-v2v3-the-llm-profile)).
 
 Contents: [1 What this is](#1-what-this-is) ·
 [2 Why Docker](#2-why-docker) ·
@@ -141,7 +143,7 @@ root and the app cannot write there.
 | Memory, building | The cold build peaked at 1.26 GB of anonymous memory; page cache filled the rest of the 10.3 GB the builder touched, and is reclaimable | Any machine that can run the app can build it. A build under a Docker Desktop memory limit was not measured |
 | Memory, D63 only (sign-in, CSV reviews, ranking new JDs) | Ranking through the inference API in the container (`inference --check`, V2): 2.36 GB at peak | Give Docker **at least 4 GB**: the measured peak plus room for Streamlit, whose process holds the same ranking parts. The app with D63 alone was not measured |
 | Memory, all of phase 1 (D63, D64, v1 chat with both model workers) | A scripted session in the container (V3): the app process 5.26 GB, the whole container 7.56 GB including page cache. One native process ranking two JDs with D63 and D64: 7.38 GB | Give Docker **at least 10 GB**: the container's 7.6 GB peak plus about a third, because one process alone reached 7.4 GB without the chat workers |
-| Memory, chat v2/v3 (Qwen, `llm` profile) | Not measured (phase 2) | Measure before relying on it: the Qwen service is a third model process |
+| Memory, chat v2/v3 (Qwen, `llm` profile) | The `qwen` container (S9): the model server peaked at 3.26-3.36 GB resident; the container at 2.66-3.82 GB including page cache. The app container in chat-only sessions (no ranking): 2.66-4.26 GB | Give Docker **about 3.5 GB more** than for phase 1 when the `llm` profile runs: the server's measured peak, rounded up. A session with D64 and Qwen together was not measured |
 | Disk | Image 7.98 GB. Build cache after a cold build 14.74 GB (the layers, plus a second copy of the weights and wheels in the cache mounts). Test image 4.59 GB. Data folder: 256.8 MB of inputs, plus the workspace (2.6 MB on the owner's machine) and caches (1.1 MB after the owner's browser session), both measured 28 Oct 2026 | **About 25 GB free** for the first build, **30 GB** if you also build the test image: the sum of the measured sizes, rounded up. It is an upper bound, because the image's layers can also appear in the build cache. Afterwards `docker builder prune` returns most of the build cache, at the price of downloading again at the next build |
 | Network | The cold build downloaded 4,382 MiB (4.60 GB): base images, Debian packages, Python wheels and model weights | Needed **only to build**. The app ran every step of the smoke test with the container's network disabled (V6) |
 | Time | Cold build: 3 min 23 s (V8, the measured run), and 5 min 28 s in an earlier run. The model downloads took 156 s of the measured run and 280 s of the earlier one | Your download speed decides it |
@@ -359,8 +361,8 @@ and `logs/` ([§12](#12-troubleshooting)).
 | Status and health | `docker compose ps` (`Up … (healthy)` when Streamlit answers, `(health: starting)` for the first seconds after a start). It lists running containers only: a stopped app appears in `docker compose ps -a` |
 | The app's output | `docker compose logs app`, or `docker compose logs -f --tail 100 app` to follow it (Ctrl+C stops following; the app keeps running) |
 
-The healthcheck asks Streamlit's `/_stcore/health` every 30 s and verifies nothing else; only the
-app has it (the `qwen` and `tools` services, which run no Streamlit, disable it). Nothing is
+The app's healthcheck asks Streamlit's `/_stcore/health` every 30 s and verifies nothing else. The
+`qwen` service has its own (below); `tools`, which runs no server, disables it. Nothing is
 checked when the container starts. The container has `restart: unless-stopped`: it comes back when
 Docker starts again, unless you stopped it.
 
@@ -378,6 +380,44 @@ What survives what:
 | Image rebuild, then `up -d` | kept | kept | kept | as above |
 | `create` (an update) | kept (replaced only with `--with-workspace --replace-workspace`) | emptied | replaced | — |
 | `purge --yes` | **deleted** | deleted | deleted | — |
+
+### Chat v2/v3: the `llm` profile
+
+Chat v2 (Qwen orders checked comparison relations, D65) and v3 (experimental Qwen prose, D66) need
+the `qwen` service, Qwen2.5-0.5B on the CPU, whose weights are already in the image. **Status
+(S9, 28 Oct 2026): blocked by an app issue.** Qwen composes the answers in the container, but the
+Hiring Desk refuses to save any answer Qwen composed: the review store treats the provenance field
+`output_token_budget` as a credential ("Credentials cannot be persisted"), so the page shows an
+error instead of the answer. Answers through the fallback save and show normally. Until the app is
+fixed, keep `HR_PORTAL_CHAT_VERSION=v1` (the default).
+
+| Task | Command |
+|---|---|
+| Start (set `HR_PORTAL_CHAT_VERSION=v2` or `v3` in `.env` first) | `docker compose --profile llm up -d` (`--wait` to return once both are healthy) |
+| Status | `docker compose --profile llm ps`: `qwen` shows `(healthy)` once the model has loaded |
+| Stop only Qwen | `docker compose --profile llm stop qwen` |
+| Stop everything | `docker compose --profile llm down` (name the profile so `qwen` is included) |
+
+- **Healthcheck.** `qwen` asks its own server, `GET http://127.0.0.1:8000/v1/models`, every 30 s,
+  with 120 s allowed for the model to load. The server answers only after loading, so `(healthy)`
+  means Qwen can answer. Measured: the model loaded in 3-4 s and `qwen` was healthy 5.7 s after
+  `up` (S9).
+- **Memory.** The model server peaked at 3.3 GB resident (S9); see [§3](#3-requirements).
+- **Speed.** A turn composed by Qwen took 2-5 s (v2) and 3.4-5.3 s (v3) on the owner's machine;
+  the model's share was 1.5-3.5 s. Both versions give up after 30 s and answer through the fallback.
+- **The restart caveat.** `qwen` uses the app container's network (both insist on loopback).
+  `docker compose restart app` restarts `qwen` with it (S9). After the app restarts any other way
+  (its restart policy, Docker restarting, a recreate; not tested), restart Qwen:
+  `docker compose --profile llm restart qwen`. `qwen` has no restart policy of its own.
+- **The app does not wait for Qwen.** It starts alone; while `qwen` is stopped or loading, v2 and
+  v3 answer through their fallback (S9: every turn answered, in under 4 s).
+- **Qwen or fallback?** Open **Answer details** under a v3 answer: `mode` is `qwen_prose` and
+  `model` is `Qwen/Qwen2.5-0.5B-Instruct` when Qwen wrote it; `qwen_fallback`, with
+  `provenance.fallback_reason` (`provider_unavailable` when the service is down), when the
+  application did. A v2 answer's caption reads "Qwen selected validated comparison points" when
+  Qwen composed it and "Qwen unavailable or rejected · application comparison" for the fallback.
+  The fallback is also used when Qwen answers but its output fails the application's checks (S9
+  saw `unsupported_paraphrase` and `qualification_omission` in v3): that is expected, not a fault.
 
 ## 7. Accounts
 
@@ -458,7 +498,7 @@ change: no" means that only the default is built, tested and verified.
 | Name | Docker default | Effect | Safe to change |
 |---|---|---|---|
 | `HIRING_DESK_PORT` | `8503` | The host port, published on 127.0.0.1 only. The app's log still prints `http://localhost:8503` (the container's port) | Yes: any free port; then open `http://localhost:<port>` |
-| `HR_PORTAL_CHAT_VERSION` | `v1` | Passed to the app. `v1`: extractive answers (RoBERTa-SQuAD2) and entity comparisons (GLiNER-medium). `v2`: Qwen orders checked comparison relations (D65). `v3`: experimental Qwen prose and JD requirement search (D66). Any other value behaves as `v1`. `v2` and `v3` need the `llm` profile (`docker compose --profile llm up -d`) | `v1`: yes. `v2`/`v3`: wired, not yet verified in Docker (phase 2) |
+| `HR_PORTAL_CHAT_VERSION` | `v1` | Passed to the app. `v1`: extractive answers (RoBERTa-SQuAD2) and entity comparisons (GLiNER-medium). `v2`: Qwen orders checked comparison relations (D65). `v3`: experimental Qwen prose and JD requirement search (D66). Any other value behaves as `v1`. `v2` and `v3` need the `llm` profile (`docker compose --profile llm up -d`) | `v1`: yes. `v2`/`v3`: not yet: Qwen composes in Docker, but the app cannot save its answers ([§6](#chat-v2v3-the-llm-profile)) |
 | `HOST_UID` | `1000` | Linux: the user id the containers run as, so files written into `data/datapack/` and `logs/` stay yours. Docker Desktop on macOS and Windows maps owners itself | Yes: set it to `id -u` |
 | `HOST_GID` | `1000` | Linux: the group id the containers run as | Yes: set it to `id -g` |
 | `SCREENER_DATA_SOURCE` | `./data` | `tools` service only: the host folder mounted read-only at `/source`, which `create` copies from. Set it to a received copy, or to a full `data/` without symbolic links that point outside it | Yes |
@@ -796,9 +836,11 @@ does this role require?" gets an answer where "What degree is required in the JD
 the same natively). Rephrase the question.
 
 **Qwen does not answer (chat v2/v3).** v2 and v3 need the `qwen` service: `docker compose --profile
-llm up -d`. It shares the app container's network namespace (both insist on loopback), so after
-`app` restarts or is recreated, restart it too: `docker compose --profile llm restart qwen`. Phase
-2 of the plan has not verified this yet; until then, expect v2/v3 to show their fallback answers.
+llm up -d`, then `docker compose --profile llm ps` should show `qwen` `(healthy)`. It shares the app
+container's network namespace (both insist on loopback), so after the app restarts other than by
+`docker compose restart app`, restart it too: `docker compose --profile llm restart qwen`. If the
+page shows "Credentials cannot be persisted" after a v2/v3 question, Qwen did answer: that is the
+app issue in [§6](#chat-v2v3-the-llm-profile); use v1.
 
 **The account command cannot hide the token** (Git Bash on Windows, or no terminal). With Docker
 Engine inside WSL2, run it in a WSL2 terminal (for example in Windows Terminal); with Docker Desktop,
@@ -916,8 +958,9 @@ expects and the folder lacks.
 - **The frontend is work in progress**: 17 frontend tests fail ([§11](#11-tests)), and two app
   behaviours stand (the report and mail failure for 53 CSV candidates, and C2's thread count;
   [§12](#12-troubleshooting)).
-- **Chat v3 is experimental**, and chat v2/v3 with the `llm` profile are not yet verified in Docker
-  (phase 2 of the plan).
+- **Chat v3 is experimental**, and chat v2/v3 cannot yet be used in the Hiring Desk: Qwen composes
+  in the container, but the app refuses to save its answers (an app issue found in S9;
+  [§6](#chat-v2v3-the-llm-profile)).
 - **Accounts are managed by command** until the in-app first-account screen ships; there is no
   renew, disable or reset command ([§7](#7-accounts)).
 - **Parts not built**: Qwen3.5-4B, a research workbench image and the ONNX embedding back end; see
@@ -932,10 +975,6 @@ expects and the folder lacks.
 - **One image name per machine.** Every clone and worktree builds and runs
   `candidate-screener/hiring-desk:local` (and `:test`), so the last build wins; rebuild in the
   checkout you run from ([§10](#10-releasing-an-update-developer)).
-- **The `qwen` service has no healthcheck.** The image's healthcheck asks Streamlit, which `qwen`
-  does not run, and in the app's network namespace it would report the app's health, so
-  `compose.yaml` disables it for `qwen` (and for `tools`). Phase 2 (S9) should give `qwen` a check
-  of its own.
 - **The data sources C1 (Kaggle PDFs) and ESCO (D1) are not included**; the app does not read them.
 - **No CI** (Q22). The tests and checks run when someone runs them.
 - **The checks are native.** `checks --affected` and `inference --freeze` need `.git`, which the

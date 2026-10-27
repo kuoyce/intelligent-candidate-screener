@@ -1,6 +1,6 @@
 # The Hiring Desk in Docker (plan 2026-10-27-docker, 01-design-spec.md §5 and §6). Settings come
-# from `.env` (git-ignored; every one is listed in `.env.example`). The healthcheck is in the
-# Dockerfile, for app; qwen and tools disable it. Contract checks: tests/test_docker_contract.py.
+# from `.env` (git-ignored; every one is listed in `.env.example`). App's healthcheck is in the
+# Dockerfile; qwen has its own below; tools disables it. Contract checks: tests/test_docker_contract.py.
 #
 #   docker compose build                                      # the app image, weights included
 #   docker compose up -d                                      # http://localhost:8503
@@ -8,8 +8,11 @@
 #   docker compose --profile test run --rm test               # the test suite: no network, no data
 #   docker compose --profile llm up -d                        # phase 2: Qwen2.5-0.5B for chat v2/v3
 #
-# The qwen service shares the app container's network namespace (both insist on loopback), so
-# restarting app requires restarting qwen.
+# The qwen service shares the app container's network namespace (both insist on loopback).
+# `docker compose restart app` restarts qwen with it (S9). After app restarts any other way (its
+# restart policy, a Docker restart, a recreate; untested), run `docker compose --profile llm restart qwen`.
+# app depends on nothing: it starts alone, and v2/v3 answer through their marked fallbacks while
+# qwen is not running.
 
 x-run: &run
   image: candidate-screener/hiring-desk:local
@@ -54,10 +57,16 @@ services:
       - candidate_screener.llm.local_server
       - --manifest
       - /opt/models/chatbot/qwen/manifest.json
-    # The image's healthcheck probes Streamlit, which this service does not run; in app's network
-    # namespace it would report the app's health. Phase 2 (S9) gives qwen a check of its own.
+    # Its own check, not the image's Streamlit probe (in app's network namespace that would report
+    # the app's health): the server answers GET /v1/models once the model has loaded. No proxy for
+    # this loopback request. start_period leaves room for the model load on a slow machine (S9: loaded
+    # in 3-4 s, healthy 5.7 s after the start).
     healthcheck:
-      disable: true
+      test: ["CMD", "python", "-c", "import urllib.request as r; r.build_opener(r.ProxyHandler({})).open('http://127.0.0.1:8000/v1/models', timeout=5).read()"]
+      interval: 30s
+      timeout: 10s
+      start_period: 120s
+      retries: 3
     stop_grace_period: 30s
 
   tools:

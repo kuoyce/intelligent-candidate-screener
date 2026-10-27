@@ -64,8 +64,8 @@ needs the image, so it runs after the Dockerfile; the cheap measurements (1b-1c)
 | S6 | Verification V1-V9, V11 (V10 deferred) | parent | 0.5 day / V8 cold build est. 20-40 min, V2 ~15 min | every row recorded; pushed | **done** (record below; V2b and V4 settled by the owner, 28 Oct 2026) |
 | S7 | Docs: `docs/docker.md`, README, AGENTS.md, `data/README.md`, the workspace card, `docs/project-overview.md` §7, D68, `docs/docker-optional-parts.md` | sub-agent | 0.25-0.5 day | contract test passes; pushed | **done** (record below) |
 | S8 | Independent review; fixes; `uv run pytest`; the warm affected check run (long job); phase 1 marked complete | reviewer sub-agent; parent | 0.25 day / ~70 min | review findings closed; checks pass; pushed | **done** (phase 1 complete, 28 Oct 2026) |
-| S9 | Phase 2: the `llm` profile (Qwen2.5-0.5B service) and V3's v2/v3 rows | parent or sub-agent | 0.25 day | v2 and v3 answers composed by Qwen in the container; pushed | **in progress** (sub-agent; started 28 Oct 2026) |
-| S10 | Account-creation screen, on its **own branch** (below) | sub-agent | 0.5 day | tests pass; branch pushed; merge left to the owner | **in progress** (sub-agent, `feat/account-create-screen`; started 28 Oct 2026) |
+| S9 | Phase 2: the `llm` profile (Qwen2.5-0.5B service) and V3's v2/v3 rows | parent or sub-agent | 0.25 day | v2 and v3 answers composed by Qwen in the container; pushed | **blocked (owner)**: the service, healthcheck and fallback pass; Qwen composes v2 and v3 in the container, but the app cannot save a Qwen-composed answer (app issue; record below) |
+| S10 | Account-creation screen, on its **own branch** (below) | sub-agent | 0.5 day | tests pass; branch pushed; merge left to the owner | **done** `78de261`, `0350af7` on `feat/account-create-screen` (record below) |
 | S11 | Apple Silicon (arm64) test under emulation (below) | parent | 0.25 day / several hours of emulated runs | V10 recorded against its registered bar; emulation removed; pushed | pending |
 
 ## After v1: continue with v2 without waiting (owner, 27 Oct 2026)
@@ -397,3 +397,88 @@ Open items for the owner (none blocks phase 1):
   native runs (S4); the account command prints "at least24 characters" and a raw traceback for a
   short token (`app/portal_auth.py`).
 - The arm64 emulation the owner installed stays until S11; the owner uninstalls it when v2 is done.
+
+### S9: the `llm` profile (28 Oct 2026; sub-agent)
+
+Image `candidate-screener/hiring-desk:local` as built on 28 Oct 2026 07:25 (`sha256:548f06b3…`, the
+code of `80fca70`, the last code change); **not rebuilt** (no Dockerfile change was needed). Logs:
+`logs/docker/s9-*.log` and `s9-*/status.json` (git-ignored); the first attempt, whose invented ids
+the store rejected (a script error, `synthetic-cv-s9-1` is not an accepted identity), is kept in
+`logs/docker/s9-attempt1/`: no chat results from it; its load and memory figures are included in
+the ranges below.
+
+**Files.** `compose.yaml`: `qwen` gets its own healthcheck (`python` urllib, no proxy,
+`GET http://127.0.0.1:8000/v1/models`, interval 30 s, timeout 10 s, start period 120 s, 3 retries)
+in place of `disable: true`; the restart caveat is stated as measured. `app` still depends on
+nothing. `tests/test_docker_contract.py`: `healthcheck_problems` now requires `tools` to disable the
+image's check and `qwen` to have an enabled check of its own that asks `127.0.0.1:8000/v1/models`
+and not Streamlit; new `healthcheck_test` parser (block or flow mapping, sequence or string `test`);
+three good forms and 11 healthcheck broken cases, 7 of them new (`qwen` disabled in block or
+flow form, a check plus `disable: true`, `test: ["NONE"]`, a Streamlit probe, another port, no `test`).
+Evidence (`logs/s9-contract-tests.log`): the new rule fails on the old `compose.yaml` (`fe3b660`)
+and the committed-file test fails against it; every broken case is caught; three of them
+(disable in either form, check plus disable) passed the old rule. `docs/docker.md` (§3 memory, §6
+the new "Chat v2/v3: the `llm` profile", the configuration table, §12, §15) and
+`docs/docker-optional-parts.md` updated.
+
+**Method** (S6's V3 approach): compose project `hd-s9`, host port 8514, an override mounting a
+native `handover` copy of the owner's folder (owner's `data/datapack` unchanged: paths, sizes,
+times, modes) with an empty workspace and a scratch `logs/`; an account created in the copy; an
+invented review of 10 CVs (the v2/v3 smoke fixtures' wording) built in memory; the conversation
+service attached by `portal_workspace.attach_services` and driven by `controller.chat` inside the
+app container (`docker compose exec -e HR_PORTAL_CHAT_VERSION=v2|v3`). Then `--direct`: the same
+service call `controller.chat` makes, with context and history kept in memory instead of saved,
+recording whether the store would accept each turn. Torn down; the scratch copy removed.
+
+| Item | Result |
+|---|---|
+| `app` alone | healthy in 7.5 s; port 8000 refused before `qwen` (the app starts alone) |
+| `qwen` up | healthy 5.7 s after `up` (`up --wait`); the server's own load 3.0 s (4.3 s in attempt 1); `GET /v1/models` from the app container returns `Qwen/Qwen2.5-0.5B-Instruct` @ `7ae5576…`, torch 2.2.2+cpu, transformers 4.48.3, float32 |
+| Composer configured | v2 `IsolatedConversationComposer`, v3 `IsolatedProseComposer`; model `Qwen/Qwen2.5-0.5B-Instruct`, revision `7ae5576…`, `http://127.0.0.1:8000/v1`, deadline 30 s (from the image's manifest, no setting) |
+| v2, Qwen composing (`--direct`) | **4/4 turns `generation_mode=qwen_answer_plan`**, `model=Qwen/Qwen2.5-0.5B-Instruct`, provenance `prompt_version=hiring-desk-v2-answer-plan-3`, runtime `local Transformers service`; turn 2.0-5.2 s, of which Qwen 1.5-3.5 s; 425-866 input tokens |
+| v3, Qwen composing (`--direct`) | **2/4 turns `generation_mode=qwen_prose`** ("What degree does candidate 1 have?", "Compare candidates 1 and 2 on qualifications"), `model=Qwen/Qwen2.5-0.5B-Instruct`, provenance `composer=qwen`, `prompt_version=hiring-desk-v3-grounded-prose-4`; turn 3.4-5.3 s, Qwen 2.1-2.9 s. The other two: Qwen answered, the application rejected the wording (`qwen_fallback`, `unsupported_paraphrase`), as designed |
+| **v2/v3 through `controller.chat`** (the portal's path) | **every Qwen-composed turn raises `ValueError: Credentials cannot be persisted`** when the review is saved (`portal_store._payload`); clarifications and fallback turns save. Blocking, below |
+| Fallback (`qwen` stopped) | port 8000 refused; v2 4/4 and v3 4/4 turns answered and saved, `generation_mode=qwen_fallback`, `fallback_reason=provider_unavailable`, `model=None`; 0.6-3.7 s per turn |
+| Restart caveat | `docker compose restart app` restarted `qwen` too (compose adds `depends_on: app {restart: true}` for `network_mode: service:app`); `/v1/models` answered afterwards; `restart qwen` healthy again in 7.9 s. Not tested: the restart policy, a Docker restart, a recreate of `app` alone |
+| Memory | `qwen` server peak resident (VmHWM) 3.18-3.28 GB, by its own report 3.26-3.36 GB; `qwen` container cgroup peak 2.66-3.82 GB including page cache; `docker stats` 2.4-3.2 GiB at the end. App container cgroup peak in these chat-only sessions 2.66-4.26 GB |
+
+**Blocking (owner): Qwen-composed answers cannot be saved (app issue, not Docker).** Both
+composers put `output_token_budget` in `generation_provenance` (`llm/conversation_qwen.py`,
+`llm/conversation_prose.py`); the store's credential rule in `app/portal_store.py` (`_payload`,
+key regex `(^|_)(token|password|secret|credential|authorization|cookie)(_|$)`) refuses any key with a
+`_token_` segment, so `controller.chat` raises before saving and the portal (`portal_ui.py` catches
+only `PermissionError`, `StaleReview`, `OSError`, `sqlite3.Error`, `RevisionConflict`) shows an
+exception instead of the answer. Reproduced natively without Docker:
+`_payload({"generation_provenance": {"output_token_budget": 1}})` raises; `input_tokens` is
+accepted. The same code is on `feat/hiring-desk-v3-inference-prompt` (`e530659`) and
+`feat/account-create-screen`. Not patched (no `app/` change on this branch; a provenance key rename
+changes persisted records): a fix is the owner's decision, either renaming the key in the two
+composers or narrowing the store's rule, with a test through `controller.chat` and a real-format
+provenance. After the fix: rerun V3's v2/v3 rows through `controller.chat` (the scripts are
+session-local; a few minutes).
+
+**Deviations.** The Status cell is "blocked", not "done": the stage's "done when" is not met.
+The guide tells operators to keep v1 until the fix.
+
+### S10: the first-account screen (28 Oct 2026; sub-agent, reviewed by the parent)
+
+- Branch `feat/account-create-screen` off `e530659` (still the head of
+  `feat/hiring-desk-v3-inference-prompt`): `78de261`, then `0350af7` for the owner's two follow-ups.
+  Not merged (the owner's call). No file on `feat/docker-v1` changed.
+- `portal_auth.py`: the lock moved into `_account_lock` (shared, not duplicated);
+  `create_first_account` checks `has_accounts` under that lock and raises `AccountsExist`;
+  `has_accounts` fails closed (an unreadable or unknown file counts as having accounts, so a broken
+  file never reopens the screen); `submit_first_account` is the form's service (token confirmation,
+  departments, days to hours). `portal_ui.py`: the form shows only while no account exists; success
+  returns to the sign-in screen (no automatic sign-in). Accepted risk recorded in both docstrings.
+- Owner, 28 Oct 2026: the form pre-fills Departments with `benchmark`; account creation (command and
+  form) refuses tokens over 512 characters, the sign-in limit (`MIN_TOKEN_CHARS, MAX_TOKEN_CHARS =
+  24, 512`, one constant for both). The command's "at least24" now reads "24 to 512 characters", and
+  a refused token gives a `parser.error` instead of a traceback.
+- Tests: 14 new (backend, a 4-thread race behind a barrier, bad tokens, the 512/513 boundary,
+  AppTest screens), failing first against the unchanged code; moving the emptiness check outside
+  the lock makes the race test fail. Full suite on the branch: the same 17 failing ids as at
+  `e530659`.
+- When it merges: `docs/docker.md` §4 step 6 and §7 change (first account from the browser; the
+  token rule and error wording).
+
