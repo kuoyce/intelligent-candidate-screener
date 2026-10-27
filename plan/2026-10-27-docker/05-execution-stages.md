@@ -63,7 +63,7 @@ needs the image, so it runs after the Dockerfile; the cheap measurements (1b-1c)
 | S5 | `candidate_screener.datapack` (`create`, `--with-workspace`, `--source`, `verify`, `handover`, `purge`) and tests; then the owner's `create --with-workspace` | sub-agent; parent runs `create` | 0.5 day / minutes | tests pass; `data/datapack/` verified; pushed | **done** `4e8fb6d` (record below) |
 | S6 | Verification V1-V9, V11 (V10 deferred) | parent | 0.5 day / V8 cold build est. 20-40 min, V2 ~15 min | every row recorded; pushed | **done** (record below; V2b and V4 settled by the owner, 28 Oct 2026) |
 | S7 | Docs: `docs/docker.md`, README, AGENTS.md, `data/README.md`, the workspace card, `docs/project-overview.md` §7, D68, `docs/docker-optional-parts.md` | sub-agent | 0.25-0.5 day | contract test passes; pushed | **done** (record below) |
-| S8 | Independent review; fixes; `uv run pytest`; the warm affected check run (long job); phase 1 marked complete | reviewer sub-agent; parent | 0.25 day / ~70 min | review findings closed; checks pass; pushed | **in progress** |
+| S8 | Independent review; fixes; `uv run pytest`; the warm affected check run (long job); phase 1 marked complete | reviewer sub-agent; parent | 0.25 day / ~70 min | review findings closed; checks pass; pushed | **done** (phase 1 complete, 28 Oct 2026) |
 | S9 | Phase 2: the `llm` profile (Qwen2.5-0.5B service) and V3's v2/v3 rows | parent or sub-agent | 0.25 day | v2 and v3 answers composed by Qwen in the container; pushed | pending |
 | S10 | Account-creation screen, on its **own branch** (below) | sub-agent | 0.5 day | tests pass; branch pushed; merge left to the owner | pending |
 | S11 | Apple Silicon (arm64) test under emulation (below) | parent | 0.25 day / several hours of emulated runs | V10 recorded against its registered bar; emulation removed; pushed | pending |
@@ -357,3 +357,39 @@ only this record), not at the branch's base commit `e530659` as the README's V1 
   (`logs/docker/s8-checks.log`). Cold skipped (Q17).
 - **Full suite** after the fixes (`logs/pytest-s8.log`): 17 failed (the known frontend ids: 11
   `test_portal_extractive.py`, 3 `test_portal_ui.py`, 3 `test_portal_v1_ui.py`), 2285 passed.
+- **Fresh-clone walkthrough of the guide's §4** (the must-fix; 28 Oct 2026, a sub-agent, bash on
+  the owner's machine): `git clone` of the worktree at `80fca70` into a scratch folder, a native
+  `handover` into its `data/datapack/` (the owner's folder unchanged: paths, sizes, times, modes),
+  `HIRING_DESK_PORT=8523` in `.env`; every §4 command then run as written, in the clone. All steps
+  passed: `docker compose build` 8.0 s (the machine's build cache already held the dependency and
+  model layers), ending `✔ app  Built`; `tools verify` 2.6 s, `OK: 24 inputs (256.8 MB) …`, workspace
+  none; the account command, typed at both hidden prompts through a pseudo-terminal by a script,
+  2.5 s, nothing echoed (a mismatch or a short token created nothing); `up -d` healthy after
+  6.8 s (`up -d --wait`: 6.2 s); `/_stcore/health` `ok` and `/` served on 8523; sign-in by
+  `AppTest` inside the container (the sign-in screen, then `Job 1 of 60`, three CSV cards, the first
+  review open). §6 `ps`, `logs`, `stop`, `up -d`, `restart app` and `down` behaved as written; the
+  account survived `stop`/`up -d`. Not covered: the real browser (V4, by the owner), a cold build,
+  Windows, macOS, PowerShell, typing by hand. Fixed in the guide: §4 step 4 (the check mark),
+  step 6 (the two prompts, no echo, the two failures), step 7 (`(health: starting)` first;
+  `--wait`), step 8 (a changed port; the log still prints 8503); §6 (`ps -a` for a stopped app,
+  Ctrl+C, host logs appear on first use); §7 (the prompt typed by script); §12 (`bind: address
+  already in use` when a host program holds the port). App wording left as is: the account
+  command's "at least24 characters" (`portal_auth.py`).
+
+### Phase 1 complete (28 Oct 2026)
+
+S0-S8 are done: the image builds and runs the Hiring Desk on the data folder, every verification row
+passes (V2b under the owner's 5 dp bar, V4 by the owner, V10 deferred to S11), the 32 affected
+checks pass warm (cold skipped, Q17), the review's findings are fixed and the guide was walked
+through on a fresh clone. **v2 (S9-S11) is paused until the owner resumes it** (owner, 28 Oct 2026).
+
+Open items for the owner (none blocks phase 1):
+- A person new to the project following the guide on Windows (Docker Desktop, PowerShell) and on
+  macOS (Intel, Apple Silicon); a cold build on a machine with an empty build cache; a Linux user
+  not yet in the `docker` group. A folder copied into WSL2 with Explorer may carry
+  `…:Zone.Identifier` files, which `verify` would report as unexpected (untested).
+- App behaviour found on the way (not Docker; not changed): report/mail fails for 53 of the 600
+  CSV candidates (S4); the C2 loader's process-wide thread setting (S6); onnxruntime telemetry in
+  native runs (S4); the account command prints "at least24 characters" and a raw traceback for a
+  short token (`app/portal_auth.py`).
+- The arm64 emulation the owner installed stays until S11; the owner uninstalls it when v2 is done.

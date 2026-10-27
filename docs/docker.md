@@ -17,11 +17,12 @@ It does not describe the system itself (what it ranks, how, and how well): for t
 the owner's machine on 27-28 Oct 2026: Windows with WSL2 (Ubuntu 24.04), 22 cores, 15.3 GiB of
 memory, Docker Engine 27.5.1 and Compose 2.32.4 installed inside WSL2 (not Docker Desktop),
 amd64. The records are the plan's stage log
-([`05-execution-stages.md`](../plan/2026-10-27-docker/05-execution-stages.md), stages S3-S6) and
+([`05-execution-stages.md`](../plan/2026-10-27-docker/05-execution-stages.md), stages S3-S8) and
 the S6 verification results (`logs/docker/s6-results.md` on that machine; `logs/` is
 git-ignored). Figures without a date are from 27 Oct 2026 (stages S3-S6, named by their
 verification row, such as V8); figures marked "28 Oct 2026" were taken while this guide was
-written. Your machine and network will give other times. GB means 10^9 bytes.
+written or in its fresh-clone walkthrough (S8). Your machine and network will give other times. GB
+means 10^9 bytes.
 
 **Not verified yet:** Docker Desktop on Windows or macOS; any arm64 machine (Apple Silicon); chat
 v2/v3 with the `llm` profile (phase 2 of the plan); the PowerShell forms of the commands (every
@@ -194,7 +195,7 @@ bash, zsh and PowerShell.
    docker compose build
    ```
 
-   The output ends with ` app  Built`. From an empty cache this took 3 min 23 s (5 min 28 s in an
+   The output ends with `✔ app  Built`. From an empty cache this took 3 min 23 s (5 min 28 s in an
    earlier run) and downloaded 4.60 GB; the image is 7.98 GB. With nothing changed, a rebuild takes
    a few seconds (5.5 s). Build in the clone you run the app from: the image's name is shared by
    every clone on the machine ([§10](#10-releasing-an-update-developer)).
@@ -215,12 +216,15 @@ bash, zsh and PowerShell.
    docker compose run --rm app python -m candidate_screener.app.portal_auth --create-local-user reviewer --department benchmark
    ```
 
-   Replace `reviewer` with your login ID. The command asks twice, hidden, for an access token of
-   at least 24 characters, then prints `Local reviewer account created. This is local token
-   authentication, not company SSO.` (about 2 s, 28 Oct 2026). On Windows, run it where the token
-   can be hidden: with Docker Engine inside WSL2 (the verified set-up), a WSL2 terminal, for example
-   in Windows Terminal; with Docker Desktop, any terminal where `docker` works (PowerShell or a WSL2
-   terminal). Not Git Bash.
+   Replace `reviewer` with your login ID. The command asks twice for an access token of at least
+   24 characters, first `Choose an access token (…; not displayed):`, then `Confirm access token:`.
+   Nothing appears as you type; press Enter after each. It then prints `Local reviewer account
+   created. This is local token authentication, not company SSO.` (about 2 s, 28 Oct 2026). If the
+   two entries differ (`error: Tokens differ`) or the token is too short (a traceback ending in
+   `ValueError: Use a bounded login ID, token of …`), nothing is created: run the command again.
+   On Windows, run it where the token can be hidden: with Docker Engine inside WSL2 (the verified
+   set-up), a WSL2 terminal, for example in Windows Terminal; with Docker Desktop, any terminal
+   where `docker` works (PowerShell or a WSL2 terminal). Not Git Bash.
 
 7. **Start the app.**
 
@@ -229,10 +233,16 @@ bash, zsh and PowerShell.
    docker compose ps
    ```
 
-   `docker compose ps` shows the app as `Up … (healthy)` after about 8 s (7.6 s, 27 Oct 2026).
+   Right after `up -d`, `docker compose ps` shows the app as `Up … (health: starting)`. Run it again
+   after a few seconds: it shows `Up … (healthy)` after about 7 s (7.6 s on 27 Oct 2026, 6.8 s on
+   28 Oct 2026). Alternatively, `docker compose up -d --wait` returns only once the app is healthy
+   (6.2 s, 28 Oct 2026). If `up` fails with `address already in use` or `port is already
+   allocated`, something else holds the port: see [§12](#12-troubleshooting).
 
 8. **Open http://localhost:8503 and sign in** with your login ID and token, on the page headed
-   "Local reviewer sign-in". Ranking a new JD (D63) took 35-43 s with empty caches and 14 s once
+   "Local reviewer sign-in". If you changed `HIRING_DESK_PORT` in step 3, open
+   `http://localhost:<that port>` instead; the app's log still prints `http://localhost:8503`, its
+   port inside the container. Ranking a new JD (D63) took 35-43 s with empty caches and 14 s once
    they were filled. "Refine the top 50 with the reranker" (D64) took 94-121 s for 50 new
    candidate pairs; press **Refresh ranking status** to collect it (27 Oct 2026).
 
@@ -346,15 +356,16 @@ and `logs/` ([§12](#12-troubleshooting)).
 | Stop, keeping the container | `docker compose stop` |
 | Stop and remove the container and its network (the data folder and the image stay) | `docker compose down` |
 | Restart | `docker compose restart app` |
-| Status and health | `docker compose ps` (`Up … (healthy)` when Streamlit answers) |
-| The app's output | `docker compose logs app`, or `docker compose logs -f --tail 100 app` to follow it |
+| Status and health | `docker compose ps` (`Up … (healthy)` when Streamlit answers, `(health: starting)` for the first seconds after a start). It lists running containers only: a stopped app appears in `docker compose ps -a` |
+| The app's output | `docker compose logs app`, or `docker compose logs -f --tail 100 app` to follow it (Ctrl+C stops following; the app keeps running) |
 
 The healthcheck asks Streamlit's `/_stcore/health` every 30 s and verifies nothing else; only the
 app has it (the `qwen` and `tools` services, which run no Streamlit, disable it). Nothing is
 checked when the container starts. The container has `restart: unless-stopped`: it comes back when
 Docker starts again, unless you stopped it.
 
-Logs on the host, in `logs/`: `hiring-desk-adapter.log` (the ranking adapter; failures are logged
+Logs on the host, in `logs/`, each created the first time its part runs (after the quick start,
+`logs/` is still empty): `hiring-desk-adapter.log` (the ranking adapter; failures are logged
 without document text) and `medium-worker-*.log` (the GLiNER-medium worker). The RoBERTa worker's
 error output is discarded. Times in the app's alerts and in its logs are in UTC (the container's
 clock); ranking uses the pool's fixed reference date, so it does not depend on the time zone.
@@ -388,9 +399,11 @@ What survives what:
   terminal where `docker` works, PowerShell or a WSL2 terminal. Not Git Bash (mintty), which cannot
   show it. Without a terminal, Python warns `GetPassWarning: Can not control
   echo on the terminal` and `Password input may be echoed`: stop with Ctrl+C and run the command
-  from a real terminal. (On 28 Oct 2026 the command was run in the container with its input piped,
-  which printed those warnings and created the account in a throw-away file; typing at the hidden
-  prompt in a container was not part of the verification.)
+  from a real terminal. (On 28 Oct 2026 the command was first run in the container with its input
+  piped, which printed those warnings and created the account in a throw-away file. In the
+  fresh-clone walkthrough the same day, a script typed the token at both prompts through a
+  pseudo-terminal, in bash on the owner's WSL2 machine: nothing typed was shown, and the account was
+  created. Typing by hand, and PowerShell, were not checked.)
 - **Departments.** Every review the Hiring Desk opens today (the CSV-backed ones and new JDs)
   belongs to the department `benchmark`, so an account needs `--department benchmark` to open
   them. `--department` can be repeated; other names open nothing in the current app.
@@ -753,9 +766,11 @@ for one build. A firewall that re-signs TLS with its own certificate authority n
 certificate inside the image for apt, uv and the Hugging Face downloads: a Dockerfile change, not
 made. The app itself needs no network. Not tested.
 
-**Port already in use** (`Bind for 127.0.0.1:8503 failed: port is already allocated`). Set
-`HIRING_DESK_PORT=8504` (or another free port) in `.env`, run `docker compose up -d` and open
-`http://localhost:8504`.
+**Port already in use.** `docker compose up -d` fails with `… listen tcp4 127.0.0.1:8503: bind:
+address already in use` when another program, such as a native Hiring Desk, holds the port (seen
+28 Oct 2026), or with `Bind for 127.0.0.1:8503 failed: port is already allocated` when another
+container publishes it. Set `HIRING_DESK_PORT=8504` (or another free port) in `.env`, run
+`docker compose up -d` and open `http://localhost:8504`.
 
 **The page does not open.** `docker compose ps` should show `(healthy)`. The port is published on
 127.0.0.1 only, so another computer cannot reach it, by design.
