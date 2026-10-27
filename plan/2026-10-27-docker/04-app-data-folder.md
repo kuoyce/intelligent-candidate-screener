@@ -83,7 +83,7 @@ accounts, reviews and caches.
 | Has no project data (e.g. a new maintainer) | `create --source <received copy>` | receive a new copy; `create --source <new copy>` (their accounts and reviews are kept) | `purge --yes`, then `create --source <new copy>` |
 
 Every upgrade also rebuilds the image (`git pull`, `docker compose build`; remove the old one with
-`docker compose down --rmi local`), runs `verify`, then `docker compose up -d`. Who decides
+`docker image prune`, since `docker compose down --rmi local` skips custom-tagged images (S7)), runs `verify`, then `docker compose up -d`. Who decides
 "breaking": the developer, when the change is settled, and says so in the commit and the plan
 record. `verify` helps by naming stale inputs and an unexpected workspace format.
 

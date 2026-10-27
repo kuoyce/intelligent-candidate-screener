@@ -72,6 +72,24 @@ uv sync                     # Python 3.12, the classical stack + dev tools
 uv sync --all-groups        # + ml (torch CPU, sentence-transformers) + app (streamlit)
 ```
 
+## Run with Docker (any OS)
+
+The Hiring Desk also runs in Docker on Windows, macOS or Linux, with no Python, uv or model
+download on the host (D68). One image holds the code, the three environments and the pinned
+pretrained weights; the data folder `data/datapack/` holds the project's own files plus the
+accounts and reviews, and is passed on privately. Native development is unchanged.
+
+```bash
+mkdir logs                                             # put the data folder you were given at data/datapack/ first
+docker compose build                                   # cold: ~3.5-5.5 min, 4.6 GB downloaded (27 Oct 2026)
+docker compose --profile tools run --rm tools verify   # checks data/datapack/
+docker compose run --rm app python -m candidate_screener.app.portal_auth --create-local-user reviewer --department benchmark
+docker compose up -d                                   # http://localhost:8503
+```
+
+Requirements per OS, the data folder, accounts, backups, updates and troubleshooting:
+[`docs/docker.md`](docs/docker.md).
+
 ## Screen candidates (the reset's pipeline)
 
 ```bash

@@ -9,7 +9,7 @@ rules).
 | this README | why, owner answers, accounts, scope, steps, verification, cost |
 | [`01-design-spec.md`](01-design-spec.md) | the image, the runtime contract, compose, tests, cross-OS hazards, code changes |
 | [`02-handover-guide-spec.md`](02-handover-guide-spec.md) | what the maintainer guide `docs/docker.md` must contain, and how it is accepted |
-| [`03-optional-parts-log.md`](03-optional-parts-log.md) | which optional parts are in or out, and why; reviewed at every update |
+| [`03-optional-parts-log.md`](03-optional-parts-log.md) | moved on 28 Oct 2026 to [`docs/docker-optional-parts.md`](../../docs/docker-optional-parts.md), the living log of optional parts |
 | [`04-app-data-folder.md`](04-app-data-folder.md) | the Docker data folder `data/datapack/`: contents, commands, who runs what, upgrades |
 | [`05-execution-stages.md`](05-execution-stages.md) | execution stages, the long-job and resume rules, the account-creation screen, the implementation record |
 

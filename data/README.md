@@ -16,6 +16,14 @@ RoBERTa-SQuAD2 uses its existing `processed/chatbot/qa/extractive/` checkpoint i
 `runtime/transformer`. No model downloads or training run at app startup, and
 these model outputs never become benchmark or human entity labels.
 
+`data/datapack/` is the Docker app's data folder (D68): the 24 project files the Hiring Desk
+reads, copied from this directory, plus the Docker deployment's own workspace
+(`datapack/processed/hr-portal/`) and caches. It is made with
+`uv run python -m candidate_screener.datapack create` (`--with-workspace` also copies the local
+`processed/hr-portal/`), checked with `verify` and passed on with `handover`, which leaves the
+workspace and caches out. Like the rest of `data/` it is git-ignored and never committed; keep it,
+and above all its workspace, private. See the [Docker guide](../docs/docker.md).
+
 Nothing in this directory is committed except this file. Everything below reconstructs the
 **676 MB** working set. See [`docs/data/data-catalog.md`](../docs/data/data-catalog.md) for
 what each source is, its licence and its known defects, and

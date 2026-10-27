@@ -55,6 +55,11 @@ uv run python -m candidate_screener.checks                      # warm checks yo
 uv run python -m candidate_screener.checks --warm --all         # every live record, warm (D55)
 uv run python -m candidate_screener.checks --cold --all         # every record from scratch (D55)
 uv run jupyter nbconvert --to notebook --execute --inplace notebooks/NN-*.ipynb
+uv run python -m candidate_screener.datapack create --with-workspace   # data/ -> data/datapack/ (owner; also verify, handover DEST, purge)
+docker compose build                                            # the Hiring Desk image: environments + pinned pretrained weights (D68)
+docker compose --profile tools run --rm tools verify            # the data folder commands, in Docker
+docker compose up -d                                            # the Hiring Desk at http://localhost:8503 (docs/docker.md)
+docker compose --profile test run --rm test                     # the suite in the test image: no data, no network (~2 min)
 ```
 
 Every `--check` above is registered in `candidate_screener.checks`, which runs them for you
@@ -79,6 +84,8 @@ base `uv run pytest` must pass without the `ml` and `app` groups: model-dependen
 | Recruiter UI | `app/`: tested screening/QA services, `intents.py` fallback, Streamlit as thin transport; `portal_inference.py` binds new JDs to `inference.Screener` |
 | Conversational inference | `llm/`: frozen local extractive QA/runtime; historical Qwen service; never annotation or training |
 | Frozen annotation instrument | `annotation/`: read-only (D42) |
+| The Docker image and its services (D68) | `Dockerfile`, `compose.yaml`, `compose.dev.yaml`, `.env.example` (at the repository root); guide `docs/docker.md` |
+| The Docker data folder `data/datapack/`: what it holds, `create`, `verify`, `handover`, `purge` | `datapack.py` (`candidate_screener.datapack`) |
 | Tests | `tests/`, run as `uv run pytest` |
 | Committed records | `output/…`: config, digests and figures for things we fit, never bytes (D23 baseline) |
 | Exploration and reporting | `notebooks/NN-topic.ipynb`, numbered in reading order |
@@ -133,6 +140,17 @@ comparison relations; application code writes the factual clauses. Preserve full
 qualification context, participant coverage, explicit fallback provenance and
 per-turn inference deadlines. V1 remains the default/rollback. V2 authorization
 does not authorize model training, downloads or changes to the research ranking.
+
+The Hiring Desk runs on other machines through Docker plus the data folder `data/datapack/`
+(D68, [`docs/docker.md`](docs/docker.md)); native development is unchanged, and Docker and the
+folder are refreshed only once a change is settled. A change that adds a run-time file, a
+setting, a pretrained model or an optional part updates, in the same change and respectively: the
+folder's list (`expected()` in `datapack.py`); the guide's configuration table
+(`tests/test_docker_contract.py` fails on an `HR_PORTAL_*` or `SCREENER_*` name it lacks); the
+Dockerfile's `models` stage (a pinned download); or
+[`docs/docker-optional-parts.md`](docs/docker-optional-parts.md). The data folder is
+git-ignored and passed on only privately, through `handover`, without the workspace. Long checks
+run on the owner's machine, never at container start; the container downloads and trains nothing.
 
 ## Evaluation rules
 

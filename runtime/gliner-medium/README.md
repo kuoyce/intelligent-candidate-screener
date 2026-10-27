@@ -7,6 +7,11 @@ imports it while the resolved Typer distribution does not supply it transitively
 Sentence segmentation uses `spacy.blank("en")` and the
 sentencizer, so no statistical spaCy model is downloaded.
 
+On Linux the lock takes torch's CPU build from the PyTorch CPU index (`2.2.2+cpu` on
+x86_64, `2.2.2` on aarch64), without the CUDA packages; the macOS and Windows entries
+are unchanged. The Docker image syncs this environment and its pinned model
+([guide](../../docs/docker.md)).
+
 ```sh
 uv sync --project runtime/gliner-medium
 PYTHONPATH=src uv run --project runtime/gliner-medium --no-sync python -m candidate_screener.extraction.medium_assets

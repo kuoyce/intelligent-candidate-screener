@@ -491,7 +491,7 @@ The §1.2 table uses `chat-1` + `chat-2` instead, because L1 ranks all 500 CVs a
 | Span precision/recall on a hand-checked sample (Q-B2) | Never done; role-family validation uses metadata labels |
 | Ceiling-check results | Not found in records |
 | Reference covers X2's top 100 (+ partial `chat-2`) | Fine for compared top 10s (chat-4 empty); a wider comparison would need more scoring |
-| Hosting / packaging the system | The local entry point exists (§2.6); portability (no-pickle role model, HF Hub bundle, PII filter on vocabularies) is still the on-hold plan `2026-10-22-model-bundle-and-hosting`. The old recruiter app (`app/`) still runs its own TF-IDF draft ranker; the Hiring Desk ranks new JDs through the API (24 Oct 2026) |
+| Hosting / packaging the system | The Hiring Desk now runs on any OS through Docker plus the data folder `data/datapack/` (plan `2026-10-27-docker`, D68; [guide](docker.md)): verified on Linux (WSL2), not yet on Docker Desktop or arm64. Still open: public hosting (TLS, SSO, real mail) and the on-hold portability plan `2026-10-22-model-bundle-and-hosting` (no-pickle role model, HF Hub bundle, PII filter on vocabularies). The old recruiter app (`app/`) still runs its own TF-IDF draft ranker; the Hiring Desk ranks new JDs through the API (24 Oct 2026) |
 | `entity_weighted` record | A teammate's `blocked` placeholder was regenerated (pilot_complete, not adopted); the author may want to confirm |
 | Cross-encoder fine-tuning from a reranker checkpoint | Literature suggests it; not tried |
 | Replicate of the D50 batch (Q-A1b) | Score noise unknown |

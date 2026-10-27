@@ -25,5 +25,11 @@ decision D60. This is application state, separate from acquired research sources
   Mechanical redaction does not guarantee anonymity.
 - Tech/Business example recipients use `example.invalid`; captured `.eml` files
   are not delivered to an external mailbox.
+- Added 28 October 2026 (D68): the Hiring Desk in Docker keeps its own workspace in
+  the data folder, at `data/datapack/processed/hr-portal/`, separate from the native
+  `data/processed/hr-portal/` (`datapack create --with-workspace` copies the native one
+  in once). `datapack create` keeps it, `datapack handover` excludes it (with the
+  caches), and `datapack purge --yes` deletes it. Back it up before every upgrade with
+  the commands in the [Docker guide](../../docker.md#9-backups-operator).
 
 Migrations are additive. Never commit local accounts, documents or captured mail.

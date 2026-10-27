@@ -62,8 +62,8 @@ needs the image, so it runs after the Dockerfile; the cheap measurements (1b-1c)
 | S4 | Run-time audit: the image with the owner's `data/` mounted read-only and scratch copies for write paths; a scripted session with an `open` audit hook | parent | 0.25 day / minutes | the folder's file list and write paths recorded; `04` amended | **done** (record below) |
 | S5 | `candidate_screener.datapack` (`create`, `--with-workspace`, `--source`, `verify`, `handover`, `purge`) and tests; then the owner's `create --with-workspace` | sub-agent; parent runs `create` | 0.5 day / minutes | tests pass; `data/datapack/` verified; pushed | **done** `4e8fb6d` (record below) |
 | S6 | Verification V1-V9, V11 (V10 deferred) | parent | 0.5 day / V8 cold build est. 20-40 min, V2 ~15 min | every row recorded; pushed | **done** (record below; V2b and V4 settled by the owner, 28 Oct 2026) |
-| S7 | Docs: `docs/docker.md`, README, AGENTS.md, `data/README.md`, the workspace card, `docs/project-overview.md` §7, D68, `docs/docker-optional-parts.md` | sub-agent | 0.25-0.5 day | contract test passes; pushed | **in progress** (sub-agent) |
-| S8 | Independent review; fixes; `uv run pytest`; the warm affected check run (long job); phase 1 marked complete | reviewer sub-agent; parent | 0.25 day / ~70 min | review findings closed; checks pass; pushed | pending |
+| S7 | Docs: `docs/docker.md`, README, AGENTS.md, `data/README.md`, the workspace card, `docs/project-overview.md` §7, D68, `docs/docker-optional-parts.md` | sub-agent | 0.25-0.5 day | contract test passes; pushed | **done** (record below) |
+| S8 | Independent review; fixes; `uv run pytest`; the warm affected check run (long job); phase 1 marked complete | reviewer sub-agent; parent | 0.25 day / ~70 min | review findings closed; checks pass; pushed | **in progress** |
 | S9 | Phase 2: the `llm` profile (Qwen2.5-0.5B service) and V3's v2/v3 rows | parent or sub-agent | 0.25 day | v2 and v3 answers composed by Qwen in the container; pushed | pending |
 | S10 | Account-creation screen, on its **own branch** (below) | sub-agent | 0.5 day | tests pass; branch pushed; merge left to the owner | pending |
 | S11 | Apple Silicon (arm64) test under emulation (below) | parent | 0.25 day / several hours of emulated runs | V10 recorded against its registered bar; emulation removed; pushed | pending |
@@ -301,3 +301,22 @@ the monotonic clock.
   embedding cache keeps the first value. Recorded for the guide's known limitations; no change.
 - **V4 passes:** the owner ran `docker compose up`, signed in through the frontend, opened a JD,
   re-ranked with C2 and asked chat questions; all worked.
+
+### S7: documentation (28 Oct 2026; sub-agent, reviewed by the parent)
+
+- New: `docs/docker.md` (the maintainer guide, sections 1-16 of `02`), `docs/docker-optional-parts.md`
+  (the living log, moved from `03`, which now links to it). Updated: `README.md` ("Run with Docker
+  (any OS)"), `AGENTS.md` (commands, "Where code goes", the D68 rules paragraph), `data/README.md`,
+  `docs/data/cards/HR-operational-workspace.md`, `docs/project-overview.md` §7, both runtime READMEs.
+- `tests/test_docker_contract.py`: every `HR_PORTAL_*`/`SCREENER_*` name read under `src/` (29 today)
+  must appear in the guide's configuration reference; 13 tests including 11 broken cases; removing
+  a row from the real guide fails it. Full suite (`logs/pytest-s7.log`): 17 failed (the known ids),
+  2233 passed. All 133 relative links resolve.
+- Figures the guide cites that exist only in git-ignored logs, recorded here: V1 ran in 98 s; in
+  V3 the app process peaked at 5.26 GB and the whole container at 7.56 GB including page cache
+  (hence the guide's "at least 10 GB of Docker memory for all of phase 1; 4 GB for D63 only");
+  `tools verify` takes about 2 s. V8's download is 4,382 MiB = 4.60 GB (4.28 GiB), not "4.4 GB".
+- Not exercised, and said so in the guide: a Docker `tools create`, typing the hidden token prompt
+  in a container, `compose.dev.yaml`, the `hf_token` secret, proxies, PowerShell forms.
+- Parent fixes: `04` §3 now removes old images with `docker image prune` (`docker compose down
+  --rmi local` skips custom tags); `.env.example` gives the PowerShell form of `GIT_COMMIT`.

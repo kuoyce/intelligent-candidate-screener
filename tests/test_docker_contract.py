@@ -6,7 +6,8 @@ small broken texts to show that it fails when its rule is broken (AGENTS testing
 
 Dockerfile syntax understood: comments, `\\` continuations, ENV and ARG (`k=v`, and the legacy
 `ENV k v`), COPY/ADD flags and the JSON form; no heredocs. Compose: block (`- item`) and flow
-(`[a, b]`) sequences, `<<: *anchor` merges.
+(`[a, b]`) sequences, `<<: *anchor` merges. The guide (`docs/docker.md`): its "Configuration
+reference" section's Markdown tables, first column; fenced code skipped.
 """
 from __future__ import annotations
 
@@ -451,6 +452,69 @@ def tools_settings_problems(compose: str) -> list[str]:
     return problems
 
 
+# ------------------------------------------------------------------ the guide's settings table
+
+GUIDE = "docs/docker.md"
+#: A setting's name. A prefix ("SCREENER_QWEN_") or a longer word containing one
+#: ("CANDIDATE_SCREENER_WORKER:") is not a name.
+SETTING = re.compile(r"(?:HR_PORTAL|SCREENER)_[A-Z0-9]+(?:_[A-Z0-9]+)*")
+CONFIGURATION_SECTION = "configuration reference"
+
+
+def settings_read(sources: dict[str, str]) -> dict[str, list[str]]:
+    """Every `HR_PORTAL_*` and `SCREENER_*` name a Python source holds as a whole string literal
+    (an environment read, its default, or a constant that names it; comments do not count), with
+    the sources that hold it."""
+    found: dict[str, set[str]] = {}
+    for path, text in sources.items():
+        for node in ast.walk(ast.parse(text)):
+            if (isinstance(node, ast.Constant) and isinstance(node.value, str)
+                    and SETTING.fullmatch(node.value)):
+                found.setdefault(node.value, set()).add(path)
+    return {name: sorted(paths) for name, paths in sorted(found.items())}
+
+
+def configuration_names(guide: str) -> set[str] | None:
+    """The backticked names in the first column of every table in the guide's "Configuration
+    reference" section, which ends at the next heading of its level or above; None when the guide
+    has no such section. Lines in fenced code are neither headings nor table rows."""
+    level, names, fenced = None, set(), False
+    for line in guide.splitlines():
+        stripped = line.strip()
+        if stripped.startswith(("```", "~~~")):
+            fenced = not fenced
+            continue
+        if fenced:
+            continue
+        heading = re.match(r"^ {0,3}(#{1,6})\s+(.*)$", line)
+        if heading:
+            depth = len(heading.group(1))
+            if level is not None and depth <= level:
+                break
+            if level is None and CONFIGURATION_SECTION in heading.group(2).lower():
+                level = depth
+            continue
+        if level is not None and stripped.startswith("|"):
+            first_cell = stripped.strip("|").split("|")[0]
+            names.update(re.findall(r"`([^`]+)`", first_cell))
+    return names if level is not None else None
+
+
+def undocumented_settings(sources: dict[str, str], guide: str) -> list[str]:
+    """Every setting read under src/ has a row in the guide's configuration table."""
+    documented = configuration_names(guide)
+    if documented is None:
+        return [f"{GUIDE} has no section headed 'Configuration reference'"]
+    return [f"{name}, read in {', '.join(paths)}, has no row in the configuration table of {GUIDE}"
+            for name, paths in settings_read(sources).items() if name not in documented]
+
+
+def source_texts() -> dict[str, str]:
+    """The package's Python sources, by path."""
+    return {path.relative_to(ROOT).as_posix(): path.read_text(encoding="utf-8")
+            for path in sorted((ROOT / "src").rglob("*.py"))}
+
+
 # ---------------------------------------------------------------------- the committed files
 
 def test_ports_are_published_on_host_loopback_only():
@@ -492,6 +556,14 @@ def test_compose_mounts_the_data_folder_read_write():
 
 def test_tools_service_points_datapack_at_its_mounts():
     assert tools_settings_problems(read("compose.yaml")) == []
+
+
+def test_every_setting_read_under_src_is_in_the_guide():
+    sources = source_texts()
+    # The scan finds settings known to be read, so an empty scan cannot pass.
+    assert {"HR_PORTAL_CHAT_VERSION", "HR_PORTAL_EMBEDDING_BACKEND", "SCREENER_MODELS_ROOT",
+            "SCREENER_DATAPACK_SOURCE", "SCREENER_DATAPACK_DEST"} <= set(settings_read(sources))
+    assert undocumented_settings(sources, read(GUIDE)) == []
 
 
 # ------------------------------------------------------------- negative cases: broken texts
@@ -694,3 +766,62 @@ BROKEN_COMPOSE = {
 def test_compose_checks_fail_on_broken_texts(case):
     check, text = BROKEN_COMPOSE[case]
     assert check(text), case
+
+
+GOOD_SOURCES = {
+    "pkg/ui.py": 'import os\n\nVERSION = os.environ.get("HR_PORTAL_CHAT_VERSION", "v1").lower()\n',
+    "pkg/folder.py": ('SOURCE_ENV, DEST_ENV = "SCREENER_DATAPACK_SOURCE", "SCREENER_DATAPACK_DEST"\n'
+                      'PREFIX = "SCREENER_QWEN_"  # a prefix, not a setting\n'
+                      'MARKER = "CANDIDATE_SCREENER_WORKER:"  # a protocol marker, not a setting\n'
+                      "# SCREENER_OLD_SETTING, named in a comment, is not read\n"),
+}
+TABLE_HEAD = "| Name | Docker default | Effect | Safe to change |\n|---|---|---|---|\n"
+CHAT_ROW = "| `HR_PORTAL_CHAT_VERSION` | `v1` | The chat version | Yes |\n"
+FOLDER_ROW = ("| `SCREENER_DATAPACK_SOURCE`, `SCREENER_DATAPACK_DEST` | `/source`, `/app/data` "
+              "| The data folder commands' folders | No |\n")
+GOOD_GUIDE = (
+    "# Guide\n\n## 7. Accounts\n\n`HR_PORTAL_ACCOUNTS`, named in prose outside the section.\n\n"
+    "## 8. Configuration reference\n\n"
+    "```yaml\n# a comment in fenced code is not a heading\nservices: {}\n```\n\n"
+    + TABLE_HEAD + CHAT_ROW
+    + "\n### Models and the data folder\n\n" + TABLE_HEAD + FOLDER_ROW
+    + "\n## 9. Backups\n\n| Name | Notes |\n|---|---|\n| `SCREENER_BACKUP_ONLY` | in another section |\n")
+
+
+def test_settings_check_passes_on_the_good_texts():
+    assert settings_read(GOOD_SOURCES) == {"HR_PORTAL_CHAT_VERSION": ["pkg/ui.py"],
+                                           "SCREENER_DATAPACK_DEST": ["pkg/folder.py"],
+                                           "SCREENER_DATAPACK_SOURCE": ["pkg/folder.py"]}
+    assert configuration_names(GOOD_GUIDE) == {"HR_PORTAL_CHAT_VERSION", "SCREENER_DATAPACK_SOURCE",
+                                               "SCREENER_DATAPACK_DEST"}
+    assert undocumented_settings(GOOD_SOURCES, GOOD_GUIDE) == []
+
+
+BROKEN_SETTINGS = {
+    "guide-lacks-a-row": (GOOD_SOURCES, broken(GOOD_GUIDE, (CHAT_ROW, ""))),
+    "guide-lacks-one-name-of-a-row": (GOOD_SOURCES, broken(GOOD_GUIDE, (", `SCREENER_DATAPACK_DEST`", ""))),
+    "name-misspelt": (GOOD_SOURCES, broken(
+        GOOD_GUIDE, ("`HR_PORTAL_CHAT_VERSION`", "`HR_PORTAL_CHAT_VERSIONS`"))),
+    "name-only-in-prose": (GOOD_SOURCES, broken(
+        GOOD_GUIDE, (CHAT_ROW, "Set `HR_PORTAL_CHAT_VERSION` in `.env`.\n"))),
+    "name-only-in-a-later-column": (GOOD_SOURCES, broken(
+        GOOD_GUIDE, (CHAT_ROW, "| The chat version | `HR_PORTAL_CHAT_VERSION` | `v1` | Yes |\n"))),
+    "row-inside-fenced-code": (GOOD_SOURCES, broken(
+        GOOD_GUIDE, (CHAT_ROW, ""), ("services: {}\n", "services: {}\n" + CHAT_ROW))),
+    "row-in-another-section": (GOOD_SOURCES, broken(
+        GOOD_GUIDE, (CHAT_ROW, ""), ("| `SCREENER_BACKUP_ONLY` |", "| `HR_PORTAL_CHAT_VERSION` |"))),
+    "section-ended-by-a-heading": (GOOD_SOURCES, broken(
+        GOOD_GUIDE, ("```\n\n| Name", "```\n\n## 8a. Other settings\n\n| Name"))),
+    "no-configuration-section": (GOOD_SOURCES, broken(
+        GOOD_GUIDE, ("## 8. Configuration reference", "## 8. Settings"))),
+    "source-reads-a-new-setting": (
+        {**GOOD_SOURCES, "pkg/new.py": 'import os\n\nPATH = os.environ["SCREENER_NEW_PATH"]\n'}, GOOD_GUIDE),
+    "source-reads-through-getenv": (
+        {**GOOD_SOURCES, "pkg/new.py": 'import os\n\nFLAG = os.getenv("HR_PORTAL_NEW_FLAG", "false")\n'}, GOOD_GUIDE),
+}
+
+
+@pytest.mark.parametrize("case", sorted(BROKEN_SETTINGS))
+def test_settings_check_fails_on_broken_texts(case):
+    sources, guide = BROKEN_SETTINGS[case]
+    assert undocumented_settings(sources, guide), case
