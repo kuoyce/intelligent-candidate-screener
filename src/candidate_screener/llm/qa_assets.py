@@ -5,10 +5,10 @@ import hashlib
 import json
 import re
 from pathlib import Path
-from candidate_screener.config import PROCESSED
+from candidate_screener.config import MODELS
 
 MODEL_ID = "deepset/roberta-base-squad2"
-ROOT = PROCESSED / "chatbot/qa/extractive"
+ROOT = MODELS / "chatbot/qa/extractive"
 
 
 def file_digest(path):
@@ -44,17 +44,24 @@ def verify_manifest(path: Path = ROOT / "manifest.json") -> dict:
     return manifest
 
 
-def download_assets(destination: Path = ROOT):
+def download_assets(destination: Path = ROOT, revision: str | None = None):
+    """Acquire the checkpoint at `revision`, an immutable commit; the latest one when omitted."""
     destination = Path(destination)
+    if revision is not None and re.fullmatch(r"[a-f0-9]{40}", revision) is None:
+        raise ValueError(f"The QA checkpoint revision must be a 40-character hexadecimal commit, not {revision!r}")
     if (destination / "manifest.json").exists():
-        return verify_manifest(destination / "manifest.json")
+        manifest = verify_manifest(destination / "manifest.json")
+        if revision is not None and manifest["revision"] != revision:
+            raise ValueError(f"Existing extractive checkpoint is revision {manifest['revision']}, not {revision}")
+        return manifest
     from huggingface_hub import HfApi, snapshot_download
-    info = HfApi().model_info(MODEL_ID)
+    info = HfApi().model_info(MODEL_ID, revision=revision)
+    revision = revision or info.sha
     names = {item.rfilename for item in info.siblings}
     weight = "model.safetensors" if "model.safetensors" in names else "pytorch_model.bin"
     selected = [name for name in [weight, "config.json", "tokenizer.json", "tokenizer_config.json", "special_tokens_map.json", "vocab.json", "merges.txt", "README.md"] if name in names]
-    snapshot_download(MODEL_ID, revision=info.sha, local_dir=destination / "checkpoint", allow_patterns=selected)
-    manifest = {"model_id": MODEL_ID, "revision": info.sha,
+    snapshot_download(MODEL_ID, revision=revision, local_dir=destination / "checkpoint", allow_patterns=selected)
+    manifest = {"model_id": MODEL_ID, "revision": revision,
                 "license": (info.card_data or {}).get("license", "unknown"),
                 "artifact_sha256": {name: file_digest(destination / "checkpoint" / name) for name in selected},
                 "runtime": {"project": "runtime/transformer", "torch": "2.2.2", "transformers": "4.48.3"}}
@@ -66,6 +73,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--destination", type=Path, default=ROOT)
     parser.add_argument("--verify", action="store_true")
+    parser.add_argument("--revision", help="Immutable 40-character commit to download; the latest is resolved when omitted")
     args = parser.parse_args()
-    result = verify_manifest(args.destination / "manifest.json") if args.verify else download_assets(args.destination)
+    result = verify_manifest(args.destination / "manifest.json") if args.verify else download_assets(args.destination, args.revision)
     print(json.dumps({"model_id": result["model_id"], "revision": result["revision"]}))

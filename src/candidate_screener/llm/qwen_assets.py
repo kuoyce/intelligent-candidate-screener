@@ -7,9 +7,11 @@ import json
 from pathlib import Path
 import re
 
+from candidate_screener.config import MODELS
+
 MODEL_ID = "Qwen/Qwen2.5-0.5B-Instruct"
 RAG_MODEL_ID = "Qwen/Qwen2.5-1.5B-Instruct"
-MODEL_DIR = Path(__file__).resolve().parents[3] / "data/processed/chatbot/qwen"
+MODEL_DIR = MODELS / "chatbot/qwen"
 DEFAULT_MANIFEST = MODEL_DIR / "manifest.json"
 
 

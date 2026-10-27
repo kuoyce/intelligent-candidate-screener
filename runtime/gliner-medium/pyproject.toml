@@ -11,3 +11,13 @@ dependencies = [
 [tool.uv]
 package = false
 required-environments = ["sys_platform == 'darwin' and platform_machine == 'x86_64'"]
+
+# Torch's CPU build on Linux (the Docker image, plan 2026-10-27-docker); macOS and Windows
+# keep PyPI's.
+[tool.uv.sources]
+torch = [{ index = "pytorch-cpu", marker = "sys_platform == 'linux'" }]
+
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true

@@ -9,3 +9,6 @@ __pycache__/
 
 # Check-runner and ad-hoc logs (plan 2026-10-08-test-and-check-runtime, Q4)
 logs/
+
+# Docker settings for this machine (plan 2026-10-27-docker)
+.env

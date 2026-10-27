@@ -6,12 +6,13 @@ from datetime import datetime, timezone
 import hashlib
 import json
 from pathlib import Path
+import re
 
-from candidate_screener.config import PROCESSED
+from candidate_screener.config import MODELS
 
 MODEL_ID = "gliner-community/gliner_medium-v2.5"
 MODEL_REVISION = "88c3b98b57ad5e7d66fb209ed61c53f4b1fd05da"
-MODEL_DIR = PROCESSED / "extraction/models/gliner-medium-v2.5"
+MODEL_DIR = MODELS / "extraction/models/gliner-medium-v2.5"
 ASSETS = ["gliner_config.json", "pytorch_model.bin", "README.md",
           "added_tokens.json", "special_tokens_map.json", "spm.model",
           "tokenizer.json", "tokenizer_config.json"]
@@ -38,7 +39,12 @@ def verify_assets(destination: Path = MODEL_DIR) -> dict:
     return manifest
 
 
-def download_assets(destination: Path = MODEL_DIR) -> dict:
+def download_assets(destination: Path = MODEL_DIR, encoder_revision: str | None = None) -> dict:
+    """The encoder's assets come at `encoder_revision`, an immutable commit; when omitted, at the
+    revision already recorded in `destination`, else at the latest one."""
+    if encoder_revision is not None and re.fullmatch(r"[0-9a-f]{40}", encoder_revision) is None:
+        raise ValueError("The encoder revision must be a 40-character hexadecimal commit, "
+                         f"not {encoder_revision!r}")
     from huggingface_hub import HfApi, snapshot_download
     destination.mkdir(parents=True, exist_ok=True)
     snapshot_download(MODEL_ID, revision=MODEL_REVISION, local_dir=destination,
@@ -47,7 +53,8 @@ def download_assets(destination: Path = MODEL_DIR) -> dict:
     previous_path = destination / "model-manifest.json"
     previous = json.loads(previous_path.read_text()) if previous_path.exists() else {}
     backbone = config["model_name"]
-    revision = previous.get("encoder", {}).get("revision") or HfApi().model_info(backbone).sha
+    revision = (encoder_revision or previous.get("encoder", {}).get("revision")
+                or HfApi().model_info(backbone).sha)
     snapshot_download(backbone, revision=revision, local_dir=destination / "encoder-assets",
                       allow_patterns=["config.json"])
     files = ASSETS + ["encoder-assets/config.json"]
@@ -66,6 +73,9 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--destination", type=Path, default=MODEL_DIR)
     parser.add_argument("--verify", action="store_true")
+    parser.add_argument("--encoder-revision", help="Immutable 40-character commit of the encoder's "
+                        "assets to download; when omitted, the recorded one, else the latest")
     args = parser.parse_args()
-    result = verify_assets(args.destination) if args.verify else download_assets(args.destination)
+    result = (verify_assets(args.destination) if args.verify
+              else download_assets(args.destination, args.encoder_revision))
     print(json.dumps({key: result[key] for key in ["model_id", "revision", "encoder", "tokenizer"]}))

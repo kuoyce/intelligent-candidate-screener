@@ -11,6 +11,7 @@ Every module resolves paths through here so that the layout committed in
 """
 from __future__ import annotations
 
+import os
 from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
@@ -20,6 +21,13 @@ RAW = DATA / "raw"
 INTERIM = DATA / "interim"
 PROCESSED = DATA / "processed"
 VOCAB = DATA / "vocab"
+
+#: Where the pretrained model folders live (extractive QA, GLiNER-medium, Qwen; see their
+#: asset modules). `SCREENER_MODELS_ROOT` moves them out of `data/`, e.g. to the Docker
+#: image's `/opt/models` (plan 2026-10-27-docker); a relative value is resolved against
+#: PROJECT_ROOT. Unset or empty: PROCESSED, as before.
+MODELS = (PROJECT_ROOT / os.environ["SCREENER_MODELS_ROOT"]
+          if os.environ.get("SCREENER_MODELS_ROOT") else PROCESSED)
 
 DOCS = PROJECT_ROOT / "docs"
 DOCS_DATA = DOCS / "data"

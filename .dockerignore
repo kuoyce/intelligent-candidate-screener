@@ -1,0 +1,25 @@
+# Docker build context (plan 2026-10-27-docker, 01-design-spec.md §2 and §9). Mirrors
+# .gitignore: of data/, only the committed README.md and vocab/ enter the context.
+# Patterns are anchored at the context root; a leading **/ matches at any depth.
+data/*
+!data/README.md
+!data/vocab/
+
+.git
+.venv
+**/.venv
+logs
+**/__pycache__
+.pytest_cache
+**/.ipynb_checkpoints
+**/*.part
+**/.DS_Store
+**/*:Zone.Identifier
+
+# Local Claude Code state; the committed judge definition stays (tests/test_llm_recheck.py reads it).
+.claude
+!.claude/agents/a1-judge.md
+
+# Secrets never enter the context or an image (01-design-spec.md §9).
+.env
+.streamlit/secrets.toml

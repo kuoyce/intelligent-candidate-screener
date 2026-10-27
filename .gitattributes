@@ -1,0 +1,14 @@
+# Plan 2026-10-27-docker (01-design-spec.md §8). Committed manifests, records and the
+# skill vocabulary keep their exact bytes on every OS: their SHA-256 digests enter cache
+# fingerprints, so Git never converts their line endings (Git for Windows defaults to
+# core.autocrlf=true).
+docs/data/** -text
+output/** -text
+data/vocab/** -text
+
+# Read inside Linux containers: LF on every checkout.
+Dockerfile eol=lf
+*.sh eol=lf
+*.toml eol=lf
+*.yaml eol=lf
+*.yml eol=lf
