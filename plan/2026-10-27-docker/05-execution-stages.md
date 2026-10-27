@@ -61,7 +61,7 @@ needs the image, so it runs after the Dockerfile; the cheap measurements (1b-1c)
 | S3 | `Dockerfile`, `compose.yaml`, `compose.dev.yaml`, `.env.example`, `tests/test_docker_contract.py`; build `app` and `test` | sub-agent writes; parent builds (long job) | 0.5 day / build est. 20-40 min | both images build; pushed | **done** `9c7b5e3` (built, record below) |
 | S4 | Run-time audit: the image with the owner's `data/` mounted read-only and scratch copies for write paths; a scripted session with an `open` audit hook | parent | 0.25 day / minutes | the folder's file list and write paths recorded; `04` amended | **done** (record below) |
 | S5 | `candidate_screener.datapack` (`create`, `--with-workspace`, `--source`, `verify`, `handover`, `purge`) and tests; then the owner's `create --with-workspace` | sub-agent; parent runs `create` | 0.5 day / minutes | tests pass; `data/datapack/` verified; pushed | **done** `4e8fb6d` (record below) |
-| S6 | Verification V1-V9, V11 (V10 deferred) | parent | 0.5 day / V8 cold build est. 20-40 min, V2 ~15 min | every row recorded; pushed | **in progress** (sub-agent; results `logs/docker/s6-results.md`) |
+| S6 | Verification V1-V9, V11 (V10 deferred) | parent | 0.5 day / V8 cold build est. 20-40 min, V2 ~15 min | every row recorded; pushed | **done, V2b awaits the owner** (record below) |
 | S7 | Docs: `docs/docker.md`, README, AGENTS.md, `data/README.md`, the workspace card, `docs/project-overview.md` §7, D68, `docs/docker-optional-parts.md` | sub-agent | 0.25-0.5 day | contract test passes; pushed | pending |
 | S8 | Independent review; fixes; `uv run pytest`; the warm affected check run (long job); phase 1 marked complete | reviewer sub-agent; parent | 0.25 day / ~70 min | review findings closed; checks pass; pushed | pending |
 | S9 | Phase 2: the `llm` profile (Qwen2.5-0.5B service) and V3's v2/v3 rows | parent or sub-agent | 0.25 day | v2 and v3 answers composed by Qwen in the container; pushed | pending |
@@ -258,3 +258,35 @@ Plan committed and pushed as `4a00c14` on `feat/docker-v1`, off `e530659`.
   copied the workspace (3 files, 0600 in a 0700 folder; inputs 0644/0755); its closing full verify
   said OK at commit `4e8fb6d` (`logs/docker/s5-create.log`). `purge` without `--yes` lists 28 files
   and deletes nothing.
+
+### S6: one-time verification (27 Oct 2026, images rebuilt at `f8dc77b`; sub-agent, reviewed by the parent)
+
+Results: `logs/docker/s6-results.md` and the `logs/docker/s6-*.log` files (git-ignored).
+
+| Row | Result | Key numbers |
+|---|---|---|
+| V9 | pass | 34/34 digests identical in a `core.autocrlf=true` clone; at `e530659` (no `.gitattributes`) all 34 differ |
+| V1 | pass | the same 17 failing test ids as native; 2207 passed / 51 skipped (native 2220 / 38): 12 tests skip without `data/`, 1 without the host's Hugging Face cache (`test_extraction_ner.py`); root user and no `.git` changed nothing |
+| V2 | pass | `inference --check` 14/14 in the container, 614 s (native 600 s), peak 2.36 GB |
+| V3 | pass | healthy in 7.6 s; host health `ok`; sign-in, CSV review (top 10, source preview); D63 35.2 s and D64 102.5 s from empty caches; an extractive answer with its source; entities 13/62/57 |
+| V5+V6 | pass | read-only image, tmpfs `/tmp`, no network: every step; D63 43.2 s, D64 93.9 s; S4's three fixes confirmed |
+| V2b | **failed the registered bar; owner decides** | same top-10 ids and order in 4/4 rankings; one JD's D63 had 2 of 10 scores differing at the 6th decimal (4e-6) |
+| V7 | pass | (a) frontend change: 0.70 s, models stage cached; (b) lock change: 70.8 s, the models stage re-ran from its cache in 16.5 s with nothing downloaded |
+| V8 | recorded | cold build 202.6 s; 4,382 MiB downloaded; peak anonymous memory 1.26 GB (cgroup 10.3 GB, mostly page cache); builder cache 14.7 GB; image 7.98 GB |
+| V11 | pass | `verify --full` OK; `purge` without `--yes` deleted nothing; 4 handover copies verified, none with a workspace or caches |
+| V4 | owner | browser check by hand |
+| V10 | deferred | S11 |
+
+**V2b cause (app behaviour, also native):** `rerank/cross.py`'s C2 loader calls
+`torch.set_num_threads(6)` for the whole process. Natively, C2 had loaded before the second JD's
+D63, so its embedding ran on 6 threads; in the container C2's scores were already cached, C2 never
+loaded, and the embedding ran on 11. Embeddings at a given thread count are identical in both
+environments, and a container rerun with the native order of operations matched bitwise in all
+four rankings. The embedding cache keeps whichever value came first. Not patched.
+
+Also: the native V2b run added the two invented JDs to the owner's `processed/embeddings/` npz
+(+3.6 kB) and 20 C2 score files to `processed/rerank/cross/873b24509614/`; nothing else in `data/`
+changed. The default builder's cache grew from 6.35 to 14.26 GB (V7b; not pruned). A Windows
+checkout gets CRLF in `uv.lock`, `runtime/*/uv.lock` and `.python-version` (outside V9's set; uv
+accepts them). The WSL VM was suspended for about 5 hours during V5+V6 (host sleep); timings use
+the monotonic clock.
