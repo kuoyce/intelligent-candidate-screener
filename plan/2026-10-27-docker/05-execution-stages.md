@@ -57,8 +57,8 @@ needs the image, so it runs after the Dockerfile; the cheap measurements (1b-1c)
 |---|---|---|---|---|---|
 | S0 | Commit the approved plan on `feat/docker-v1`; push | parent | minutes | plan pushed | **done** `4a00c14` |
 | S1 | Cheap measurements: aarch64 resolution of the three locks (dry run, no emulation); `torch==2.2.2` from the CPU index for linux x86_64/aarch64 (trial relock in a scratch copy); `COPY --exclude` on this engine; every place a runtime version string is compared | parent | 0.25 day / minutes | findings recorded below; design amended if needed | **done** (record below) |
-| S2 | Repository changes: `.gitattributes`, `.dockerignore`, `.env` ignored; `config.MODELS` and the three asset modules; the two download pins; runtime locks on the CPU index (Linux only); tests shown failing first | sub-agent | 0.25-0.5 day / minutes | `uv run pytest` = the base failures only; pushed | **in progress** (sub-agent; uncommitted work in the tree) |
-| S3 | `Dockerfile`, `compose.yaml`, `compose.dev.yaml`, `.env.example`, `tests/test_docker_contract.py`; build `app` and `test` | sub-agent writes; parent builds (long job) | 0.5 day / build est. 20-40 min | both images build; pushed | pending |
+| S2 | Repository changes: `.gitattributes`, `.dockerignore`, `.env` ignored; `config.MODELS` and the three asset modules; the two download pins; runtime locks on the CPU index (Linux only); tests shown failing first | sub-agent | 0.25-0.5 day / minutes | `uv run pytest` = the base failures only; pushed | **done** `907c61c`, D68 `75ef929` |
+| S3 | `Dockerfile`, `compose.yaml`, `compose.dev.yaml`, `.env.example`, `tests/test_docker_contract.py`; build `app` and `test` | sub-agent writes; parent builds (long job) | 0.5 day / build est. 20-40 min | both images build; pushed | **in progress** (sub-agent writes the files; then the build job) |
 | S4 | Run-time audit: the image with the owner's `data/` mounted read-only and scratch copies for write paths; a scripted session with an `open` audit hook | parent | 0.25 day / minutes | the folder's file list and write paths recorded; `04` amended | pending |
 | S5 | `candidate_screener.datapack` (`create`, `--with-workspace`, `--source`, `verify`, `handover`, `purge`) and tests; then the owner's `create --with-workspace` | sub-agent; parent runs `create` | 0.5 day / minutes | tests pass; `data/datapack/` verified; pushed | pending |
 | S6 | Verification V1-V9, V11 (V10 deferred) | parent | 0.5 day / V8 cold build est. 20-40 min, V2 ~15 min | every row recorded; pushed | pending |
@@ -149,3 +149,29 @@ Plan committed and pushed as `4a00c14` on `feat/docker-v1`, off `e530659`.
    nothing. Only research campaign modules (`extraction/live.py`, `medium_run.py`, `fit_run.py`,
    `transformer_run.py`) compare against recorded files, and those run natively. A `2.2.2+cpu`
    torch therefore changes nothing in the app.
+
+### S2: repository changes (27 Oct 2026, `907c61c`; sub-agent, reviewed by the parent)
+
+- As planned: `.gitattributes`, `.dockerignore`, `.env` ignored; `config.MODELS`
+  (`SCREENER_MODELS_ROOT`, resolved against `PROJECT_ROOT` when relative; unset = `PROCESSED`);
+  `qa_assets`, `medium_assets` and `qwen_assets` build their folders from it; `--revision` and
+  `--encoder-revision`; both runtime locks on the CPU index for Linux.
+- Tests: `tests/test_config_models_root.py`, 13 tests, failing 13/13 against the unchanged code
+  (`logs/s2-tests-before.log`), passing after (`logs/s2-tests-after.log`); two mutants caught
+  (`logs/s2-tests-mutations.log`). Full suite (`logs/pytest-s2.log`): 2117 passed, 18 failed: the 17
+  known frontend failures plus `test_decisions.py::test_every_cited_decision_is_in_the_log`, caused
+  by this plan citing D68 before the log had it (since `4a00c14`, not by S2).
+- **Deviation:** D68 was added to `docs/decisions.md` now (`75ef929`) rather than in S7, which
+  fixes that test; the owner approved D68 on 27 Oct 2026.
+- Locks (both runtimes alike): torch `2.2.2+cpu` (linux x86_64, CPU index), `2.2.2` (linux aarch64,
+  CPU index), PyPI's `2.2.2` with unchanged hashes on macOS and Windows; 12 `nvidia-*` packages
+  removed; no other version changed. Dry runs for x86_64 and aarch64 exit 0 with identical package
+  lists apart from torch; macOS and Windows dry runs give the same lists as the old locks.
+- `.gitattributes` rewrites nothing: `git ls-files --eol` identical before and after for all 846
+  tracked files; `git add --renormalize .` stages nothing.
+- Accepted choices: `.dockerignore` keeps `.claude/agents/a1-judge.md` (four tests read it);
+  `**/` prefixes for nested patterns; `qa_assets --revision` refuses an existing checkpoint at
+  another revision; `--verify` ignores the revision flags; `qwen_assets` now imports
+  `candidate_screener.config` (still standard library only).
+- For the guide (S7): on native Apple Silicon, uv's default macOS 13.0 target cannot install the
+  runtime locks' `onnxruntime` (macOS 14 wheels only), before and after this change.
