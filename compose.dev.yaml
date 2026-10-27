@@ -18,6 +18,7 @@ services:
       - --server.address=0.0.0.0
       - --server.port=8503
       - --server.headless=true
+      - --browser.serverAddress=localhost
       - --browser.gatherUsageStats=false
       - --server.fileWatcherType=poll
       - --server.runOnSave=true

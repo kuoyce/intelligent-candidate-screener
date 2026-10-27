@@ -106,6 +106,9 @@ RUN --mount=type=cache,id=screener-model-downloads,target=/var/cache/screener-mo
     "$py" "$pkg/extraction/medium_assets.py" --verify; \
     "$py" "$pkg/llm/qwen_assets.py" --revision "$QWEN_REVISION"; \
     HF_HUB_CACHE=/opt/hf/hub "$py" -c 'import sys; from huggingface_hub import snapshot_download; print(snapshot_download(sys.argv[1], revision=sys.argv[2], local_files_only=True))' "$C2_MODEL" "$C2_REVISION"
+# transformers 4.48 (the model runtimes) writes this cache-version marker on first use; the cache
+# is read-only at run time, so the marker is written here (the S4 audit saw the failed write).
+RUN printf '1' > /opt/hf/hub/version.txt && chmod a+r /opt/hf/hub/version.txt
 
 # app (the default, last stage): the image people run. The committed records and the backend
 # code; one RUN installs the project editable, writes GLiNER-medium's runtime-versions.json from
@@ -125,8 +128,10 @@ RUN --mount=type=cache,id=screener-uv-cache,target=/root/.cache/uv \
 COPY --chmod=a+rX src/candidate_screener/app/ /app/src/candidate_screener/app/
 COPY --chmod=a+rX .streamlit/ /app/.streamlit/
 # Run time (01-design-spec.md §5): no downloads (models and environments are in the image);
-# writes only to the data folder, logs/ and /tmp, as any user id.
-ENV SCREENER_MODELS_ROOT=/opt/models \
+# writes only to the data folder, logs/ and /tmp, as any user id. ORT_DISABLE_TELEMETRY stops
+# onnxruntime (imported by GLiNER) from writing telemetry files and contacting Microsoft (S4).
+ENV ORT_DISABLE_TELEMETRY=1 \
+    SCREENER_MODELS_ROOT=/opt/models \
     HF_HOME=/opt/hf \
     HF_HUB_OFFLINE=1 \
     TRANSFORMERS_OFFLINE=1 \
@@ -142,7 +147,9 @@ EXPOSE 8503
 # for this loopback request.
 HEALTHCHECK --interval=30s --timeout=10s --start-period=90s --retries=3 \
     CMD ["python", "-c", "import urllib.request as r; r.build_opener(r.ProxyHandler({})).open('http://127.0.0.1:8503/_stcore/health', timeout=5).read()"]
-CMD ["streamlit", "run", "src/candidate_screener/app/streamlit_app.py", "--server.address=0.0.0.0", "--server.port=8503", "--server.headless=true", "--browser.gatherUsageStats=false", "--server.fileWatcherType=none"]
+# browser.serverAddress: Streamlit prints http://localhost:8503 instead of looking up the host's
+# external IP (an HTTP request to checkip.amazonaws.com, S4).
+CMD ["streamlit", "run", "src/candidate_screener/app/streamlit_app.py", "--server.address=0.0.0.0", "--server.port=8503", "--server.headless=true", "--browser.serverAddress=localhost", "--browser.gatherUsageStats=false", "--server.fileWatcherType=none"]
 # Last, so a new commit changes only the label, never a cached layer.
 ARG GIT_COMMIT=unknown
 LABEL org.opencontainers.image.revision="${GIT_COMMIT}"

@@ -59,8 +59,8 @@ needs the image, so it runs after the Dockerfile; the cheap measurements (1b-1c)
 | S1 | Cheap measurements: aarch64 resolution of the three locks (dry run, no emulation); `torch==2.2.2` from the CPU index for linux x86_64/aarch64 (trial relock in a scratch copy); `COPY --exclude` on this engine; every place a runtime version string is compared | parent | 0.25 day / minutes | findings recorded below; design amended if needed | **done** (record below) |
 | S2 | Repository changes: `.gitattributes`, `.dockerignore`, `.env` ignored; `config.MODELS` and the three asset modules; the two download pins; runtime locks on the CPU index (Linux only); tests shown failing first | sub-agent | 0.25-0.5 day / minutes | `uv run pytest` = the base failures only; pushed | **done** `907c61c`, D68 `75ef929` |
 | S3 | `Dockerfile`, `compose.yaml`, `compose.dev.yaml`, `.env.example`, `tests/test_docker_contract.py`; build `app` and `test` | sub-agent writes; parent builds (long job) | 0.5 day / build est. 20-40 min | both images build; pushed | **done** `9c7b5e3` (built, record below) |
-| S4 | Run-time audit: the image with the owner's `data/` mounted read-only and scratch copies for write paths; a scripted session with an `open` audit hook | parent | 0.25 day / minutes | the folder's file list and write paths recorded; `04` amended | **in progress** (sub-agent; scratch only) |
-| S5 | `candidate_screener.datapack` (`create`, `--with-workspace`, `--source`, `verify`, `handover`, `purge`) and tests; then the owner's `create --with-workspace` | sub-agent; parent runs `create` | 0.5 day / minutes | tests pass; `data/datapack/` verified; pushed | pending |
+| S4 | Run-time audit: the image with the owner's `data/` mounted read-only and scratch copies for write paths; a scripted session with an `open` audit hook | parent | 0.25 day / minutes | the folder's file list and write paths recorded; `04` amended | **done** (record below) |
+| S5 | `candidate_screener.datapack` (`create`, `--with-workspace`, `--source`, `verify`, `handover`, `purge`) and tests; then the owner's `create --with-workspace` | sub-agent; parent runs `create` | 0.5 day / minutes | tests pass; `data/datapack/` verified; pushed | **in progress** (sub-agent) |
 | S6 | Verification V1-V9, V11 (V10 deferred) | parent | 0.5 day / V8 cold build est. 20-40 min, V2 ~15 min | every row recorded; pushed | pending |
 | S7 | Docs: `docs/docker.md`, README, AGENTS.md, `data/README.md`, the workspace card, `docs/project-overview.md` §7, D68, `docs/docker-optional-parts.md` | sub-agent | 0.25-0.5 day | contract test passes; pushed | pending |
 | S8 | Independent review; fixes; `uv run pytest`; the warm affected check run (long job); phase 1 marked complete | reviewer sub-agent; parent | 0.25 day / ~70 min | review findings closed; checks pass; pushed | pending |
@@ -202,3 +202,37 @@ Plan committed and pushed as `4a00c14` on `feat/docker-v1`, off `e530659`.
   would create them as root); the build needs `COPY --exclude`, symbolic `--chmod` and optional
   secrets (works on Engine 27.5.1, BuildKit 0.18.2); the cache mounts hold a second copy of the
   weights (`docker builder prune --filter type=exec.cachemount`).
+
+### S4: run-time audit (27 Oct 2026; sub-agent, reviewed by the parent)
+
+- Method: the `app` image plus strace (`-f`, file syscalls and `connect`), as uid 1000,
+  `--network none`, the owner's data read-only, an empty scratch `hr-portal/` and scratch copies of
+  the cache folders. Three runs: the full session; report and mail; D63/D64 from empty caches.
+  Traces and summaries: `scratchpad/s4/out/` (session-local).
+- Every step ran: the entry script via `AppTest` (sign-in, a CSV review, the CV dialog; no
+  exception), an account created and authenticated, 60 CSV jobs, D63 ready in 14.4 s (37.1 s from
+  empty caches), D64 ready in 120.5 s (50 uncached C2 pairs), the RoBERTa worker answered (verdict
+  "not found": V3 needs a question with an extractable answer), GLiNER-medium found 12/62/57
+  mentions. Models were read only from `/opt` (RoBERTa 497.6 MB, GLiNER-medium 845.4 MB, C2 1.21 GB).
+- Inputs: exactly the list now in `04` §1 (24 files, 256.8 MB), the same in every run; nothing
+  missing. `concept-cache/` and `jd-title/` are unused (dropped from the list).
+- Writes: `processed/hr-portal/`, `processed/embeddings/`, `processed/rerank/cross/`, `logs/`,
+  `/tmp`, `/dev/shm`. No write was refused by the read-only data; nothing changed under `/app` or
+  `/opt`.
+- **Findings and what was done** (Docker settings only; no app code changed):
+  1. transformers 4.48 in the model runtimes tried to write `/opt/hf/hub/version.txt` (refused,
+     harmless warning): the image now writes that marker at build time.
+  2. onnxruntime, imported by GLiNER in both runtimes, writes telemetry files under `$HOME` and
+     looks up `mobile.events.data.microsoft.com`; offline it fails harmlessly, online it would
+     send telemetry. `ORT_DISABLE_TELEMETRY=1` (now in the image) removes both (measured: 16
+     telemetry file operations without it, 0 with it). **For the owner:** native runs outside
+     Docker still send it; disabling it there is a code or environment change, not made.
+  3. Streamlit looked up the host's external IP at start (an HTTP request to
+     `checkip.amazonaws.com`): the image now passes `--browser.serverAddress=localhost`, which
+     skips it (and prints `http://localhost:8503`). The origin check still allows `localhost` and
+     `127.0.0.1` without any network call.
+  4. **App behaviour, not Docker (for the owner):** preparing a report or mail fails with a
+     `ValueError` in `portal_store._opaque_identity` for 53 of the 600 CSV candidates (38 of 60
+     JDs, including the first): their IDs fail the store's check after redaction. A JD whose
+     candidates pass (the second) saves its report and captures the mail.
+  Items 1-3 are verified in S6 (V5, V6).

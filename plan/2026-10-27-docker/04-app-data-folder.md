@@ -26,25 +26,30 @@ dropped), with the model weights moved into the image.
 | Qwen2.5-0.5B | v2/v3 chat wording | 954 MB | no |
 | Qwen3-Reranker-0.6B (C2) | D64 "Refine the top 50" | 1.2 GB | no (zero-shot) |
 
-**In the data folder** (sizes on this machine; step 1's run-time audit confirms the list):
+**In the data folder** (exactly what the app read in the S4 run-time audit, 27 Oct 2026: 24 files, 256.8 MB;
+nothing else under `data/` was read):
 
 | Item | Path under `data/datapack/` | Size | Copied from |
 |---|---|---:|---|
 | CSV-backed benchmark reviews | `processed/phase2-rerank-output/a2-{cv-extraction,jd-extraction,x2-scores}.csv` | 0.25 MB | committed `output/matching/` (identical bytes) |
 | Source text; the `a2-final-cvs` pool | `processed/matching/a2-pairs-v2-539ddf32117c.parquet` | 0.6 MB | `data/` |
 | A2 train-region CVs (background pool) and JDs | `processed/matching/a2-train-{cv,jd}-v2-20000-0.parquet` | 35 MB | `data/` |
-| Role-family model (**trained by the project**) | `processed/extraction/role-family/` | 123 MB | `data/` |
-| SBERT weak (**fine-tuned by the project**) | `processed/matching/sbert-weak-3255167debe9/` | 88 MB | `data/` |
-| Inference parts (fitted) | `processed/inference/parts/` | 0.1 MB | `data/` |
-| Skill vocabulary | `vocab/` | 1.3 MB | committed `data/vocab/` |
+| Role-family model (**trained by the project**) | `processed/extraction/role-family/LATEST` and the `role-model-<fp>.pkl` it names (`44b7fff54614`; the training record is not read) | 128 MB | `data/` |
+| SBERT weak (**fine-tuned by the project**) | `processed/matching/sbert-weak-3255167debe9/` (10 files; not the `-work` folder) | 92 MB | `data/` |
+| Inference parts (fitted) | `processed/inference/parts/` (`LATEST` and its fingerprint folder) | 0.1 MB | `data/` |
+| Skill vocabulary | `vocab/skills.csv` | 1.3 MB | the repository's committed `data/vocab/` (the main checkout's `data/vocab/` is empty) |
 | `pack-manifest.json` | the folder's root | — | written by `create` |
 
-Inputs total about 250 MB. The app also writes into the folder while it runs:
+Inputs total 256.8 MB. The two train parquets are read even when the 600-CV pool needs no
+background padding. The app also writes into the folder while it runs:
 
 | Written by the app | Path | Kept on upgrade? |
 |---|---|---|
 | Workspace: accounts, saved reviews and chat history, JD drafts, mail captures, entity cache | `processed/hr-portal/` | **yes**, unless the change is breaking |
-| Caches: SBERT embeddings, C2 scores, concept and title caches | `processed/embeddings/`, `processed/rerank/cross/`, `processed/extraction/{concept-cache,jd-title}/` | no: cleared on refresh, rebuilt on demand (the first ranking after a refresh takes ~18 s longer) |
+| Caches: SBERT embeddings (`sbert-weak-3255167debe9.npz`, rewritten whole), C2 scores (`<fingerprint>/scores-*.parquet`) | `processed/embeddings/`, `processed/rerank/cross/` | no: cleared on refresh, rebuilt on demand (the first D63 ranking after a refresh took 37 s instead of 14 s) |
+
+Outside the folder the app writes only `logs/` (adapter and worker logs), `/tmp` and `/dev/shm`.
+The research caches `processed/extraction/{concept-cache,jd-title}/` are not used by the app.
 
 ## 2. How it works
 
