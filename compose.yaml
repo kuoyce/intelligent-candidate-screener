@@ -1,0 +1,76 @@
+# The Hiring Desk in Docker (plan 2026-10-27-docker, 01-design-spec.md §5 and §6). Settings come
+# from `.env` (git-ignored; every one is listed in `.env.example`). The healthcheck is in the
+# Dockerfile. Contract checks: tests/test_docker_contract.py.
+#
+#   docker compose build                                      # the app image, weights included
+#   docker compose up -d                                      # http://localhost:8503
+#   docker compose --profile tools run --rm tools <command>   # the data folder commands
+#   docker compose --profile test run --rm test               # the test suite: no network, no data
+#   docker compose --profile llm up -d                        # phase 2: Qwen2.5-0.5B for chat v2/v3
+#
+# The qwen service shares the app container's network namespace (both insist on loopback), so
+# restarting app requires restarting qwen.
+
+x-run: &run
+  image: candidate-screener/hiring-desk:local
+  # Linux: the host user, so files written into the data folder and logs/ stay theirs.
+  user: "${HOST_UID:-1000}:${HOST_GID:-1000}"
+  # Workers start in their own sessions: init reaps them and forwards SIGTERM.
+  init: true
+  volumes:
+    - ./data/datapack:/app/data
+    - ./logs:/app/logs
+
+services:
+  app:
+    <<: *run
+    build:
+      context: .
+      target: app
+      args:
+        GIT_COMMIT: "${GIT_COMMIT:-unknown}"
+    # Host loopback only: local token sign-in is not SSO, and there is no TLS.
+    ports:
+      - "127.0.0.1:${HIRING_DESK_PORT:-8503}:8503"
+    environment:
+      HR_PORTAL_CHAT_VERSION: "${HR_PORTAL_CHAT_VERSION:-v1}"
+    stop_grace_period: 30s
+    restart: unless-stopped
+
+  qwen:
+    <<: *run
+    profiles: [llm]
+    network_mode: "service:app"
+    environment:
+      PYTHONPATH: /app/src
+    command:
+      - uv
+      - run
+      - --project
+      - runtime/transformer
+      - --no-sync
+      - python
+      - -m
+      - candidate_screener.llm.local_server
+      - --manifest
+      - /opt/models/chatbot/qwen/manifest.json
+    stop_grace_period: 30s
+
+  tools:
+    <<: *run
+    profiles: [tools]
+    # The source is a real data directory or a received handover copy, read-only.
+    volumes:
+      - ./data/datapack:/app/data
+      - ./logs:/app/logs
+      - "${SCREENER_DATA_SOURCE:-./data}:/source:ro"
+    entrypoint: [python, -m, candidate_screener.datapack]
+
+  test:
+    image: candidate-screener/hiring-desk:test
+    build:
+      context: .
+      target: test
+    profiles: [test]
+    # The suite needs no network and no data.
+    network_mode: none

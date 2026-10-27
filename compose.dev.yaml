@@ -1,0 +1,23 @@
+# Frontend checks in Docker before an update (plan 2026-10-27-docker, 01-design-spec.md §6);
+# day-to-day development stays native. The host's src/ and .streamlit/ replace the image's copies,
+# read-only, and Streamlit reruns the page on save, polling for changes through the bind mount:
+#
+#   docker compose -f compose.yaml -f compose.dev.yaml up
+#
+# A lock, pin or environment change still needs `docker compose build`.
+
+services:
+  app:
+    volumes:
+      - ./src:/app/src:ro
+      - ./.streamlit:/app/.streamlit:ro
+    command:
+      - streamlit
+      - run
+      - src/candidate_screener/app/streamlit_app.py
+      - --server.address=0.0.0.0
+      - --server.port=8503
+      - --server.headless=true
+      - --browser.gatherUsageStats=false
+      - --server.fileWatcherType=poll
+      - --server.runOnSave=true
