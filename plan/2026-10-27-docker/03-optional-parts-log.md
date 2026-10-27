@@ -35,3 +35,4 @@ link.
 | 2026-10-27 | Account management | CLI now; in-app creation next update | owner | Docker does not depend on it; the frontend is still changing |
 | 2026-10-27 | arm64 emulation | not now | owner | arm64 is checked when someone builds on Apple Silicon |
 | 2026-10-27 | Account-creation screen | no accounts → create screen, else sign-in; no administrator, no setup code; own branch | owner | simplest useful flow; the port is loopback-only |
+| 2026-10-27 | arm64 test under emulation | in v2 (S11): emulation registered for the test, removed after | owner ("continue with v2, test the Apple Silicon files"), read by the agent as permission | no arm64 machine is available |

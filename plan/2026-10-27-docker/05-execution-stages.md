@@ -66,6 +66,33 @@ needs the image, so it runs after the Dockerfile; the cheap measurements (1b-1c)
 | S8 | Independent review; fixes; `uv run pytest`; the warm affected check run (long job); phase 1 marked complete | reviewer sub-agent; parent | 0.25 day / ~70 min | review findings closed; checks pass; pushed | pending |
 | S9 | Phase 2: the `llm` profile (Qwen2.5-0.5B service) and V3's v2/v3 rows | parent or sub-agent | 0.25 day | v2 and v3 answers composed by Qwen in the container; pushed | pending |
 | S10 | Account-creation screen, on its **own branch** (below) | sub-agent | 0.5 day | tests pass; branch pushed; merge left to the owner | pending |
+| S11 | Apple Silicon (arm64) test under emulation (below) | parent | 0.25 day / several hours of emulated runs | V10 recorded against its registered bar; emulation removed; pushed | pending |
+
+## After v1: continue with v2 without waiting (owner, 27 Oct 2026)
+
+"If I do not respond after v1 is completed, continue with v2 (test the Apple Silicon files) unless
+there are blocking items that need my response."
+
+- **v1** = S0-S8 (Docker phase 1). **v2** = S9, S10 and S11. When S8 is pushed and the owner has
+  not replied, v2 starts on its own.
+- **Blocking** (stop and wait for the owner): a registered stop condition (a failing V2 item; the
+  V10 bar exceeded), a decision this plan does not cover, a build failure that needs a design
+  change. Anything else: record it and continue.
+- Branches: v2's Docker work stays on `feat/docker-v1`; S10 uses `feat/account-create-screen`.
+
+### S11: the Apple Silicon test
+
+- This machine has no arm64 CPU, so S11 registers QEMU emulation when it starts
+  (`docker run --privileged --rm tonistiigi/binfmt --install arm64`, the image pinned by digest)
+  and removes it when it ends (`--uninstall qemu-aarch64`). This reads the owner's "test the Apple
+  Silicon files" as permission for that, in v2 only; the owner can veto before S11 starts.
+- Build the arm64 image (`--platform linux/arm64`, its own tag, never replacing the amd64 image),
+  then V1 (tests), V3 (smoke) and V2b (parity) against the amd64 results with the bar registered
+  in the README's V10 row. Emulation is slow: D64 runs on a handful of C2 pairs rather than 50, and
+  the record says so. Every emulated run is a long job under rule 3.
+- What it can and cannot prove: emulation executes arm64 code, so it catches missing arm64
+  packages and real numerical differences of arm64 builds; it does not measure Apple Silicon
+  speed or Docker Desktop's macOS behaviour (file sharing, memory), which wait for a real Mac.
 
 ## S10: the account-creation screen (owner, 27 Oct 2026)
 
