@@ -58,8 +58,8 @@ needs the image, so it runs after the Dockerfile; the cheap measurements (1b-1c)
 | S0 | Commit the approved plan on `feat/docker-v1`; push | parent | minutes | plan pushed | **done** `4a00c14` |
 | S1 | Cheap measurements: aarch64 resolution of the three locks (dry run, no emulation); `torch==2.2.2` from the CPU index for linux x86_64/aarch64 (trial relock in a scratch copy); `COPY --exclude` on this engine; every place a runtime version string is compared | parent | 0.25 day / minutes | findings recorded below; design amended if needed | **done** (record below) |
 | S2 | Repository changes: `.gitattributes`, `.dockerignore`, `.env` ignored; `config.MODELS` and the three asset modules; the two download pins; runtime locks on the CPU index (Linux only); tests shown failing first | sub-agent | 0.25-0.5 day / minutes | `uv run pytest` = the base failures only; pushed | **done** `907c61c`, D68 `75ef929` |
-| S3 | `Dockerfile`, `compose.yaml`, `compose.dev.yaml`, `.env.example`, `tests/test_docker_contract.py`; build `app` and `test` | sub-agent writes; parent builds (long job) | 0.5 day / build est. 20-40 min | both images build; pushed | **in progress**: files committed (work in progress); build job `logs/docker/s3-build.log` |
-| S4 | Run-time audit: the image with the owner's `data/` mounted read-only and scratch copies for write paths; a scripted session with an `open` audit hook | parent | 0.25 day / minutes | the folder's file list and write paths recorded; `04` amended | pending |
+| S3 | `Dockerfile`, `compose.yaml`, `compose.dev.yaml`, `.env.example`, `tests/test_docker_contract.py`; build `app` and `test` | sub-agent writes; parent builds (long job) | 0.5 day / build est. 20-40 min | both images build; pushed | **done** `9c7b5e3` (built, record below) |
+| S4 | Run-time audit: the image with the owner's `data/` mounted read-only and scratch copies for write paths; a scripted session with an `open` audit hook | parent | 0.25 day / minutes | the folder's file list and write paths recorded; `04` amended | **in progress** (sub-agent; scratch only) |
 | S5 | `candidate_screener.datapack` (`create`, `--with-workspace`, `--source`, `verify`, `handover`, `purge`) and tests; then the owner's `create --with-workspace` | sub-agent; parent runs `create` | 0.5 day / minutes | tests pass; `data/datapack/` verified; pushed | pending |
 | S6 | Verification V1-V9, V11 (V10 deferred) | parent | 0.5 day / V8 cold build est. 20-40 min, V2 ~15 min | every row recorded; pushed | pending |
 | S7 | Docs: `docs/docker.md`, README, AGENTS.md, `data/README.md`, the workspace card, `docs/project-overview.md` §7, D68, `docs/docker-optional-parts.md` | sub-agent | 0.25-0.5 day | contract test passes; pushed | pending |
@@ -175,3 +175,30 @@ Plan committed and pushed as `4a00c14` on `feat/docker-v1`, off `e530659`.
   `candidate_screener.config` (still standard library only).
 - For the guide (S7): on native Apple Silicon, uv's default macOS 13.0 target cannot install the
   runtime locks' `onnxruntime` (macOS 14 wheels only), before and after this change.
+
+### S3: Dockerfile and compose (27 Oct 2026, files `9c7b5e3`; sub-agent, reviewed by the parent)
+
+- Files: `Dockerfile` (stages uv, base, deps, test, models, app; `app` last, so it is the
+  default), `compose.yaml` (app, qwen/`llm`, tools/`tools`, test/`test`), `compose.dev.yaml`,
+  `.env.example`, `tests/test_docker_contract.py` (66 tests: 8 on the files, 57 negative cases,
+  1 sanity check; 21 deliberate breakages of copies of the real files each caught,
+  `logs/s3-contract-tests.log`). `docker build --check` and `docker compose config` clean. Full
+  suite: the 17 known frontend failures (`logs/pytest-s3.log`).
+- Pins: `python:3.12-slim-bookworm@sha256:fc169880…` (Python 3.12.16; native is 3.12.3),
+  `ghcr.io/astral-sh/uv:0.12.7@sha256:95f2aa1f…` (both multi-architecture); RoBERTa-SQuAD2
+  `adc3b06…` (the revision earlier plans record for the teammate's checkpoint); GLiNER-medium's
+  encoder `microsoft/deberta-v3-base` `8ccc9b6…`; Qwen2.5-0.5B `7ae5576…`; C2 `e61197e…`.
+- The models stage downloads into a cache mount, one folder per pin, copies into `/opt/models`
+  and `/opt/hf`, then verifies offline (`qa_assets --verify`, `medium_assets --verify`, Qwen's
+  digest, C2 with `local_files_only`). Everything under `/app` and `/opt` is world-readable.
+- **First build** (job `logs/docker/s3-build.log`, from `9c7b5e3`): `app` built in 2 min 59 s
+  (packages 90 + 29 + 60, models: RoBERTa 26 s, GLiNER-medium 30 s, Qwen 28 s, C2 21 s), `test`
+  in 7 s after it; exit 0 for both. Image sizes: `app` 7.98 GB, `test` 4.59 GB. Ten base steps
+  came from an earlier cache, so these are not cold figures (V8 measures those).
+- Deviations, accepted: `init: true` and `stop_grace_period` on every service; `tools` also mounts
+  `logs/`; the healthcheck has a 10 s timeout, 3 retries and no proxy; the optional `hf_token`
+  build secret is wired in the Dockerfile only (the guide shows the `buildx` form).
+- For the guide (S7): on Linux run `mkdir -p data/datapack logs` before the first `up` (compose
+  would create them as root); the build needs `COPY --exclude`, symbolic `--chmod` and optional
+  secrets (works on Engine 27.5.1, BuildKit 0.18.2); the cache mounts hold a second copy of the
+  weights (`docker builder prune --filter type=exec.cachemount`).
