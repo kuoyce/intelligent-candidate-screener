@@ -307,3 +307,25 @@ Scratch project `hd-g2c`, `app` built from `c4d0ac0` under a scratch tag (the ow
   - Six prompts: templates of 103-488 characters, 19-98 prompt tokens, 7-64 generated tokens (four
     ended at the end-of-generation token, two at the 64-token limit).
   - `--compare … --rule identical`: **E1 PASS, E2 PASS, E3 PASS**.
+
+### E5 (linux-arm64 under emulation): blocked on a packaging decision (28 Oct 2026)
+
+- `docker buildx ls` lists `linux/arm64`. The arm64 `llm4b` build (`git archive 0398370`;
+  `logs/gguf/g3-e5.log`) **failed at the apt step** after 10 s: `Unable to locate package python3`,
+  `libgomp1`, and the pinned `ca-certificates` version not found.
+- **Cause:** on arm64, Ubuntu's sources point at `ports.ubuntu.com/ubuntu-ports`, and
+  **snapshot.ubuntu.com does not serve `ubuntu-ports`**: `…/ubuntu-ports/20261027T000000Z/…`
+  answers 401, and the `ubuntu-ports/` root 404. `APT::Snapshot` was therefore not applied, and apt
+  read the live ports lists. The amd64 archive (`…/ubuntu/20261027T000000Z/…`) answers 200, which
+  is why amd64 built.
+- **Live ports today:** `noble-updates` and `noble-security` carry exactly the three pinned
+  versions: `python3 3.12.3-0ubuntu2.1`, `ca-certificates 20260816ubuntu0.24.04.1`,
+  `libgomp1 14.2.0-4ubuntu2~24.04.1`.
+- **Decision needed (Q6 for arm64):**
+  - (a) On arm64, read live `ports.ubuntu.com` with the same version pins. The build fails loudly
+    once Ubuntu replaces a version, and the pins are then bumped;
+  - (b) pin each arm64 `.deb` by URL and SHA-256 (python3 pulls in about 10 packages): reproducible,
+    more lines;
+  - (c) another base for arm64 only.
+
+  E5 waits for the answer.
