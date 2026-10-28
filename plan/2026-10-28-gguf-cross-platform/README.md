@@ -185,3 +185,33 @@ Full suite after the rebase (`logs/pytest-g1-rebased.log`): 17 failed (the known
   - The 2.74 GB model was not downloaded (G2a).
 - **Review note:** `provision`'s parameter `platform` shadows the `platform` module inside that
   function only; detection happens in `platform_key`, so the behaviour is right. Left as is.
+
+### G2a: native Linux, this machine (28 Oct 2026; parent)
+
+- **Provisioning** (`uv run python -m candidate_screener.llm.gguf_assets`, no flags;
+  `logs/gguf/g2a-provision.log`):
+  - The `linux-x64` runtime started first, then the 2.74 GB model was downloaded and verified:
+    36 s in all, exit 0.
+  - The manifest records `runtime_platform: linux-x64`, the runtime archive's digest
+    `b02ed815…` and `start_check: passed`.
+  - Destination: the native default, `data/processed/chatbot/qwen35`. In this worktree `data/`
+    points to the main checkout's `data/`, so the files live there (git-ignored).
+- **Service and walkthrough** (`logs/gguf/g2a-walkthrough.log`, `g2a-walkthrough-{1,2}.json`):
+  - `gguf_server --launch-backend`: the facade was ready 4.0 s after start, and `/v1/models`
+    returned the pinned model, revision and SHA-256.
+  - The D67 walkthrough (`conversation_v3_smoke --real-model`, invented sources) was run twice with
+    the v3 prompt `hiring-desk-v3-summary-conclusion-7`. Both runs were identical: Qwen's answer
+    was accepted for 1 of 4 factual turns (the degree question). The other three fell back with
+    `unsupported_paraphrase`: Qwen answered within the time limit and the application's checks
+    rejected the wording.
+  - Turn times 33.9-36.1 s, 49.8-50.4 s, 52.8-52.9 s and 42.8-43.1 s: all under the 60 s budget
+    on an idle 22-core machine (the backend runs with `--threads 4`). About 181 s per walkthrough.
+  - `llama-server` peak resident memory: 4.55 GB.
+  - This is a development smoke on one seen invented source family, not a quality result.
+- **Finding:**
+  - Stopping the `uv run … gguf_server` process with SIGTERM left `llama-server` running, still
+    listening on 8002; it was stopped by hand. The facade handles only `KeyboardInterrupt`, so on
+    SIGTERM its `finally` (which terminates the child) never runs.
+  - In Docker, `docker compose stop` sends SIGTERM, so the service would wait out its grace
+    period.
+  - Fixed in G2b, with a test that fails first: SIGTERM is handled the same way as Ctrl+C.
