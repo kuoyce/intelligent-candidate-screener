@@ -130,7 +130,7 @@ RUN --mount=type=cache,id=screener-gguf-downloads,target=/var/cache/screener-ggu
     mkdir -p /opt/qwen35-manifest; \
     cp "$dest/manifest.json" /opt/qwen35-manifest/manifest.json; \
     chmod -R a+rX /opt/models /opt/qwen35-manifest
-COPY --chmod=a+rX src/candidate_screener/llm/gguf_server.py /app/src/candidate_screener/llm/
+COPY --chmod=a+rX src/candidate_screener/llm/gguf_server.py src/candidate_screener/llm/gguf_probe.py /app/src/candidate_screener/llm/
 # Run time: no downloads, no writes but /tmp, any user id (compose passes the host's).
 ENV PATH=/opt/gguf-venv/bin:$PATH \
     PYTHONPATH=/app/src \
