@@ -15,9 +15,12 @@ import http.client
 import json
 from pathlib import Path, PurePosixPath
 import platform
+import re
+import ssl
 import subprocess
 import tarfile
 from typing import NamedTuple
+import urllib.error
 import urllib.request
 
 from candidate_screener.config import MODELS
@@ -126,7 +129,15 @@ def fetch(url, destination, expected_sha256, expected_size):
         if offset == expected_size:
             break
         request = urllib.request.Request(url, headers={"Range": f"bytes={offset}-"} if offset else {})
-        with urllib.request.urlopen(request, timeout=120) as response:
+        try:
+            response = urllib.request.urlopen(request, timeout=120)
+        except urllib.error.HTTPError as error:
+            if error.code < 500:
+                raise
+            continue  # a server error: retry within the bound
+        except (urllib.error.URLError, TimeoutError, ConnectionError):
+            continue  # a reset or timeout while connecting: retry within the bound
+        with response:
             resumed = offset > 0 and response.status == 206
             if resumed and not response.headers.get("Content-Range", "").startswith(f"bytes {offset}-"):
                 raise ValueError("Download resume offset differs from request")
@@ -138,7 +149,7 @@ def fetch(url, destination, expected_sha256, expected_size):
                         if count > expected_size:
                             raise ValueError("Artifact exceeds pinned size")
                         stream.write(chunk)
-                except (TimeoutError, ConnectionError, http.client.IncompleteRead):
+                except (TimeoutError, ConnectionError, http.client.IncompleteRead, ssl.SSLError):
                     pass  # a stalled or broken stream: keep the bytes, resume on the next attempt
     if not partial.exists() or partial.stat().st_size != expected_size or digest(partial) != expected_sha256:
         raise ValueError("Artifact size or SHA-256 mismatch; manifest not written")
@@ -197,7 +208,7 @@ def start_check(binary, key):
     except (OSError, subprocess.SubprocessError) as error:
         raise RuntimeError(f"{hint} ({error})") from error
     output = (result.stdout or "") + (result.stderr or "")
-    if result.returncode != 0 or f"build {RELEASE.lstrip('b')}" not in output:
+    if result.returncode != 0 or not re.search(rf"\bbuild {RELEASE.lstrip('b')}\b", output):
         detail = " ".join(output.split())[-300:]
         raise RuntimeError(f"{hint} (exit {result.returncode}: {detail})")
     return output
@@ -268,6 +279,11 @@ def main():
                         help="runtime to provision instead of the host's own; a different "
                              "platform skips the start check")
     args = parser.parse_args()
+    if args.platform is None:
+        try:
+            platform_key()
+        except ValueError as error:
+            parser.error(str(error))
     provision(args.destination, args.platform)
 
 

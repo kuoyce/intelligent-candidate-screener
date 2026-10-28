@@ -389,16 +389,19 @@ def _gap(completion, step):
 def _check_generation(ref, other, rule):
     lines, passed = [], True
     a, b = _rows(ref), _rows(other)
+    # A run with `--prompts 1` (E5) generates for prompt 1 only; every other run must have them all.
+    subset = "1" in ((ref.get("settings") or {}).get("prompts"), (other.get("settings") or {}).get("prompts"))
+    required = {1} if subset else set(range(1, len(PROMPTS) + 1))
     compared = []
     for index in range(1, len(PROMPTS) + 1):
         ca, cb = (a.get(index) or {}).get("completion"), (b.get(index) or {}).get("completion")
         if not (ca and cb):
-            if rule == "identical":
+            if rule == "identical" or index in required:
                 passed = False
                 lines.append(f"prompt {index}: completion missing in "
                              f"{'both' if not (ca or cb) else 'reference' if not ca else 'other'}")
             else:
-                lines.append(f"prompt {index}: not in both runs, not compared")
+                lines.append(f"prompt {index}: not generated in the prompt-1 run, not compared")
             continue
         compared.append(index)
         step, n = _first_difference(ca, cb)

@@ -5,7 +5,9 @@ import json
 import os
 import subprocess
 import sys
+import ssl
 import tarfile
+import urllib.error
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -119,7 +121,10 @@ def serve_in_turn(monkeypatch, responses):
 
     def open_response(request, timeout):
         requests.append(request)
-        return queue.pop(0) if queue else Response(b"")
+        item = queue.pop(0) if queue else Response(b"")
+        if isinstance(item, BaseException):
+            raise item
+        return item
 
     monkeypatch.setattr(assets.urllib.request, "urlopen", open_response)
     return requests
@@ -155,6 +160,58 @@ def test_a_stalled_or_reset_stream_resumes_in_the_same_call(monkeypatch, tmp_pat
     target = tmp_path / "model.gguf"
     assert assets.fetch("https://example.invalid/model", target, sha(body), len(body)) == target
     assert [r.get_header("Range") for r in requests] == [None, "bytes=9-"]
+
+
+@pytest.mark.parametrize("error", [
+    urllib.error.URLError(ConnectionResetError("reset while connecting")),
+    urllib.error.HTTPError("https://example.invalid/model", 503, "busy", {}, None),
+    TimeoutError("connect timed out")])
+def test_a_failed_request_is_retried_within_the_attempt_bound(monkeypatch, tmp_path, error):
+    # G5 review: an error from urlopen itself (not mid-stream) must not end the fetch early.
+    body = b"complete frozen artifact bytes"
+    requests = serve_in_turn(monkeypatch, [
+        Response(body[:9]), error, Response(body[9:], 206, f"bytes 9-{len(body)-1}/{len(body)}")])
+    target = tmp_path / "model.gguf"
+    assert assets.fetch("https://example.invalid/model", target, sha(body), len(body)) == target
+    assert [r.get_header("Range") for r in requests] == [None, "bytes=9-", "bytes=9-"]
+
+
+def test_a_client_error_is_not_retried(monkeypatch, tmp_path):
+    requests = serve_in_turn(monkeypatch, [
+        urllib.error.HTTPError("https://example.invalid/model", 404, "gone", {}, None)])
+    with pytest.raises(urllib.error.HTTPError):
+        assets.fetch("https://example.invalid/model", tmp_path / "model.gguf", sha(b"x"), 1)
+    assert len(requests) == 1
+
+
+def test_a_mid_stream_tls_error_resumes(monkeypatch, tmp_path):
+    body = b"complete frozen artifact bytes"
+
+    class Fails(Response):
+        def read(self, size=-1):
+            chunk = super().read(size)
+            if not chunk:
+                raise ssl.SSLError("bad record mac")
+            return chunk
+
+    serve_in_turn(monkeypatch, [Fails(body[:9]), Response(body[9:], 206, f"bytes 9-{len(body)-1}/{len(body)}")])
+    target = tmp_path / "model.gguf"
+    assert assets.fetch("https://example.invalid/model", target, sha(body), len(body)) == target
+
+
+def test_start_check_rejects_a_longer_build_number(monkeypatch, tmp_path):
+    starts(monkeypatch, "version: 0.7.0-dev (build 118960, commit 0000000)")
+    with pytest.raises(RuntimeError, match="did not start"):
+        assets.start_check(tmp_path / "llama-server", "linux-x64")
+
+
+def test_unpinned_host_is_a_clear_command_line_error(monkeypatch, capsys):
+    monkeypatch.setattr(assets.platform, "system", lambda: "FreeBSD")
+    monkeypatch.setattr(assets.platform, "machine", lambda: "riscv64")
+    monkeypatch.setattr("sys.argv", ["gguf_assets"])
+    with pytest.raises(SystemExit) as exit_:
+        assets.main()
+    assert exit_.value.code == 2 and "Traceback" not in capsys.readouterr().err
 
 
 def test_resuming_after_an_early_end_is_bounded_and_never_publishes(monkeypatch, tmp_path):

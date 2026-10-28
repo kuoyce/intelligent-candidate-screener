@@ -281,7 +281,7 @@ def test_probe_records_prob_format_when_backend_sends_probs(manifest, tmp_path):
 
 # ---------------------------------------------------------------------------- comparison rules
 
-def make_record(tokens=None, gaps=None, max_tokens=64, completions=6, stop_type="limit"):
+def make_record(tokens=None, gaps=None, max_tokens=64, completions=6, stop_type="limit", prompts="all"):
     """A probe record: prompt k generates `tokens[k]`; `gaps[k][i]` is step i's top-2 gap (nats)."""
     rows = []
     for k, prompt in enumerate(probe.PROMPTS):
@@ -296,7 +296,7 @@ def make_record(tokens=None, gaps=None, max_tokens=64, completions=6, stop_type=
                      "apply_template": {"prompt": f"<t>{k}</t>"}, "tokenize": {"tokens": [k, k + 1]},
                      "completion": completion})
     return {"probe_version": probe.PROBE_VERSION, "prompts_digest": probe.prompts_digest(),
-            "settings": {"max_tokens": max_tokens},
+            "settings": {"max_tokens": max_tokens, "prompts": prompts},
             "manifest": {"model": gguf_assets.MODEL, "revision": gguf_assets.REVISION,
                          "sha256": gguf_assets.SHA256, "runtime_platform": "linux-x64"},
             "facade_models": {"response": {"data": [{"id": gguf_assets.MODEL, "revision": gguf_assets.REVISION,
@@ -422,7 +422,8 @@ def test_subset_run_compares_only_shared_prompts_and_tokens():
     """E5: prompt 1 with 8 tokens against the reference's 6 prompts with 64."""
     ref = make_record(tokens=[list(range(100 + 10 * k, 164 + 10 * k)) for k in range(6)],
                       gaps=[[1.0] * 64 for _ in range(6)])
-    other = make_record(tokens=[list(range(100, 108))] + [[0]] * 5, max_tokens=8, completions=1)
+    other = make_record(tokens=[list(range(100, 108))] + [[0]] * 5, max_tokens=8, completions=1,
+                        prompts="1")
     result = probe.compare(ref, other, "near-tie")
     assert {check: passed for check, passed, _ in result} == {"E1": True, "E2": True, "E4": True}
     lines = " ".join(line for check, _, details in result if check == "E4" for line in details)
@@ -430,8 +431,22 @@ def test_subset_run_compares_only_shared_prompts_and_tokens():
 
 
 def test_subset_run_with_no_shared_completion_fails():
-    other = make_record(completions=0)
+    other = make_record(completions=0, prompts="1")
     assert verdicts(make_record(), other, "near-tie")["E4"] is False
+
+
+def test_near_tie_fails_when_a_full_run_lost_completions():
+    # E4 judges each prompt: a full Mac run whose completions errored on 5 of 6 prompts must not
+    # pass on the one that worked (G5 review).
+    other = make_record(completions=1)
+    assert verdicts(make_record(), other, "near-tie")["E4"] is False
+
+
+def test_near_tie_fails_when_the_subset_run_lost_prompt_1():
+    other = make_record(completions=0, prompts="1")
+    ref = make_record()
+    result = {check: (passed, lines) for check, passed, lines in probe.compare(ref, other, "near-tie")}
+    assert result["E4"][0] is False and any("prompt 1" in line for line in result["E4"][1])
 
 
 def test_compare_cli_exit_codes(tmp_path, capsys):

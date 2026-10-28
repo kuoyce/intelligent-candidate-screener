@@ -1,6 +1,6 @@
 # Qwen3.5-4B GGUF trial on macOS and Linux, and in Docker
 
-Status: **approved by the owner (28 Oct 2026), "approve as recommended"**; branch
+Status: **complete (28 Oct 2026)**; E4 and E6 open, not gates. Approved by the owner (28 Oct 2026), "approve as recommended"; branch
 `feat/gguf-cross-platform` off `feat/docker-v1` (`bccf03b`). The measurements in `01` were taken
 before the design, as the request asked: the four runtime archives (about 70 MB) and one 3-minute
 source build.
@@ -225,7 +225,7 @@ Full suite after the rebase (`logs/pytest-g1-rebased.log`): 17 failed (the known
 - **Dockerfile, target `llm4b`** (between `test` and `models`, so `app` stays the last stage and the
   default):
   - base: `ubuntu:24.04@sha256:24737cef…`;
-  - apt from snapshot `20261027T000000Z`, `main` of noble and noble-updates only: `python3=3.12.3-0ubuntu2.1`,
+  - apt from snapshot `20261027T000000Z`, `main` of noble, noble-updates and noble-security (backports dropped; wording corrected in G5): `python3=3.12.3-0ubuntu2.1`,
     `ca-certificates=20260816ubuntu0.24.04.1`, `libgomp1=14.2.0-4ubuntu2~24.04.1`. The snapshot
     is HTTPS-only and the base has no CA bundle, so the two apt commands borrow the bundle from the
     `base` stage through a bind mount;
@@ -361,3 +361,37 @@ stays on amd64.
   an emulation artefact. On a real arm64 host the probe reads it as on x64.
 - E5 is emulated, so it says the arm64 build is correct, not how fast it runs. Speed on Apple
   Silicon waits for E6.
+
+### G5: review, fixes and close (28 Oct 2026)
+
+- **Independent review** (a sub-agent, read-only, `d27e931..HEAD` against this plan): no serious
+  findings and no unrecorded deviations. `compose.yaml` and the other Dockerfile stages are
+  unchanged. Fixed. Each test failed before its fix (`logs/gguf/g5-review-tests-before.log`) and
+  passes after (`…-after.log`):
+  1. **The near-tie rule passed with missing completions.** A full six-prompt run (E4) whose
+     completions errored on five prompts passed on the sixth. Now every prompt is required unless
+     one record ran with `--prompts 1` (E5), and then prompt 1 is required. The recorded E1-E3 and
+     E5 comparisons still pass.
+  2. **`fetch` retried only mid-stream errors.** It now also retries a reset or timeout while
+     connecting, and server errors (5xx), within the same 50-request bound. A 4xx still stops at
+     once. TLS errors mid-stream are resumed too.
+  3. **The start check matched `build 11896` as a substring.** It now matches a whole word, so
+     `build 118960` is rejected.
+  4. **An unpinned host printed a traceback.** It is now a command-line error naming the host.
+  5. **Docs:** apt reads `main` of noble, noble-updates and noble-security; the record had said
+     "noble and noble-updates only". On arm64 only the three named packages are pinned, and their
+     dependencies follow the live ports archive (`docs/docker.md` §13).
+- **Not changed, recorded:**
+  - The near-tie rule takes the gap from the reference and does not check that the other run's
+    token was the reference's runner-up. That is the bar registered in `03`, before anything was
+    scored.
+  - A SIGTERM during the facade's backend start-up loop still exits with a traceback (code 1). The
+    `finally` still stops the child, so nothing is left running.
+- **Full suite** (`logs/gguf/g5-pytest-final.log`): only the 17 known failures (11
+  `test_portal_extractive`, 3 `test_portal_ui`, 3 `test_portal_v1_ui`); none touched by this plan.
+- **Checks:** `checks --affected d27e931 --explain` selects no records. This plan changes no code a
+  committed record is built from, so no warm or cold check applies (D55, D58 (research)).
+- **Open, not gates:**
+  - E4: the teammate's Intel Mac run (Q3).
+  - E6: an Apple Silicon Mac.
+  - On a real arm64 host, the probe's CPU back-end reading.
