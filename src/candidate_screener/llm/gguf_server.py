@@ -256,7 +256,7 @@ def main(argv=None):
     parser.add_argument("--host", choices=["127.0.0.1"], default="127.0.0.1")
     parser.add_argument("--port", type=int, default=8001)
     parser.add_argument("--backend-url", default="http://127.0.0.1:8002")
-    parser.add_argument("--launch-backend", action="store_true", help="Start the pinned local Intel runtime too")
+    parser.add_argument("--launch-backend", action="store_true", help="Start the pinned local llama.cpp runtime from the manifest too")
     args = parser.parse_args(argv)
     manifest = load_manifest(args.manifest)
     runtime = GGUFBackend(manifest, args.backend_url)

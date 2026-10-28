@@ -162,3 +162,28 @@ def test_explicit_launcher_bounds_cpu_and_disables_thinking_and_prompt_caches(ma
         assert command[command.index(key) + 1] == expected
     assert json.loads(command[command.index("--chat-template-kwargs") + 1]) == {"enable_thinking": False}
     assert {"--no-cache-idle-slots", "--no-slots", "--no-webui", "--log-disable"} <= set(command)
+
+
+# Plan 2026-10-28-gguf-cross-platform (G1): manifests now name the runtime's platform.
+
+def test_manifest_with_and_without_the_runtime_platform_fields_loads(manifest):
+    old = json.loads(manifest.read_text())
+    assert load_manifest(manifest)["llama_server"] == old["llama_server"]
+    new = {**old, "llama_release": "b11896", "runtime_platform": "linux-x64",
+           "runtime_archive": "llama-b11896-bin-ubuntu-x64.tar.gz",
+           "runtime_archive_sha256": "b" * 64, "start_check": "passed"}
+    manifest.write_text(json.dumps(new))
+    value = load_manifest(manifest)
+    assert value["runtime_platform"] == "linux-x64"
+    assert value["runtime_archive"] == "llama-b11896-bin-ubuntu-x64.tar.gz"
+    assert value["start_check"] == "passed"
+    assert value["llama_server"] == old["llama_server"]
+
+
+def test_launch_backend_help_is_platform_neutral(capsys):
+    import candidate_screener.llm.gguf_server as module
+    with pytest.raises(SystemExit):
+        module.main(["--help"])
+    text = capsys.readouterr().out
+    assert "--launch-backend" in text
+    assert "Intel" not in text
