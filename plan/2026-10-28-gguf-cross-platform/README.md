@@ -7,8 +7,9 @@ source build.
 
 Answers (owner, 28 Oct 2026): Q1 **yes** (pin `macos-arm64`); Q2 **a separate `llm4b` image**, used
 through `compose.llm4b.yaml`; Q4 **`feat/gguf-cross-platform`**, merged back into `feat/docker-v1`;
-Q6 **snapshot pinning**. **Q3 and Q5 remain open:** they affect only G4 and the documentation in G5,
-so G0-G3 proceed. Until answered, E4 is recorded as pending and no decision-log entry is written.
+Q6 **snapshot pinning**. Q3 (owner, 28 Oct 2026): **the teammate runs G4/E4, and it need not
+pass** (its result is recorded, not a gate); **E1-E3 and E5 must pass on this machine**. Q5: **no
+decision-log amendment**; this plan record is enough.
 
 Request (owner, 28 Oct 2026): the D67 trial (`plan/2026-10-25-hiring-desk-v3/04-qwen35-trial.md`)
 must work natively on macOS and Linux, and Docker must use only a Linux llama.cpp pin. Today
