@@ -285,3 +285,25 @@ Scratch project `hd-g2c`, `app` built from `c4d0ac0` under a scratch tag (the ow
 - **Reading:** on this machine the 4B fits the 60 s budget only when the CPU is otherwise idle.
   Concurrent ranking pushes most turns past it, and they then fall back as designed. The budget
   stays 60 s (D67); this is recorded, not tuned.
+
+### G3: the probe, and E1-E3 on this machine (28 Oct 2026)
+
+- **Probe** (`139da44`; sub-agent, reviewed by the parent): `llm/gguf_probe.py` and 46 tests. Before
+  the module existed the test file failed at import (`logs/g3-tests-before.log`); after, 135 passed
+  across the three GGUF test files. Full suite: the 17 known failures.
+  - It implements 03 unchanged. The reference record goes first in `--compare`; the near-tie gap
+    is taken from it.
+  - **Deviation:** 03 says the CPU back end comes from `llama-server`'s start-up log, but
+    `backend_command` passes `--log-disable`. The probe reads the mapped `libggml-cpu-*.so` and the
+    thread flags from `/proc/<pid>` instead (`null` where there is no `/proc`, e.g. macOS).
+  - The probe is copied into the `llm4b` image (last layer) so the same code runs in both
+    environments.
+  - Assumptions about b11896's endpoints come from the binary's strings and the upstream server
+    README, not from its source. A live run then confirmed the shapes: E1-E3 below.
+- **E1-E3** (`logs/gguf/g3-e123.log`, `g3-e-native.json`, `g3-e-docker.json`):
+  - Natively, `gguf_server --launch-backend` with the probe took 32 s. In the rebuilt `llm4b`
+    container (project `hd-g3`, only the last layer rebuilt in 3 s), the probe took 31 s.
+  - Both loaded `libggml-cpu-alderlake.so`, with 4 threads and 4 batch threads.
+  - Six prompts: templates of 103-488 characters, 19-98 prompt tokens, 7-64 generated tokens (four
+    ended at the end-of-generation token, two at the 64-token limit).
+  - `--compare … --rule identical`: **E1 PASS, E2 PASS, E3 PASS**.
