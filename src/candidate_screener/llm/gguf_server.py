@@ -14,6 +14,7 @@ import json
 import math
 from pathlib import Path
 import re
+import signal
 import subprocess
 import time
 from time import monotonic
@@ -261,6 +262,9 @@ def main(argv=None):
     manifest = load_manifest(args.manifest)
     runtime = GGUFBackend(manifest, args.backend_url)
     child = None
+    # `docker compose stop` (and `kill`) send SIGTERM: clean up as on Ctrl+C, or the launched
+    # llama-server outlives the facade (plan 2026-10-28-gguf-cross-platform, G2a).
+    previous = signal.signal(signal.SIGTERM, _interrupt)
     try:
         if args.launch_backend:
             parsed = urlsplit(args.backend_url)
@@ -286,6 +290,7 @@ def main(argv=None):
             except KeyboardInterrupt:
                 pass
     finally:
+        signal.signal(signal.SIGTERM, previous)
         if child is not None and child.poll() is None:
             child.terminate()
             try:
@@ -293,6 +298,10 @@ def main(argv=None):
             except subprocess.TimeoutExpired:
                 child.kill()
                 child.wait()
+
+
+def _interrupt(signum, frame):
+    raise KeyboardInterrupt
 
 
 def backend_command(manifest, port=8002):

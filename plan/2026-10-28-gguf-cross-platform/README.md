@@ -215,3 +215,48 @@ Full suite after the rebase (`logs/pytest-g1-rebased.log`): 17 failed (the known
   - In Docker, `docker compose stop` sends SIGTERM, so the service would wait out its grace
     period.
   - Fixed in G2b, with a test that fails first: SIGTERM is handled the same way as Ctrl+C.
+
+### G2b: the `llm4b` image and `compose.llm4b.yaml` (28 Oct 2026; sub-agent, reviewed by the parent)
+
+- **SIGTERM fix (the G2a finding).** `gguf_server.main` turns SIGTERM into the Ctrl+C path, so its
+  `finally` stops `llama-server`. The new test (a fake backend, then SIGTERM) failed before the fix
+  (`logs/g2b-sigterm-before.log`) and passes after it. In Docker, `stop llm4b` took 0.31 s and
+  exited 0, with no `llama-server` left.
+- **Dockerfile, target `llm4b`** (between `test` and `models`, so `app` stays the last stage and the
+  default):
+  - base: `ubuntu:24.04@sha256:24737cef…`;
+  - apt from snapshot `20261027T000000Z`, `main` of noble and noble-updates only: `python3=3.12.3-0ubuntu2.1`,
+    `ca-certificates=20260816ubuntu0.24.04.1`, `libgomp1=14.2.0-4ubuntu2~24.04.1`. The snapshot
+    is HTTPS-only and the base has no CA bundle, so the two apt commands borrow the bundle from the
+    `base` stage through a bind mount;
+  - the facade's dependencies are installed by uv (mounted, not left in the image) with
+    `--require-hashes --no-deps --only-binary :all:` into `/opt/gguf-venv`: requests 2.34.2,
+    certifi 2026.7.22, charset-normalizer 3.5.1, idna 3.19 and urllib3 2.7.0, the lock's
+    pure-Python wheels and hashes;
+  - `TARGETARCH` amd64 → `linux-x64`, arm64 → `linux-arm64`, anything else fails the build.
+    `gguf_assets.py --platform` fetches, verifies and runs the start check; no pin is repeated in
+    the Dockerfile. A cache mount (`screener-gguf-downloads`) holds one folder per pin;
+  - run time: uid 1000, `HF_HUB_OFFLINE`, `HOME=/tmp`; healthcheck `127.0.0.1:8001/v1/models` (no
+    proxy, start period 300 s); CMD the facade with `--launch-backend`.
+- **`compose.llm4b.yaml`:** `llm4b` (network of `app`, no ports, no data, `init`), plus for `app`
+  `SCREENER_QWEN_MANIFEST` and the read-only volume `qwen35-manifest-e87f176-b11896`. `compose.yaml`
+  is unchanged. `.env.example` gains a commented `COMPOSE_FILE` line.
+- **Contract tests:** 3 failed before (no stage, no file; `logs/g2b-contract-before.log`), 177 passed
+  after. 33 broken Dockerfile texts and 16 broken compose texts were added. Full suite: the 17
+  known failures, 2520 passed.
+- **Build (amd64, `logs/gguf/g2b-build.log`):** 3 min 30 s, of which apt took 157 s (the snapshot
+  index at about 450 kB/s) and the download step 39 s. Image 2.94 GB. The default `app` image is
+  unchanged (`sha256:b01e70b6…`, not rebuilt).
+- **Scratch run (`logs/gguf/g2b-run.log`):**
+  - Both services were healthy 8.3 s after `up -d`, and `/v1/models` gave the pinned identity from
+    inside `app`.
+  - `app` reads the manifest copy read-only, and its `configured_prose_composer()` gave Qwen3.5-4B
+    with a 60 s limit. `llama-server` used 4.3 GB of memory at rest.
+- **Notes:**
+  - **No `hf_token` secret:** `gguf_assets.fetch` uses plain urllib and reads no token, so the
+    secret would do nothing.
+  - **Manifest timing:** Docker fills the manifest volume when `llm4b` is created, seconds after
+    `app`. A v3 session started in that gap uses the marked fallback until its next session.
+  - **llama-server warning:** it says `--chat-template-kwargs` for `enable_thinking` is deprecated
+    in favour of `--reasoning`. That comes from `backend_command`, unchanged here; it is recorded,
+    not changed.

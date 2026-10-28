@@ -1110,3 +1110,400 @@ BROKEN_SETTINGS = {
 def test_settings_check_fails_on_broken_texts(case):
     sources, guide = BROKEN_SETTINGS[case]
     assert undocumented_settings(sources, guide), case
+
+
+# ------------------------------------------- the optional Qwen3.5-4B image and compose override
+# Plan 2026-10-28-gguf-cross-platform, 02 §3 (owner: a separate image, compose.llm4b.yaml and
+# snapshot-pinned Ubuntu packages).
+
+from candidate_screener.llm import gguf_assets  # noqa: E402  (standard library and config only)
+
+#: TARGETARCH -> gguf_assets's runtime key: exactly the two architectures Docker builds for.
+LLM4B_ARCHES = {"amd64": "linux-x64", "arm64": "linux-arm64"}
+LLM4B_DESTINATION = "/opt/models/chatbot/qwen35"
+LLM4B_MANIFEST_COPY = "/opt/qwen35-manifest/manifest.json"
+LLM4B_PROBE = "127.0.0.1:8001/v1/models"
+#: The volume's name carries the pins, so a pin change gets a fresh manifest copy.
+LLM4B_VOLUME = f"qwen35-manifest-{gguf_assets.REVISION[:7]}-{gguf_assets.RELEASE}"
+DIGEST_PINNED = re.compile(r"^[\w./-]+:[\w.-]+@sha256:[0-9a-f]{64}$")
+
+
+def stage_bases(dockerfile: str) -> dict[str, str]:
+    """Each named stage's base image, ARG defaults substituted."""
+    args, result = build_args(dockerfile), {}
+    for keyword, arguments in instructions(dockerfile):
+        if keyword == "FROM":
+            words = [word for word in arguments.split() if not word.startswith("--")]
+            if len(words) == 3 and words[1].upper() == "AS":
+                result[words[2].lower()] = re.sub(r"\$\{?(\w+)\}?", lambda m: args.get(m.group(1), m.group(0)),
+                                                  words[0])
+    return result
+
+
+def _words(arguments: str) -> list[str]:
+    return json.loads(arguments) if arguments.startswith("[") else shlex.split(arguments)
+
+
+def gguf_pin_literals() -> set[str]:
+    """gguf_assets's pins; the Dockerfile calls the module instead of repeating them."""
+    pins = {gguf_assets.REVISION, gguf_assets.SHA256, gguf_assets.FILENAME}
+    for runtime in gguf_assets.RUNTIMES.values():
+        pins |= {runtime.asset, runtime.sha256}
+    return pins
+
+
+def llm4b_stage_problems(dockerfile: str) -> list[str]:
+    """The llm4b stage: a digest-pinned base, snapshot-pinned packages, TARGETARCH mapped onto
+    exactly amd64 and arm64, downloads only by gguf_assets in a RUN, no copy of its pins, and a
+    non-root, offline run time with the facade's own healthcheck and command."""
+    stage = stages(dockerfile).get("llm4b")
+    if stage is None:
+        return ["no stage named llm4b"]
+    problems = []
+    base = stage_bases(dockerfile).get("llm4b", "")
+    if not DIGEST_PINNED.match(base):
+        problems.append(f"the llm4b base {base!r} is not pinned by digest")
+    elif not base.startswith("ubuntu:24.04@"):
+        problems.append(f"the llm4b base {base!r} is not Ubuntu 24.04 (the arm64 runtime needs glibc 2.38)")
+    runs = [arguments for keyword, arguments in stage if keyword == "RUN"]
+    text = "\n".join(runs)
+    # Ubuntu packages: a dated snapshot, every package pinned by version.
+    snapshot = build_args(dockerfile).get("UBUNTU_SNAPSHOT", "")
+    if not re.fullmatch(r"\d{8}T\d{6}Z", snapshot) or "APT::Snapshot=$UBUNTU_SNAPSHOT" not in text:
+        problems.append("apt does not read a dated snapshot (ARG UBUNTU_SNAPSHOT, APT::Snapshot)")
+    for match in re.finditer(r"install --yes --no-install-recommends ([^;]*)", text):
+        packages = [word for word in match.group(1).split() if not word.startswith("-")]
+        problems += [f"the Ubuntu package {name} is not pinned by version" for name in packages if "=" not in name]
+    if "install --yes" not in text:
+        problems.append("the llm4b stage installs no Ubuntu packages (python3, ca-certificates, libgomp1)")
+    # TARGETARCH -> runtime key.
+    if not any(keyword == "ARG" and arguments.split("=")[0] == "TARGETARCH" for keyword, arguments in stage):
+        problems.append("the llm4b stage does not declare ARG TARGETARCH")
+    case = re.search(r'case\s+"?\$\{?TARGETARCH\}?"?\s+in\s+(.*?)\s+esac', text, re.DOTALL)
+    arms = dict(re.findall(r"([\w*|-]+)\)\s*key=([\w-]+)\s*;;", case.group(1))) if case else {}
+    if arms != LLM4B_ARCHES:
+        problems.append(f"TARGETARCH maps {arms} onto runtime keys, not exactly {LLM4B_ARCHES}")
+    problems += [f"{key} is not a gguf_assets runtime key" for key in arms.values() if key not in gguf_assets.RUNTIMES]
+    if not case or not re.search(r"\*\)[^;]*;\s*exit 1\s*;;", case.group(1)):
+        problems.append("an unknown TARGETARCH does not stop the build")
+    # Downloads: only gguf_assets.py, only in a RUN, for the mapped key.
+    for keyword, arguments in stage:
+        if keyword == "ADD":
+            problems.append(f"the llm4b stage uses ADD {arguments}")
+        elif keyword in {"CMD", "ENTRYPOINT", "HEALTHCHECK"} and ("gguf_assets" in arguments
+                                                                  or re.search(r"https?://(?!127\.0\.0\.1)", arguments)):
+            problems.append(f"the llm4b {keyword} can download at run time: {arguments}")
+    if re.search(r"\b(curl|wget)\b", text):
+        problems.append("the llm4b stage downloads with curl or wget, not gguf_assets")
+    if not re.search(r'(gguf_assets\.py|\$assets|\$\{assets\})"?\s+--platform\s+"?\$key"?\s+--destination\s+"?\$dest"?', text) \
+            or "gguf_assets.py" not in text \
+            or f"dest={LLM4B_DESTINATION};" not in text:
+        problems.append(f"gguf_assets.py is not run with --platform $key --destination {LLM4B_DESTINATION}")
+    if not re.search(rf"cp\s+\S*manifest\.json\S*\s+{re.escape(LLM4B_MANIFEST_COPY)}", text):
+        problems.append(f"the stage keeps no manifest copy at {LLM4B_MANIFEST_COPY}")
+    problems += [f"the Dockerfile repeats gguf_assets's pin {pin}" for pin in sorted(gguf_pin_literals())
+                 if pin in dockerfile]
+    # Run time.
+    env = stage_env(stage)
+    if env.get("HF_HUB_OFFLINE") != "1":
+        problems.append("the llm4b stage does not set HF_HUB_OFFLINE=1")
+    users = [arguments for keyword, arguments in stage if keyword == "USER"]
+    if not users or users[-1].split(":")[0].strip() in {"root", "0"}:
+        problems.append("the llm4b stage runs as root")
+    checks = [arguments for keyword, arguments in stage if keyword == "HEALTHCHECK"]
+    if not checks:
+        problems.append(f"the llm4b stage has no healthcheck (ask {LLM4B_PROBE})")
+    else:
+        check = checks[-1]
+        if LLM4B_PROBE not in check or "ProxyHandler({})" not in check:
+            problems.append(f"the llm4b healthcheck does not ask {LLM4B_PROBE} without a proxy")
+        period = re.search(r"--start-period=(\d+)s", check)
+        if not period or int(period.group(1)) < 300:
+            problems.append("the llm4b healthcheck's start period is under 300s (the model's hash and load)")
+    commands = [_words(arguments) for keyword, arguments in stage if keyword == "CMD"]
+    command = commands[-1] if commands else []
+    if (command[1:3] != ["-m", "candidate_screener.llm.gguf_server"] or "--launch-backend" not in command
+            or command_flags(command).get("--manifest") != f"{LLM4B_DESTINATION}/manifest.json"):
+        problems.append("the llm4b CMD is not the facade with --launch-backend on the image's manifest")
+    return problems
+
+
+def lock_closure(lock_text: str, root: str) -> dict[str, dict]:
+    """`root` and everything it depends on in a uv.lock, by name."""
+    import tomllib
+    packages = {package["name"]: package for package in tomllib.loads(lock_text)["package"]}
+    result, pending = {}, [root]
+    while pending:
+        name = pending.pop()
+        if name not in result and name in packages:
+            result[name] = packages[name]
+            pending += [dependency["name"] for dependency in packages[name].get("dependencies", [])]
+    return result
+
+
+def facade_dependency_problems(dockerfile: str, lock_text: str) -> list[str]:
+    """The llm4b stage installs exactly requests and its dependencies, at uv.lock's versions and
+    with hashes uv.lock holds for them, by uv (no pip)."""
+    stage = stages(dockerfile).get("llm4b")
+    if stage is None:
+        return ["no stage named llm4b"]
+    text = "\n".join(arguments for keyword, arguments in stage if keyword == "RUN")
+    pinned = {name.lower(): (version, hashes) for name, version, hashes in
+              re.findall(r"'([A-Za-z0-9_.-]+)==([^\s']+)((?:\s+--hash=sha256:[0-9a-f]{64})*)'", text)}
+    expected = lock_closure(lock_text, "requests")
+    problems = []
+    if not expected:
+        return ["uv.lock has no requests"]
+    for name in sorted(set(expected) | set(pinned)):
+        if name not in pinned:
+            problems.append(f"the llm4b stage does not install {name} (a dependency of requests in uv.lock)")
+            continue
+        if name not in expected:
+            problems.append(f"the llm4b stage installs {name}, which requests does not need")
+            continue
+        version, hashes = pinned[name]
+        if version != expected[name]["version"]:
+            problems.append(f"the llm4b stage pins {name}=={version}; uv.lock has {expected[name]['version']}")
+        known = {entry["hash"] for entry in expected[name].get("wheels", []) + [expected[name].get("sdist", {})]
+                 if entry.get("hash")}
+        found = set(re.findall(r"sha256:[0-9a-f]{64}", hashes))
+        if not found:
+            problems.append(f"the llm4b stage installs {name} without a hash")
+        problems += [f"{name}'s hash {digest} is not uv.lock's" for digest in sorted(found - known)]
+    if "--require-hashes" not in text:
+        problems.append("the llm4b stage does not install with --require-hashes")
+    if re.search(r"(?<!uv )\bpip3?\s+install", text):
+        problems.append("the llm4b stage installs with pip, not uv")
+    return problems
+
+
+def _named_volume(compose: str, key: str) -> str | None:
+    """The `name:` of a top-level named volume."""
+    lines = compose.splitlines()
+    for index, line in enumerate(lines):
+        if re.match(r"^volumes:\s*(#.*)?$", line):
+            block = _block(lines, index)
+            for position, entry in enumerate(block):
+                if re.match(rf"^\s+{re.escape(key)}:\s*(#.*)?$", entry):
+                    for nested in _block(block, position):
+                        match = re.match(r"^\s*name:\s*(\S+)", nested)
+                        if match:
+                            return _unquote(_strip_comment(match.group(1)))
+    return None
+
+
+def llm4b_compose_problems(override: str, compose: str) -> list[str]:
+    """compose.llm4b.yaml: llm4b in app's network namespace, no port, its image's own healthcheck,
+    no data folder; app gets SCREENER_QWEN_MANIFEST and the manifest volume read-only, named after
+    the pins. compose.yaml has no part of it, and still builds app by default."""
+    problems = []
+    block = _service_block(override, "llm4b")
+    if block is None:
+        return ["compose.llm4b.yaml has no llm4b service"]
+    if not re.search(r"^\s*network_mode:\s*[\"']?service:app[\"']?\s*(#.*)?$", block, re.MULTILINE):
+        problems.append("llm4b does not use network_mode: service:app")
+    if sequences(override, "ports") or re.search(r"^\s*ports:", override, re.MULTILINE):
+        problems.append("compose.llm4b.yaml publishes a port")
+    if not re.search(r"^\s*target:\s*llm4b\s*$", block, re.MULTILINE):
+        problems.append("llm4b is not built from the Dockerfile's llm4b target")
+    if healthcheck_disabled(override, "llm4b"):
+        problems.append("llm4b disables its image's healthcheck")
+    test = healthcheck_test(override, "llm4b")
+    if test and LLM4B_PROBE not in " ".join(test):
+        problems.append(f"llm4b's own healthcheck does not ask {LLM4B_PROBE}")
+    if not re.search(r"^\s*init:\s*true\s*$", block, re.MULTILINE):
+        problems.append("llm4b does not run under init")
+    volumes = [split_mount(item) for item in service_volumes(override, "llm4b")]
+    if any(host.startswith((".", "/", "$")) for host, _, _ in volumes):
+        problems.append("llm4b mounts a host folder (it needs no data)")
+    if ("qwen35-manifest", "/opt/qwen35-manifest") not in [(host, container) for host, container, _ in volumes]:
+        problems.append("llm4b does not mount the manifest volume at /opt/qwen35-manifest")
+    if service_environment(override, "app").get("SCREENER_QWEN_MANIFEST") != LLM4B_MANIFEST_COPY:
+        problems.append(f"app does not set SCREENER_QWEN_MANIFEST={LLM4B_MANIFEST_COPY}")
+    app_volumes = [split_mount(item) for item in service_volumes(override, "app")]
+    if ("qwen35-manifest", "/opt/qwen35-manifest", "ro") not in app_volumes:
+        problems.append("app does not mount the manifest volume read-only at /opt/qwen35-manifest")
+    if _named_volume(override, "qwen35-manifest") != LLM4B_VOLUME:
+        problems.append(f"the manifest volume is not named {LLM4B_VOLUME} (the pins)")
+    for word in ("SCREENER_QWEN_MANIFEST", "llm4b", "qwen35", "Qwen3.5"):
+        if word in compose:
+            problems.append(f"compose.yaml mentions {word}; the 4B belongs in compose.llm4b.yaml only")
+    if not re.search(r"^\s*target:\s*app\s*$", _service_block(compose, "app") or "", re.MULTILINE):
+        problems.append("compose.yaml's app is no longer built from the app target")
+    return problems
+
+
+def test_llm4b_stage_follows_the_design():
+    assert llm4b_stage_problems(read("Dockerfile")) == []
+    # The stage is found and is not the default.
+    assert "llm4b" in stages(read("Dockerfile")) and list(stages(read("Dockerfile")))[-1] == "app"
+
+
+def test_llm4b_facade_dependencies_equal_the_lock():
+    assert facade_dependency_problems(read("Dockerfile"), read("uv.lock")) == []
+    assert set(lock_closure(read("uv.lock"), "requests")) == {"requests", "certifi", "charset-normalizer",
+                                                              "idna", "urllib3"}
+
+
+def test_llm4b_compose_override_follows_the_design():
+    assert llm4b_compose_problems(read("compose.llm4b.yaml"), read("compose.yaml")) == []
+    assert published_port_problems(read("compose.llm4b.yaml")) == []
+
+
+GOOD_LLM4B = """\
+ARG UBUNTU_IMAGE=ubuntu:24.04@sha256:24737cef17f4e22b1977df7d9a05e77c4e28b7da5b8911f8d8ccda136bf3573c
+FROM python:3.12-slim AS base
+FROM ${UBUNTU_IMAGE} AS llm4b
+ARG TARGETARCH
+ARG UBUNTU_SNAPSHOT=20261027T000000Z
+RUN apt="apt-get -o APT::Snapshot=$UBUNTU_SNAPSHOT"; $apt update; \\
+    $apt install --yes --no-install-recommends python3=3.12.3-0ubuntu2.1 libgomp1=14.2.0-4ubuntu2~24.04.1; \\
+    rm -rf /var/lib/apt/lists/*
+RUN printf '%s\\n' \\
+        'requests==2.34.2 --hash=sha256:2a0d60c172f83ac6ab31e4554906c0f3b3588d37b5cb939b1c061f4907e278e0' \\
+        'idna==3.19 --hash=sha256:815e7be7a7806d54abb586dc943addc79e8b2ee16915059658cbeff4b1b43bf4' \\
+        > /tmp/r.txt; \\
+    uv pip install --python /opt/gguf-venv/bin/python --require-hashes --no-deps -r /tmp/r.txt
+RUN case "$TARGETARCH" in \\
+        amd64) key=linux-x64 ;; \\
+        arm64) key=linux-arm64 ;; \\
+        *) echo "no runtime" >&2; exit 1 ;; \\
+    esac; \\
+    dest=/opt/models/chatbot/qwen35; \\
+    python3 /app/src/candidate_screener/llm/gguf_assets.py --platform "$key" --destination "$dest"; \\
+    cp "$dest/manifest.json" /opt/qwen35-manifest/manifest.json
+ENV HF_HUB_OFFLINE=1 HOME=/tmp
+USER 1000:1000
+HEALTHCHECK --interval=30s --start-period=300s \\
+    CMD ["python", "-c", "import urllib.request as r; r.build_opener(r.ProxyHandler({})).open('http://127.0.0.1:8001/v1/models')"]
+CMD ["python", "-m", "candidate_screener.llm.gguf_server", "--manifest", "/opt/models/chatbot/qwen35/manifest.json", "--launch-backend"]
+FROM base AS app
+"""
+GOOD_LOCK = """\
+[[package]]
+name = "requests"
+version = "2.34.2"
+dependencies = [{ name = "idna" }]
+sdist = { url = "x", hash = "sha256:f288924cae4e29463698d6d60bc6a4da69c89185ad1e0bcc4104f584e960b9ed" }
+wheels = [{ url = "y", hash = "sha256:2a0d60c172f83ac6ab31e4554906c0f3b3588d37b5cb939b1c061f4907e278e0" }]
+
+[[package]]
+name = "idna"
+version = "3.19"
+wheels = [{ url = "z", hash = "sha256:815e7be7a7806d54abb586dc943addc79e8b2ee16915059658cbeff4b1b43bf4" }]
+
+[[package]]
+name = "torch"
+version = "2.2.2"
+"""
+GOOD_LLM4B_COMPOSE = f"""\
+services:
+  app:
+    environment:
+      SCREENER_QWEN_MANIFEST: /opt/qwen35-manifest/manifest.json
+    volumes:
+      - qwen35-manifest:/opt/qwen35-manifest:ro
+  llm4b:
+    image: candidate-screener/hiring-desk-llm4b:local
+    build:
+      context: .
+      target: llm4b
+    network_mode: "service:app"
+    init: true
+    volumes:
+      - qwen35-manifest:/opt/qwen35-manifest
+volumes:
+  qwen35-manifest:
+    name: {LLM4B_VOLUME}
+"""
+GOOD_BASE_COMPOSE = "services:\n  app:\n    build:\n      context: .\n      target: app\n    ports:\n      - \"127.0.0.1:8503:8503\"\n"
+ARM_ARM = "        arm64) key=linux-arm64 ;; \\\n"
+LLM4B_HEALTH = "HEALTHCHECK --interval=30s --start-period=300s \\\n"
+
+
+def test_llm4b_checks_pass_on_the_good_texts():
+    assert llm4b_stage_problems(GOOD_LLM4B) == []
+    assert facade_dependency_problems(GOOD_LLM4B, GOOD_LOCK) == []
+    assert llm4b_compose_problems(GOOD_LLM4B_COMPOSE, GOOD_BASE_COMPOSE) == []
+    assert app_stage_problems(GOOD_LLM4B + "ENV HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 UV_OFFLINE=1 "
+                              "ORT_DISABLE_TELEMETRY=1 SCREENER_MODELS_ROOT=/opt\nUSER 1000\n") == []
+
+
+BROKEN_LLM4B = {
+    # base and packages
+    "base-by-tag-only": (llm4b_stage_problems, broken(
+        GOOD_LLM4B, ("@sha256:24737cef17f4e22b1977df7d9a05e77c4e28b7da5b8911f8d8ccda136bf3573c", ""))),
+    "base-bookworm": (llm4b_stage_problems, broken(GOOD_LLM4B, ("ubuntu:24.04@", "debian:bookworm@"))),
+    "package-unpinned": (llm4b_stage_problems, broken(GOOD_LLM4B, ("libgomp1=14.2.0-4ubuntu2~24.04.1", "libgomp1"))),
+    "no-snapshot": (llm4b_stage_problems, broken(GOOD_LLM4B, (" -o APT::Snapshot=$UBUNTU_SNAPSHOT", ""))),
+    "snapshot-undated": (llm4b_stage_problems, broken(GOOD_LLM4B, ("SNAPSHOT=20261027T000000Z", "SNAPSHOT=latest"))),
+    # TARGETARCH
+    "arch-arm64-missing": (llm4b_stage_problems, broken(GOOD_LLM4B, (ARM_ARM, ""))),
+    "arch-arm64-to-macos": (llm4b_stage_problems, broken(GOOD_LLM4B, ("key=linux-arm64", "key=macos-arm64"))),
+    "arch-extra-riscv": (llm4b_stage_problems, broken(GOOD_LLM4B, (ARM_ARM, ARM_ARM + "        riscv64) key=linux-x64 ;; \\\n"))),
+    "arch-unknown-continues": (llm4b_stage_problems, broken(GOOD_LLM4B, (' >&2; exit 1 ;;', ' >&2 ;;'))),
+    "arch-not-declared": (llm4b_stage_problems, broken(GOOD_LLM4B, ("ARG TARGETARCH\n", ""))),
+    # downloads
+    "download-with-ADD": (llm4b_stage_problems, broken(
+        GOOD_LLM4B, ("ENV HF_HUB_OFFLINE", "ADD https://huggingface.co/x.gguf /opt/x.gguf\nENV HF_HUB_OFFLINE"))),
+    "download-with-curl": (llm4b_stage_problems, broken(GOOD_LLM4B, ("    dest=", "    curl -LO https://example.org/x; dest="))),
+    "download-at-run-time": (llm4b_stage_problems, broken(
+        GOOD_LLM4B, ('"--launch-backend"]', '"--launch-backend"]\nCMD ["python3", "gguf_assets.py"]'))),
+    "assets-without-platform": (llm4b_stage_problems, broken(GOOD_LLM4B, ('--platform "$key" ', ""))),
+    "pin-repeated": (llm4b_stage_problems, broken(
+        GOOD_LLM4B, ("ARG TARGETARCH\n", f"ARG TARGETARCH\nARG MODEL_REVISION={gguf_assets.REVISION}\n"))),
+    "no-manifest-copy": (llm4b_stage_problems, broken(
+        GOOD_LLM4B, (' \\\n    cp "$dest/manifest.json" /opt/qwen35-manifest/manifest.json', ""))),
+    # run time
+    "root": (llm4b_stage_problems, broken(GOOD_LLM4B, ("USER 1000:1000", "USER 0"))),
+    "online": (llm4b_stage_problems, broken(GOOD_LLM4B, ("HF_HUB_OFFLINE=1", "HF_HUB_OFFLINE=0"))),
+    "healthcheck-streamlit": (llm4b_stage_problems, broken(GOOD_LLM4B, ("127.0.0.1:8001/v1/models", "127.0.0.1:8503/_stcore/health"))),
+    "healthcheck-through-proxy": (llm4b_stage_problems, broken(GOOD_LLM4B, ("r.build_opener(r.ProxyHandler({})).open", "r.urlopen"))),
+    "healthcheck-short-start": (llm4b_stage_problems, broken(GOOD_LLM4B, ("--start-period=300s", "--start-period=60s"))),
+    "healthcheck-missing": (llm4b_stage_problems, broken(GOOD_LLM4B, (LLM4B_HEALTH, "RUN true \\\n"))),
+    "cmd-without-backend": (llm4b_stage_problems, broken(GOOD_LLM4B, (', "--launch-backend"]', "]"))),
+    "no-llm4b-stage": (llm4b_stage_problems, broken(GOOD_LLM4B, ("AS llm4b", "AS other"))),
+    # facade dependencies
+    "dep-version-differs": (lambda text: facade_dependency_problems(text, GOOD_LOCK), broken(GOOD_LLM4B, ("idna==3.19", "idna==3.18"))),
+    "dep-missing": (lambda text: facade_dependency_problems(text, GOOD_LOCK), broken(
+        GOOD_LLM4B, ("        'idna==3.19 --hash=sha256:815e7be7a7806d54abb586dc943addc79e8b2ee16915059658cbeff4b1b43bf4' \\\n", ""))),
+    "dep-extra": (lambda text: facade_dependency_problems(text, GOOD_LOCK), broken(
+        GOOD_LLM4B, ("        > /tmp/r.txt", "        'torch==2.2.2 --hash=sha256:" + "0" * 64 + "' \\\n        > /tmp/r.txt"))),
+    "dep-hash-unknown": (lambda text: facade_dependency_problems(text, GOOD_LOCK), broken(GOOD_LLM4B, ("815e7be7", "915e7be7"))),
+    "dep-without-hash": (lambda text: facade_dependency_problems(text, GOOD_LOCK), broken(
+        GOOD_LLM4B, (" --hash=sha256:815e7be7a7806d54abb586dc943addc79e8b2ee16915059658cbeff4b1b43bf4", ""))),
+    "deps-without-require-hashes": (lambda text: facade_dependency_problems(text, GOOD_LOCK), broken(GOOD_LLM4B, (" --require-hashes", ""))),
+    "deps-by-pip": (lambda text: facade_dependency_problems(text, GOOD_LOCK), broken(GOOD_LLM4B, ("uv pip install --python /opt/gguf-venv/bin/python", "pip install"))),
+    "lock-moved-on": (lambda text: facade_dependency_problems(GOOD_LLM4B, text), broken(GOOD_LOCK, ('version = "3.19"', 'version = "3.20"'))),
+}
+BROKEN_LLM4B_COMPOSE = {
+    "not-in-app-namespace": (broken(GOOD_LLM4B_COMPOSE, ('    network_mode: "service:app"\n', "")), GOOD_BASE_COMPOSE),
+    "own-network": (broken(GOOD_LLM4B_COMPOSE, ('"service:app"', "bridge")), GOOD_BASE_COMPOSE),
+    "publishes-8001": (broken(GOOD_LLM4B_COMPOSE, ("    init: true\n", '    init: true\n    ports:\n      - "127.0.0.1:8001:8001"\n')), GOOD_BASE_COMPOSE),
+    "healthcheck-disabled": (GOOD_LLM4B_COMPOSE.replace("    init: true\n", "    init: true\n    healthcheck: {disable: true}\n"), GOOD_BASE_COMPOSE),
+    "healthcheck-other-port": (GOOD_LLM4B_COMPOSE.replace("    init: true\n", "    init: true\n    healthcheck:\n      test: [CMD, python, 'http://127.0.0.1:8000/v1/models']\n"), GOOD_BASE_COMPOSE),
+    "without-init": (broken(GOOD_LLM4B_COMPOSE, ("    init: true\n", "")), GOOD_BASE_COMPOSE),
+    "default-target": (broken(GOOD_LLM4B_COMPOSE, ("target: llm4b", "target: app")), GOOD_BASE_COMPOSE),
+    "mounts-the-data-folder": (broken(GOOD_LLM4B_COMPOSE, ("      - qwen35-manifest:/opt/qwen35-manifest\nvolumes",
+                                                           "      - qwen35-manifest:/opt/qwen35-manifest\n      - ./data/datapack:/app/data\nvolumes")), GOOD_BASE_COMPOSE),
+    "app-without-the-manifest-setting": (broken(GOOD_LLM4B_COMPOSE, ("    environment:\n      SCREENER_QWEN_MANIFEST: /opt/qwen35-manifest/manifest.json\n", "")), GOOD_BASE_COMPOSE),
+    "app-manifest-elsewhere": (broken(GOOD_LLM4B_COMPOSE, ("SCREENER_QWEN_MANIFEST: /opt/qwen35-manifest/manifest.json", "SCREENER_QWEN_MANIFEST: /opt/models/chatbot/qwen35/manifest.json")), GOOD_BASE_COMPOSE),
+    "app-volume-read-write": (broken(GOOD_LLM4B_COMPOSE, (":/opt/qwen35-manifest:ro", ":/opt/qwen35-manifest")), GOOD_BASE_COMPOSE),
+    "volume-name-without-pins": (broken(GOOD_LLM4B_COMPOSE, (f"name: {LLM4B_VOLUME}", "name: qwen35-manifest")), GOOD_BASE_COMPOSE),
+    "no-llm4b-service": (broken(GOOD_LLM4B_COMPOSE, ("  llm4b:\n", "  other:\n")), GOOD_BASE_COMPOSE),
+    "base-sets-the-manifest": (GOOD_LLM4B_COMPOSE, GOOD_BASE_COMPOSE + "    environment:\n      SCREENER_QWEN_MANIFEST: /x\n"),
+    "base-has-the-service": (GOOD_LLM4B_COMPOSE, GOOD_BASE_COMPOSE + "  llm4b:\n    image: x\n"),
+    "base-default-target-changed": (GOOD_LLM4B_COMPOSE, broken(GOOD_BASE_COMPOSE, ("target: app", "target: llm4b"))),
+}
+
+
+@pytest.mark.parametrize("case", sorted(BROKEN_LLM4B))
+def test_llm4b_dockerfile_checks_fail_on_broken_texts(case):
+    check, text = BROKEN_LLM4B[case]
+    assert check(text), case
+
+
+@pytest.mark.parametrize("case", sorted(BROKEN_LLM4B_COMPOSE))
+def test_llm4b_compose_checks_fail_on_broken_texts(case):
+    override, compose = BROKEN_LLM4B_COMPOSE[case]
+    assert llm4b_compose_problems(override, compose), case

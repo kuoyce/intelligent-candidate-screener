@@ -4,15 +4,19 @@
 #
 #   docker compose build                         # the `app` image (the default, last stage)
 #   docker compose --profile test build test     # the `test` image
+#   docker compose -f compose.yaml -f compose.llm4b.yaml build llm4b   # the optional Qwen3.5-4B image
 #
-# Stages: uv -> base -> deps -> test, and deps -> models -> app. Each person builds for their own
-# machine; the base images are pinned by multi-architecture index digest (amd64 and arm64).
+# Stages: uv -> base -> deps -> test, and deps -> models -> app; llm4b (Ubuntu) borrows files from
+# uv and base. Each person builds for their own machine; the base images are pinned by
+# multi-architecture index digest (amd64 and arm64).
 # Contract checks: tests/test_docker_contract.py.
 
 # Base images, pinned by tag and index digest (27 Oct 2026, `docker buildx imagetools inspect`):
 # Python 3.12.16 on Debian bookworm (image created 26 Oct 2026); uv 0.12.7, which wrote the locks.
 ARG PYTHON_IMAGE=python:3.12-slim-bookworm@sha256:fc169880a4d941f3142c0e2e623f05f246150add19dc36fc9224df20fb19e5fd
 ARG UV_IMAGE=ghcr.io/astral-sh/uv:0.12.7@sha256:95f2aa1fe59274951cfe9b0cbc7972e879ff1004bc8945d130a32eb0dbd85945
+# Ubuntu 24.04.5 (glibc 2.39), for the llm4b target only (plan 2026-10-28-gguf-cross-platform, 02 §3).
+ARG UBUNTU_IMAGE=ubuntu:24.04@sha256:24737cef17f4e22b1977df7d9a05e77c4e28b7da5b8911f8d8ccda136bf3573c
 
 # uv: the uv binary. Rebuilt when the uv pin changes.
 FROM ${UV_IMAGE} AS uv
@@ -55,6 +59,93 @@ COPY . /app/
 RUN --mount=type=cache,id=screener-uv-cache,target=/root/.cache/uv \
     uv sync --frozen --all-groups
 CMD ["/app/.venv/bin/python", "-m", "pytest"]
+
+# llm4b: Qwen3.5-4B (GGUF, Q4_K_M) behind the loopback facade for chat v3 (plan
+# 2026-10-28-gguf-cross-platform, 02 §3). A separate image, built only on request
+# (`docker compose -f compose.yaml -f compose.llm4b.yaml build llm4b`) and run through
+# compose.llm4b.yaml; it never changes the app image. Ubuntu 24.04 because the published
+# linux-arm64 llama.cpp build needs glibc 2.38 (bookworm has 2.36; 01 §2). Rebuilt when the
+# Ubuntu pin, the snapshot, a facade dependency, or gguf_assets.py/config.py changes; a change to
+# gguf_server.py rebuilds only the last layers.
+FROM ${UBUNTU_IMAGE} AS llm4b
+ARG TARGETARCH
+# Ubuntu packages come from this dated snapshot, pinned by version (owner, Q6); only the `main`
+# component of noble and noble-updates is read. snapshot.ubuntu.com is HTTPS only and the base
+# has no CA bundle yet, so apt borrows the base stage's for these two commands (the packages
+# themselves are verified by the archive's signatures, as always).
+ARG UBUNTU_SNAPSHOT=20261027T000000Z
+RUN --mount=type=bind,from=base,source=/etc/ssl/certs/ca-certificates.crt,target=/run/snapshot-ca.crt \
+    set -eu; \
+    sed -i -e 's/^Suites: noble noble-updates noble-backports$/Suites: noble noble-updates/' \
+        -e 's/^Components: .*$/Components: main/' /etc/apt/sources.list.d/ubuntu.sources; \
+    apt="apt-get -o APT::Snapshot=$UBUNTU_SNAPSHOT -o Acquire::https::CaInfo=/run/snapshot-ca.crt"; \
+    $apt update; \
+    $apt install --yes --no-install-recommends \
+        python3=3.12.3-0ubuntu2.1 ca-certificates=20260816ubuntu0.24.04.1 libgomp1=14.2.0-4ubuntu2~24.04.1; \
+    rm -rf /var/lib/apt/lists/*
+ENV UV_PYTHON_DOWNLOADS=never \
+    UV_LINK_MODE=copy \
+    UV_COMPILE_BYTECODE=1 \
+    PYTHONUNBUFFERED=1
+# The facade's one dependency, requests, and its four, at uv.lock's versions and wheel hashes
+# (pure-Python wheels, the same on both architectures; a contract test keeps them equal to the
+# lock). uv is mounted, not copied, so the image holds no package tool.
+RUN --mount=type=bind,from=uv,source=/uv,target=/usr/local/bin/uv \
+    --mount=type=cache,id=screener-uv-cache,target=/root/.cache/uv \
+    set -eu; \
+    printf '%s\n' \
+        'requests==2.34.2 --hash=sha256:2a0d60c172f83ac6ab31e4554906c0f3b3588d37b5cb939b1c061f4907e278e0' \
+        'certifi==2026.7.22 --hash=sha256:62f22742b58a1a33014a2b6b706588a8d7e2a88ae7bd1a6ebe8c992928483775' \
+        'charset-normalizer==3.5.1 --hash=sha256:6df0ec430f9a831772c23ca5a224cba36517a58a84bb32c32bb59a9fa67c47f6' \
+        'idna==3.19 --hash=sha256:815e7be7a7806d54abb586dc943addc79e8b2ee16915059658cbeff4b1b43bf4' \
+        'urllib3==2.7.0 --hash=sha256:9fb4c81ebbb1ce9531cce37674bbc6f1360472bc18ca9a553ede278ef7276897' \
+        > /tmp/gguf-requirements.txt; \
+    uv venv /opt/gguf-venv --python /usr/bin/python3; \
+    uv pip install --python /opt/gguf-venv/bin/python --require-hashes --no-deps --only-binary :all: \
+        -r /tmp/gguf-requirements.txt; \
+    rm /tmp/gguf-requirements.txt; \
+    chmod -R a+rX /opt/gguf-venv
+COPY --chmod=a+rX src/candidate_screener/__init__.py src/candidate_screener/config.py /app/src/candidate_screener/
+COPY --chmod=a+rX src/candidate_screener/llm/__init__.py src/candidate_screener/llm/gguf_assets.py /app/src/candidate_screener/llm/
+# The runtime and the model, fetched and verified by gguf_assets.py itself (its pins only; none
+# is repeated here), for this architecture's key. Its start check runs llama-server --version
+# here, on the real base. Downloads persist in a cache mount, one folder per pin
+# (`qwen35-<revision>-<release>-<key>`), so a rerun copies instead of downloading again.
+# Docker fills the compose file's named volume from /opt/qwen35-manifest (a copy the app reads).
+RUN --mount=type=cache,id=screener-gguf-downloads,target=/var/cache/screener-gguf,sharing=locked \
+    set -eu; \
+    case "$TARGETARCH" in \
+        amd64) key=linux-x64 ;; \
+        arm64) key=linux-arm64 ;; \
+        *) echo "no pinned llama.cpp runtime for TARGETARCH=$TARGETARCH" >&2; exit 1 ;; \
+    esac; \
+    export PYTHONPATH=/app/src PYTHONDONTWRITEBYTECODE=1; \
+    assets=/app/src/candidate_screener/llm/gguf_assets.py; dest=/opt/models/chatbot/qwen35; \
+    set -- $(python3 -c 'import sys; from candidate_screener.llm import gguf_assets as g; k = sys.argv[1]; print(f"qwen35-{g.REVISION}-{g.RELEASE}-{k}", g.local_names(k)[0], g.FILENAME)' "$key"); \
+    cache="/var/cache/screener-gguf/$1"; shift; \
+    mkdir -p "$cache" "$dest"; \
+    for name in "$@"; do if [ -f "$cache/$name" ]; then cp "$cache/$name" "$dest/$name"; fi; done; \
+    python3 "$assets" --platform "$key" --destination "$dest"; \
+    for name in "$@"; do if [ ! -f "$cache/$name" ]; then cp "$dest/$name" "$cache/$name.copy" && mv "$cache/$name.copy" "$cache/$name"; fi; done; \
+    mkdir -p /opt/qwen35-manifest; \
+    cp "$dest/manifest.json" /opt/qwen35-manifest/manifest.json; \
+    chmod -R a+rX /opt/models /opt/qwen35-manifest
+COPY --chmod=a+rX src/candidate_screener/llm/gguf_server.py /app/src/candidate_screener/llm/
+# Run time: no downloads, no writes but /tmp, any user id (compose passes the host's).
+ENV PATH=/opt/gguf-venv/bin:$PATH \
+    PYTHONPATH=/app/src \
+    PYTHONDONTWRITEBYTECODE=1 \
+    HF_HUB_OFFLINE=1 \
+    HOME=/tmp
+WORKDIR /app
+USER 1000:1000
+# The facade answers GET /v1/models only once the backend answers with the pinned model (503
+# before), so healthy means loaded. No proxy for this loopback request. start_period covers the
+# facade's SHA-256 of the 2.74 GB model and the model load.
+HEALTHCHECK --interval=30s --timeout=10s --start-period=300s --retries=3 \
+    CMD ["python", "-c", "import urllib.request as r; r.build_opener(r.ProxyHandler({})).open('http://127.0.0.1:8001/v1/models', timeout=5).read()"]
+# The native command: facade on 127.0.0.1:8001, llama-server on 127.0.0.1:8002 (SIGTERM stops both).
+CMD ["python", "-m", "candidate_screener.llm.gguf_server", "--manifest", "/opt/models/chatbot/qwen35/manifest.json", "--launch-backend"]
 
 # models: the four pretrained checkpoints, nothing trained: RoBERTa-SQuAD2, GLiNER-medium and
 # Qwen2.5-0.5B in /opt/models (the asset modules' own layout under SCREENER_MODELS_ROOT) and C2

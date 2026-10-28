@@ -187,3 +187,88 @@ def test_launch_backend_help_is_platform_neutral(capsys):
     text = capsys.readouterr().out
     assert "--launch-backend" in text
     assert "Intel" not in text
+
+
+# Plan 2026-10-28-gguf-cross-platform (G2b): `docker compose stop` sends SIGTERM, which must clean
+# up like Ctrl+C. Before the fix the facade died at once and left llama-server running (G2a).
+
+FAKE_LLAMA_SERVER = '''\
+import json, os, sys
+from http.server import BaseHTTPRequestHandler, HTTPServer
+args = sys.argv[1:]
+value = lambda flag: args[args.index(flag) + 1]
+model, port, alias = value("-m"), int(value("--port")), value("--alias")
+open(os.environ["FAKE_BACKEND_PID"], "w").write(str(os.getpid()))
+
+class Handler(BaseHTTPRequestHandler):
+    def log_message(self, *args):
+        pass
+    def do_GET(self):
+        body = {"/props": {"model_path": model, "total_slots": 1,
+                           "default_generation_settings": {"n_ctx": 4096}},
+                "/v1/models": {"data": [{"id": alias}]}}.get(self.path)
+        payload = json.dumps(body).encode()
+        self.send_response(200 if body else 404)
+        self.send_header("Content-Length", str(len(payload)))
+        self.end_headers()
+        self.wfile.write(payload)
+
+HTTPServer(("127.0.0.1", port), Handler).serve_forever()
+'''
+
+
+def _free_port():
+    import socket
+    with socket.socket() as sock:
+        sock.bind(("127.0.0.1", 0))
+        return sock.getsockname()[1]
+
+
+def _alive(pid):
+    import os
+    try:
+        os.kill(pid, 0)
+    except ProcessLookupError:
+        return False
+    stat = Path(f"/proc/{pid}/stat")
+    return not (stat.exists() and stat.read_text().split(") ")[-1].startswith("Z"))
+
+
+@pytest.mark.skipif(not Path("/proc").is_dir(), reason="needs POSIX signals and /proc")
+def test_sigterm_stops_the_launched_backend_like_ctrl_c(manifest, tmp_path):
+    import os
+    import signal
+    import subprocess
+    import sys
+    import time
+    binary = Path(json.loads(manifest.read_text())["llama_server"])
+    binary.write_text(f"#!{sys.executable}\n" + FAKE_LLAMA_SERVER)
+    binary.chmod(0o755)
+    pid_file = tmp_path / "backend.pid"
+    facade_port, backend_port = _free_port(), _free_port()
+    env = {**os.environ, "FAKE_BACKEND_PID": str(pid_file), "NO_PROXY": "*"}
+    facade = subprocess.Popen(
+        [sys.executable, "-m", "candidate_screener.llm.gguf_server", "--manifest", str(manifest),
+         "--port", str(facade_port), "--backend-url", f"http://127.0.0.1:{backend_port}", "--launch-backend"],
+        stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, env=env)
+    backend = None
+    try:
+        ready = facade.stdout.readline()
+        assert json.loads(ready)["status"] == "ready", facade.stderr.read()
+        backend = int(pid_file.read_text())
+        assert _alive(backend)
+        started = time.monotonic()
+        facade.send_signal(signal.SIGTERM)
+        facade.wait(timeout=15)
+        for _ in range(50):
+            if not _alive(backend):
+                break
+            time.sleep(.1)
+        assert not _alive(backend), "SIGTERM left the llama-server child running"
+        assert time.monotonic() - started < 10
+    finally:
+        if facade.poll() is None:
+            facade.kill()
+            facade.wait()
+        if backend is not None and _alive(backend):
+            os.kill(backend, signal.SIGKILL)
