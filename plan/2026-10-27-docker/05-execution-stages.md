@@ -66,7 +66,7 @@ needs the image, so it runs after the Dockerfile; the cheap measurements (1b-1c)
 | S8 | Independent review; fixes; `uv run pytest`; the warm affected check run (long job); phase 1 marked complete | reviewer sub-agent; parent | 0.25 day / ~70 min | review findings closed; checks pass; pushed | **done** (phase 1 complete, 28 Oct 2026) |
 | S9 | Phase 2: the `llm` profile (Qwen2.5-0.5B service) and V3's v2/v3 rows | parent or sub-agent | 0.25 day | v2 and v3 answers composed by Qwen in the container; pushed | **done** (28 Oct 2026; the save blocker fixed by the owner's key rename, S9b in the record below) |
 | S10 | Account-creation screen, on its **own branch** (below) | sub-agent | 0.5 day | tests pass; branch pushed; merge left to the owner | **done** `78de261`, `0350af7` on `feat/account-create-screen` (record below) |
-| S11 | Apple Silicon (arm64) test under emulation (below) | parent | 0.25 day / several hours of emulated runs | V10 recorded against its registered bar; emulation removed; pushed | pending |
+| S11 | Apple Silicon (arm64) test under emulation (below) | parent | 0.25 day / several hours of emulated runs | V10 recorded against its registered bar; emulation removed; pushed | **in progress**: image builds and runs; app-level V2b/V3 too slow under emulation; owner to choose how to finish (record below) |
 
 ## After v1: continue with v2 without waiting (owner, 27 Oct 2026)
 
@@ -520,3 +520,34 @@ Timings in this rerun are slower than S9's because an emulated arm64 image build
 machine at the time; S9's figures stand for an idle machine. Torn down (no `hd-s9` container
 left); the scratch copy removed. The guide's "keep v1 until fixed" warning is removed; v1 stays the
 default. Not done: a browser check of v2/v3 by hand (V4 covered v1 only).
+
+### S11: arm64 under emulation (28 Oct 2026; parent)
+
+- `docker buildx ls` listed `linux/arm64` (the owner's QEMU registration). Never installed or
+  removed by the agent.
+- **Build.** `app` for `linux/arm64`, tag `candidate-screener/hiring-desk:arm64` (the amd64 tag
+  untouched), at `dea4543`: 6 min 9 s, exit 0, 7.13 GB (amd64 7.98 GB: no CUDA-free difference in
+  the main lock, smaller arm64 wheels). Every lock resolved and installed on aarch64; the four
+  models downloaded and verified offline in the arm64 build (`logs/docker/s11-build-app.log`).
+- **V1** (`test` for arm64 from `git archive dea4543`, `--network none`; `logs/docker/s11-v1.log`):
+  21 failed, 2275 passed, 51 skipped in 20 min 48 s (amd64 98 s). 17 are the known frontend ids;
+  the other 4 are wall-clock deadline tests that emulation is too slow for
+  (`test_conversation_prose.py::test_real_worker_expired_request_emits_no_private_content` and
+  `test_conversation_qwen.py::test_real_worker_expired_input_emits_no_documents_or_configuration`:
+  a worker subprocess exceeds its 3 s `subprocess.run` timeout;
+  `test_extractive_qa.py::test_qa_timeout_discards_partial_response_before_restarting_worker`;
+  `test_portal_entities.py::test_process_boundary_hard_timeout_kills_blocked_startup`). None is a
+  numerical or missing-package failure.
+- **V2b and V3 through the app** (`logs/docker/s11-v10.log`; fresh handover packs, invented
+  documents): emulation is far slower than the app's deadlines. D63 for the first invented JD was
+  still running after the script's 30 min limit; C2 scored 5 of 50 pairs at 651.6 s per pair
+  (amd64: about 2 s). In the V3 session the container became healthy in 18.6 s and sign-in, the UI
+  and the CSV review passed; the v1 extractive answer on the invented CV was found
+  (`supported`, a `Bachelor` span from candidate 1, 115 s); GLiNER-medium failed every document
+  (its 120 s load deadline; the worker logs show only onnxruntime's "Unknown CPU vendor" warning
+  under QEMU); D63/D64 did not finish. Both runs ended with `terminate called without an active
+  exception` (exit 134) when the script exited with a worker thread still running. No ranking or
+  entity numbers exist yet to compare against V10's bar.
+- Harmless under QEMU: `Can't open MIDR_EL1 sysfs entry` (oneDNN) and onnxruntime's unknown-vendor
+  warning.
+
