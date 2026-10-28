@@ -26,3 +26,30 @@ The same quotation is useful when generation is unavailable.
 ## Open questions
 
 None within the approved quick-fix scope. General paraphrase acceptance is deferred.
+
+## Implementation and review
+
+`fallback_text` now quotes one complete current JD passage before selecting the
+generic fallback, including when the provider is unavailable. It requires no
+selected candidates or candidate cells, matching JD ownership, nonempty text,
+unchanged redaction and a full answer within 2,400 characters. Current-source
+reauthorization remains in `build_context`; model acceptance and provenance are
+unchanged. README documents the quotation fallback.
+
+The delegated implementation was reviewed for source ownership, complete
+qualifiers, answer budget and preservation of candidate behavior. Six regression
+cases cover rejected/unavailable generation, tampered citations, complete
+qualifiers/oversize passages and mismatched source ownership. Three fail on the
+original implementation (`logs/jd-quotation-before.log`); all 41 v3 tests pass
+afterward (`logs/jd-quotation-focused.log`). The affected check runner selected
+zero records (`logs/jd-quotation-checks.log`); no research cold run is applicable
+to this fallback-only change.
+
+Full pytest (`logs/jd-quotation-pytest.log`): 2,088 passed, 56 skipped,
+19 failed and 3 errors in 289.68 seconds. Two failures concern baseline vocabulary
+and model-record drift, outside the changed path. The other 17 failures are
+extractive-answer/UI assertions: all 17 reproduce with the original committed
+`fallback_text` restored in memory (`logs/jd-quotation-original-comparison.log`).
+The three annotation UI socket setup errors pass on that comparison run outside
+the sandbox. These existing failures were not modified as part of this fix.
+`git diff --check` passes. No running model service was changed.

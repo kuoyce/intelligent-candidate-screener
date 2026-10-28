@@ -180,9 +180,9 @@ def _chat_answer(answer, *, source_key=None):
             st.caption("Hiring Desk v3")
         else:
             st.caption("Hiring Desk v3")
-        with st.expander("Answer details", expanded=False):
-            st.write({"mode": generation, "model": answer.get("model"),
-                      "provenance": answer.get("generation_provenance", {})})
+        # with st.expander("Answer details", expanded=False):
+        #     st.write({"mode": generation, "model": answer.get("model"),
+        #               "provenance": answer.get("generation_provenance", {})})
     elif mode == "jd_search":
         st.caption("Authorized job descriptions · source-based search")
     elif mode == "conversation_v2":
@@ -254,6 +254,10 @@ def _comparison_table(result, *, labels=None):
     for row in rows:
         output = {"Category": str(row.get("category", "Evidence")).replace("_", " ").title(),
                   "Requirement": row.get("requirement", row.get("label", row.get("category", "Evidence")))}
+        if "table_scope" in row:
+            output["Scope"] = row["table_scope"]
+        if row.get("table_criterion"):
+            output["Criterion"] = row["table_criterion"]
         if "criterion" in row:
             output["JD evidence"] = cell_text(row["criterion"])
         answers = row.get("answers")

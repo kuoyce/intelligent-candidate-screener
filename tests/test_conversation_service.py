@@ -4,6 +4,8 @@ import json
 import time
 from types import SimpleNamespace
 
+import pytest
+
 from candidate_screener.app.portal_extractive import PortalExtractiveService
 from candidate_screener.app.conversation_service import ConversationService
 
@@ -28,6 +30,52 @@ def snapshot(identity="snap-one", **changes):
 def service():
     base = PortalExtractiveService(qa_client=NoQa())
     return base if os.getenv("V2_CONVERSATION_BASELINE") else ConversationService(base)
+
+
+@pytest.mark.parametrize("version", ["v2", "v3"])
+@pytest.mark.parametrize("suffix", [".", " on qualifications", " on 5 years of Python experience"])
+def test_article_in_participant_scaffolding_keeps_comparison_evidence(version, suffix):
+    from candidate_screener.app.conversation_v3 import ConversationV3Service
+    current = snapshot()
+    current.candidates[1]["rank"] = 9
+    base = PortalExtractiveService(qa_client=NoQa())
+    engine = ConversationService(base) if version == "v2" else ConversationV3Service(base)
+    plain = engine.answer(current, "Compare candidates 1 and 9" + suffix)
+    article = engine.answer(current, "Compare the candidates 1 and 9" + suffix)
+    for key in ("text", "comparison", "citations", "claims", "entity_status"):
+        assert article[key] == plain[key], key
+    assert article["context"]["criteria"] == plain["context"]["criteria"]
+    assert article["context"]["selected_candidates"] == ["CV-A", "CV-B"]
+    followup_plain = engine.answer(current, "What about their qualifications?", plain["context"])
+    followup_article = engine.answer(current, "What about their qualifications?", article["context"])
+    assert followup_article["comparison"] == followup_plain["comparison"]
+    assert followup_article["citations"] == followup_plain["citations"]
+
+
+@pytest.mark.parametrize("version", ["v2", "v3"])
+@pytest.mark.parametrize("legacy_comparison", [False, True])
+def test_fresh_comparison_does_not_inherit_jd_only_question(version, legacy_comparison):
+    from candidate_screener.app.conversation_v3 import ConversationV3Service
+    current = snapshot()
+    current.candidates[1]["rank"] = 9
+    base = PortalExtractiveService(qa_client=NoQa())
+    engine = ConversationService(base) if version == "v2" else ConversationV3Service(base)
+    previous = engine.answer(current, "What role does this JD require?")["context"]
+    if legacy_comparison:
+        previous.update(intent="comparison", selected_candidates=["CV-A", "CV-B"],
+                        criteria=["What role does this JD require"], category="TITLE")
+    fresh = engine.answer(current, "Compare candidates 1 and 9.")
+    after_jd = engine.answer(current, "Compare candidates 1 and 9.", previous)
+    assert after_jd["comparison"] == fresh["comparison"]
+    assert after_jd["citations"] == fresh["citations"]
+    assert after_jd["text"] == fresh["text"]
+    assert after_jd["context"]["criteria"] == fresh["context"]["criteria"]
+
+
+def test_participant_article_parser_preserves_real_numeric_criterion():
+    from candidate_screener.app.conversation_service import _topic
+    assert _topic("Compare the candidates 1 and 9.") == ""
+    assert _topic("Compare the candidates 1 and the candidate 9 on 5 years of Python experience.") == "on 5 years of Python experience"
 
 
 def test_plural_qualification_followup_keeps_comparison_pair():

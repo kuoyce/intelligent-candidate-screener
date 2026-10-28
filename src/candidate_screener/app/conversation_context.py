@@ -50,6 +50,7 @@ def scoped_history(snapshot, history):
 
 def _key(text):
     text = text.casefold().replace("’", "'").strip(" .!;:\n")
+    text = re.sub(r"\b(bachelor|master)'s\b", r"\1", text)
     text = re.sub(r"\b(?:a|an|the)\s+", "", text)
     text = re.sub(r"\b(?:still|currently)\s+(?=in progress|pursuing)", "", text)
     return " ".join(text.split())
@@ -213,22 +214,43 @@ model confidence and being supplied a passage are deliberately insufficient.
 
 
 def fallback_text(bundle, reason):
+    # build_context has reauthorized these passages against the current source.
+    # Quote a complete JD passage rather than inventing a new paraphrase or
+    # clipping a qualification to fit the answer budget.
+    if not bundle.get("selected_candidates") and not bundle["cells"]:
+        for item in bundle.get("evidence", []):
+            if item.get("owner_kind") != "jd" or item.get("owner") != bundle.get("jd_id"):
+                continue
+            source = item.get("context", "").strip()
+            text = f"{source}"
+            if source and len(text) <= 2400 and redact_text(source) == source:
+                return text
     if reason == "provider_unavailable":
         return "The conversational model is unavailable right now. You can still review the comparison and supporting sources."
     explanations, details, caveats = [], [], []
     advantages = bundle.get("comparison_advantages", [])
     if bundle.get("intent") == "comparison_explanation":
-        statements = [item["text"] for item in bundle["checked_paraphrases"]
-                      if not item["detail"] and item["text"].startswith("For ")]
-        statements.append("I can't establish that either candidate is better overall.")
-    cell_order = {cell["id"]: index for index, cell in enumerate(bundle["cells"])}
-    ordered = sorted(bundle["checked_paraphrases"], key=lambda item:
-                     (min((cell_order.get(identity, len(cell_order)) for identity in item["cell_ids"]), default=len(cell_order)),
-                      0 if re.search(r"\b(?:has completed|is pursuing)\b", item["text"]) else 1))
-    for item in ordered:
-        if bundle.get("intent") == "comparison_explanation" and not item["detail"]:
-            continue
-        if set(item["owners"]) <= owners:
+        for item in advantages:
+            lead, other = (bundle["labels"][item[key]] for key in ("stronger_owner", "weaker_owner"))
+            criterion = item["criterion"]
+            if item["basis"] == "coverage":
+                text = f"{lead} has clearer support for {criterion}, but I can't confirm it for {other}"
+            elif item["basis"] == "completion":
+                text = f"{lead} has a clearer match on {criterion} because their qualification is completed and {other}'s completion is not confirmed"
+            elif item["basis"] == "duration":
+                text = f"{lead} reports more experience for {criterion} than {other}"
+                caveats.append("more experience alone doesn't establish proficiency")
+            else:
+                text = f"{lead} has stronger support for {criterion}, while {other} explicitly describes a limitation"
+            explanations.append(text)
+        caveats.append("this is a tradeoff rather than a clear overall advantage" if len({item["stronger_owner"] for item in advantages}) > 1
+                       else "I can't establish that either candidate is better overall")
+    # Select one complete registered summary per cell, retaining all participants
+    # and qualification caveats. Combine claims rather than dumping CV paragraphs.
+    for cell in bundle["cells"]:
+        choices = [item for item in bundle["checked_paraphrases"]
+                   if item["detail"] and item["cell_ids"] == [cell["id"]]]
+        if not choices:
             continue
         def priority(item):
             text = item["text"]
