@@ -130,3 +130,57 @@ refusal to write CV-like text (invented prompts only).
    decision-log amendment, or is this plan record enough?
 6. **Ubuntu packages:** pin by version against a dated `snapshot.ubuntu.com` mirror (recommended;
    reproducible, one more URL in the build), or accept the current archive's versions?
+
+## Implementation record
+
+### Rebase onto `release/integration` (owner, 28 Oct 2026)
+
+The branch was rebased from `feat/docker-v1` (`bccf03b`) onto `origin/release/integration` at
+`d27e931`, which already contains `bccf03b` plus 10 commits from the teammate's
+`fix/jd-quotation-fallback`: six v3 plans, new v3 chat modules and a new v3 prompt
+(`hiring-desk-v3-summary-conclusion-7`, which asks for `[Reasoning Steps]` before a `[Conclusion]`
+and keeps only the conclusion). The rebase was clean.
+
+Impact on this plan:
+
+- **Nothing to redesign.** The incoming commits change no file this plan touches (`gguf_assets`,
+  `gguf_server`, the Dockerfile, compose, `config.py`, `datapack.py`, `docs/docker.md`) and add no
+  `HR_PORTAL_*`/`SCREENER_*` setting. The provenance key `output_max_new_tokens`, the 256-token
+  output limit and the 60 s budget for the 4B are unchanged.
+- **Timings.** G2a/G2c measure v3 with the new prompt, which asks for reasoning before the answer.
+  The 4B's turns may be longer, so the D67 timings of 27 Oct are not directly comparable; the
+  record will say which prompt version was measured.
+- **Equivalence (03): unaffected.** It uses its own invented prompts against the model server, not
+  the v3 prompt.
+
+Full suite after the rebase (`logs/pytest-g1-rebased.log`): 17 failed (the known ids), 2467 passed.
+
+### G1 (28 Oct 2026; sub-agent, reviewed by the parent; `0a07153`)
+
+- **`gguf_assets.py`:**
+  - `RELEASE`, `RUNTIMES` (four keys, digests from 01 §1), `HOSTS`, `platform_key`, `local_names`
+    (macos-x64 keeps `llama-b11896-macos-x64.tar.gz` and `runtime/`);
+  - `start_check` (`--version`, 120 s, requires `build 11896`, names glibc and `libgomp1`);
+  - `provision_runtime`, and `provision(destination, platform=None)` with `--platform`;
+  - the runtime and its start check come before the 2.74 GB model download, so a failed check
+    downloads nothing more and writes no manifest;
+  - manifest fields `runtime_platform`, `runtime_archive` and `start_check` (`passed` or `skipped
+    (platform override)`);
+  - `DESTINATION = MODELS / "chatbot/qwen35"`.
+- **`gguf_server.py`:** only the `--launch-backend` help text changed. `load_manifest` already
+  accepted the new fields.
+- **Tests:**
+  - Before the change, 42 failed and 6 errored (`logs/g1-tests-before.log`); after, 101 passed
+    (`logs/g1-tests-after.log`).
+  - Three tests passed before by design, since they guard behaviour that was already right: the
+    native default destination (2) and `load_manifest` with the new fields.
+  - The test refusing unknown `--platform` values is not a true fail-first test: the old parser
+    rejected any unknown flag.
+- **Checks:** `checks --explain` selects none.
+- **Native, this host:**
+  - `provision_runtime` for `linux-x64` into a scratch `SCREENER_MODELS_ROOT`: fetched, verified and
+    started (`build 11896, commit 9125a2ebe`, GNU 11.4.0) in 1.5 s, reused in 0.5 s
+    (`logs/g1-native-runtime.log`).
+  - The 2.74 GB model was not downloaded (G2a).
+- **Review note:** `provision`'s parameter `platform` shadows the `platform` module inside that
+  function only; detection happens in `platform_key`, so the behaviour is right. Left as is.
