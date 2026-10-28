@@ -179,6 +179,15 @@ def test_why_followup_keeps_expandable_application_table():
     assert first["comparison_table_expandable"] is False
 
 
+def test_directed_model_conclusion_is_one_line_without_changing_qualified_facts():
+    model = Composer("Candidate 1 has completed a Bachelor degree.\nCandidate 2 is pursuing a Master degree.")
+    result = service(model).answer(snapshot(), "Why is candidate 1 better than candidate 2 on qualifications?")
+    assert result["generation_mode"] == "qwen_prose"
+    assert result["text"] == "Candidate 1 has completed a Bachelor degree. Candidate 2 is pursuing a Master degree."
+    assert result["validated_claim_sources"]
+    assert result["comparison_table_expandable"] is True
+
+
 def test_history_drops_whole_old_exchanges_after_four():
     model = Composer("Candidate 1 has completed a Bachelor degree.")
     engine, current = service(model), snapshot()
@@ -306,10 +315,10 @@ def test_why_fallback_preserves_both_qualification_states_without_repeated_advan
     engine = service(Composer("Candidate 1 is fully verified and better overall."))
     first = engine.answer(snapshot(), "Compare candidates 1 and 2 on qualifications")
     answer = engine.answer(snapshot(), "Why is 1 better than 2?", context=first["context"])
-    assert "Completed Bachelor degree." in answer["text"]
-    assert "Master degree in progress." in answer["text"]
-    assert "does not establish a completed qualification" in answer["text"]
-    assert answer["text"].count("Supporting evidence:") == 1
+    assert "clearer documented completion for Bachelor degree" in answer["text"]
+    assert "Candidate 2's degree completion is not confirmed" in answer["text"]
+    assert "\n" not in answer["text"]
+    assert "better overall" in answer["text"]
 
 
 def test_good_fit_summary_uses_job_criteria_without_authoring_fit_call():
@@ -370,8 +379,9 @@ def test_reasoning_fallback_retains_reverse_advantage_and_missing_evidence_cavea
     result = service(Composer("unsupported")).answer(current, "Why is 1 better than 2?")
     assert "Python" in result["text"] and "Cloud" in result["text"]
     assert "trade-off" in result["text"].lower()
-    assert "Supporting evidence:" in result["text"] and "Counterevidence:" in result["text"]
-    assert "not proof that the candidate lacks the qualification" in result["text"]
+    assert "Candidate 1 has" in result["text"] and "Candidate 2 has" in result["text"]
+    assert "missing evidence does not establish absence" in result["text"]
+    assert "\n" not in result["text"]
 
 
 @pytest.mark.parametrize("available", [True, False])
@@ -390,7 +400,11 @@ def test_comparison_fallback_preserves_checked_v2_answer(question, available):
     expected = (expected_service.answer(current, question) if question
                 else expected_service.compare(current, owners))
     result = engine.answer(current, question) if question else engine.compare(current, owners)
-    assert result["text"] == expected["text"]
+    if question and question.startswith("Why"):
+        assert "\n" not in result["text"]
+        assert "Candidate 1" in result["text"] and "Candidate 9" in result["text"]
+    else:
+        assert result["text"] == expected["text"]
     assert result["mode"] == "conversation_v3"
     assert result["generation_mode"] == "qwen_fallback"
     assert result["generation_provenance"]["fallback_reason"] == (
@@ -416,6 +430,15 @@ def test_comparison_fallback_reauthorizes_sources_before_rendering():
         return result
 
     engine.reader.answer = tampered
+    original_compare = engine.reader.base.compare
+
+    def tampered_compare(*args, **kwargs):
+        result = original_compare(*args, **kwargs)
+        for citation in result["citations"]:
+            citation["document_digest"] = "tampered"
+        return result
+
+    engine.reader.base.compare = tampered_compare
     answer = engine.answer(current, "Compare candidates 1 and 2 on qualifications")
     assert answer["retrieved_context_ids"] == []
     assert "doctorate" not in answer["text"]

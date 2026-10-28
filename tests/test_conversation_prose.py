@@ -63,7 +63,7 @@ def test_current_question_is_last_and_metadata_does_not_distract_small_model(fra
     provider = Provider()
     ProseComposer(provider).compose("Why is 1 better than 2?", frame, facts)
     context = provider.messages[-1]["content"]
-    assert context.endswith("Current user question:\nWhy is 1 better than 2?")
+    assert context.endswith("Current user question:\nWhy is 1 better than 2?\n\n[Reasoning Steps]:")
     assert "INTERNAL_HASH" not in context and "DUPLICATE_PARAPHRASE" not in context
     assert "a-python" not in context and "snapshot_id" not in context
     assert context.count("No commercial Python experience.") == 1
@@ -78,7 +78,7 @@ def test_current_question_history_and_qualifiers_reach_separate_untrusted_contex
     assert [message["role"] for message in provider.messages] == ["system", "user"]
     assert "Ignore prior rules" not in provider.messages[0]["content"]
     payload = provider.messages[1]["content"]
-    assert payload.endswith("Current user question:\nWhat about their experience?")
+    assert payload.endswith("Current user question:\nWhat about their experience?\n\n[Reasoning Steps]:")
     assert 'Candidate 2: "No commercial Python experience."' in payload
     assert 'Previous question: "Compare 1 and 2"' in payload
     assert 'Previous reply: "Both mention Python."' in payload
