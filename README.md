@@ -454,13 +454,22 @@ Its system prompt is `src/candidate_screener/llm/hr_system_prompt_v3.txt`.
 The optional Qwen3.5-4B CPU trial uses a separate pinned GGUF runtime:
 `uv run python -m candidate_screener.llm.gguf_assets` provisions the assets, then
 `uv run python -m candidate_screener.llm.gguf_server --manifest data/processed/chatbot/qwen35/manifest.json --launch-backend`
-serves the model on loopback8001. Set
+serves the model on loopback 8001. Set
 `SCREENER_QWEN_MANIFEST=data/processed/chatbot/qwen35/manifest.json` together with
 `HR_PORTAL_CHAT_VERSION=v3` when starting the portal to select it. A missing selected
 manifest is unavailable and never silently selects the old model. Unset the manifest
-variable to return to the existing Qwen service on8000. No Torch upgrade is needed.
-On the Intel CPU, the Qwen3.5 trial allows up to60seconds per turn; extraction and
-the existing0.5B model retain their30-second limits.
+variable to return to the existing Qwen service on 8000. No Torch upgrade is needed.
+The commands are the same on every supported host: `gguf_assets` picks the pinned
+llama.cpp b11896 runtime for macOS (x64, arm64) or Linux (x64, arm64) by itself,
+and `--platform KEY` chooses one explicitly (for example, to prepare a folder for
+another machine; the start check is then skipped and recorded). On the host's own
+platform it first starts `llama-server --version`, before the 2.74 GB model is
+fetched or a manifest written; on Linux that needs glibc 2.34 or later (x64), 2.38 or later (arm64),
+and `libgomp1`. In Docker the trial runs as its own image through
+`compose.llm4b.yaml` ([`docs/docker.md`](docs/docker.md) §6; plan
+[`2026-10-28-gguf-cross-platform`](plan/2026-10-28-gguf-cross-platform/README.md)).
+The Qwen3.5 trial allows up to 60 seconds per turn; extraction and
+the existing 0.5B model retain their 30-second limits.
 The entry point leaves `HR_PORTAL_CHAT_VERSION` at `v1`; export `v3` to try it. **When v3 is completed (its quality gates pass), make `v3` the default in `streamlit_app.py` and update this section and AGENTS.md.** Set the version back to `v2` or `v1` to roll back; no running service is migrated
 automatically. An invented-source development smoke is available as
 `uv run python -m candidate_screener.app.conversation_v3_smoke --real-model --output logs/v3-smoke.json`.

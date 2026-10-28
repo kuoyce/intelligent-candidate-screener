@@ -100,3 +100,6 @@ The model is a local experimental upgrade. On this4-core Intel Mac, factual
 generation takes tens of seconds;60seconds is a hard shared turn bound. Checked
 fallbacks remain necessary. Broader independent human review and reliable
 freeform comparison quality remain open; activation does not close those gates.
+
+28 Oct 2026: the trial was extended to macOS and Linux (x64, arm64) and to a separate Docker
+image; see [`plan/2026-10-28-gguf-cross-platform/`](../2026-10-28-gguf-cross-platform/README.md).

@@ -60,6 +60,8 @@ docker compose build                                            # the Hiring Des
 docker compose --profile tools run --rm tools verify            # the data folder commands, in Docker
 docker compose up -d                                            # the Hiring Desk at http://localhost:8503 (docs/docker.md)
 docker compose --profile test run --rm test                     # the suite in the test image: no data, no network (~2 min)
+docker compose -f compose.yaml -f compose.llm4b.yaml build llm4b  # optional Qwen3.5-4B image for chat v3 (2.74 GB model)
+docker compose -f compose.yaml -f compose.llm4b.yaml up -d        # with HR_PORTAL_CHAT_VERSION=v3 (docs/docker.md §6)
 ```
 
 Every `--check` above is registered in `candidate_screener.checks`, which runs them for you
@@ -130,9 +132,14 @@ opt-in until quality acceptance; no training or model downloads at startup.
 
 The owner-approved Qwen3.5-4B trial uses a pinned local GGUF model and isolated
 llama.cpp service (`plan/2026-10-25-hiring-desk-v3/04-qwen35-trial.md`). Explicit
-`SCREENER_QWEN_MANIFEST` selects it. Its shared turn budget is at most60seconds;
-the extraction reader and existing0.5B runtime retain30-second limits. Preserve
+`SCREENER_QWEN_MANIFEST` selects it. Its shared turn budget is at most 60 seconds;
+the extraction reader and existing 0.5B runtime retain 30-second limits. Preserve
 model identity, tokenizer/generation equivalence and source checks on fallback.
+Native commands are unchanged: `gguf_assets` selects the pinned b11896 runtime for
+macOS or Linux, x64 or arm64; `--platform` overrides it and skips the start check
+(`llama-server --version` before the model download or manifest). Docker runs it only
+as the separate `llm4b` image via `compose.llm4b.yaml`; `compose.yaml` and the default
+image stay unchanged (`plan/2026-10-28-gguf-cross-platform/`).
 
 Optional Hiring Desk v2 (`HR_PORTAL_CHAT_VERSION=v2`, D65) adds snapshot-scoped
 dialogue state and checked criterion comparisons. Qwen can select/order validated
