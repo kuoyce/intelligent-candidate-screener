@@ -434,8 +434,18 @@ comparisons retain v2's checked comparison when generation is rejected or
 unavailable. Comparison replies and their criterion follow-ups retain the
 candidate table; directed “why” replies keep it expandable. V3 retains v1's six
 broad evidence categories and shows recognized JD-specific criteria alongside
-them. The explanatory answer uses the checked comparison evidence; narrower JD
-parsing does not replace the broad table. For JD-only
+them. The table and checked relations are calculated before generation; a compact
+Evidence Matrix precedes Selected Passages in Qwen's prompt, so the explanation
+sees the broad statuses without receiving whole CVs. Flags describe source
+support, not independent verification or inferred proficiency. Narrower JD
+parsing does not replace the broad table.
+Single-candidate alignment summaries retain broad strengths and material JD gaps.
+Where checked source evidence establishes overlap with the JD, they end with a
+conditional relevance conclusion while keeping unconfirmed requirements explicit.
+Source quotations share one CV attribution, and the concluding statement appears
+in a separate paragraph.
+Directed “why” questions return one concise answer line with supporting points
+and any counterevidence, rather than a new Fit decision. For JD-only
 questions, a complete authorized supporting passage can be quoted when generation
 is rejected or unavailable; the reply retains its fallback provenance. This
 conservative validator does not establish general semantic entailment. V3 remains

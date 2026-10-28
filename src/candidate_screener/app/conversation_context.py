@@ -143,9 +143,19 @@ def build_context(snapshot, result, history=None):
     labels = {row["cv_id"]: f"Candidate {row['rank']}" for row in snapshot.candidates}
     labels[snapshot.jd_id] = "The role"
     selected = result.get("context", {}).get("selected_candidates", [])
+    # Broad display sources inform the matrix; selected passages remain the
+    # explanation's referenced source contexts rather than the entire CV table.
+    explanation_ids = {identity for row in result.get("comparison", [])
+                       for identity in row.get("requirement_evidence_ids", [])}
+    explanation_ids.update(identity for row in result.get("comparison", [])
+                           for cell in row.get("answers", {}).values()
+                           for identity in cell.get("evidence_ids", []))
+    if result.get("summary_scope") == "broad_candidate_evidence":
+        explanation_ids.update(citations)
     evidence = [{"id": key, "owner": item["owner"], "label": labels[item["owner"]],
                  "owner_kind": item["owner_kind"], "context": item["quote"]}
-                for key, item in citations.items() if item["owner"] in [snapshot.jd_id, *selected]]
+                for key, item in citations.items() if item["owner"] in [snapshot.jd_id, *selected]
+                and (not selected or key in explanation_ids)]
     bundle = {"schema_version": 3, "snapshot_id": snapshot.snapshot_id, "jd_id": snapshot.jd_id,
               "scope_digest": scope_digest(snapshot), "labels": {owner: labels[owner] for owner in [snapshot.jd_id, *selected]},
               "selected_candidates": list(selected), "evidence": evidence,
@@ -158,7 +168,84 @@ def build_context(snapshot, result, history=None):
                                                for identity in item["cell_ids"]))
                                             if result.get("context", {}).get("intent") == "comparison_explanation" else [])
     bundle["checked_paraphrases"] = _assertions(facts, evidence, labels)
+    matrix, matrix_facts = _evidence_matrix(snapshot, result)
+    bundle["evidence_matrix"] = matrix
+    bundle["matrix_assertions"] = _assertions(matrix_facts, [], labels)
+    if result.get("summary_scope") == "broad_candidate_evidence":
+        bundle["summary_scope"] = result["summary_scope"]
+        bundle["summary_cells"] = matrix_facts["cells"]
+        bundle["summary_alignment"] = bool(re.search(r"\b(?:good fit|align\w*|suitab\w*)\b",
+                                                      result.get("context", {}).get("last_question", ""), re.I))
+        from .conversation_summary import summary_conclusion
+        conclusion = summary_conclusion(bundle)
+        if conclusion:
+            bundle["summary_conclusion"] = conclusion
+            bundle["checked_paraphrases"].append(conclusion)
+    bundle["matrix_relations"] = []
+    matrix_cells = {cell["id"]: cell for cell in matrix_facts["cells"]}
+    for relation in matrix_facts["relations"]:
+        cells = [matrix_cells[identity] for identity in relation["cell_ids"] if identity in matrix_cells]
+        if not cells or not all(cell["evidence_ids"] for cell in cells):
+            continue
+        criterion = cells[0]["criterion"]
+        participants = " and ".join(labels[cell["owner"]] for cell in cells)
+        # Carry compact checked relation metadata, not quoted broad passages.
+        description = {"both_documented": "both have documented statements",
+                       "completion_status_differs": "have different qualification completion states",
+                       "explicit_contrast": "have contrasting positive and negative source statements",
+                       "source_conflict": "has conflicting source statements",
+                       "evidence_incomplete": "has incomplete source support",
+                       "duration_greater": "have different explicitly linked experience durations",
+                       "comparison_advantage": "have a checked JD-linked evidence difference"}[relation["kind"]]
+        text = f"For {criterion}, {participants} {description}."
+        ids = list(dict.fromkeys(identity for cell in cells for identity in cell["evidence_ids"]))
+        bundle["matrix_relations"].append({"text": text, "participants": relation["participants"],
+                                            "evidence_ids": ids})
+        bundle["matrix_assertions"].append({"text": text, "owners": relation["participants"],
+                                            "evidence_ids": ids, "cell_ids": relation["cell_ids"], "detail": False})
     return bundle
+
+
+def _evidence_matrix(snapshot, result):
+    """Flags describe exactly the displayed source cells, never a model rating."""
+    from .portal_extractive import _documents
+    from copy import deepcopy
+
+    rows = result.get("comparison_rows", result.get("comparison", []))
+    context = {**result.get("context", {}), "criteria": []}
+    documents = _documents(snapshot, context.get("selected_candidates", []))
+    normalized = deepcopy(rows)
+    for row in normalized:
+        for owner, cell in row.get("answers", {}).items():
+            status = documents.get(owner, {}).get("status")
+            if status in {"partial", "unavailable"}:
+                cell["status"] = "omitted" if status == "partial" else "source_unavailable"
+    facts = build_facts(snapshot, {**result, "comparison": normalized, "context": context})
+    count = len(facts["participants"])
+    for index, row in enumerate(normalized):
+        for cell in facts["cells"][index * count:(index + 1) * count]:
+            mentions = row.get("answers", {}).get(cell["owner"], {}).get("mentions", [])
+            cell["mentions"] = [term for term in mentions if isinstance(term, str) and term
+                                and term in cell["context"] and cell["evidence_ids"]][:4]
+    # Keep matrix fact identities disjoint from explanation fact identities.
+    identities = {cell["id"]: "matrix:" + cell["id"] for cell in facts["cells"]}
+    for cell in facts["cells"]:
+        cell["id"] = identities[cell["id"]]
+    for relation in [*facts["relations"], *facts.get("advantages", [])]:
+        relation["cell_ids"] = [identities.get(identity, identity) for identity in relation["cell_ids"]]
+    labels = {"explicit_positive": "Documented/mentioned", "qualified": "Qualified",
+              "explicit_negative": "Negative", "conflicting": "Conflicting",
+              "not_found_in_retrieved_evidence": "Not Found", "partial_source": "Partial",
+              "unavailable": "Unavailable", "unclear": "Unclear"}
+    matrix = []
+    for index, row in enumerate(rows):
+        cells = facts["cells"][index * count:(index + 1) * count]
+        matrix.append({"criterion": str(row.get("table_criterion") or row.get("criterion")
+                                         or row.get("category", "Evidence")).replace("_", " ").title(),
+                       "scope": row.get("table_scope", "Focused evidence"),
+                       "statuses": {cell["owner"]: labels[cell["support_status"]] for cell in cells},
+                       "evidence_ids": {cell["owner"]: cell["evidence_ids"] for cell in cells}})
+    return matrix, facts
 
 
 _NEUTRAL = {
@@ -184,7 +271,18 @@ model confidence and being supplied a passage are deliberately insufficient.
         return [], "invalid_prose_format"
     if redact_text(text) != text:
         return [], "redaction_required"
-    allowed = {_key(item["text"]): item for item in bundle["checked_paraphrases"]}
+    allowed = {}
+    for item in [*bundle["checked_paraphrases"], *bundle.get("matrix_assertions", [])]:
+        key = _key(item["text"])
+        if key in allowed:
+            prior = allowed[key]
+            allowed[key] = {**prior,
+                            "owners": list(dict.fromkeys([*prior["owners"], *item["owners"]])),
+                            "evidence_ids": list(dict.fromkeys([*prior["evidence_ids"], *item["evidence_ids"]])),
+                            "cell_ids": list(dict.fromkeys([*prior["cell_ids"], *item["cell_ids"]])),
+                            "detail": prior["detail"] or item["detail"]}
+        else:
+            allowed[key] = item
     # Only non-causal conjunctions are removable. 'Because', 'therefore', etc.
     # introduce new reasoning and must themselves be registered, not ignored.
     clauses = re.split(r"(?<=[.!?])\s+|;\s*|,?\s+(?:while|whereas|and|but)\s+(?=Candidate\s+\d)", text.strip(), flags=re.I)
@@ -225,6 +323,9 @@ def fallback_text(bundle, reason):
             text = f"{source}"
             if source and len(text) <= 2400 and redact_text(source) == source:
                 return text
+    if bundle.get("summary_scope") == "broad_candidate_evidence":
+        from .conversation_summary import summary_fallback
+        return summary_fallback(bundle)
     if reason == "provider_unavailable":
         return "The conversational model is unavailable right now. You can still review the comparison and supporting sources."
     explanations, details, caveats = [], [], []

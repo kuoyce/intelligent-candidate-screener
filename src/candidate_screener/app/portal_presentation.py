@@ -51,7 +51,6 @@ STYLES = """<style>
 .st-key-portal_sidebar_layout {min-height:calc(100dvh - 9rem);}
 .st-key-portal_sidebar_layout > div:has(.st-key-portal_logout_footer) {margin-top:auto;}
 .st-key-portal_logout_footer {margin-top:auto; padding-top:2rem;}
-h1,h2,h3 {color:var(--hd-ink); letter-spacing:-.025em;}
 h1 {font-size:2.25rem !important;} h2 {font-size:1.5rem !important;}
 [data-testid="stCaptionContainer"], [data-testid="stCaption"] {color:var(--hd-muted) !important;}
 [data-testid="stCaptionContainer"] *, [data-testid="stCaption"] * {color:var(--hd-muted) !important;}
@@ -75,3 +74,59 @@ h1 {font-size:2.25rem !important;} h2 {font-size:1.5rem !important;}
  .st-key-portal_job_cards [data-testid="stColumn"]:not(:has([data-testid="stBaseButton-primary"])) {display:none;}
 }
 </style>"""
+NCED_STYLES = """
+<style>
+    /* Global Font & Background Styling */
+    .stApp {
+        background-color: #0f172a;
+        color: #f8fafc;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+    
+    /* Sidebar styling */
+    section[data-testid="stSidebar"] {
+        background-color: #1e293b;
+        border-right: 1px solid #334155;
+    }
+    
+    /* Modern Card Container Design */
+    div[data-testid="stVerticalBlock"] > div[style*="border"] {
+        background: #1e293b;
+        border: 1px solid #334155 !important;
+        border-radius: 12px;
+        padding: 1.25rem;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    
+    div[data-testid="stVerticalBlock"] > div[style*="border"]:hover {
+        border-color: #6366f1 !important;
+        box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.2);
+    }
+
+    /* Buttons styling */
+    .stButton > button {
+        border-radius: 8px;
+        font-weight: 500;
+        transition: all 0.2s ease;
+    }
+    
+    .stButton > button[kind="primary"] {
+        background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+        border: none;
+    }
+    
+    .stButton > button[kind="primary"]:hover {
+        background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%);
+        box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+    }
+
+    /* Input & Select fields */
+    .stTextInput input, .stSelectbox select {
+        background-color: #0f172a !important;
+        border: 1px solid #334155 !important;
+        border-radius: 8px !important;
+        color: #f8fafc !important;
+    }
+</style>
+"""
