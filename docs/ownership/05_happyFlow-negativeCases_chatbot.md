@@ -4,6 +4,7 @@
 2. Compare candidate 1 and 2 / WHy canddiate 1 is better than candidate 2?
 3. Which JD has this specific skills -Flutter / Leadership e.g.
 4. Any relevant job experiences for any of these candidates?
+5. What role does this JD require?
 
 ## negative cases -- Bot should not be able to answer these question. Out of Scope
 1. Give me a recipe of apple pie.
