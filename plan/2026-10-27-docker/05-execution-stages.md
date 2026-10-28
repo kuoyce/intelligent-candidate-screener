@@ -66,7 +66,7 @@ needs the image, so it runs after the Dockerfile; the cheap measurements (1b-1c)
 | S8 | Independent review; fixes; `uv run pytest`; the warm affected check run (long job); phase 1 marked complete | reviewer sub-agent; parent | 0.25 day / ~70 min | review findings closed; checks pass; pushed | **done** (phase 1 complete, 28 Oct 2026) |
 | S9 | Phase 2: the `llm` profile (Qwen2.5-0.5B service) and V3's v2/v3 rows | parent or sub-agent | 0.25 day | v2 and v3 answers composed by Qwen in the container; pushed | **done** (28 Oct 2026; the save blocker fixed by the owner's key rename, S9b in the record below) |
 | S10 | Account-creation screen, on its **own branch** (below) | sub-agent | 0.5 day | tests pass; branch pushed; merge left to the owner | **done** `78de261`, `0350af7` on `feat/account-create-screen` (record below) |
-| S11 | Apple Silicon (arm64) test under emulation (below) | parent | 0.25 day / several hours of emulated runs | V10 recorded against its registered bar; emulation removed; pushed | **in progress**: image builds and runs; app-level V2b/V3 too slow under emulation; owner to choose how to finish (record below) |
+| S11 | Apple Silicon (arm64) test under emulation (below) | parent | 0.25 day / several hours of emulated runs | V10 recorded against its registered bar; emulation removed; pushed | **closed** (owner, 28 Oct 2026): built and run under emulation; V10's numbers wait for a real Apple Silicon Mac (record below) |
 
 ## After v1: continue with v2 without waiting (owner, 27 Oct 2026)
 
@@ -549,4 +549,15 @@ default. Not done: a browser check of v2/v3 by hand (V4 covered v1 only).
   entity numbers exist yet to compare against V10's bar.
 - Harmless under QEMU: `Can't open MIDR_EL1 sysfs entry` (oneDNN) and onnxruntime's unknown-vendor
   warning.
+- **Owner, 28 Oct 2026: "wait for a real Mac".** S11 stops here; no model-level comparison under
+  emulation. V10 stays registered, unchanged, for the first run on Apple Silicon (the README's V10
+  row and the guide's §15). The emulation registration is the owner's to remove.
+
+### v2 complete (28 Oct 2026)
+
+S9 (the `llm` profile; v2/v3 save after the provenance-key rename), S10 (the first-account screen,
+on `feat/account-create-screen`, not merged) and S11 (arm64 as far as emulation allows) are done.
+Open for the owner: merge `feat/account-create-screen` (then update `docs/docker.md` §4 step 6 and
+§7); bring the provenance-key fix (`ca7d374`) to the frontend line; v2/v3 by hand in a browser;
+V10 on a real Apple Silicon Mac; the open items listed under "Phase 1 complete".
 

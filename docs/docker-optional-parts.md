@@ -19,7 +19,7 @@ a row; never edit an old row. The log started in the Docker plan
 | Qwen3.5-4B GGUF trial (D67) | no | +2.75 GB; needs a Linux llama.cpp build per architecture (code change in `llm/gguf_assets.py`) | the owner adopts the 4B model for v3 |
 | Research workbench image | no | dev tools plus research data in Docker | someone needs to run `--check`s or notebooks without a native setup |
 | ONNX embedding backend (`HR_PORTAL_EMBEDDING_BACKEND=onnx`) | no (Docker uses torch) | — | only if a host cannot run the torch image |
-| arm64 checks under emulation | no | privileged `binfmt` registration on the owner's machine | someone needs arm64 results before an Apple Silicon user builds it |
+| arm64 checks under emulation | done as far as emulation allows (S11, 28 Oct 2026); V10's numbers wait for a real Apple Silicon Mac | privileged `binfmt` registration on the owner's machine | a real arm64 machine is available |
 
 ## Entries
 
@@ -40,3 +40,4 @@ a row; never edit an old row. The log started in the Docker plan
 | 2026-10-27 | arm64 emulation | installed by the owner; the agent never installs or uninstalls it and reminds the owner to uninstall when v2 is done | owner | owner's instruction |
 | 2026-10-28 | Qwen2.5-0.5B, chat v2/v3 (`llm` profile) | keep; service verified, V3's v2/v3 rows **not passed** | agent (S9) | the `qwen` service starts, is healthy in 5.7 s and Qwen composes v2 and v3 answers in the container; the review store refuses to save any Qwen-composed answer (provenance key `output_token_budget` read as a credential), an app issue left to the owner |
 | 2026-10-28 | Qwen2.5-0.5B, chat v2/v3 (`llm` profile) | keep; V3's v2/v3 rows **pass** | owner (the fix), agent (S9 rerun) | the owner renamed the provenance key to `output_max_new_tokens` in both composers; on the rebuilt image, v2 4/4 and v3 2/4 turns composed by Qwen were saved through `controller.chat` (the other two v3 turns: Qwen's wording rejected by the application, as designed); with `qwen` stopped every turn answered through the fallback |
+| 2026-10-28 | arm64 test under emulation (S11) | stop; V10 waits for a real Apple Silicon Mac | owner | the arm64 image builds, starts, signs in, answers a v1 question and passes its tests apart from the known failures and four timing tests; under QEMU the models ran about 300 times slower (C2 651.6 s per pair), so no ranking or entity comparison finished |

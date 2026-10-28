@@ -106,7 +106,7 @@ behaves the same everywhere. The price is an 8 GB image, built once on each mach
 | Linux, x86_64 | Docker Engine with the compose plugin (`docker compose`, Compose v2) | **verified** (Ubuntu 24.04 inside WSL2, Engine 27.5.1, Compose 2.32.4; 27-28 Oct 2026) |
 | Windows 10/11 | Docker Desktop with the WSL2 back end, or Docker Engine inside a WSL2 distribution | Engine inside WSL2: **verified** (the owner's machine). Docker Desktop: expected to work, not verified |
 | macOS, Intel | Docker Desktop | expected to work, not verified |
-| macOS, Apple Silicon; Linux arm64 | Docker Desktop; Docker Engine | expected to work, not verified. `docker compose build` builds an arm64 image natively and every lock resolves for arm64 (checked without building, 27 Oct 2026), but no arm64 image has been built or run yet ([§15](#15-known-limitations)) |
+| macOS, Apple Silicon; Linux arm64 | Docker Desktop; Docker Engine | expected to work, not verified on a real machine. An arm64 image was built and run under emulation on Linux (28 Oct 2026): it builds (every lock installs, the four models download), starts, signs in and answers a v1 question, and the test suite shows only the known failures plus four timing tests emulation is too slow for. Rankings and entity mentions have not been compared with amd64 yet ([§15](#15-known-limitations)) |
 
 **Windows.** Use Docker Desktop with the WSL2 back end, or Docker Engine inside a WSL2
 distribution (the owner's set-up). Keep the clone inside the WSL2 file system (for example under
@@ -964,7 +964,9 @@ expects and the folder lacks.
   renew, disable or reset command ([§7](#7-accounts)).
 - **Parts not built**: Qwen3.5-4B, a research workbench image and the ONNX embedding back end; see
   [`docker-optional-parts.md`](docker-optional-parts.md).
-- **arm64 has not been run.** The first arm64 run (Apple Silicon) is checked against the bar
+- **arm64 numbers are unchecked.** Under emulation (28 Oct 2026) the arm64 image built, started and
+  passed its tests, but the models ran about 300 times slower, so no ranking finished; the owner
+  chose to wait for a real Apple Silicon Mac. The first run there is checked against the bar
   registered before it (plan, V10): every ranking score within 1e-3 of amd64; the same top 10 in
   the same order, except candidates whose amd64 scores are within 1e-3 of each other; the same
   extractive answer text; the same entity mentions, except those scored within 0.01 of GLiNER's 0.5
