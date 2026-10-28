@@ -113,6 +113,41 @@ def test_server_ignoring_range_resets_partial_instead_of_appending(monkeypatch, 
     assert target.read_bytes() == body
 
 
+def serve_in_turn(monkeypatch, responses):
+    """Each request gets the next response; records the requests."""
+    requests, queue = [], list(responses)
+
+    def open_response(request, timeout):
+        requests.append(request)
+        return queue.pop(0) if queue else Response(b"")
+
+    monkeypatch.setattr(assets.urllib.request, "urlopen", open_response)
+    return requests
+
+
+def test_a_stream_that_ends_early_resumes_in_the_same_call(monkeypatch, tmp_path):
+    # Under arm64 emulation the HTTPS stream ended silently after ~175 MB (plan 2026-10-28, E5):
+    # fetch must resume from the partial bytes, then verify the whole artifact.
+    body = b"complete frozen artifact bytes"
+    requests = serve_in_turn(monkeypatch, [
+        Response(body[:7]),
+        Response(body[7:12], 206, f"bytes 7-{len(body)-1}/{len(body)}"),
+        Response(body[12:], 206, f"bytes 12-{len(body)-1}/{len(body)}")])
+    target = tmp_path / "model.gguf"
+    assert assets.fetch("https://example.invalid/model", target, sha(body), len(body)) == target
+    assert target.read_bytes() == body
+    assert [r.get_header("Range") for r in requests] == [None, "bytes=7-", "bytes=12-"]
+
+
+def test_resuming_after_an_early_end_is_bounded_and_never_publishes(monkeypatch, tmp_path):
+    requests = serve_in_turn(monkeypatch, [Response(b"abc")])   # then empty bodies forever
+    target = tmp_path / "model.gguf"
+    with pytest.raises(ValueError, match="size or SHA-256"):
+        assets.fetch("https://example.invalid/model", target, sha(b"abcdefgh"), 8)
+    assert len(requests) == assets.FETCH_ATTEMPTS
+    assert not target.exists()
+
+
 @pytest.mark.parametrize("tampered", [b"tampered", b"bad"])
 def test_existing_artifact_tamper_fails_without_network_or_overwrite(monkeypatch, tmp_path, tampered):
     target = tmp_path / "model.gguf"

@@ -58,6 +58,7 @@ HOSTS = {("Darwin", "x86_64"): "macos-x64", ("Darwin", "arm64"): "macos-arm64",
          ("Linux", "x86_64"): "linux-x64", ("Linux", "amd64"): "linux-x64",
          ("Linux", "aarch64"): "linux-arm64", ("Linux", "arm64"): "linux-arm64"}
 START_CHECK_TIMEOUT = 120
+FETCH_ATTEMPTS = 50  # requests per artifact, counting resumes after an early end
 #: The macos-x64 names predate the table; kept so existing downloads are reused.
 RUNTIME_SHA256 = RUNTIMES["macos-x64"].sha256
 RUNTIME_URL = RELEASE_URL + RUNTIMES["macos-x64"].asset
@@ -114,10 +115,15 @@ def fetch(url, destination, expected_sha256, expected_size):
         raise ValueError("Existing artifact differs from the pinned source")
     destination.parent.mkdir(parents=True, exist_ok=True)
     partial = destination.with_suffix(destination.suffix + ".partial")
-    offset = partial.stat().st_size if partial.exists() else 0
-    if offset > expected_size:
-        raise ValueError("Partial artifact exceeds its expected size")
-    if offset < expected_size:
+    # A stream may end early without an error (under arm64 emulation it stopped after ~175 MB,
+    # plan 2026-10-28-gguf-cross-platform E5): resume from the partial bytes, a bounded number of
+    # times; the whole artifact is verified below either way.
+    for _ in range(FETCH_ATTEMPTS):
+        offset = partial.stat().st_size if partial.exists() else 0
+        if offset > expected_size:
+            raise ValueError("Partial artifact exceeds its expected size")
+        if offset == expected_size:
+            break
         request = urllib.request.Request(url, headers={"Range": f"bytes={offset}-"} if offset else {})
         with urllib.request.urlopen(request, timeout=120) as response:
             resumed = offset > 0 and response.status == 206
@@ -130,7 +136,7 @@ def fetch(url, destination, expected_sha256, expected_size):
                     if count > expected_size:
                         raise ValueError("Artifact exceeds pinned size")
                     stream.write(chunk)
-    if partial.stat().st_size != expected_size or digest(partial) != expected_sha256:
+    if not partial.exists() or partial.stat().st_size != expected_size or digest(partial) != expected_sha256:
         raise ValueError("Artifact size or SHA-256 mismatch; manifest not written")
     partial.replace(destination)
     return destination
