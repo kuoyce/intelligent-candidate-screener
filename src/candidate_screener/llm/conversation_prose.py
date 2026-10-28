@@ -212,7 +212,7 @@ class ProseComposer:
         model = getattr(config, "model", None) or getattr(provider, "model_id", None) or type(provider).__name__
         provenance = {"prompt_version": PROMPT_VERSION,
                       "prompt_sha256": hashlib.sha256(SYSTEM.encode()).hexdigest(),
-                      "input_tokens": tokens, "output_token_budget": output_budget,
+                      "input_tokens": tokens, "output_max_new_tokens": output_budget,
                       "history_exchanges": len(history), "elapsed_seconds": monotonic() - started,
                       "attempts": 1, "semantic_validation": "application_required"}
         if config is not None:

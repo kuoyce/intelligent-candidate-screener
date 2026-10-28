@@ -25,10 +25,9 @@ written or in its fresh-clone walkthrough (S8). Your machine and network will gi
 means 10^9 bytes.
 
 **Not verified yet:** Docker Desktop on Windows or macOS; any arm64 machine (Apple Silicon); the
-PowerShell forms of the commands (every command here was run in bash). **Chat v2/v3 with the `llm`
-profile:** the `qwen` service runs and Qwen composes v2 and v3 answers in the container (S9, 28 Oct
-2026), but the Hiring Desk cannot yet save a Qwen-composed answer (an app issue, not Docker;
-[§6](#chat-v2v3-the-llm-profile)).
+PowerShell forms of the commands (every command here was run in bash). Chat v2/v3 with the `llm`
+profile was verified on Linux on 28 Oct 2026 by a scripted session, not yet in a browser
+([§6](#chat-v2v3-the-llm-profile)).
 
 Contents: [1 What this is](#1-what-this-is) ·
 [2 Why Docker](#2-why-docker) ·
@@ -384,12 +383,11 @@ What survives what:
 ### Chat v2/v3: the `llm` profile
 
 Chat v2 (Qwen orders checked comparison relations, D65) and v3 (experimental Qwen prose, D66) need
-the `qwen` service, Qwen2.5-0.5B on the CPU, whose weights are already in the image. **Status
-(S9, 28 Oct 2026): blocked by an app issue.** Qwen composes the answers in the container, but the
-Hiring Desk refuses to save any answer Qwen composed: the review store treats the provenance field
-`output_token_budget` as a credential ("Credentials cannot be persisted"), so the page shows an
-error instead of the answer. Answers through the fallback save and show normally. Until the app is
-fixed, keep `HR_PORTAL_CHAT_VERSION=v1` (the default).
+the `qwen` service, Qwen2.5-0.5B on the CPU, whose weights are already in the image. Verified on
+28 Oct 2026 (S9, a scripted session in the container, invented documents): v2 and v3 answers
+composed by Qwen were saved and returned through the Hiring Desk's chat path, and with `qwen`
+stopped both answered through their fallback. Not yet tried by hand in a browser. v1 stays the
+default.
 
 | Task | Command |
 |---|---|
@@ -401,10 +399,12 @@ fixed, keep `HR_PORTAL_CHAT_VERSION=v1` (the default).
 - **Healthcheck.** `qwen` asks its own server, `GET http://127.0.0.1:8000/v1/models`, every 30 s,
   with 120 s allowed for the model to load. The server answers only after loading, so `(healthy)`
   means Qwen can answer. Measured: the model loaded in 3-4 s and `qwen` was healthy 5.7 s after
-  `up` (S9).
+  `up`; 15 s and 20 s while another image build used the CPU (S9).
 - **Memory.** The model server peaked at 3.3 GB resident (S9); see [§3](#3-requirements).
-- **Speed.** A turn composed by Qwen took 2-5 s (v2) and 3.4-5.3 s (v3) on the owner's machine;
-  the model's share was 1.5-3.5 s. Both versions give up after 30 s and answer through the fallback.
+- **Speed.** On an idle machine a turn composed by Qwen took 2-5 s (v2) and 3.4-5.3 s (v3), of
+  which the model took 1.5-3.5 s. With another image build using the CPU: 3.4-17.7 s (v2) and
+  4.7-26.1 s (v3); the first v3 turn includes starting the answer worker. Both versions give up
+  after 30 s and answer through the fallback.
 - **The restart caveat.** `qwen` uses the app container's network (both insist on loopback).
   `docker compose restart app` restarts `qwen` with it (S9). After the app restarts any other way
   (its restart policy, Docker restarting, a recreate; not tested), restart Qwen:
@@ -498,7 +498,7 @@ change: no" means that only the default is built, tested and verified.
 | Name | Docker default | Effect | Safe to change |
 |---|---|---|---|
 | `HIRING_DESK_PORT` | `8503` | The host port, published on 127.0.0.1 only. The app's log still prints `http://localhost:8503` (the container's port) | Yes: any free port; then open `http://localhost:<port>` |
-| `HR_PORTAL_CHAT_VERSION` | `v1` | Passed to the app. `v1`: extractive answers (RoBERTa-SQuAD2) and entity comparisons (GLiNER-medium). `v2`: Qwen orders checked comparison relations (D65). `v3`: experimental Qwen prose and JD requirement search (D66). Any other value behaves as `v1`. `v2` and `v3` need the `llm` profile (`docker compose --profile llm up -d`) | `v1`: yes. `v2`/`v3`: not yet: Qwen composes in Docker, but the app cannot save its answers ([§6](#chat-v2v3-the-llm-profile)) |
+| `HR_PORTAL_CHAT_VERSION` | `v1` | Passed to the app. `v1`: extractive answers (RoBERTa-SQuAD2) and entity comparisons (GLiNER-medium). `v2`: Qwen orders checked comparison relations (D65). `v3`: experimental Qwen prose and JD requirement search (D66). Any other value behaves as `v1`. `v2` and `v3` need the `llm` profile (`docker compose --profile llm up -d`) | `v1`: yes. `v2`/`v3`: yes, with the `llm` profile running ([§6](#chat-v2v3-the-llm-profile)); v3 is experimental |
 | `HOST_UID` | `1000` | Linux: the user id the containers run as, so files written into `data/datapack/` and `logs/` stay yours. Docker Desktop on macOS and Windows maps owners itself | Yes: set it to `id -u` |
 | `HOST_GID` | `1000` | Linux: the group id the containers run as | Yes: set it to `id -g` |
 | `SCREENER_DATA_SOURCE` | `./data` | `tools` service only: the host folder mounted read-only at `/source`, which `create` copies from. Set it to a received copy, or to a full `data/` without symbolic links that point outside it | Yes |
@@ -838,9 +838,9 @@ the same natively). Rephrase the question.
 **Qwen does not answer (chat v2/v3).** v2 and v3 need the `qwen` service: `docker compose --profile
 llm up -d`, then `docker compose --profile llm ps` should show `qwen` `(healthy)`. It shares the app
 container's network namespace (both insist on loopback), so after the app restarts other than by
-`docker compose restart app`, restart it too: `docker compose --profile llm restart qwen`. If the
-page shows "Credentials cannot be persisted" after a v2/v3 question, Qwen did answer: that is the
-app issue in [§6](#chat-v2v3-the-llm-profile); use v1.
+`docker compose restart app`, restart it too: `docker compose --profile llm restart qwen`. A
+fallback answer while `qwen` is healthy usually means Qwen's output failed the application's checks
+([§6](#chat-v2v3-the-llm-profile), "Qwen or fallback?").
 
 **The account command cannot hide the token** (Git Bash on Windows, or no terminal). With Docker
 Engine inside WSL2, run it in a WSL2 terminal (for example in Windows Terminal); with Docker Desktop,
@@ -958,9 +958,8 @@ expects and the folder lacks.
 - **The frontend is work in progress**: 17 frontend tests fail ([§11](#11-tests)), and two app
   behaviours stand (the report and mail failure for 53 CSV candidates, and C2's thread count;
   [§12](#12-troubleshooting)).
-- **Chat v3 is experimental**, and chat v2/v3 cannot yet be used in the Hiring Desk: Qwen composes
-  in the container, but the app refuses to save its answers (an app issue found in S9;
-  [§6](#chat-v2v3-the-llm-profile)).
+- **Chat v3 is experimental.** Chat v2/v3 with the `llm` profile were verified by a scripted
+  session, not yet by hand in a browser ([§6](#chat-v2v3-the-llm-profile)).
 - **Accounts are managed by command** until the in-app first-account screen ships; there is no
   renew, disable or reset command ([§7](#7-accounts)).
 - **Parts not built**: Qwen3.5-4B, a research workbench image and the ONNX embedding back end; see

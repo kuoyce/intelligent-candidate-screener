@@ -64,7 +64,7 @@ needs the image, so it runs after the Dockerfile; the cheap measurements (1b-1c)
 | S6 | Verification V1-V9, V11 (V10 deferred) | parent | 0.5 day / V8 cold build est. 20-40 min, V2 ~15 min | every row recorded; pushed | **done** (record below; V2b and V4 settled by the owner, 28 Oct 2026) |
 | S7 | Docs: `docs/docker.md`, README, AGENTS.md, `data/README.md`, the workspace card, `docs/project-overview.md` §7, D68, `docs/docker-optional-parts.md` | sub-agent | 0.25-0.5 day | contract test passes; pushed | **done** (record below) |
 | S8 | Independent review; fixes; `uv run pytest`; the warm affected check run (long job); phase 1 marked complete | reviewer sub-agent; parent | 0.25 day / ~70 min | review findings closed; checks pass; pushed | **done** (phase 1 complete, 28 Oct 2026) |
-| S9 | Phase 2: the `llm` profile (Qwen2.5-0.5B service) and V3's v2/v3 rows | parent or sub-agent | 0.25 day | v2 and v3 answers composed by Qwen in the container; pushed | **blocked (owner)**: the service, healthcheck and fallback pass; Qwen composes v2 and v3 in the container, but the app cannot save a Qwen-composed answer (app issue; record below) |
+| S9 | Phase 2: the `llm` profile (Qwen2.5-0.5B service) and V3's v2/v3 rows | parent or sub-agent | 0.25 day | v2 and v3 answers composed by Qwen in the container; pushed | **done** (28 Oct 2026; the save blocker fixed by the owner's key rename, S9b in the record below) |
 | S10 | Account-creation screen, on its **own branch** (below) | sub-agent | 0.5 day | tests pass; branch pushed; merge left to the owner | **done** `78de261`, `0350af7` on `feat/account-create-screen` (record below) |
 | S11 | Apple Silicon (arm64) test under emulation (below) | parent | 0.25 day / several hours of emulated runs | V10 recorded against its registered bar; emulation removed; pushed | pending |
 
@@ -482,3 +482,41 @@ The guide tells operators to keep v1 until the fix.
 - When it merges: `docs/docker.md` §4 step 6 and §7 change (first account from the browser; the
   token rule and error wording).
 
+#### S9b: the blocker fixed; V3's v2/v3 rows pass (28 Oct 2026; sub-agent)
+
+**Owner, 28 Oct 2026:** rename the provenance key `output_token_budget` to `output_max_new_tokens`
+in both composers; keep the store's credential rule unchanged. Nothing else read the key.
+
+- **Tests first** (`tests/test_qwen_provenance_storage.py`, synthetic, no model): the real
+  `ConversationComposer` and `ProseComposer` on a fake provider transport with the real
+  `QwenConfig` provenance; (1) a v2 and a v3 Qwen-composed turn through `PortalController.chat`
+  and the portal store, asserting `qwen_answer_plan` / `qwen_prose`, the model and revision, and
+  the saved turn; (2) every key either composer writes into `generation_provenance` passes
+  `portal_store._payload`. Before the rename all three failed with "Credentials cannot be
+  persisted" (`logs/s9b-tests-before.log`); after it, 3 passed (`logs/s9b-tests-after.log`).
+- **Rename**: `llm/conversation_qwen.py:197`, `llm/conversation_prose.py:215`. Earlier saved turns
+  hold no such key (the store refused them), so nothing persisted changes.
+- **Full suite** (`logs/pytest-s9b.log`): 17 failed (the known frontend ids: 11
+  `test_portal_extractive.py`, 3 `test_portal_ui.py`, 3 `test_portal_v1_ui.py`), 2295 passed.
+- **Checks**: `checks --explain` (affected, against `HEAD` with the change uncommitted) selected
+  **no check** (`logs/s9b-checks-explain.log`): no registered check imports the two composers. None
+  run.
+- **Image** rebuilt (`docker compose build app`, 15.4 s, only the source layers re-ran;
+  `logs/docker/s9b-build.log`): `sha256:fd477868…`, holding the renamed key. The concurrent
+  `:arm64-test` build was not touched.
+- **V3's v2/v3 rows through `controller.chat`** (`logs/docker/s9b-run.log`, `s9b-*.log`,
+  `s9b-status/`; same method as S9, a fresh handover copy, the owner's folder unchanged):
+
+| Row | Result |
+|---|---|
+| v2, `qwen` up | **pass**: 4/4 turns `qwen_answer_plan`, saved; `model=Qwen/Qwen2.5-0.5B-Instruct`, revision `7ae5576…`, `prompt_version=hiring-desk-v2-answer-plan-3`, runtime `local Transformers service`, `output_max_new_tokens=256`; turn 3.4-17.7 s, Qwen 2.6-12.3 s |
+| v3, `qwen` up | **pass**: 2/4 turns `qwen_prose`, saved, `provenance.composer=qwen`, same model and revision, `prompt_version=hiring-desk-v3-grounded-prose-4`; turn 4.7-26.1 s, Qwen 3.2-8.2 s (the first turn includes starting the answer worker). The other two: Qwen's wording rejected by the application (`qwen_fallback`, `unsupported_paraphrase`), as designed |
+| v2 / v3, `qwen` stopped | **pass**: 4/4 and 4/4 turns `qwen_fallback`, `fallback_reason=provider_unavailable`, saved; 6.5-6.6 s per session of four turns |
+| `qwen` start | healthy 20.2 s after `up`; the server's load 15.3 s |
+| Restart caveat | as in S9: `restart app` restarted `qwen` too and `/v1/models` answered; `restart qwen` healthy in 5.9 s |
+| Memory | `qwen` server VmHWM 3.18 GB, container cgroup peak 3.51 GB; app container cgroup peak 3.82 GB |
+
+Timings in this rerun are slower than S9's because an emulated arm64 image build ran on the same
+machine at the time; S9's figures stand for an idle machine. Torn down (no `hd-s9` container
+left); the scratch copy removed. The guide's "keep v1 until fixed" warning is removed; v1 stays the
+default. Not done: a browser check of v2/v3 by hand (V4 covered v1 only).
