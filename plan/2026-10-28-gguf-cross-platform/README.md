@@ -6,7 +6,7 @@ before the design, as the request asked: the four runtime archives (about 70 MB)
 source build.
 
 Answers (owner, 28 Oct 2026): Q1 **yes** (pin `macos-arm64`); Q2 **a separate `llm4b` image**, used
-through `compose.llm4b.yaml`; Q4 **`feat/gguf-cross-platform`**, merged back into `feat/docker-v1`;
+through `compose.llm4b.yaml`; Q4 **`feat/gguf-cross-platform`**, rebased onto `release/integration` and **left as its own branch: no merge into `feat/docker-v1`** (owner, 28 Oct 2026);
 Q6 **snapshot pinning**. Q3 (owner, 28 Oct 2026): **the teammate runs G4/E4, and it need not
 pass** (its result is recorded, not a gate); **E1-E3 and E5 must pass on this machine**. Q5: **no
 decision-log amendment**; this plan record is enough.
@@ -126,6 +126,7 @@ refusal to write CV-like text (invented prompts only).
 4. **Branch:** *recommendation:* `feat/gguf-cross-platform` off `feat/docker-v1` (it needs
    `config.MODELS` and the Docker files, which exist only there), merged back into `feat/docker-v1`
    when done. Or directly on `feat/docker-v1`?
+   *Answered:* own branch, rebased onto `release/integration`, never merged into `feat/docker-v1`.
 5. **D67 scope:** does extending the trial from Intel macOS to macOS and Linux and to Docker need a
    decision-log amendment, or is this plan record enough?
 6. **Ubuntu packages:** pin by version against a dated `snapshot.ubuntu.com` mirror (recommended;
