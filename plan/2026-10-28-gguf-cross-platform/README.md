@@ -260,3 +260,28 @@ Full suite after the rebase (`logs/pytest-g1-rebased.log`): 17 failed (the known
   - **llama-server warning:** it says `--chat-template-kwargs` for `enable_thinking` is deprecated
     in favour of `--reasoning`. That comes from `backend_command`, unchanged here; it is recorded,
     not changed.
+
+### G2c: the `llm4b` service measured in Docker (28 Oct 2026; parent)
+
+Scratch project `hd-g2c`, `app` built from `c4d0ac0` under a scratch tag (the owner's
+`hiring-desk:local` untouched), a handover copy of the data folder, the 4B through
+`compose.llm4b.yaml`. Logs: `logs/gguf/g2c.log`, `g2c-{idle,loaded,rank}.json`.
+
+- **First attempt** (`logs/gguf/g2c-attempt1.log`): no walkthrough ran. The scratch override
+  replaced `app`'s whole volume list (`!override`), which dropped the manifest volume, so `app`
+  found no 4B configuration. That was a script error, not a product defect; corrected and rerun.
+- **Start:** both services healthy 12.7 s after `up` (7.5 s in the first attempt). At rest:
+  `llm4b` 4.42 GB of cgroup memory, `app` 51 MB.
+- **Walkthrough, idle** (v3 prompt `-7`): Qwen accepted for 1 of 4 factual turns, as natively.
+  Turns took 38.7, 55.9, 57.1 and 46.5 s. That is 4-6 s slower than natively (33.9-52.9 s in G2a)
+  and leaves only 3 s of margin under the 60 s budget.
+- **Walkthrough during rankings** (D63 and D64 for two invented JDs running in `app`): 1 of 4
+  accepted. The first turn took 58.8 s; the other three hit the budget (`deadline_exceeded`,
+  60.1 s each) and fell back, as designed. The rankings finished: D63 36.4 s and 2.1 s, D64 152.0 s
+  and 128.0 s (C2 50 pairs in 123 s).
+- **Peak memory:** `llm4b` 4.66 GB cgroup, `llama-server` 4.55 GB resident; `app` 6.85 GB cgroup
+  with D64 running. Together about 11.5 GB: the guide must raise the Docker memory figure for the
+  4B. `stop llm4b` took 0.42 s.
+- **Reading:** on this machine the 4B fits the 60 s budget only when the CPU is otherwise idle.
+  Concurrent ranking pushes most turns past it, and they then fall back as designed. The budget
+  stays 60 s (D67); this is recorded, not tuned.
