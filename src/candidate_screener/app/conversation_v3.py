@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+import copy
 import math
 import re
 import time
@@ -105,7 +106,8 @@ class ConversationV3Service:
         result["candidate_labels"] = bundle["labels"]
         explicit_compare = bool(re.search(r"\b(?:compare|comparison|table|contrast)\b", question, re.I))
         explanation = result.get("context", {}).get("intent") == "comparison_explanation"
-        result["show_comparison_table"] = (explicit_compare or explanation) and len(bundle["selected_candidates"]) > 1
+        comparison = result.get("context", {}).get("intent") == "comparison"
+        result["show_comparison_table"] = (explicit_compare or comparison or explanation) and len(bundle["selected_candidates"]) > 1
         result["comparison_table_expandable"] = explanation and not explicit_compare
         result["comparison_table_available"] = bool(result.get("comparison"))
         result["generation_provenance"] = {"composer": "application", "scope_digest": bundle["scope_digest"],
@@ -137,9 +139,82 @@ class ConversationV3Service:
                                   "non_prose_output", "invalid_context"}:
                     reason = "provider_unavailable"
         if reason:
-            result.update(text=fallback_text(bundle, reason), generation_mode="qwen_fallback", model=None)
+            if len(bundle["selected_candidates"]) > 1:
+                # Rebuild source-owned facts rather than reuse the reader's text
+                # or the rejected model output. The v2 renderer preserves full
+                # comparison caveats and directed counterevidence.
+                facts = self.reader._facts(snapshot, result)
+                text = self.reader._render(snapshot, result, facts)
+            else:
+                text = fallback_text(bundle, reason)
+            result.update(text=text, generation_mode="qwen_fallback", model=None)
             result["generation_provenance"]["fallback_reason"] = reason
+        if len(bundle["selected_candidates"]) > 1 and (comparison or explanation):
+            self._display_comparison(snapshot, result)
         return self._bounded(result)
+
+    def _display_comparison(self, snapshot, result):
+        """Add broad coverage after synthesis; all displayed quotes stay source-owned."""
+        from .comparison_facts import _citations
+
+        selected = result["context"]["selected_candidates"]
+        broad = self.reader.base.compare(snapshot, selected)
+        owners = {snapshot.jd_id, *selected}
+        citations = {identity: item for identity, item in _citations(
+            snapshot, {"citations": [*result.get("citations", []), *broad.get("citations", [])]}).items()
+            if item["owner"] in owners}
+
+        def authorized_ids(ids, owner):
+            return [identity for identity in ids
+                    if identity in citations and citations[identity]["owner"] == owner]
+
+        def display_row(original, scope):
+            row = copy.deepcopy(original)
+            row["table_scope"] = scope
+            if scope != "Broad evidence":
+                row["table_criterion"] = str(row.get("criterion") or row.get("topic")
+                                             or " ".join(result["context"].get("criteria", [])))
+            ids = authorized_ids(row.get("requirement_evidence_ids", []), snapshot.jd_id)
+            row["requirement_evidence_ids"] = ids
+            if ids:
+                row["requirement"] = " ".join(dict.fromkeys(citations[key]["quote"] for key in ids))
+            else:
+                row["requirement"] = "JD evidence not found in reviewed text."
+                if original.get("requirement_evidence_ids"):
+                    row["requirement_status"] = "source_unavailable"
+            for owner in list(row.get("answers", {})):
+                if owner not in selected:
+                    del row["answers"][owner]
+                    continue
+                cell = row["answers"][owner]
+                ids = authorized_ids(cell.get("evidence_ids", []), owner)
+                context = " ".join(dict.fromkeys(citations[key]["quote"] for key in ids))
+                if context:
+                    # Complete source context is the display value, retaining
+                    # qualifiers even when a QA span contains only a noun phrase.
+                    cell.update(text=context, context=context, evidence_ids=ids)
+                else:
+                    status = "source_unavailable" if cell.get("evidence_ids") else cell.get("status", "not_found")
+                    text = ("Source evidence unavailable." if status == "source_unavailable" else
+                            "Evidence omitted by the storage limit; review supporting sources." if status in {"omitted", "budget_limited"} else
+                            "Not found in reviewed text; this does not establish absence.")
+                    cell.update(text=text, context="", evidence_ids=[], status=status, qa_status="not_run")
+            return row
+
+        broad_rows = [display_row(row, "Broad evidence") for row in broad.get("comparison", [])]
+        if result.get("comparison") == broad.get("comparison"):
+            # Save just one copy when synthesis already used all broad rows.
+            result["comparison"] = broad_rows
+        else:
+            extra = [display_row(row, "JD criterion" if "criterion" in row else "Focused evidence")
+                     for row in result.get("comparison", []) if row not in broad.get("comparison", [])]
+            result["comparison_rows"] = [*broad_rows, *extra]
+        result["citations"] = list(citations.values())
+        result["claims"] = [item for item in result.get("claims", [])
+                            if item.get("evidence_id") in citations]
+        result["context"]["last_evidence"] = evidence_descriptors(result["citations"])
+        result["comparison_table_available"] = bool(broad_rows)
+        result["comparison_table_status"] = broad.get("comparison_status", "partial")
 
     @staticmethod
     def _bounded(result):
@@ -156,8 +231,10 @@ class ConversationV3Service:
         if len(json.dumps(result, ensure_ascii=False).encode()) > 23_900:
             # Drop complete table/citation records together, never truncate source
             # qualifiers. The message makes this loss explicit to the reviewer.
-            result.update(comparison=[], citations=[], claims=[], status="partial",
-                          show_comparison_table=False, comparison_table_available=False)
+            result.update(comparison=[], comparison_rows=[], citations=[], claims=[], status="partial",
+                          show_comparison_table=False, comparison_table_available=False,
+                          comparison_table_status="partial")
+            result["validated_claim_sources"] = []
             result["context"]["last_evidence"] = []
         if len(json.dumps(result, ensure_ascii=False).encode()) > 23_900:
             raise ValueError("Conversation metadata exceeds its storage budget")
