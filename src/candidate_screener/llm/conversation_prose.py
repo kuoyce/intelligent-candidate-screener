@@ -20,7 +20,7 @@ from time import monotonic
 from .base import ContextOverflow, ProviderUnavailable, redact_content
 
 SYSTEM = files("candidate_screener.llm").joinpath("hr_system_prompt_v3.txt").read_text(encoding="utf-8").strip()
-PROMPT_VERSION = "hiring-desk-v3-grounded-prose-4"
+PROMPT_VERSION = "hiring-desk-v3-summary-conclusion-7"
 PROSE_FAILURES = frozenset({"invalid_response_size", "non_prose_output", "invalid_context"})
 
 
@@ -70,17 +70,32 @@ def configured_prose_composer(values=None):
 
 
 def checked_prose(raw):
-    """Reject machine output; semantic support remains the application's job."""
+    """Keep only a completed final conclusion; semantics remain the app's job."""
     if not isinstance(raw, str) or not raw.strip() or len(raw.encode("utf-8")) > 8192:
         raise ProseError("invalid_response_size")
     text = raw.strip()
+    sections = list(re.finditer(r"(?m)^\s*\[(Reasoning Steps|Conclusion)\]:", text))
+    if sections:
+        names = [match[1] for match in sections]
+        if names not in (["Conclusion"], ["Reasoning Steps", "Conclusion"]):
+            raise ProseError("non_prose_output")
+        prefix = text[:sections[0].start()].strip()
+        if prefix and (names != ["Conclusion"] or not re.match(r"^\d+[.)]\s", prefix)):
+            raise ProseError("non_prose_output")
+        text = text[sections[-1].end():].strip()
+        if not text:
+            raise ProseError("invalid_response_size")
+    elif re.match(r"^\d+[.)]\s", text):
+        # The prompt opens a brief evidence-check section. An unfinished
+        # numbered continuation must never be persisted as the final answer.
+        raise ProseError("non_prose_output")
     try:
         json.loads(text)
     except (ValueError, TypeError):
         pass
     else:
         raise ProseError("non_prose_output")
-    if (text.startswith(("{", "[", "<")) or "```" in text
+    if (text.startswith(("{", "[", "<")) or "```" in text or re.search(r"\[(?:Reasoning Steps|Conclusion)\]", text)
             or re.search(r"\b(?:chunk\s*\d+|evidence[_ -]?id|relation_ids)\b|\[S\d+\]", text, re.I)
             or re.search(r"(?m)^\s*(?:import |from \w+ import |def \w+\(|class \w+[:(]|#include|SELECT .* FROM )", text)):
         raise ProseError("non_prose_output")
@@ -107,7 +122,7 @@ def _context_text(question, frame, facts, history):
             return "The role"
         return f"Candidate {owners.index(owner) + 1}" if owner in owners else "Source"
 
-    lines = ["Trusted review labels:", ", ".join(label(owner) for owner in owners) or "Job description review"]
+    lines = ["### YOUR TASK", "Trusted review labels:", ", ".join(label(owner) for owner in owners) or "Job description review"]
     criteria = frame.get("criteria", [])
     if isinstance(criteria, list) and criteria:
         lines.append("Discussion criteria: " + ", ".join(str(item) for item in criteria))
@@ -115,7 +130,32 @@ def _context_text(question, frame, facts, history):
         subject, reference = frame.get("explanation_subject"), frame.get("explanation_reference")
         if subject in owners and reference in owners:
             lines.append(f"Requested explanation: {label(subject)} compared with {label(reference)}.")
-    lines.extend(["", "Background Evidence (source data):"])
+    priority = facts.get("job_priority")
+    if priority is not None and not isinstance(priority, str):
+        raise ProseError("invalid_context")
+    lines.extend(["", "[Job Priority]: " + json.dumps(
+        priority or "No explicit job priority supplied; do not invent a priority or overall winner.", ensure_ascii=False)])
+    matrix = facts.get("evidence_matrix", [])
+    if not isinstance(matrix, list):
+        raise ProseError("invalid_context")
+    lines.extend(["", "[Evidence Matrix]:"])
+    for item in matrix:
+        if (not isinstance(item, dict) or not isinstance(item.get("criterion"), str)
+                or not isinstance(item.get("statuses"), dict)
+                or set(item["statuses"]) != set(owners)
+                or any(not isinstance(value, str) or not value.strip() for value in item["statuses"].values())):
+            raise ProseError("invalid_context")
+        # Escape newlines and delimiter characters so source/criterion strings
+        # cannot create additional prompt sections or change another owner's flag.
+        criterion = json.dumps(item["criterion"], ensure_ascii=False)
+        scope = json.dumps(item.get("scope", "Evidence"), ensure_ascii=False)
+        flags = " | ".join(f"{label(owner)} ({item['statuses'][owner]})" for owner in owners)
+        if any(re.search(r"[\n\r\[\]|()]", value) for value in item["statuses"].values()):
+            raise ProseError("invalid_context")
+        lines.append(f"* {criterion} [{scope}]: {flags}")
+    if not matrix:
+        lines.append("* Matrix unavailable for this turn; infer no ratings or verified qualifications.")
+    lines.extend(["", "[Selected Passages]:", "Background Evidence (source data):"])
     seen = set()
     evidence = facts.get("evidence", [])
     cells = facts.get("cells", [])
@@ -139,9 +179,10 @@ def _context_text(question, frame, facts, history):
     if not seen:
         lines.append("No source passage was retrieved. Do not invent missing facts.")
     relations = facts.get("checked_relations", facts.get("relations", []))
-    if not isinstance(relations, list):
+    matrix_relations = facts.get("matrix_relations", [])
+    if not isinstance(relations, list) or not isinstance(matrix_relations, list):
         raise ProseError("invalid_context")
-    differences = list(dict.fromkeys(row["text"] for row in relations
+    differences = list(dict.fromkeys(row["text"] for row in [*relations, *matrix_relations]
                                     if isinstance(row, dict) and isinstance(row.get("text"), str)))
     if differences:
         lines.extend(["", "Checked comparisons (preserve limitations and counterpoints):", *differences])
@@ -150,8 +191,8 @@ def _context_text(question, frame, facts, history):
         for turn in history:
             lines.append("Previous question: " + json.dumps(turn["question"], ensure_ascii=False))
             lines.append("Previous reply: " + json.dumps(turn["answer"], ensure_ascii=False))
-    lines.extend(["", "Answer only the current question using the Background Evidence above.",
-                  "Current user question:", question])
+    lines.extend(["", "Align the final conclusion with the Evidence Matrix and Selected Passages above.",
+                  "Current user question:", question, "", "[Reasoning Steps]:"])
     return "\n".join(lines)
 
 

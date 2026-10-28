@@ -63,3 +63,42 @@ def test_v3_sources_are_only_rendered_after_user_requests_them(workspace, monkey
     show.check().run()
     assert not at.exception
     assert any("View supporting source:" in item.label for item in at.expander)
+
+
+def test_v3_comparison_followup_renders_both_tables_without_opening_sources(workspace, monkeypatch):
+    monkeypatch.setenv("HR_PORTAL_CHAT_VERSION", "v3")
+    at = app()
+    at.chat_input[0].set_value("Compare candidates 1 and 2").run()
+    assert not at.exception
+    tables = lambda: [item.value for item in at.dataframe
+                      if {"Candidate 1", "Candidate 2"} <= set(item.value.columns)]
+    assert len(tables()) == 1
+    assert not any("View supporting source:" in item.label for item in at.expander)
+    assert all(not item.value for item in at.checkbox if item.label == "Show supporting sources")
+
+    at.chat_input[0].set_value("What about their qualifications?").run()
+    assert not at.exception
+    history = workspace.chat_history(at.session_state["portal_session_id"])
+    assert len(history) == 2
+    followup = history[-1]["answer"]
+    assert followup["context"]["intent"] == "comparison"
+    assert followup["context"]["category"] == "DEGREE"
+    assert len(tables()) == 2
+    source_controls = [item for item in at.checkbox if item.label == "Show supporting sources"]
+    assert len(source_controls) == 2
+    assert all(not item.value for item in source_controls)
+    assert not any("View supporting source:" in item.label for item in at.expander)
+
+
+def test_v3_display_table_has_broad_categories_and_separate_jd_criteria(workspace, monkeypatch):
+    monkeypatch.setenv("HR_PORTAL_CHAT_VERSION", "v3")
+    at = app()
+    at.chat_input[0].set_value("Compare candidates 1 and 2").run()
+    assert not at.exception
+    table = next(item.value for item in at.dataframe
+                 if {"Candidate 1", "Candidate 2"} <= set(item.value.columns))
+    assert len(table) >= 7
+    assert set(table["Scope"]) >= {"Broad evidence", "JD criterion"}
+    assert set(table.iloc[:6]["Category"]) == {
+        "Knowledge", "Skill", "Title", "Degree", "Experience Years", "Certification"}
+    assert any("in progress" in value for value in table["Candidate 2"])

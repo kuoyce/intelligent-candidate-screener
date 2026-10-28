@@ -429,9 +429,27 @@ expandable tables for “why” explanations, and supporting sources on demand.
 “Find jobs by requirement” searches authorized JD text without requiring rankings;
 unranked published jobs also support standalone JD questions. Cross-JD search
 does not change the selected review. The existing frozen models are reused.
-Unsupported generated wording falls back to checked statements; this conservative
-validator does not establish general semantic entailment. V3 remains experimental
-pending the [quality gates](plan/2026-10-25-hiring-desk-v3/02-implementation-and-evaluation.md).
+Unsupported generated wording falls back to checked statements. Candidate
+comparisons retain v2's checked comparison when generation is rejected or
+unavailable. Comparison replies and their criterion follow-ups retain the
+candidate table; directed “why” replies keep it expandable. V3 retains v1's six
+broad evidence categories and shows recognized JD-specific criteria alongside
+them. The table and checked relations are calculated before generation; a compact
+Evidence Matrix precedes Selected Passages in Qwen's prompt, so the explanation
+sees the broad statuses without receiving whole CVs. Flags describe source
+support, not independent verification or inferred proficiency. Narrower JD
+parsing does not replace the broad table.
+Single-candidate alignment summaries retain broad strengths and material JD gaps.
+Where checked source evidence establishes overlap with the JD, they end with a
+conditional relevance conclusion while keeping unconfirmed requirements explicit.
+Source quotations share one CV attribution, and the concluding statement appears
+in a separate paragraph.
+Directed “why” questions return one concise answer line with supporting points
+and any counterevidence, rather than a new Fit decision. For JD-only
+questions, a complete authorized supporting passage can be quoted when generation
+is rejected or unavailable; the reply retains its fallback provenance. This
+conservative validator does not establish general semantic entailment. V3 remains
+experimental pending the [quality gates](plan/2026-10-25-hiring-desk-v3/02-implementation-and-evaluation.md).
 Its system prompt is `src/candidate_screener/llm/hr_system_prompt_v3.txt`.
 The optional Qwen3.5-4B CPU trial uses a separate pinned GGUF runtime:
 `uv run python -m candidate_screener.llm.gguf_assets` provisions the assets, then

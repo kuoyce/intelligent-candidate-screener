@@ -31,7 +31,7 @@ def _topic(question):
     """Keep criterion wording while removing only conversation/reference scaffolding."""
     text = question
     text = re.sub(r"\b(?:for|against)\s+(?:(?:this|the|current|active)\s+)?(?:role|job description|job|jd)\b", " ", text, flags=re.I)
-    text = re.sub(r"\b(?:compare|contrast|add|include|remove|exclude)\s+(?:candidates?\s*)?\d+(?:\s*(?:and|,|with|versus|vs)\s*(?:candidates?\s*)?\d+)*", " ", text, flags=re.I)
+    text = re.sub(r"\b(?:compare|contrast|add|include|remove|exclude)\s+(?:the\s+)?(?:candidates?\s*)?\d+(?:\s*(?:and|,|with|versus|vs)\s*(?:the\s+)?(?:candidates?\s*)?\d+)*", " ", text, flags=re.I)
     text = re.sub(r"\b(?:candidates?|applicants?)\s*\d+", " ", text, flags=re.I)
     text = re.sub(r"\b(?:what about|focus on|how do|stack up|these two|their|them|both|compare|contrast|now|please)\b", " ", text, flags=re.I)
     return " ".join(text.strip(" .?!,:;").split())
@@ -364,6 +364,15 @@ class ConversationService:
             topic_input = re.sub(r"(?<![\w-])" + re.escape(owner) + r"(?![\w-])", " ", topic_input, flags=re.I)
         topic = _topic(topic_input)
         broad_role = bool(re.search(r"\b(?:for|against)\s+(?:(?:this|the|current|active)\s+)?(?:role|job description|job|jd)\b", question, re.I))
+        # A fresh participant comparison must not treat a prior JD-only question
+        # as a CV criterion. Also recover frames saved by the earlier bug, whose
+        # intent had already changed to comparison but retained that question.
+        stale_jd_topic = previous.get("intent") == "requirements" or any(
+            re.search(r"^(?:what|which)\b.*\b(?:jd|job description)\b.*\b(?:require|requires|requirements|need|needs)\b", item, re.I)
+            for item in previous.get("criteria", []))
+        if has_explicit and len(owners) > 1 and not topic and stale_jd_topic:
+            state.update(criteria=[], category="GENERAL")
+            previous.update(criteria=[], category="GENERAL")
         # Bare participant changes retain the current criterion. A real new topic
         # replaces it; do not append unrelated prior criteria to the reader input.
         if modification or (has_explicit and not topic and not broad_role):

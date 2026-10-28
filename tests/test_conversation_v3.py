@@ -38,6 +38,64 @@ def service(composer):
     return ConversationV3Service(base, composer)
 
 
+@pytest.mark.parametrize("available", [True, False])
+def test_jd_only_fallback_quotes_authorized_source_with_failure_provenance(available):
+    current = snapshot()
+    current.jd_text = "For an education project we're looking for a Senior Ruby developer."
+    composer = Composer("The role requires a Senior Ruby developer.") if available else None
+    result = service(composer).answer(current, "What role does this JD require?")
+    assert result["text"] == f"{current.jd_text}"
+    assert result["generation_mode"] == "qwen_fallback"
+    assert result["model"] is None
+    assert result["validated_claim_sources"] == []
+    assert result["generation_provenance"]["fallback_reason"] == (
+        "unsupported_paraphrase" if available else "provider_unavailable")
+    assert any(item["owner"] == current.jd_id and item["quote"] == current.jd_text
+               for item in result["citations"])
+
+
+def test_jd_only_fallback_never_quotes_tampered_citation():
+    current = snapshot()
+    current.jd_text = "Senior Ruby developer required."
+    engine = service(Composer("unsupported"))
+    original = engine.reader.answer
+
+    def tampered(*args, **kwargs):
+        result = original(*args, **kwargs)
+        for citation in result["citations"]:
+            citation["document_digest"] = "invalid"
+        return result
+
+    engine.reader.answer = tampered
+    result = engine.answer(current, "What role does this JD require?")
+    assert result["retrieved_context_ids"] == []
+    assert "Senior Ruby" not in result["text"]
+    assert "enough checked information" in result["text"]
+
+
+def test_jd_quotation_fallback_preserves_complete_qualifier_and_answer_budget():
+    from candidate_screener.app.conversation_context import fallback_text
+
+    source = "Senior Ruby developer required. " + "Relevant project details. " * 80 + "Only for a temporary project."
+    bundle = {"jd_id": "JD-A", "selected_candidates": [], "cells": [],
+              "checked_paraphrases": [], "evidence": [
+                  {"owner": "JD-A", "owner_kind": "jd", "context": source}]}
+    assert len(source) <= 2400
+    assert fallback_text(bundle, "unsupported_paraphrase") == source
+    bundle["evidence"][0]["context"] = "x" * 2400 + "Only for a temporary project."
+    assert "enough checked information" in fallback_text(bundle, "unsupported_paraphrase")
+
+
+@pytest.mark.parametrize("owner,kind", [("OTHER-JD", "jd"), ("JD-A", "cv")])
+def test_jd_quotation_fallback_rejects_other_source_ownership(owner, kind):
+    from candidate_screener.app.conversation_context import fallback_text
+
+    bundle = {"jd_id": "JD-A", "selected_candidates": [], "cells": [],
+              "checked_paraphrases": [], "evidence": [
+                  {"owner": owner, "owner_kind": kind, "context": "Senior Ruby developer required."}]}
+    assert "Senior Ruby" not in fallback_text(bundle, "unsupported_paraphrase")
+
+
 def test_model_authored_single_candidate_prose_replaces_raw_span():
     model = Composer("Candidate 1 has completed a Bachelor degree.")
     result = service(model).answer(snapshot(), "What degree does candidate 1 have?")
@@ -119,6 +177,15 @@ def test_why_followup_keeps_expandable_application_table():
     assert result["show_comparison_table"] is True
     assert result["comparison_table_expandable"] is True
     assert first["comparison_table_expandable"] is False
+
+
+def test_directed_model_conclusion_is_one_line_without_changing_qualified_facts():
+    model = Composer("Candidate 1 has completed a Bachelor degree.\nCandidate 2 is pursuing a Master degree.")
+    result = service(model).answer(snapshot(), "Why is candidate 1 better than candidate 2 on qualifications?")
+    assert result["generation_mode"] == "qwen_prose"
+    assert result["text"] == "Candidate 1 has completed a Bachelor degree. Candidate 2 is pursuing a Master degree."
+    assert result["validated_claim_sources"]
+    assert result["comparison_table_expandable"] is True
 
 
 def test_history_drops_whole_old_exchanges_after_four():
@@ -248,8 +315,10 @@ def test_why_fallback_preserves_both_qualification_states_without_repeated_advan
     engine = service(Composer("Candidate 1 is fully verified and better overall."))
     first = engine.answer(snapshot(), "Compare candidates 1 and 2 on qualifications")
     answer = engine.answer(snapshot(), "Why is 1 better than 2?", context=first["context"])
-    assert "Candidate 2 is pursuing" in answer["text"]
-    assert answer["text"].count("stronger documented evidence") <= 1
+    assert "clearer documented completion for Bachelor degree" in answer["text"]
+    assert "Candidate 2's degree completion is not confirmed" in answer["text"]
+    assert "\n" not in answer["text"]
+    assert "better overall" in answer["text"]
 
 
 def test_good_fit_summary_uses_job_criteria_without_authoring_fit_call():
@@ -309,6 +378,92 @@ def test_reasoning_fallback_retains_reverse_advantage_and_missing_evidence_cavea
     current.candidates[1]["preview_text"] = "Cloud engineering skills."
     result = service(Composer("unsupported")).answer(current, "Why is 1 better than 2?")
     assert "Python" in result["text"] and "Cloud" in result["text"]
-    assert "tradeoff" in result["text"].lower()
-    assert "doesn't mean" in result["text"]
-    assert len(result["text"].split(". ")) <= 3
+    assert "trade-off" in result["text"].lower()
+    assert "Candidate 1 has" in result["text"] and "Candidate 2 has" in result["text"]
+    assert "missing evidence does not establish absence" in result["text"]
+    assert "\n" not in result["text"]
+
+
+@pytest.mark.parametrize("available", [True, False])
+@pytest.mark.parametrize("question", [
+    "Compare candidate 1 and 9.",
+    "Compare candidates 1 and 9 on qualifications",
+    "Why is candidate 1 better than candidate 9?",
+    None,
+])
+def test_comparison_fallback_preserves_checked_v2_answer(question, available):
+    current = snapshot()
+    current.candidates[1]["rank"] = 9
+    expected_service = ConversationService(PortalExtractiveService(qa_client=NoQa()))
+    engine = service(Composer("Both candidates are fully qualified and should be hired.") if available else None)
+    owners = ["CV-A", "CV-B"]
+    expected = (expected_service.answer(current, question) if question
+                else expected_service.compare(current, owners))
+    result = engine.answer(current, question) if question else engine.compare(current, owners)
+    if question and question.startswith("Why"):
+        assert "\n" not in result["text"]
+        assert "Candidate 1" in result["text"] and "Candidate 9" in result["text"]
+    else:
+        assert result["text"] == expected["text"]
+    assert result["mode"] == "conversation_v3"
+    assert result["generation_mode"] == "qwen_fallback"
+    assert result["generation_provenance"]["fallback_reason"] == (
+        "unsupported_paraphrase" if available else "provider_unavailable")
+    assert result["model"] is None
+    assert result["validated_claim_sources"] == []
+    assert result["show_comparison_table"] is True
+    assert result["comparison_table_available"] is True
+    assert result["comparison"] == expected["comparison"]
+    assert result["comparison_table_expandable"] == bool(question and question.startswith("Why"))
+
+
+def test_comparison_fallback_reauthorizes_sources_before_rendering():
+    current = snapshot()
+    engine = service(Composer("unsupported"))
+    original = engine.reader.answer
+
+    def tampered(*args, **kwargs):
+        result = original(*args, **kwargs)
+        for citation in result["citations"]:
+            citation["document_digest"] = "tampered"
+        result["text"] = "Stale model answer: both have completed a doctorate."
+        return result
+
+    engine.reader.answer = tampered
+    original_compare = engine.reader.base.compare
+
+    def tampered_compare(*args, **kwargs):
+        result = original_compare(*args, **kwargs)
+        for citation in result["citations"]:
+            citation["document_digest"] = "tampered"
+        return result
+
+    engine.reader.base.compare = tampered_compare
+    answer = engine.answer(current, "Compare candidates 1 and 2 on qualifications")
+    assert answer["retrieved_context_ids"] == []
+    assert "doctorate" not in answer["text"]
+    assert "Completed Bachelor" not in answer["text"]
+    assert "Master degree in progress" not in answer["text"]
+    assert "could not establish" in answer["text"]
+    assert "Candidate 1" in answer["text"] and "Candidate 2" in answer["text"]
+
+
+@pytest.mark.parametrize("output,mode", [
+    ("Candidate 1 has completed a Bachelor degree, while Candidate 2 is pursuing a Master degree.", "qwen_prose"),
+    ("Both candidates are fully qualified.", "qwen_fallback"),
+    (None, "qwen_fallback"),
+])
+def test_comparison_followup_keeps_table_without_explicit_compare_word(output, mode):
+    engine = service(Composer(output) if output else None)
+    current = snapshot()
+    first = engine.answer(current, "Compare candidates 1 and 2 on qualifications")
+    followup = engine.answer(current, "What about their qualifications?", first["context"])
+    assert first["show_comparison_table"] is True
+    assert followup["context"]["intent"] == "comparison"
+    assert followup["context"]["selected_candidates"] == first["context"]["selected_candidates"]
+    assert followup["generation_mode"] == mode
+    assert followup["show_comparison_table"] is True
+    assert followup["comparison_table_available"] is True
+    assert followup["comparison_table_expandable"] is False
+    single = engine.answer(current, "What degree does candidate 1 have?")
+    assert single["show_comparison_table"] is False
