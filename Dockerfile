@@ -69,16 +69,19 @@ CMD ["/app/.venv/bin/python", "-m", "pytest"]
 # gguf_server.py rebuilds only the last layers.
 FROM ${UBUNTU_IMAGE} AS llm4b
 ARG TARGETARCH
-# Ubuntu packages come from this dated snapshot, pinned by version (owner, Q6); only the `main`
-# component of noble and noble-updates is read. snapshot.ubuntu.com is HTTPS only and the base
-# has no CA bundle yet, so apt borrows the base stage's for these two commands (the packages
-# themselves are verified by the archive's signatures, as always).
+# Ubuntu packages, pinned by version (owner, Q6); only the `main` component is read. On amd64 they
+# come from this dated snapshot. snapshot.ubuntu.com serves no ubuntu-ports, so arm64 reads the live
+# ports archive with the same version pins (owner, 28 Oct 2026): the build fails loudly once Ubuntu
+# replaces a version, and the pins are then bumped. The snapshot is HTTPS only and the base has no
+# CA bundle yet, so apt borrows the base stage's (packages are verified by the archive's
+# signatures, as always).
 ARG UBUNTU_SNAPSHOT=20261027T000000Z
 RUN --mount=type=bind,from=base,source=/etc/ssl/certs/ca-certificates.crt,target=/run/snapshot-ca.crt \
     set -eu; \
     sed -i -e 's/^Suites: noble noble-updates noble-backports$/Suites: noble noble-updates/' \
         -e 's/^Components: .*$/Components: main/' /etc/apt/sources.list.d/ubuntu.sources; \
-    apt="apt-get -o APT::Snapshot=$UBUNTU_SNAPSHOT -o Acquire::https::CaInfo=/run/snapshot-ca.crt"; \
+    apt="apt-get"; \
+    if [ "$TARGETARCH" = amd64 ]; then apt="$apt -o APT::Snapshot=$UBUNTU_SNAPSHOT -o Acquire::https::CaInfo=/run/snapshot-ca.crt"; fi; \
     $apt update; \
     $apt install --yes --no-install-recommends \
         python3=3.12.3-0ubuntu2.1 ca-certificates=20260816ubuntu0.24.04.1 libgomp1=14.2.0-4ubuntu2~24.04.1; \

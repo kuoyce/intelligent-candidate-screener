@@ -1171,6 +1171,10 @@ def llm4b_stage_problems(dockerfile: str) -> list[str]:
     snapshot = build_args(dockerfile).get("UBUNTU_SNAPSHOT", "")
     if not re.fullmatch(r"\d{8}T\d{6}Z", snapshot) or "APT::Snapshot=$UBUNTU_SNAPSHOT" not in text:
         problems.append("apt does not read a dated snapshot (ARG UBUNTU_SNAPSHOT, APT::Snapshot)")
+    # snapshot.ubuntu.com serves no ubuntu-ports (arm64), so the snapshot applies on amd64 only;
+    # arm64 reads the live ports archive with the same version pins (owner, 28 Oct 2026, E5).
+    if not re.search(r'if \[ "\$TARGETARCH" = amd64 \]; then[^;]*APT::Snapshot=\$UBUNTU_SNAPSHOT', text):
+        problems.append("the apt snapshot is not limited to amd64 (snapshot.ubuntu.com has no ubuntu-ports)")
     for match in re.finditer(r"install --yes --no-install-recommends ([^;]*)", text):
         packages = [word for word in match.group(1).split() if not word.startswith("-")]
         problems += [f"the Ubuntu package {name} is not pinned by version" for name in packages if "=" not in name]
@@ -1356,7 +1360,7 @@ FROM python:3.12-slim AS base
 FROM ${UBUNTU_IMAGE} AS llm4b
 ARG TARGETARCH
 ARG UBUNTU_SNAPSHOT=20261027T000000Z
-RUN apt="apt-get -o APT::Snapshot=$UBUNTU_SNAPSHOT"; $apt update; \\
+RUN apt="apt-get"; if [ "$TARGETARCH" = amd64 ]; then apt="$apt -o APT::Snapshot=$UBUNTU_SNAPSHOT"; fi; $apt update; \\
     $apt install --yes --no-install-recommends python3=3.12.3-0ubuntu2.1 libgomp1=14.2.0-4ubuntu2~24.04.1; \\
     rm -rf /var/lib/apt/lists/*
 RUN printf '%s\\n' \\
@@ -1436,6 +1440,7 @@ BROKEN_LLM4B = {
     "base-bookworm": (llm4b_stage_problems, broken(GOOD_LLM4B, ("ubuntu:24.04@", "debian:bookworm@"))),
     "package-unpinned": (llm4b_stage_problems, broken(GOOD_LLM4B, ("libgomp1=14.2.0-4ubuntu2~24.04.1", "libgomp1"))),
     "no-snapshot": (llm4b_stage_problems, broken(GOOD_LLM4B, (" -o APT::Snapshot=$UBUNTU_SNAPSHOT", ""))),
+    "snapshot-on-arm64": (llm4b_stage_problems, broken(GOOD_LLM4B, ('if [ "$TARGETARCH" = amd64 ]; then apt="$apt -o APT::Snapshot=$UBUNTU_SNAPSHOT"; fi;', 'apt="$apt -o APT::Snapshot=$UBUNTU_SNAPSHOT";'))),
     "snapshot-undated": (llm4b_stage_problems, broken(GOOD_LLM4B, ("SNAPSHOT=20261027T000000Z", "SNAPSHOT=latest"))),
     # TARGETARCH
     "arch-arm64-missing": (llm4b_stage_problems, broken(GOOD_LLM4B, (ARM_ARM, ""))),
