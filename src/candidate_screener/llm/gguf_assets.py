@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import http.client
 import json
 from pathlib import Path, PurePosixPath
 import platform
@@ -115,9 +116,9 @@ def fetch(url, destination, expected_sha256, expected_size):
         raise ValueError("Existing artifact differs from the pinned source")
     destination.parent.mkdir(parents=True, exist_ok=True)
     partial = destination.with_suffix(destination.suffix + ".partial")
-    # A stream may end early without an error (under arm64 emulation it stopped after ~175 MB,
-    # plan 2026-10-28-gguf-cross-platform E5): resume from the partial bytes, a bounded number of
-    # times; the whole artifact is verified below either way.
+    # A stream may end early, stall or break (under arm64 emulation it stopped after ~175 MB, and a
+    # resumed one later timed out; plan 2026-10-28-gguf-cross-platform E5): resume from the
+    # partial bytes, a bounded number of times; the whole artifact is verified below either way.
     for _ in range(FETCH_ATTEMPTS):
         offset = partial.stat().st_size if partial.exists() else 0
         if offset > expected_size:
@@ -131,11 +132,14 @@ def fetch(url, destination, expected_sha256, expected_size):
                 raise ValueError("Download resume offset differs from request")
             count = offset if resumed else 0
             with partial.open("ab" if resumed else "wb") as stream:
-                for chunk in iter(lambda: response.read(1024 * 1024), b""):
-                    count += len(chunk)
-                    if count > expected_size:
-                        raise ValueError("Artifact exceeds pinned size")
-                    stream.write(chunk)
+                try:
+                    for chunk in iter(lambda: response.read(1024 * 1024), b""):
+                        count += len(chunk)
+                        if count > expected_size:
+                            raise ValueError("Artifact exceeds pinned size")
+                        stream.write(chunk)
+                except (TimeoutError, ConnectionError, http.client.IncompleteRead):
+                    pass  # a stalled or broken stream: keep the bytes, resume on the next attempt
     if not partial.exists() or partial.stat().st_size != expected_size or digest(partial) != expected_sha256:
         raise ValueError("Artifact size or SHA-256 mismatch; manifest not written")
     partial.replace(destination)

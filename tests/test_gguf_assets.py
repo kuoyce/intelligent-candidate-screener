@@ -139,6 +139,24 @@ def test_a_stream_that_ends_early_resumes_in_the_same_call(monkeypatch, tmp_path
     assert [r.get_header("Range") for r in requests] == [None, "bytes=7-", "bytes=12-"]
 
 
+@pytest.mark.parametrize("error", [TimeoutError, ConnectionResetError])
+def test_a_stalled_or_reset_stream_resumes_in_the_same_call(monkeypatch, tmp_path, error):
+    body = b"complete frozen artifact bytes"
+
+    class Fails(Response):
+        def read(self, size=-1):
+            chunk = super().read(size)
+            if not chunk:
+                raise error("stream broke")
+            return chunk
+
+    requests = serve_in_turn(monkeypatch, [
+        Fails(body[:9]), Response(body[9:], 206, f"bytes 9-{len(body)-1}/{len(body)}")])
+    target = tmp_path / "model.gguf"
+    assert assets.fetch("https://example.invalid/model", target, sha(body), len(body)) == target
+    assert [r.get_header("Range") for r in requests] == [None, "bytes=9-"]
+
+
 def test_resuming_after_an_early_end_is_bounded_and_never_publishes(monkeypatch, tmp_path):
     requests = serve_in_turn(monkeypatch, [Response(b"abc")])   # then empty bodies forever
     target = tmp_path / "model.gguf"
