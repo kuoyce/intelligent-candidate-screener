@@ -211,19 +211,23 @@ bash, zsh and PowerShell.
    expects` (about 2 s, 28 Oct 2026). A received copy also prints
    `workspace processed/hr-portal/: none`. Anything else: [§5](#what-verify-reports).
 
-6. **Create your reviewer account** ([§7](#7-accounts) explains accounts).
+6. **Create your reviewer account** ([§7](#7-accounts) explains accounts). With no account yet,
+   you can skip this step: the app then opens on a **Create the first account** form (step 8).
+   For an account from the command (or any further account):
 
    ```
    docker compose run --rm app python -m candidate_screener.app.portal_auth --create-local-user reviewer --department benchmark
    ```
 
-   Replace `reviewer` with your login ID. The command asks twice for an access token of at least
-   24 characters, first `Choose an access token (…; not displayed):`, then `Confirm access token:`.
-   Nothing appears as you type; press Enter after each. It then prints `Local reviewer account
-   created. This is local token authentication, not company SSO.` (about 2 s, 28 Oct 2026). If the
-   two entries differ (`error: Tokens differ`) or the token is too short (a traceback ending in
-   `ValueError: Use a bounded login ID, token of …`), nothing is created: run the command again.
-   On Windows, run it where the token can be hidden: with Docker Engine inside WSL2 (the verified
+   Replace `reviewer` with your login ID. The command asks twice for an access token of 24 to 512
+   characters, first `Choose an access token (24 to 512 characters; not displayed):`, then
+   `Confirm access token:`. Nothing appears as you type; press Enter after each. It then prints
+   `Local reviewer account created. This is local token authentication, not company SSO.` (about
+   2 s, 28 Oct 2026). If the two entries differ (`error: Tokens differ`), the token is too short or
+   too long, or the login ID exists (`error: Use a bounded login ID, token of 24 to 512 characters
+   and explicit departments`, or `error: Existing login IDs cannot be overwritten`), nothing is
+   created: run the command again. (The error wording is from the code and its tests; the
+   walkthrough of 28 Oct 2026 saw the older traceback form.) On Windows, run it where the token can be hidden: with Docker Engine inside WSL2 (the verified
    set-up), a WSL2 terminal, for example in Windows Terminal; with Docker Desktop, any terminal
    where `docker` works (PowerShell or a WSL2 terminal). Not Git Bash.
 
@@ -241,7 +245,8 @@ bash, zsh and PowerShell.
    allocated`, something else holds the port: see [§12](#12-troubleshooting).
 
 8. **Open http://localhost:8503 and sign in** with your login ID and token, on the page headed
-   "Local reviewer sign-in". If you changed `HIRING_DESK_PORT` in step 3, open
+   "Local reviewer sign-in". If you skipped step 6, the page is headed "Create the first account"
+   instead: fill it in, press **Create the first account**, then sign in ([§7](#7-accounts)). If you changed `HIRING_DESK_PORT` in step 3, open
    `http://localhost:<that port>` instead; the app's log still prints `http://localhost:8503`, its
    port inside the container. Ranking a new JD (D63) took 35-43 s with empty caches and 14 s once
    they were filled. "Refine the top 50 with the reranker" (D64) took 94-121 s for 50 new
@@ -421,7 +426,19 @@ default.
 
 ## 7. Accounts
 
-- **One account per reviewer**, created with the command in [§4](#4-quick-start-operator):
+- **The first account, in the browser.** While no account exists, the app shows **Create the
+  first account** instead of the sign-in form: login ID, departments (pre-filled `benchmark`,
+  comma-separated), the access token twice (hidden, 24 to 512 characters) and the expiry in days
+  (default and maximum 40). On success it returns to the sign-in form with "The first account was
+  created. Sign in with its login ID and access token."; it does not sign you in. The form is shown
+  only while `accounts.json` is missing or holds no users; a damaged file counts as having accounts,
+  so the form never replaces it. If two people submit at once, one account is created and the other
+  sees "An account already exists. Reload the page and sign in." There is no administrator role.
+  **Accepted risk** (owner, 27 Oct 2026): while no account exists, whoever opens the page first
+  creates the first account. The port is published on host loopback only, so that is someone on the
+  same machine; before exposing the port on a network, create the first account by command (or add
+  a one-time setup code to the app).
+- **Further accounts, one per reviewer**, are created with the command in [§4](#4-quick-start-operator):
 
   ```
   docker compose run --rm app python -m candidate_screener.app.portal_auth --create-local-user LOGIN --department benchmark
@@ -430,8 +447,8 @@ default.
   It runs in a one-off container (`run` publishes no port, so it works while the app is running)
   and writes `data/datapack/processed/hr-portal/accounts.json`. The running app reads that file at
   every sign-in, so there is nothing to restart.
-- **The token.** The command asks twice, hidden, for a token of at least 24 characters (at most
-  512 at sign-in). It stores only a salted PBKDF2-SHA256 hash (310,000 iterations), the
+- **The token.** The command and the form ask twice, hidden, for a token of 24 to 512 characters
+  (the same limits as sign-in). It stores only a salted PBKDF2-SHA256 hash (310,000 iterations), the
   departments and the expiry; the token itself is never stored or printed. Keep it in a password
   manager.
 - **The hidden prompt needs a real terminal.** On Windows with Docker Engine inside WSL2 (the
@@ -459,16 +476,10 @@ default.
   Edit the file with a text editor, keep it valid JSON (`{"users": {…}, "version": 1}`), and copy
   it first ([§9](#9-backups-operator)); `verify` reports a file that is not valid JSON as one it
   cannot read. Any change to a login's entry signs that reviewer out.
-- **The app's own hint.** With no accounts, the sign-in page says that accounts are not configured
-  and shows the native command (`uv run python -m …`). In Docker, use the `docker compose run`
-  form above.
+- **The app's own hint.** The first-account form also shows the native command for further
+  accounts (`uv run python -m …`). In Docker, use the `docker compose run` form above.
 - **Accounts never travel.** The image contains none, and `handover` copies none: each operator
   creates their own. Rebuilding the image leaves accounts alone; `purge --yes` deletes them.
-- **Coming next (S10, on its own branch).** With no accounts, the app will show a "create the
-  first account" form (login ID, departments, the token twice, expiry) instead of the hint; further
-  accounts keep using the command, and there is no administrator role. While no account exists,
-  whoever opens the page first creates one, which the loopback-only port limits to someone on the
-  same machine. This section changes when that branch merges.
 
 ## 8. Configuration reference
 
@@ -960,8 +971,8 @@ expects and the folder lacks.
   [§12](#12-troubleshooting)).
 - **Chat v3 is experimental.** Chat v2/v3 with the `llm` profile were verified by a scripted
   session, not yet by hand in a browser ([§6](#chat-v2v3-the-llm-profile)).
-- **Accounts are managed by command** until the in-app first-account screen ships; there is no
-  renew, disable or reset command ([§7](#7-accounts)).
+- **Only the first account can be created in the browser**; further accounts use the command, and
+  there is no renew, disable or reset command and no administrator role ([§7](#7-accounts)).
 - **Parts not built**: Qwen3.5-4B, a research workbench image and the ONNX embedding back end; see
   [`docker-optional-parts.md`](docker-optional-parts.md).
 - **arm64 numbers are unchecked.** Under emulation (28 Oct 2026) the arm64 image built, started and

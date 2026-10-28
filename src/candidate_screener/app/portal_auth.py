@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import argparse
+from contextlib import contextmanager
 import getpass
 import fcntl
 import hashlib
@@ -20,6 +21,7 @@ from .portal_store import Principal
 DEFAULT_ACCOUNTS = PROCESSED / "hr-portal/accounts.json"
 ITERATIONS = 310_000
 DEFAULT_ACCOUNT_HOURS = 40 * 24
+MIN_TOKEN_CHARS, MAX_TOKEN_CHARS = 24, 512  # one rule for creating and signing in
 
 
 def _key(token, salt, iterations):
@@ -42,7 +44,7 @@ class TokenAuthenticator:
 
     def authenticate(self, login_id, token):
         """Return a verified principal and revocation version, never the credential."""
-        if not isinstance(login_id, str) or not 1 <= len(login_id) <= 100 or not isinstance(token, str) or not 24 <= len(token) <= 512:
+        if not isinstance(login_id, str) or not 1 <= len(login_id) <= 100 or not isinstance(token, str) or not MIN_TOKEN_CHARS <= len(token) <= MAX_TOKEN_CHARS:
             raise PermissionError("Sign-in failed")
         record = self._accounts().get(login_id)
         if not isinstance(record, dict):
@@ -73,19 +75,73 @@ class TokenAuthenticator:
                 and hmac.compare_digest(_version(records[0]), version))
 
 
-def create_account(path, login_id, token, departments, *, hours=DEFAULT_ACCOUNT_HOURS):
-    """Local administrator provisioning. Existing accounts are never overwritten."""
-    path = Path(path)
+class AccountsExist(ValueError):
+    """The first-account path is closed: an account (or an unreadable account file) exists."""
+
+
+@contextmanager
+def _account_lock(path):
+    """The one exclusive lock every account write takes (the ".lock" file beside the accounts)."""
     path.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
     descriptor = os.open(path.with_suffix(".lock"), os.O_CREAT | os.O_RDWR, 0o600)
     with os.fdopen(descriptor, "w") as lock:
         fcntl.flock(lock, fcntl.LOCK_EX)
+        yield
+
+
+def has_accounts(path):
+    """True unless the account file is missing or holds no users. Fails closed: a file that
+    cannot be read or has an unknown shape counts as having accounts."""
+    path = Path(path)
+    if not path.exists():
+        return False
+    try:
+        value = json.loads(path.read_text())
+        return not (value.get("version") == 1 and value.get("users") == {})
+    except (OSError, ValueError, AttributeError):
+        return True
+
+
+def create_account(path, login_id, token, departments, *, hours=DEFAULT_ACCOUNT_HOURS):
+    """Local administrator provisioning. Existing accounts are never overwritten."""
+    path = Path(path)
+    with _account_lock(path):
         _create_account_locked(path, login_id, token, departments, hours=hours)
 
 
+def create_first_account(path, login_id, token, departments, *, hours=DEFAULT_ACCOUNT_HOURS):
+    """Create an account only while none exists (the sign-in page's first-account screen).
+
+    The emptiness check runs under the same lock as the write, so of two concurrent submissions
+    exactly one succeeds and the other raises AccountsExist.
+
+    Accepted risk (owner, plan 2026-10-27-docker S10): while no account exists, whoever opens the
+    page first creates the first account. The Docker port is published on host loopback only, so
+    that is someone on the same machine. If the port is ever exposed on a network, add a one-time
+    setup code (printed in the container log) before this path is offered.
+    """
+    path = Path(path)
+    with _account_lock(path):
+        if has_accounts(path):
+            raise AccountsExist("An account already exists. Sign in, or ask its owner to create yours.")
+        _create_account_locked(path, login_id, token, departments, hours=hours)
+
+
+def submit_first_account(path, login_id, departments_text, token, confirmation, days):
+    """The first-account form's service: confirmation, department parsing, then
+    create_first_account (which owns every other check). Raises ValueError with a message
+    fit to show; nothing is written on any error."""
+    if token != confirmation:
+        raise ValueError("The two access tokens differ. Nothing was created.")
+    departments = [d.strip() for d in str(departments_text).split(",") if d.strip()]
+    if not departments:
+        raise ValueError("Enter at least one department. Nothing was created.")
+    create_first_account(path, login_id, token, departments, hours=float(days) * 24)
+
+
 def _create_account_locked(path, login_id, token, departments, *, hours):
-    if not login_id.strip() or len(login_id) > 100 or len(token) < 24 or not departments or not 0 < hours <= DEFAULT_ACCOUNT_HOURS:
-        raise ValueError("Use a bounded login ID, token of at least24 characters and explicit departments")
+    if not login_id.strip() or len(login_id) > 100 or not MIN_TOKEN_CHARS <= len(token) <= MAX_TOKEN_CHARS or not departments or not 0 < hours <= DEFAULT_ACCOUNT_HOURS:
+        raise ValueError("Use a bounded login ID, token of 24 to 512 characters and explicit departments")
     value = json.loads(path.read_text()) if path.exists() else {"version": 1, "users": {}}
     if value.get("version") != 1 or login_id in value["users"]:
         raise ValueError("Existing login IDs cannot be overwritten")
@@ -115,10 +171,13 @@ def main():
     parser.add_argument("--hours", type=float, default=DEFAULT_ACCOUNT_HOURS,
                         help="Account lifetime in hours (default: 960, or 40 days; maximum: 960)")
     args = parser.parse_args()
-    token = getpass.getpass("Choose an access token (at least24 characters; not displayed): ")
+    token = getpass.getpass("Choose an access token (24 to 512 characters; not displayed): ")
     if token != getpass.getpass("Confirm access token: "):
         parser.error("Tokens differ")
-    create_account(args.accounts, args.create_local_user, token, args.department, hours=args.hours)
+    try:
+        create_account(args.accounts, args.create_local_user, token, args.department, hours=args.hours)
+    except ValueError as error:
+        parser.error(str(error))
     print("Local reviewer account created. This is local token authentication, not company SSO.")
 
 

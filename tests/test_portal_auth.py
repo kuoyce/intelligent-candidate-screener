@@ -84,3 +84,119 @@ def test_expired_principal_and_duplicate_account_are_rejected(account):
     with pytest.raises(ValueError,match="cannot be overwritten"):
         create_account(account,"reviewer","another-synthetic-token-123456",["engineering"])
     assert account.read_bytes()==original
+
+
+# S10: the first account is created from the sign-in page when none exists.
+
+def test_first_account_is_created_only_when_none_exists(tmp_path):
+    from candidate_screener.app.portal_auth import AccountsExist, create_first_account, has_accounts
+    path = tmp_path / "hr-portal/accounts.json"
+    assert not has_accounts(path)
+    create_first_account(path, "first", TOKEN, ["benchmark"])
+    assert has_accounts(path)
+    principal, _ = TokenAuthenticator(path).authenticate("first", TOKEN)
+    assert principal.departments == ("benchmark",)
+    original = path.read_bytes()
+    with pytest.raises(AccountsExist):
+        create_first_account(path, "second", "another-synthetic-token-123456", ["benchmark"])
+    assert path.read_bytes() == original
+
+
+def test_empty_account_file_counts_as_no_accounts_and_unreadable_file_does_not(tmp_path):
+    from candidate_screener.app.portal_auth import AccountsExist, create_first_account, has_accounts
+    empty = tmp_path / "empty.json"
+    empty.write_text(json.dumps({"version": 1, "users": {}}))
+    assert not has_accounts(empty)
+    create_first_account(empty, "first", TOKEN, ["benchmark"])
+    assert has_accounts(empty)
+    # Fail closed: a file that cannot be read is never treated as "no accounts".
+    broken = tmp_path / "broken.json"
+    broken.write_text("{not json")
+    assert has_accounts(broken)
+    with pytest.raises(AccountsExist):
+        create_first_account(broken, "first", TOKEN, ["benchmark"])
+    assert broken.read_text() == "{not json"
+
+
+def test_concurrent_first_account_submissions_create_exactly_one(tmp_path, monkeypatch):
+    import threading
+    from candidate_screener.app import portal_auth
+    path = tmp_path / "accounts.json"
+    slow_key = portal_auth._key
+    def key(*args):
+        time.sleep(0.2)  # widen the window between "no account yet" and the write
+        return slow_key(*args)
+    monkeypatch.setattr(portal_auth, "_key", key)
+    barrier, outcomes = threading.Barrier(4), []
+    def submit(login):
+        barrier.wait()
+        try:
+            portal_auth.create_first_account(path, login, TOKEN, ["benchmark"])
+            outcomes.append(("created", login))
+        except portal_auth.AccountsExist:
+            outcomes.append(("refused", login))
+    threads = [threading.Thread(target=submit, args=(f"user-{i}",)) for i in range(4)]
+    for thread in threads:
+        thread.start()
+    for thread in threads:
+        thread.join()
+    assert sorted(kind for kind, _ in outcomes) == ["created", "refused", "refused", "refused"]
+    users = json.loads(path.read_text())["users"]
+    assert list(users) == [login for kind, login in outcomes if kind == "created"]
+
+
+@pytest.mark.parametrize("token,confirmation,message", [
+    (TOKEN, TOKEN + "x", "differ"),
+    ("short-token", "short-token", "24 to 512 characters"),
+])
+def test_first_account_form_rejects_bad_tokens_and_creates_nothing(tmp_path, token, confirmation, message):
+    from candidate_screener.app.portal_auth import submit_first_account
+    path = tmp_path / "accounts.json"
+    with pytest.raises(ValueError, match=message):
+        submit_first_account(path, "first", "benchmark", token, confirmation, 40)
+    assert not path.exists()
+
+
+def test_first_account_form_parses_departments_and_bounds_expiry(tmp_path):
+    from candidate_screener.app.portal_auth import submit_first_account
+    path = tmp_path / "accounts.json"
+    with pytest.raises(ValueError, match="department"):
+        submit_first_account(path, "first", " , ", TOKEN, TOKEN, 40)
+    with pytest.raises(ValueError):
+        submit_first_account(path, "first", "benchmark", TOKEN, TOKEN, 41)
+    assert not path.exists()
+    submit_first_account(path, "first", "benchmark, engineering", TOKEN, TOKEN, 10)
+    record = json.loads(path.read_text())["users"]["first"]
+    assert record["departments"] == ["benchmark", "engineering"]
+    assert record["expires_at"] == pytest.approx(time.time() + 10 * 86400, abs=5)
+
+
+def test_account_creation_matches_sign_in_token_length_limit(tmp_path):
+    from candidate_screener.app.portal_auth import submit_first_account
+    path = tmp_path / "accounts.json"
+    with pytest.raises(ValueError, match="24 to 512 characters"):
+        create_account(path, "long", "x" * 513, ["benchmark"])
+    with pytest.raises(ValueError, match="24 to 512 characters"):
+        submit_first_account(path, "long", "benchmark", "x" * 513, "x" * 513, 40)
+    assert not path.exists()
+    create_account(path, "edge", "y" * 512, ["benchmark"])
+    principal, _ = TokenAuthenticator(path).authenticate("edge", "y" * 512)
+    assert principal.subject == "edge"
+
+
+def test_cli_short_token_is_a_clean_error_not_a_traceback(tmp_path, monkeypatch, capsys):
+    from candidate_screener.app import portal_auth
+    path = tmp_path / "accounts.json"
+    prompts = []
+    def fake_getpass(prompt):
+        prompts.append(prompt)
+        return "too-short"
+    monkeypatch.setattr(portal_auth.getpass, "getpass", fake_getpass)
+    monkeypatch.setattr("sys.argv", ["portal_auth", "--create-local-user", "reviewer",
+                                     "--department", "benchmark", "--accounts", str(path)])
+    with pytest.raises(SystemExit) as exit_info:
+        portal_auth.main()
+    assert exit_info.value.code == 2
+    assert "24 to 512 characters" in capsys.readouterr().err
+    assert "24 to 512 characters" in prompts[0]
+    assert not path.exists()

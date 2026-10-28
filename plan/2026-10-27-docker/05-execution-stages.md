@@ -561,3 +561,7 @@ Open for the owner: merge `feat/account-create-screen` (then update `docs/docker
 §7); bring the provenance-key fix (`ca7d374`) to the frontend line; v2/v3 by hand in a browser;
 V10 on a real Apple Silicon Mac; the open items listed under "Phase 1 complete".
 
+**Owner, 28 Oct 2026:** `feat/account-create-screen` merged into `feat/docker-v1` (the one exception
+to "no frontend change on this branch", at the owner's request); `docs/docker.md` §4 steps 6 and 8,
+§7 and §15 now describe the first-account form and the 24-512 character token rule.
+
