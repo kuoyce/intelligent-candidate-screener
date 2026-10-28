@@ -308,7 +308,7 @@ Scratch project `hd-g2c`, `app` built from `c4d0ac0` under a scratch tag (the ow
     ended at the end-of-generation token, two at the 64-token limit).
   - `--compare … --rule identical`: **E1 PASS, E2 PASS, E3 PASS**.
 
-### E5 (linux-arm64 under emulation): blocked on a packaging decision (28 Oct 2026)
+### E5 (linux-arm64 under emulation): blocked on a packaging decision (28 Oct 2026; resolved below)
 
 - `docker buildx ls` lists `linux/arm64`. The arm64 `llm4b` build (`git archive 0398370`;
   `logs/gguf/g3-e5.log`) **failed at the apt step** after 10 s: `Unable to locate package python3`,
@@ -329,3 +329,35 @@ Scratch project `hd-g2c`, `app` built from `c4d0ac0` under a scratch tag (the ow
   - (c) another base for arm64 only.
 
   E5 waits for the answer.
+
+Decided (owner, 28 Oct 2026): **(a), live ports with the same pins** (`1f6e761`). The snapshot
+stays on amd64.
+
+### E5 (linux-arm64 under emulation): PASS (28 Oct 2026)
+
+- **Attempts 2-4** (`logs/gguf/g3-e5-attempt{2,3,4}*.log`) failed during the build's model
+  download, not in the runtime. Under emulation, the 2.74 GB stream ended early with no error
+  (about 175 MB; `e5-download-diagnose.log`), and later a resumed stream stalled until the read
+  timeout. `gguf_assets.fetch` now resumes within one call after an early end, a stall or a reset:
+  at most 50 requests, with the whole file still checked against the pinned size and SHA-256
+  before the manifest is written (`6d949cb`, `136088e`). The regression tests failed first.
+- **Build** (`git archive 136088e`, `--platform linux/arm64 --target llm4b`;
+  `logs/gguf/g3-e5-build.log`): 445 s. apt read the live ports archive. The pinned `linux-arm64`
+  runtime passed its start check (`build b11896`) under emulation. Image 2.95 GB.
+- **Attempt 5** (`g3-e5-attempt5*.log`) ran no probe. The bug was in my test harness, not the
+  product: it passed llama-server the raw manifest's relative model path instead of the path
+  `load_manifest` resolves, so the backend never loaded. `gguf_server` was unaffected.
+- **Run** (`logs/gguf/g3-e5.log`, `g3-e5-arm64.json`; same image, `--network none`):
+  - llama-server came up after 84 s and the facade after 17 s.
+  - The probe (prompt 1, `max_tokens 8`) took 191 s: prompt 1.57 s/token, generation 6.1 s/token,
+    against 22 ms and 93 ms natively.
+- **`--compare g3-e-native.json g3-e5-arm64.json --rule near-tie`: E1 PASS, E2 PASS, and the
+  E4-rule generation check PASS.** The eight token ids are identical to the native `linux-x64`
+  run ("Candidate 1 has a completed Bachelor degree"). Log-probabilities differ slightly; the
+  first step is -0.278 against -0.168. That difference is expected across builds, and the rule
+  compares tokens, not probabilities.
+- **Limit:** `backend_process` is empty in the arm64 record. Under QEMU user emulation, `/proc`
+  shows the emulator, not a `llama-server` process, so the CPU back end is not recorded. This is
+  an emulation artefact. On a real arm64 host the probe reads it as on x64.
+- E5 is emulated, so it says the arm64 build is correct, not how fast it runs. Speed on Apple
+  Silicon waits for E6.

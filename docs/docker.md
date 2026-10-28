@@ -1109,9 +1109,11 @@ expects and the folder lacks.
     [`03-equivalence.md`](../plan/2026-10-28-gguf-cross-platform/03-equivalence.md)) has not run yet;
     its result will be recorded, not required (owner, 28 Oct 2026, Q3). E6 (`macos-arm64`) waits for
     an Apple Silicon Mac. E1-E3 passed on the owner's machine (native against Docker, `linux-x64`).
-  - *linux-arm64 under emulation (E5).* <!-- G5 PLACEHOLDER (parent to finalise): E5 result --> E5
-    is running; see the plan's implementation record. **[Placeholder: the parent finalises this
-    sentence with E5's result.]**
+  - *linux-arm64 has been checked only under emulation (E5).* The arm64 `llm4b` image built under
+    QEMU on the owner's machine (445 s). Its probe passed against native `linux-x64`: E1, E2 and
+    the near-tie generation rule, with identical tokens. That shows the arm64 build is correct, not
+    how fast it runs. Emulated generation took about 6 s per token. Speed on Apple Silicon waits
+    for a real Mac (E6).
   - *arm64 packages are not snapshot-pinned.* `snapshot.ubuntu.com` serves no `ubuntu-ports`
     (401/404), so an arm64 build of `llm4b` reads the live `ports.ubuntu.com` archive with the same
     version pins as amd64 (owner, 28 Oct 2026). It fails loudly once Ubuntu replaces one of those
