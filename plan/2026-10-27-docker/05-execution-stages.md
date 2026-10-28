@@ -526,8 +526,7 @@ default. Not done: a browser check of v2/v3 by hand (V4 covered v1 only).
 - `docker buildx ls` listed `linux/arm64` (the owner's QEMU registration). Never installed or
   removed by the agent.
 - **Build.** `app` for `linux/arm64`, tag `candidate-screener/hiring-desk:arm64` (the amd64 tag
-  untouched), at `dea4543`: 6 min 9 s, exit 0, 7.13 GB (amd64 7.98 GB: no CUDA-free difference in
-  the main lock, smaller arm64 wheels). Every lock resolved and installed on aarch64; the four
+  untouched), at `dea4543`: 6 min 9 s, exit 0, 7.13 GB (amd64 7.98 GB). Every lock resolved and installed on aarch64; the four
   models downloaded and verified offline in the arm64 build (`logs/docker/s11-build-app.log`).
 - **V1** (`test` for arm64 from `git archive dea4543`, `--network none`; `logs/docker/s11-v1.log`):
   21 failed, 2275 passed, 51 skipped in 20 min 48 s (amd64 98 s). 17 are the known frontend ids;
