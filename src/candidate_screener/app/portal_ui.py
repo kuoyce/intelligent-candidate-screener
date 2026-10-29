@@ -526,7 +526,7 @@ def _switch_job(controller, jd_id, *, session_id=None):
     """Resume only this owner's compatible snapshot; discard pending cross-job work."""
     controller._guard(fresh=True)
     st.session_state.portal_selected_job = jd_id
-    st.session_state.portal_browse_only = False
+    st.session_state.portal_browse_only = Falsete
     for key in list(st.session_state):
         if key.startswith(("portal_pending_chat_", "portal_explanation")) or key in {"portal_last_action", "portal_mail_preview"}:
             del st.session_state[key]
