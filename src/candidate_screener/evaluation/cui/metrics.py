@@ -119,10 +119,11 @@ def summarize_run(run, reviews=None, bootstrap_replicates=10000, seed=0):
     family_ratio({}, replicates=bootstrap_replicates, seed=seed)
     result = {"schema_version": 1, "run_id": run["run_id"], "kind": run.get("kind"),
               "coverage": coverage, "bootstrap": {"unit": "family", "replicates": bootstrap_replicates, "seed": seed},
-              "groups": {}, "human_review": None,
+              "groups": {}, "human_review": None, "metadata": run.get("metadata", {}),
               "limitations": ["Synthetic preliminary study; no recruiter productivity or general quality claim.",
                               "Successful fallback is not accepted model generation.",
-                              "No factual correctness is inferred from lexical matching."]}
+                              "No factual correctness is inferred from lexical matching.",
+                              *run.get("metadata", {}).get("limits", [])]}
     for task_type in ("standalone", "dialogue"):
         groups = result["groups"][task_type] = {}
         for arm in ARMS:

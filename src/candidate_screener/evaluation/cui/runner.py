@@ -172,6 +172,7 @@ def run(fixtures, *, split="dev", provider="stub", run_id, composer=None, qa=Non
                 service = _service(frozen, composer if arm == "v3" else None)
                 record = _turn(service, initial, question, family, question["id"], "standalone", arm, None, [])
                 record["qa_cache"] = "paired_replay" if frozen.read_only else "first_arm"
+                record["cache_state"] = record["qa_cache"]
                 record["timing_scope"] = "service_call_with_paired_QA_cache; not portal end-to-end"
                 records.append(record)
                 paired.append(record)
@@ -196,6 +197,7 @@ def run(fixtures, *, split="dev", provider="stub", run_id, composer=None, qa=Non
                         snapshot, context, history = snapshot_for(family, scope), None, []
                     record = _turn(service, snapshot, turn, family, dialogue["id"], "dialogue", arm, context, history)
                     record["qa_cache"] = "no_harness_cache"
+                    record["cache_state"] = "QA_worker_reuse; generator_coldness_unknown"
                     record["timing_scope"] = "service_call; excludes portal UI and entity-cache preparation"
                     records.append(record)
                     if record["completed"]:

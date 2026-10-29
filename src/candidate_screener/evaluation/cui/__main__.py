@@ -29,6 +29,7 @@ def main(argv=None):
     execute.add_argument("--split", choices=("dev", "eval"), default="dev")
     execute.add_argument("--provider", choices=("stub", "live"), default="stub")
     execute.add_argument("--mode", choices=("paired",), default="paired")
+    execute.add_argument("--pilot", action="store_true", help="Time only the first development question pair")
     execute.add_argument("--manifest", type=Path, help="Frozen study manifest, required for evaluation")
     execute.add_argument("--protocol", type=Path)
     execute.add_argument("--model-manifest", type=Path)
@@ -106,6 +107,15 @@ def execute_run(args):
     if args.output.exists():
         raise FileExistsError("Run output already exists; keep original records")
     fixtures = load_fixtures(args.fixtures)
+    if args.pilot:
+        if args.split != "dev":
+            raise ValueError("Pilot selection is development-only; evaluation must run in full")
+        from copy import deepcopy
+        fixtures = deepcopy(fixtures)
+        family = next(f for f in fixtures["families"] if f["split"] == "dev")
+        family["questions"] = family["questions"][:1]
+        family["dialogues"] = []
+        fixtures["families"] = [family]
     composer, qa, manifest = None, None, None
     if args.split == "eval":
         if args.provider != "live" or not args.manifest or not args.protocol:
@@ -129,6 +139,7 @@ def execute_run(args):
         result = run(fixtures, split=args.split, provider=args.provider, run_id=args.run_id,
                      composer=composer, qa=qa, manifest=manifest, protocol_path=args.protocol)
         validate_run(result)
+        result["metadata"]["pilot"] = args.pilot
         write_new(args.output, result)
     finally:
         if qa is not None:
