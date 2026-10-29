@@ -22,7 +22,7 @@ from .portal_store import AuthorizationError
 CATEGORIES = ("KNOWLEDGE", "SKILL", "TITLE", "DEGREE", "EXPERIENCE_YEARS", "CERTIFICATION")
 _PATTERNS = {
     "KNOWLEDGE": r"\b(?:knowledge|domain|expertise|theory|software|database|framework)\w*\b",
-    "SKILL": r"\b(?:skill|technolog|programming|testing|competenc|proficien)\w*\b",
+    "SKILL": r"\b(?:(?:skill|technolog|programming|testing|competenc|proficien)\w*|jira|test\s+cases?|bug\s+reports?|qa\s+manual)\b",
     "TITLE": r"\b(?:title|position|role|engineer|developer|manager|architect|analyst|scientist|consultant|director|specialist)\w*\b",
     "DEGREE": r"\b(?:degree|bachelor|master|phd|ph\.d|diploma|[bm]\.?sc|doctorate|education|qualification|mba)\b",
     "EXPERIENCE_YEARS": r"\b(?:years?|months?|tenure|experience)\b",

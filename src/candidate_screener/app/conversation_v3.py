@@ -29,6 +29,28 @@ class ConversationV3Service:
         return self.reader.prepare(*args, **kwargs)
 
     def _controlled(self, snapshot, question, context):
+        # The selected JD title is an authorized review fact, not a QA span in its body.
+        # Match only title requests; skills, duties and compound requests retain retrieval.
+        normalized = question.strip().rstrip("?.! ").casefold()
+        job = r"(?:this|the|selected|current|the selected|the current) (?:jd|job description|job)"
+        role = r"(?:role|position|job title|title)"
+        title_question = any(re.fullmatch(pattern, normalized) for pattern in (
+            rf"what (?:is|is the) {role}(?: required| advertised| specified)? (?:for|in|of) {job}",
+            rf"what {role} does {job} (?:require|specify|advertise)",
+            r"what is the (?:job title|role title|position title)",
+        ))
+        title = getattr(snapshot, "jd_title", None)
+        if title_question and isinstance(title, str) and title.strip() and len(title) <= 1000:
+            state = frame_for(snapshot)
+            state.update(intent="requirements", category="TITLE", last_question=question)
+            return {"text": f"The role required for this JD is {redact_text(title.strip())}.",
+                    "citations": [], "claims": [], "comparison": [], "context": state,
+                    "mode": "conversation_v3", "answer_version": 3, "generation_mode": "controlled",
+                    "status": "answered", "model": None, "suggested_actions": [],
+                    "entity_status": "not_run", "qa_status": "not_run",
+                    "generation_provenance": {"composer": "application", "source_field": "jd_title",
+                                              "source_owner": snapshot.jd_id,
+                                              "scope_digest": scope_digest(snapshot)}}
         greeting = re.fullmatch(r"(?:hi|hello|hey|thanks|thank you|help)[.! ]*", question, re.I)
         unrelated = re.search(r"\b(?:apple pie|recipe|nationality|nationalities)\b", question, re.I)
         if not greeting and not unrelated:

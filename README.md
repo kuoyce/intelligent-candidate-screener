@@ -320,6 +320,10 @@ approval. Launch notebooks from the installed project environment with
 
 ## Streamlit recruiter chatbot
 
+The preliminary CUI evaluation harness and reviewer workflow are documented in
+[docs/cui-evaluation.md](docs/cui-evaluation.md). Its synthetic development runs
+verify the harness; independent held-out quality acceptance remains pending.
+
 The primary app opens **Hiring Desk**, with typed HR chat and dropdown review menus:
 
 ```bash

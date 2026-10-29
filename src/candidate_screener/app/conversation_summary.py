@@ -5,6 +5,27 @@ import re
 
 _GENERIC = set("a an the and or of in on for with to as is are was were we our you your candidate applicant role job position developer engineer senior junior experience experienced skill skills knowledge proficiency programming development technology technologies software project projects work working years year months month required requirement requirements looking team professional commercial completed degree".split())
 _QUALIFIER = re.compile(r"\b(?:no|not|never|without|lacks?|learning|studying|training|pursuing|hopes?|hoping|plans?|planned|planning|aspir\w*|wants?|wishes?|expired|pending|conditional|uncertain|provisional|unless|if|in progress|would like)\b", re.I)
+_NAMED_TOOLS = frozenset("jira python ruby rails mysql postgresql sql javascript typescript java kotlin swift flutter react angular django flask docker kubernetes terraform ansible linux unix git github gitlab jenkins selenium cypress playwright postman airflow spark tableau powerbi excel aws azure gcp".split())
+_PHRASE_GENERIC = _GENERIC | set("good excellent strong ability abilities relevant related similar various many several other more most some all any using used uses use has have had can could should will would be been being it its this that these those also including includes include general overall duties responsibilities responsible performed performing created creating seven six five four three two one".split())
+
+
+def _literal_overlap(source, requirement):
+    """Require an exact tool token or a contiguous nontrivial two-word phrase.
+
+    This establishes only documented mention overlap, never proficiency or
+    tenure. Callers separately enforce ownership, source status and qualifiers.
+    A missing entity cache must not erase literal source evidence.
+    """
+    tokens = lambda text: re.findall(r"[\w+#]+(?:[.-][\w+#]+)*", text.casefold())
+    cv, jd = tokens(source), tokens(requirement)
+    if set(cv) & set(jd) & _NAMED_TOOLS:
+        return True
+    phrases = lambda words: {(left, right) for left, right in zip(words, words[1:])
+                             if left not in _PHRASE_GENERIC and right not in _PHRASE_GENERIC
+                             and not left.isdigit() and not right.isdigit()
+                             and (len(left) >= 3 or left == "qa")
+                             and (len(right) >= 3 or right == "qa")}
+    return bool(phrases(cv) & phrases(jd))
 
 
 def summary_conclusion(bundle):
@@ -51,10 +72,14 @@ def summary_conclusion(bundle):
             ids = [item["id"] for item in jd_sources if re.search(pattern, item["context"], re.I)]
             if ids:
                 support.append((cell, ids))
+        ids = [item["id"] for item in jd_sources
+               if _literal_overlap(cell["context"], item["context"])]
+        if ids:
+            support.append((cell, ids))
     support = [(cell, ids) for cell, ids in support if ids]
     if not support:
         return None
-    return {"text": f"The documented overlap with the JD makes {bundle['labels'][owner]} a promising candidate for further review, subject to confirming the remaining requirements.",
+    return {"text": f"Hence, {bundle['labels'][owner]} is a promising candidate for further review, subject to confirming the remaining requirements.",
             "owners": [owner], "detail": False,
             "evidence_ids": list(dict.fromkeys(identity for cell, ids in support for identity in [*cell["evidence_ids"], *ids])),
             "cell_ids": list(dict.fromkeys(cell["id"] for cell, _ in support))}
@@ -101,7 +126,8 @@ def summary_fallback(bundle):
         else:
             statements.append(text)
     for cell in bundle.get("cells", []):
-        if cell["support_status"] in {"not_found_in_retrieved_evidence", "partial_source", "unavailable", "unclear"}:
+        if (cell.get("requirement_evidence_ids")
+                and cell["support_status"] in {"not_found_in_retrieved_evidence", "partial_source", "unavailable", "unclear"}):
             gaps.append(f"I can't confirm {cell['criterion']} for {bundle['labels'][cell['owner']]} from the reviewed evidence.")
     # Keep complete quotations/qualifiers; omit whole repeated passages only.
     grouped = [f"{bundle['labels'][owner]}'s CV states: " + " ".join(f"“{source}”" for source in sources)
@@ -113,7 +139,7 @@ def summary_fallback(bundle):
     conclusion = summary_conclusion(bundle)
     if not parts:
         return "I could not establish a summary from the reviewed CV evidence; this does not establish absence."
-    body = " ".join(parts)
+    body = " ".join(parts) + (" This shows that candidate's CV contains relevant experience and qualifications." if len(parts) < 3 else "  ")
     text = body + ("\n\n" + conclusion["text"] if conclusion else "")
     if len(text) > 2400:
         return "The source evidence is too large for a concise summary. Review the supporting sources for complete statements and qualification context."

@@ -168,7 +168,7 @@ def test_accepted_summary_conclusion_is_a_separate_final_paragraph(include_concl
     current = snapshot()
     current.jd_text = "Python skills required. MySQL skills required."
     current.candidates[0]["preview_text"] = "Python skills."
-    conclusion = ("The documented overlap with the JD makes Candidate 1 a promising candidate for further review, "
+    conclusion = ("Hence, Candidate 1 is a promising candidate for further review, "
                   "subject to confirming the remaining requirements.")
     model_text = "Candidate 1 describes Python skills relevant to this role."
     if include_conclusion:
@@ -193,3 +193,60 @@ def test_accepted_summary_gets_registered_closing_with_explicit_application_prov
     assert result["text"].endswith(conclusion["text"])
     assert result["generation_provenance"]["summary_conclusion_composer"] == "application"
     assert set(result["validated_claim_sources"][-1]["evidence_ids"]) == set(conclusion["evidence_ids"])
+
+
+def test_manual_qa_summary_without_entity_mentions_has_grounded_closing():
+    current = snapshot()
+    current.jd_text = "QA Manual tester required. Test case design and bug reports using Jira."
+    current.candidates[0]["preview_text"] = (
+        "Created bug reports using Jira. Test case design and checklist preparation. "
+        "Tested an invented LMS portal (QA Manual)."
+    )
+    result = service(None).answer(current, "Summarise why candidate 1 is a good fit to this JD")
+    assert "Jira" in result["text"]
+    assert result["text"].endswith(
+        "a promising candidate for further review, subject to confirming the remaining requirements.")
+    for category in ("Knowledge", "Skill", "Title", "Degree", "Experience Years", "Certification"):
+        assert f"I can't confirm {category} for" not in result["text"]
+
+
+@pytest.mark.parametrize("source,jd", [
+    ("Created bug reports using Jira.", "Bug reports using Jira are required."),
+    ("Performed manual testing for an LMS portal.", "Manual testing is required."),
+    ("Test case design and checklist preparation.", "Test case design is required."),
+])
+def test_literal_owned_overlap_does_not_require_entity_mentions(source, jd):
+    from candidate_screener.app.conversation_summary import summary_conclusion
+    conclusion = summary_conclusion(conclusion_bundle(source=source, jd=jd, mentions=()))
+    assert conclusion is not None
+    assert conclusion["evidence_ids"] == ["cv-source", "jd-source"]
+
+
+@pytest.mark.parametrize("source,jd", [
+    ("Worked on software development projects.", "Software development projects require experience."),
+    ("Seven years of professional experience.", "Seven years of professional experience required."),
+    ("Created bug reports using Jira.", "No Jira experience is required."),
+    ("Learning manual testing.", "Manual testing required."),
+    ("No commercial Jira experience.", "Jira experience required."),
+    ("Created Jira integrations.", "JiraCloud administration required."),
+])
+def test_literal_overlap_cannot_use_generic_qualified_or_substring_matches(source, jd):
+    from candidate_screener.app.conversation_summary import summary_conclusion
+    assert summary_conclusion(conclusion_bundle(source=source, jd=jd, mentions=())) is None
+
+
+def test_summary_suppresses_category_gaps_but_keeps_concrete_jd_gap():
+    from candidate_screener.app.conversation_summary import summary_fallback
+    bundle = conclusion_bundle()
+    bundle["cells"] = [
+        {"id": "generic", "owner": "CV-A", "criterion": "Degree", "category": "DEGREE",
+         "support_status": "not_found_in_retrieved_evidence", "evidence_ids": [],
+         "requirement_evidence_ids": []},
+        {"id": "mysql", "owner": "CV-A", "criterion": "MySQL skills", "category": "SKILL",
+         "support_status": "not_found_in_retrieved_evidence", "evidence_ids": [],
+         "requirement_evidence_ids": ["jd-source"]},
+    ]
+    text = summary_fallback(bundle)
+    assert "I can't confirm Degree" not in text
+    assert "I can't confirm MySQL skills" in text
+    assert "Missing evidence does not establish absence." in text

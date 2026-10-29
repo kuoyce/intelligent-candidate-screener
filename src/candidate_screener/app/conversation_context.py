@@ -16,7 +16,7 @@ from .comparison_facts import _citations, _degree_matches_requirement, build_fac
 
 def scope_digest(snapshot):
     payload = {"snapshot": snapshot.snapshot_id, "jd": snapshot.jd_id,
-               "jd_text": snapshot.jd_text,
+               "jd_text": snapshot.jd_text, "jd_title": getattr(snapshot, "jd_title", None),
                "candidates": [{key: row.get(key) for key in
                                ("cv_id", "rank", "preview_text", "preview_status")}
                               for row in snapshot.candidates]}
