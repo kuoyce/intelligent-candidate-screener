@@ -1,0 +1,4185 @@
+{
+  "schema_version": 1,
+  "synthetic_only": true,
+  "review_status": "draft",
+  "authorship": "Agent-authored candidate scenarios; independent scenario and expected-answer review pending. Structural validation does not establish semantic correctness or held-out status.",
+  "families": [
+    {
+      "id": "dev-01",
+      "split": "dev",
+      "lineage": "inventory-reconciliation",
+      "jd": {
+        "id": "dev-01-JD",
+        "title": "Inventory analyst (synthetic)",
+        "text": "Spreadsheet reconciliation is required. A completed accounting diploma is preferred."
+      },
+      "candidates": [
+        {
+          "id": "dev-01-CV1",
+          "text": "Uses spreadsheets to reconcile monthly inventory. Completed accounting diploma."
+        },
+        {
+          "id": "dev-01-CV2",
+          "text": "Counts warehouse stock manually. Accounting diploma study begins next year."
+        },
+        {
+          "id": "dev-01-CV3",
+          "text": "Builds spreadsheet inventory charts. No reconciliation experience."
+        }
+      ],
+      "questions": [
+        {
+          "id": "dev-01-Q1",
+          "question": "What spreadsheets experience does candidate 1 describe?",
+          "eligible_generation": true,
+          "expected": {
+            "participants": [
+              "dev-01-CV1"
+            ],
+            "criterion": "EXPERIENCE",
+            "intent": "candidate_qa",
+            "clarification": false,
+            "uncertainty": false,
+            "required_facts": [
+              {
+                "owner": "dev-01-CV1",
+                "quote": "Uses spreadsheets to reconcile monthly inventory.",
+                "start": 0,
+                "end": 49
+              }
+            ],
+            "mandatory_caveats": [
+              "Do not infer skill-specific duration unless explicitly linked to that skill."
+            ],
+            "prohibited_inferences": [
+              "Do not invent ranks, scores, Fit decisions or independently verified credentials."
+            ],
+            "completion_criteria": [
+              "Answer the question directly using the listed owner-specific facts and preserve source qualifications."
+            ]
+          }
+        },
+        {
+          "id": "dev-01-Q2",
+          "question": "Compare candidates 1 and 2 on spreadsheets",
+          "eligible_generation": true,
+          "expected": {
+            "participants": [
+              "dev-01-CV1",
+              "dev-01-CV2"
+            ],
+            "criterion": "SKILL",
+            "intent": "comparison",
+            "clarification": false,
+            "uncertainty": false,
+            "required_facts": [
+              {
+                "owner": "dev-01-CV1",
+                "quote": "Uses spreadsheets to reconcile monthly inventory.",
+                "start": 0,
+                "end": 49
+              },
+              {
+                "owner": "dev-01-CV2",
+                "quote": "Counts warehouse stock manually.",
+                "start": 0,
+                "end": 32
+              }
+            ],
+            "mandatory_caveats": [
+              "Retain missing, negative or qualified evidence for each participant."
+            ],
+            "prohibited_inferences": [
+              "Do not equate a course or mention with professional proficiency.",
+              "Do not claim one candidate is better overall."
+            ],
+            "completion_criteria": [
+              "Answer the question directly using the listed owner-specific facts and preserve source qualifications."
+            ]
+          }
+        },
+        {
+          "id": "dev-01-Q3",
+          "question": "Does candidate 3 hold a current aviation licence?",
+          "eligible_generation": true,
+          "expected": {
+            "participants": [
+              "dev-01-CV3"
+            ],
+            "criterion": "CERTIFICATION",
+            "intent": "candidate_qa",
+            "clarification": false,
+            "uncertainty": true,
+            "required_facts": [],
+            "mandatory_caveats": [
+              "No aviation licence is established in the reviewed source."
+            ],
+            "prohibited_inferences": [
+              "Do not assert that the candidate has no licence merely because it is unmentioned."
+            ],
+            "completion_criteria": [
+              "State that a current aviation licence cannot be established from the supplied CV."
+            ]
+          }
+        }
+      ],
+      "dialogues": [
+        {
+          "id": "dev-01-D1",
+          "turns": [
+            {
+              "id": "dev-01-D1-T1",
+              "question": "Compare candidates 1 and 2 on spreadsheets",
+              "eligible_generation": true,
+              "expected": {
+                "participants": [
+                  "dev-01-CV1",
+                  "dev-01-CV2"
+                ],
+                "criterion": "SKILL",
+                "intent": "comparison",
+                "clarification": false,
+                "uncertainty": false,
+                "required_facts": [
+                  {
+                    "owner": "dev-01-CV1",
+                    "quote": "Uses spreadsheets to reconcile monthly inventory.",
+                    "start": 0,
+                    "end": 49
+                  },
+                  {
+                    "owner": "dev-01-CV1",
+                    "quote": "Completed accounting diploma.",
+                    "start": 50,
+                    "end": 79
+                  },
+                  {
+                    "owner": "dev-01-CV2",
+                    "quote": "Counts warehouse stock manually.",
+                    "start": 0,
+                    "end": 32
+                  },
+                  {
+                    "owner": "dev-01-CV2",
+                    "quote": "Accounting diploma study begins next year.",
+                    "start": 33,
+                    "end": 75
+                  }
+                ],
+                "mandatory_caveats": [],
+                "prohibited_inferences": [
+                  "Do not invent ranks, scores, Fit decisions or independently verified credentials."
+                ],
+                "completion_criteria": [
+                  "Answer the question directly using the listed owner-specific facts and preserve source qualifications."
+                ]
+              }
+            },
+            {
+              "id": "dev-01-D1-T2",
+              "question": "What about their qualifications?",
+              "eligible_generation": true,
+              "expected": {
+                "participants": [
+                  "dev-01-CV1",
+                  "dev-01-CV2"
+                ],
+                "criterion": "DEGREE",
+                "intent": "comparison",
+                "clarification": false,
+                "uncertainty": false,
+                "required_facts": [
+                  {
+                    "owner": "dev-01-CV1",
+                    "quote": "Completed accounting diploma.",
+                    "start": 50,
+                    "end": 79
+                  },
+                  {
+                    "owner": "dev-01-CV2",
+                    "quote": "Accounting diploma study begins next year.",
+                    "start": 33,
+                    "end": 75
+                  }
+                ],
+                "mandatory_caveats": [
+                  "Retain candidate 2 qualification status without upgrading it."
+                ],
+                "prohibited_inferences": [
+                  "Do not invent ranks, scores, Fit decisions or independently verified credentials."
+                ],
+                "completion_criteria": [
+                  "Answer the question directly using the listed owner-specific facts and preserve source qualifications."
+                ]
+              }
+            },
+            {
+              "id": "dev-01-D1-T3",
+              "question": "Where does candidate 2 describe that qualification?",
+              "eligible_generation": false,
+              "expected": {
+                "participants": [
+                  "dev-01-CV2"
+                ],
+                "criterion": "DEGREE",
+                "intent": "source",
+                "clarification": false,
+                "uncertainty": false,
+                "required_facts": [
+                  {
+                    "owner": "dev-01-CV2",
+                    "quote": "Accounting diploma study begins next year.",
+                    "start": 33,
+                    "end": 75
+                  }
+                ],
+                "mandatory_caveats": [],
+                "prohibited_inferences": [
+                  "Do not invent ranks, scores, Fit decisions or independently verified credentials."
+                ],
+                "completion_criteria": [
+                  "Reopen candidate 2 supporting source under current authorization."
+                ]
+              }
+            },
+            {
+              "id": "dev-01-D1-T4",
+              "question": "Remove candidate 2",
+              "eligible_generation": true,
+              "expected": {
+                "participants": [
+                  "dev-01-CV1",
+                  "dev-01-CV3"
+                ],
+                "criterion": "EXPERIENCE",
+                "intent": "comparison",
+                "clarification": false,
+                "uncertainty": false,
+                "required_facts": [
+                  {
+                    "owner": "dev-01-CV1",
+                    "quote": "Uses spreadsheets to reconcile monthly inventory.",
+                    "start": 0,
+                    "end": 49
+                  },
+                  {
+                    "owner": "dev-01-CV1",
+                    "quote": "Completed accounting diploma.",
+                    "start": 50,
+                    "end": 79
+                  },
+                  {
+                    "owner": "dev-01-CV3",
+                    "quote": "Builds spreadsheet inventory charts.",
+                    "start": 0,
+                    "end": 36
+                  },
+                  {
+                    "owner": "dev-01-CV3",
+                    "quote": "No reconciliation experience.",
+                    "start": 37,
+                    "end": 66
+                  }
+                ],
+                "mandatory_caveats": [
+                  "Do not retain candidate 2 as an active comparison participant."
+                ],
+                "prohibited_inferences": [
+                  "Do not invent ranks, scores, Fit decisions or independently verified credentials."
+                ],
+                "completion_criteria": [
+                  "Answer the question directly using the listed owner-specific facts and preserve source qualifications."
+                ]
+              }
+            },
+            {
+              "id": "dev-01-D1-T5",
+              "question": "Why is candidate 1 better than candidate 3?",
+              "eligible_generation": true,
+              "expected": {
+                "participants": [
+                  "dev-01-CV1",
+                  "dev-01-CV3"
+                ],
+                "criterion": "EXPERIENCE",
+                "intent": "comparison_explanation",
+                "clarification": false,
+                "uncertainty": false,
+                "required_facts": [
+                  {
+                    "owner": "dev-01-JD",
+                    "quote": "Spreadsheet reconciliation is required.",
+                    "start": 0,
+                    "end": 39
+                  },
+                  {
+                    "owner": "dev-01-JD",
+                    "quote": "A completed accounting diploma is preferred.",
+                    "start": 40,
+                    "end": 84
+                  },
+                  {
+                    "owner": "dev-01-CV1",
+                    "quote": "Uses spreadsheets to reconcile monthly inventory.",
+                    "start": 0,
+                    "end": 49
+                  },
+                  {
+                    "owner": "dev-01-CV1",
+                    "quote": "Completed accounting diploma.",
+                    "start": 50,
+                    "end": 79
+                  },
+                  {
+                    "owner": "dev-01-CV3",
+                    "quote": "Builds spreadsheet inventory charts.",
+                    "start": 0,
+                    "end": 36
+                  },
+                  {
+                    "owner": "dev-01-CV3",
+                    "quote": "No reconciliation experience.",
+                    "start": 37,
+                    "end": 66
+                  }
+                ],
+                "mandatory_caveats": [
+                  "Discuss only documented differences; overall superiority is not established."
+                ],
+                "prohibited_inferences": [
+                  "Do not invent ranks, scores, Fit decisions or independently verified credentials."
+                ],
+                "completion_criteria": [
+                  "Answer the question directly using the listed owner-specific facts and preserve source qualifications."
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "coverage_tags": [
+        "explicit_skill",
+        "missing_evidence",
+        "owner_attribution",
+        "comparison",
+        "followup",
+        "participant_change",
+        "criterion_change"
+      ]
+    },
+    {
+      "id": "dev-02",
+      "split": "dev",
+      "lineage": "audio-postproduction",
+      "jd": {
+        "id": "dev-02-JD",
+        "title": "Audio editor (synthetic)",
+        "text": "Audio editing and noise reduction are required."
+      },
+      "candidates": [
+        {
+          "id": "dev-02-CV1",
+          "text": "Edited podcasts using audio editing software for two years. Noise reduction is not listed."
+        },
+        {
+          "id": "dev-02-CV2",
+          "text": "Recorded radio interviews. No audio editing experience."
+        },
+        {
+          "id": "dev-02-CV3",
+          "text": "Applied noise reduction to interview recordings. Audio editing training is ongoing."
+        }
+      ],
+      "questions": [
+        {
+          "id": "dev-02-Q1",
+          "question": "What audio editing experience does candidate 1 describe?",
+          "eligible_generation": true,
+          "expected": {
+            "participants": [
+              "dev-02-CV1"
+            ],
+            "criterion": "EXPERIENCE",
+            "intent": "candidate_qa",
+            "clarification": false,
+            "uncertainty": false,
+            "required_facts": [
+              {
+                "owner": "dev-02-CV1",
+                "quote": "Edited podcasts using audio editing software for two years.",
+                "start": 0,
+                "end": 59
+              }
+            ],
+            "mandatory_caveats": [
+              "Do not infer skill-specific duration unless explicitly linked to that skill."
+            ],
+            "prohibited_inferences": [
+              "Do not invent ranks, scores, Fit decisions or independently verified credentials."
+            ],
+            "completion_criteria": [
+              "Answer the question directly using the listed owner-specific facts and preserve source qualifications."
+            ]
+          }
+        },
+        {
+          "id": "dev-02-Q2",
+          "question": "Compare candidates 1 and 2 on audio editing",
+          "eligible_generation": true,
+          "expected": {
+            "participants": [
+              "dev-02-CV1",
+              "dev-02-CV2"
+            ],
+            "criterion": "SKILL",
+            "intent": "comparison",
+            "clarification": false,
+            "uncertainty": false,
+            "required_facts": [
+              {
+                "owner": "dev-02-CV1",
+                "quote": "Edited podcasts using audio editing software for two years.",
+                "start": 0,
+                "end": 59
+              },
+              {
+                "owner": "dev-02-CV2",
+                "quote": "Recorded radio interviews.",
+                "start": 0,
+                "end": 26
+              }
+            ],
+            "mandatory_caveats": [
+              "Retain missing, negative or qualified evidence for each participant."
+            ],
+            "prohibited_inferences": [
+              "Do not equate a course or mention with professional proficiency.",
+              "Do not claim one candidate is better overall."
+            ],
+            "completion_criteria": [
+              "Answer the question directly using the listed owner-specific facts and preserve source qualifications."
+            ]
+          }
+        },
+        {
+          "id": "dev-02-Q3",
+          "question": "Does candidate 3 hold a current aviation licence?",
+          "eligible_generation": true,
+          "expected": {
+            "participants": [
+              "dev-02-CV3"
+            ],
+            "criterion": "CERTIFICATION",
+            "intent": "candidate_qa",
+            "clarification": false,
+            "uncertainty": true,
+            "required_facts": [],
+            "mandatory_caveats": [
+              "No aviation licence is established in the reviewed source."
+            ],
+            "prohibited_inferences": [
+              "Do not assert that the candidate has no licence merely because it is unmentioned."
+            ],
+            "completion_criteria": [
+              "State that a current aviation licence cannot be established from the supplied CV."
+            ]
+          }
+        }
+      ],
+      "dialogues": [
+        {
+          "id": "dev-02-D1",
+          "turns": [
+            {
+              "id": "dev-02-D1-T1",
+              "question": "Compare candidates 1 and 2 on audio editing",
+              "eligible_generation": true,
+              "expected": {
+                "participants": [
+                  "dev-02-CV1",
+                  "dev-02-CV2"
+                ],
+                "criterion": "SKILL",
+                "intent": "comparison",
+                "clarification": false,
+                "uncertainty": false,
+                "required_facts": [
+                  {
+                    "owner": "dev-02-CV1",
+                    "quote": "Edited podcasts using audio editing software for two years.",
+                    "start": 0,
+                    "end": 59
+                  },
+                  {
+                    "owner": "dev-02-CV1",
+                    "quote": "Noise reduction is not listed.",
+                    "start": 60,
+                    "end": 90
+                  },
+                  {
+                    "owner": "dev-02-CV2",
+                    "quote": "Recorded radio interviews.",
+                    "start": 0,
+                    "end": 26
+                  },
+                  {
+                    "owner": "dev-02-CV2",
+                    "quote": "No audio editing experience.",
+                    "start": 27,
+                    "end": 55
+                  }
+                ],
+                "mandatory_caveats": [],
+                "prohibited_inferences": [
+                  "Do not invent ranks, scores, Fit decisions or independently verified credentials."
+                ],
+                "completion_criteria": [
+                  "Answer the question directly using the listed owner-specific facts and preserve source qualifications."
+                ]
+              }
+            },
+            {
+              "id": "dev-02-D1-T2",
+              "question": "What about their relevant experience?",
+              "eligible_generation": true,
+              "expected": {
+                "participants": [
+                  "dev-02-CV1",
+                  "dev-02-CV2"
+                ],
+                "criterion": "EXPERIENCE",
+                "intent": "comparison",
+                "clarification": false,
+                "uncertainty": false,
+                "required_facts": [
+                  {
+                    "owner": "dev-02-CV1",
+                    "quote": "Edited podcasts using audio editing software for two years.",
+                    "start": 0,
+                    "end": 59
+                  },
+                  {
+                    "owner": "dev-02-CV1",
+                    "quote": "Noise reduction is not listed.",
+                    "start": 60,
+                    "end": 90
+                  },
+                  {
+                    "owner": "dev-02-CV2",
+                    "quote": "Recorded radio interviews.",
+                    "start": 0,
+                    "end": 26
+                  },
+                  {
+                    "owner": "dev-02-CV2",
+                    "quote": "No audio editing experience.",
+                    "start": 27,
+                    "end": 55
+                  }
+                ],
+                "mandatory_caveats": [
+                  "Keep the selected pair and change only the criterion."
+                ],
+                "prohibited_inferences": [
+                  "Do not invent ranks, scores, Fit decisions or independently verified credentials."
+                ],
+                "completion_criteria": [
+                  "Answer the question directly using the listed owner-specific facts and preserve source qualifications."
+                ]
+              }
+            },
+            {
+              "id": "dev-02-D1-T3",
+              "question": "Now include candidate 3",
+              "eligible_generation": true,
+              "expected": {
+                "participants": [
+                  "dev-02-CV1",
+                  "dev-02-CV2",
+                  "dev-02-CV3"
+                ],
+                "criterion": "EXPERIENCE",
+                "intent": "comparison",
+                "clarification": false,
+                "uncertainty": false,
+                "required_facts": [
+                  {
+                    "owner": "dev-02-CV1",
+                    "quote": "Edited podcasts using audio editing software for two years.",
+                    "start": 0,
+                    "end": 59
+                  },
+                  {
+                    "owner": "dev-02-CV1",
+                    "quote": "Noise reduction is not listed.",
+                    "start": 60,
+                    "end": 90
+                  },
+                  {
+                    "owner": "dev-02-CV2",
+                    "quote": "Recorded radio interviews.",
+                    "start": 0,
+                    "end": 26
+                  },
+                  {
+                    "owner": "dev-02-CV2",
+                    "quote": "No audio editing experience.",
+                    "start": 27,
+                    "end": 55
+                  },
+                  {
+                    "owner": "dev-02-CV3",
+                    "quote": "Applied noise reduction to interview recordings.",
+                    "start": 0,
+                    "end": 48
+                  },
+                  {
+                    "owner": "dev-02-CV3",
+                    "quote": "Audio editing training is ongoing.",
+                    "start": 49,
+                    "end": 83
+                  }
+                ],
+                "mandatory_caveats": [
+                  "Retain the experience criterion while adding the third participant."
+                ],
+                "prohibited_inferences": [
+                  "Do not invent ranks, scores, Fit decisions or independently verified credentials."
+                ],
+                "completion_criteria": [
+                  "Answer the question directly using the listed owner-specific facts and preserve source qualifications."
+                ]
+              }
+            },
+            {
+              "id": "dev-02-D1-T4",
+              "question": "Remove candidate 2",
+              "eligible_generation": true,
+              "expected": {
+                "participants": [
+                  "dev-02-CV1",
+                  "dev-02-CV3"
+                ],
+                "criterion": "EXPERIENCE",
+                "intent": "comparison",
+                "clarification": false,
+                "uncertainty": false,
+                "required_facts": [
+                  {
+                    "owner": "dev-02-CV1",
+                    "quote": "Edited podcasts using audio editing software for two years.",
+                    "start": 0,
+                    "end": 59
+                  },
+                  {
+                    "owner": "dev-02-CV1",
+                    "quote": "Noise reduction is not listed.",
+                    "start": 60,
+                    "end": 90
+                  },
+                  {
+                    "owner": "dev-02-CV3",
+                    "quote": "Applied noise reduction to interview recordings.",
+                    "start": 0,
+                    "end": 48
+                  },
+                  {
+                    "owner": "dev-02-CV3",
+                    "quote": "Audio editing training is ongoing.",
+                    "start": 49,
+                    "end": 83
+                  }
+                ],
+                "mandatory_caveats": [
+                  "Do not retain candidate 2 as an active comparison participant."
+                ],
+                "prohibited_inferences": [
+                  "Do not invent ranks, scores, Fit decisions or independently verified credentials."
+                ],
+                "completion_criteria": [
+                  "Answer the question directly using the listed owner-specific facts and preserve source qualifications."
+                ]
+              }
+            },
+            {
+              "id": "dev-02-D1-T5",
+              "question": "Why is candidate 1 better than candidate 3?",
+              "eligible_generation": true,
+              "expected": {
+                "participants": [
+                  "dev-02-CV1",
+                  "dev-02-CV3"
+                ],
+                "criterion": "EXPERIENCE",
+                "intent": "comparison_explanation",
+                "clarification": false,
+                "uncertainty": false,
+                "required_facts": [
+                  {
+                    "owner": "dev-02-JD",
+                    "quote": "Audio editing and noise reduction are required.",
+                    "start": 0,
+                    "end": 47
+                  },
+                  {
+                    "owner": "dev-02-CV1",
+                    "quote": "Edited podcasts using audio editing software for two years.",
+                    "start": 0,
+                    "end": 59
+                  },
+                  {
+                    "owner": "dev-02-CV1",
+                    "quote": "Noise reduction is not listed.",
+                    "start": 60,
+                    "end": 90
+                  },
+                  {
+                    "owner": "dev-02-CV3",
+                    "quote": "Applied noise reduction to interview recordings.",
+                    "start": 0,
+                    "end": 48
+                  },
+                  {
+                    "owner": "dev-02-CV3",
+                    "quote": "Audio editing training is ongoing.",
+                    "start": 49,
+                    "end": 83
+                  }
+                ],
+                "mandatory_caveats": [
+                  "Discuss only documented differences; overall superiority is not established."
+                ],
+                "prohibited_inferences": [
+                  "Do not invent ranks, scores, Fit decisions or independently verified credentials."
+                ],
+                "completion_criteria": [
+                  "Answer the question directly using the listed owner-specific facts and preserve source qualifications."
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "coverage_tags": [
+        "explicit_skill",
+        "missing_evidence",
+        "owner_attribution",
+        "comparison",
+        "followup",
+        "participant_change",
+        "criterion_change"
+      ]
+    },
+    {
+      "id": "eval-01",
+      "split": "eval",
+      "lineage": "sensor-firmware",
+      "jd": {
+        "id": "eval-01-JD",
+        "title": "Firmware developer (synthetic)",
+        "text": "C programming and embedded debugging are required. A completed engineering degree is preferred."
+      },
+      "candidates": [
+        {
+          "id": "eval-01-CV1",
+          "text": "Four years writing C firmware for temperature sensors. Completed engineering Bachelor degree."
+        },
+        {
+          "id": "eval-01-CV2",
+          "text": "Two years writing C drivers. Engineering Master degree in progress."
+        },
+        {
+          "id": "eval-01-CV3",
+          "text": "C coursework only. No commercial embedded debugging experience."
+        }
+      ],
+      "questions": [
+        {
+          "id": "eval-01-Q1",
+          "question": "What C experience does candidate 1 describe?",
+          "eligible_generation": true,
+          "expected": {
+            "participants": [
+              "eval-01-CV1"
+            ],
+            "criterion": "EXPERIENCE",
+            "intent": "candidate_qa",
+            "clarification": false,
+            "uncertainty": false,
+            "required_facts": [
+              {
+                "owner": "eval-01-CV1",
+                "quote": "Four years writing C firmware for temperature sensors.",
+                "start": 0,
+                "end": 54
+              }
+            ],
+            "mandatory_caveats": [
+              "Do not infer skill-specific duration unless explicitly linked to that skill."
+            ],
+            "prohibited_inferences": [
+              "Do not invent ranks, scores, Fit decisions or independently verified credentials."
+            ],
+            "completion_criteria": [
+              "Answer the question directly using the listed owner-specific facts and preserve source qualifications."
+            ]
+          }
+        },
+        {
+          "id": "eval-01-Q2",
+          "question": "Compare candidates 1 and 2 on C",
+          "eligible_generation": true,
+          "expected": {
+            "participants": [
+              "eval-01-CV1",
+              "eval-01-CV2"
+            ],
+            "criterion": "SKILL",
+            "intent": "comparison",
+            "clarification": false,
+            "uncertainty": false,
+            "required_facts": [
+              {
+                "owner": "eval-01-CV1",
+                "quote": "Four years writing C firmware for temperature sensors.",
+                "start": 0,
+                "end": 54
+              },
+              {
+                "owner": "eval-01-CV2",
+                "quote": "Two years writing C drivers.",
+                "start": 0,
+                "end": 28
+              }
+            ],
+            "mandatory_caveats": [
+              "Retain missing, negative or qualified evidence for each participant."
+            ],
+            "prohibited_inferences": [
+              "Do not equate a course or mention with professional proficiency.",
+              "Do not claim one candidate is better overall."
+            ],
+            "completion_criteria": [
+              "Answer the question directly using the listed owner-specific facts and preserve source qualifications."
+            ]
+          }
+        },
+        {
+          "id": "eval-01-Q3",
+          "question": "Has candidate 2 completed the Master degree?",
+          "eligible_generation": true,
+          "expected": {
+            "participants": [
+              "eval-01-CV2"
+            ],
+            "criterion": "DEGREE",
+            "intent": "candidate_qa",
+            "clarification": false,
+            "uncertainty": false,
+            "required_facts": [
+              {
+                "owner": "eval-01-CV2",
+                "quote": "Engineering Master degree in progress.",
+                "start": 29,
+                "end": 67
+              }
+            ],
+            "mandatory_caveats": [
+              "The Master degree is in progress."
+            ],
+            "prohibited_inferences": [
+              "Do not describe the Master degree as completed.",
+              "Do not infer a completed Bachelor degree from Master enrolment."
+            ],
+            "completion_criteria": [
+              "Answer the question directly using the listed owner-specific facts and preserve source qualifications."
+            ]
+          }
+        }
+      ],
+      "dialogues": [
+        {
+          "id": "eval-01-D1",
+          "turns": [
+            {
+              "id": "eval-01-D1-T1",
+              "question": "Compare candidates 1 and 2 on C",
+              "eligible_generation": true,
+              "expected": {
+                "participants": [
+                  "eval-01-CV1",
+                  "eval-01-CV2"
+                ],
+                "criterion": "SKILL",
+                "intent": "comparison",
+                "clarification": false,
+                "uncertainty": false,
+                "required_facts": [
+                  {
+                    "owner": "eval-01-CV1",
+                    "quote": "Four years writing C firmware for temperature sensors.",
+                    "start": 0,
+                    "end": 54
+                  },
+                  {
+                    "owner": "eval-01-CV1",
+                    "quote": "Completed engineering Bachelor degree.",
+                    "start": 55,
+                    "end": 93
+                  },
+                  {
+                    "owner": "eval-01-CV2",
+                    "quote": "Two years writing C drivers.",
+                    "start": 0,
+                    "end": 28
+                  },
+                  {
+                    "owner": "eval-01-CV2",
+                    "quote": "Engineering Master degree in progress.",
+                    "start": 29,
+                    "end": 67
+                  }
+                ],
+                "mandatory_caveats": [],
+                "prohibited_inferences": [
+                  "Do not invent ranks, scores, Fit decisions or independently verified credentials."
+                ],
+                "completion_criteria": [
+                  "Answer the question directly using the listed owner-specific facts and preserve source qualifications."
+                ]
+              }
+            },
+            {
+              "id": "eval-01-D1-T2",
+              "question": "What about their qualifications?",
+              "eligible_generation": true,
+              "expected": {
+                "participants": [
+                  "eval-01-CV1",
+                  "eval-01-CV2"
+                ],
+                "criterion": "DEGREE",
+                "intent": "comparison",
+                "clarification": false,
+                "uncertainty": false,
+                "required_facts": [
+                  {
+                    "owner": "eval-01-CV1",
+                    "quote": "Completed engineering Bachelor degree.",
+                    "start": 55,
+                    "end": 93
+                  },
+                  {
+                    "owner": "eval-01-CV2",
+                    "quote": "Engineering Master degree in progress.",
+                    "start": 29,
+                    "end": 67
+                  }
+                ],
+                "mandatory_caveats": [
+                  "Retain candidate 2 qualification status without upgrading it."
+                ],
+                "prohibited_inferences": [
+                  "Do not invent ranks, scores, Fit decisions or independently verified credentials."
+                ],
+                "completion_criteria": [
+                  "Answer the question directly using the listed owner-specific facts and preserve source qualifications."
+                ]
+              }
+            },
+            {
+              "id": "eval-01-D1-T3",
+              "question": "Where does candidate 2 describe that qualification?",
+              "eligible_generation": false,
+              "expected": {
+                "participants": [
+                  "eval-01-CV2"
+                ],
+                "criterion": "DEGREE",
+                "intent": "source",
+                "clarification": false,
+                "uncertainty": false,
+                "required_facts": [
+                  {
+                    "owner": "eval-01-CV2",
+                    "quote": "Engineering Master degree in progress.",
+                    "start": 29,
+                    "end": 67
+                  }
+                ],
+                "mandatory_caveats": [],
+                "prohibited_inferences": [
+                  "Do not invent ranks, scores, Fit decisions or independently verified credentials."
+                ],
+                "completion_criteria": [
+                  "Reopen candidate 2 supporting source under current authorization."
+                ]
+              }
+            },
+            {
+              "id": "eval-01-D1-T4",
+              "question": "Remove candidate 2",
+              "eligible_generation": true,
+              "expected": {
+                "participants": [
+                  "eval-01-CV1",
+                  "eval-01-CV3"
+                ],
+                "criterion": "EXPERIENCE",
+                "intent": "comparison",
+                "clarification": false,
+                "uncertainty": false,
+                "required_facts": [
+                  {
+                    "owner": "eval-01-CV1",
+                    "quote": "Four years writing C firmware for temperature sensors.",
+                    "start": 0,
+                    "end": 54
+                  },
+                  {
+                    "owner": "eval-01-CV1",
+                    "quote": "Completed engineering Bachelor degree.",
+                    "start": 55,
+                    "end": 93
+                  },
+                  {
+                    "owner": "eval-01-CV3",
+                    "quote": "C coursework only.",
+                    "start": 0,
+                    "end": 18
+                  },
+                  {
+                    "owner": "eval-01-CV3",
+                    "quote": "No commercial embedded debugging experience.",
+                    "start": 19,
+                    "end": 63
+                  }
+                ],
+                "mandatory_caveats": [
+                  "Do not retain candidate 2 as an active comparison participant."
+                ],
+                "prohibited_inferences": [
+                  "Do not invent ranks, scores, Fit decisions or independently verified credentials."
+                ],
+                "completion_criteria": [
+                  "Answer the question directly using the listed owner-specific facts and preserve source qualifications."
+                ]
+              }
+            },
+            {
+              "id": "eval-01-D1-T5",
+              "question": "Why is candidate 1 better than candidate 3?",
+              "eligible_generation": true,
+              "expected": {
+                "participants": [
+                  "eval-01-CV1",
+                  "eval-01-CV3"
+                ],
+                "criterion": "EXPERIENCE",
+                "intent": "comparison_explanation",
+                "clarification": false,
+                "uncertainty": false,
+                "required_facts": [
+                  {
+                    "owner": "eval-01-JD",
+                    "quote": "C programming and embedded debugging are required.",
+                    "start": 0,
+                    "end": 50
+                  },
+                  {
+                    "owner": "eval-01-JD",
+                    "quote": "A completed engineering degree is preferred.",
+                    "start": 51,
+                    "end": 95
+                  },
+                  {
+                    "owner": "eval-01-CV1",
+                    "quote": "Four years writing C firmware for temperature sensors.",
+                    "start": 0,
+                    "end": 54
+                  },
+                  {
+                    "owner": "eval-01-CV1",
+                    "quote": "Completed engineering Bachelor degree.",
+                    "start": 55,
+                    "end": 93
+                  },
+                  {
+                    "owner": "eval-01-CV3",
+                    "quote": "C coursework only.",
+                    "start": 0,
+                    "end": 18
+                  },
+                  {
+                    "owner": "eval-01-CV3",
+                    "quote": "No commercial embedded debugging experience.",
+                    "start": 19,
+                    "end": 63
+                  }
+                ],
+                "mandatory_caveats": [
+                  "Discuss only documented differences; overall superiority is not established."
+                ],
+                "prohibited_inferences": [
+                  "Do not invent ranks, scores, Fit decisions or independently verified credentials."
+                ],
+                "completion_criteria": [
+                  "Answer the question directly using the listed owner-specific facts and preserve source qualifications."
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "coverage_tags": [
+        "explicit_skill",
+        "missing_evidence",
+        "owner_attribution",
+        "comparison",
+        "ongoing_degree",
+        "followup",
+        "participant_change",
+        "criterion_change"
+      ]
+    },
+    {
+      "id": "eval-02",
+      "split": "eval",
+      "lineage": "database-migration",
+      "jd": {
+        "id": "eval-02-JD",
+        "title": "Database engineer (synthetic)",
+        "text": "PostgreSQL migration experience is required. Database certification is preferred."
+      },
+      "candidates": [
+        {
+          "id": "eval-02-CV1",
+          "text": "Migrated PostgreSQL databases between servers. Database certification expired in 2023."
+        },
+        {
+          "id": "eval-02-CV2",
+          "text": "Administered MySQL servers. PostgreSQL migration experience is not described."
+        },
+        {
+          "id": "eval-02-CV3",
+          "text": "Supported PostgreSQL backups. Migration responsibilities are not stated."
+        }
+      ],
+      "questions": [
+        {
+          "id": "eval-02-Q1",
+          "question": "Does candidate 1 have current database certification?",
+          "eligible_generation": true,
+          "expected": {
+            "participants": [
+              "eval-02-CV1"
+            ],
+            "criterion": "CERTIFICATION",
+            "intent": "candidate_qa",
+            "clarification": false,
+            "uncertainty": false,
+            "required_facts": [
+              {
+                "owner": "eval-02-CV1",
+                "quote": "Database certification expired in 2023.",
+                "start": 47,
+                "end": 86
+              }
+            ],
+            "mandatory_caveats": [
+              "The database certification expired in 2023."
+            ],
+            "prohibited_inferences": [
+              "Do not call the certification current or independently verified."
+            ],
+            "completion_criteria": [
+              "Answer the question directly using the listed owner-specific facts and preserve source qualifications."
+            ]
+          }
+        },
+        {
+          "id": "eval-02-Q2",
+          "question": "Compare candidates 1 and 2 on PostgreSQL",
+          "eligible_generation": true,
+          "expected": {
+            "participants": [
+              "eval-02-CV1",
+              "eval-02-CV2"
+            ],
+            "criterion": "SKILL",
+            "intent": "comparison",
+            "clarification": false,
+            "uncertainty": false,
+            "required_facts": [
+              {
+                "owner": "eval-02-CV1",
+                "quote": "Migrated PostgreSQL databases between servers.",
+                "start": 0,
+                "end": 46
+              },
+              {
+                "owner": "eval-02-CV2",
+                "quote": "Administered MySQL servers.",
+                "start": 0,
+                "end": 27
+              }
+            ],
+            "mandatory_caveats": [
+              "Retain missing, negative or qualified evidence for each participant."
+            ],
+            "prohibited_inferences": [
+              "Do not equate a course or mention with professional proficiency.",
+              "Do not claim one candidate is better overall."
+            ],
+            "completion_criteria": [
+              "Answer the question directly using the listed owner-specific facts and preserve source qualifications."
+            ]
+          }
+        },
+        {
+          "id": "eval-02-Q3",
+          "question": "Does candidate 3 hold a current aviation licence?",
+          "eligible_generation": true,
+          "expected": {
+            "participants": [
+              "eval-02-CV3"
+            ],
+            "criterion": "CERTIFICATION",
+            "intent": "candidate_qa",
+            "clarification": false,
+            "uncertainty": true,
+            "required_facts": [],
+            "mandatory_caveats": [
+              "No aviation licence is established in the reviewed source."
+            ],
+            "prohibited_inferences": [
+              "Do not assert that the candidate has no licence merely because it is unmentioned."
+            ],
+            "completion_criteria": [
+              "State that a current aviation licence cannot be established from the supplied CV."
+            ]
+          }
+        }
+      ],
+      "dialogues": [
+        {
+          "id": "eval-02-D1",
+          "turns": [
+            {
+              "id": "eval-02-D1-T1",
+              "question": "Compare candidates 1 and 2 on PostgreSQL",
+              "eligible_generation": true,
+              "expected": {
+                "participants": [
+                  "eval-02-CV1",
+                  "eval-02-CV2"
+                ],
+                "criterion": "SKILL",
+                "intent": "comparison",
+                "clarification": false,
+                "uncertainty": false,
+                "required_facts": [
+                  {
+                    "owner": "eval-02-CV1",
+                    "quote": "Migrated PostgreSQL databases between servers.",
+                    "start": 0,
+                    "end": 46
+                  },
+                  {
+                    "owner": "eval-02-CV1",
+                    "quote": "Database certification expired in 2023.",
+                    "start": 47,
+                    "end": 86
+                  },
+                  {
+                    "owner": "eval-02-CV2",
+                    "quote": "Administered MySQL servers.",
+                    "start": 0,
+                    "end": 27
+                  },
+                  {
+                    "owner": "eval-02-CV2",
+                    "quote": "PostgreSQL migration experience is not described.",
+                    "start": 28,
+                    "end": 77
+                  }
+                ],
+                "mandatory_caveats": [],
+                "prohibited_inferences": [
+                  "Do not invent ranks, scores, Fit decisions or independently verified credentials."
+                ],
+                "completion_criteria": [
+                  "Answer the question directly using the listed owner-specific facts and preserve source qualifications."
+                ]
+              }
+            },
+            {
+              "id": "eval-02-D1-T2",
+              "question": "What about their relevant experience?",
+              "eligible_generation": true,
+              "expected": {
+                "participants": [
+                  "eval-02-CV1",
+                  "eval-02-CV2"
+                ],
+                "criterion": "EXPERIENCE",
+                "intent": "comparison",
+                "clarification": false,
+                "uncertainty": false,
+                "required_facts": [
+                  {
+                    "owner": "eval-02-CV1",
+                    "quote": "Migrated PostgreSQL databases between servers.",
+                    "start": 0,
+                    "end": 46
+                  },
+                  {
+                    "owner": "eval-02-CV1",
+                    "quote": "Database certification expired in 2023.",
+                    "start": 47,
+                    "end": 86
+                  },
+                  {
+                    "owner": "eval-02-CV2",
+                    "quote": "Administered MySQL servers.",
+                    "start": 0,
+                    "end": 27
+                  },
+                  {
+                    "owner": "eval-02-CV2",
+                    "quote": "PostgreSQL migration experience is not described.",
+                    "start": 28,
+                    "end": 77
+                  }
+                ],
+                "mandatory_caveats": [
+                  "Keep the selected pair and change only the criterion."
+                ],
+                "prohibited_inferences": [
+                  "Do not invent ranks, scores, Fit decisions or independently verified credentials."
+                ],
+                "completion_criteria": [
+                  "Answer the question directly using the listed owner-specific facts and preserve source qualifications."
+                ]
+              }
+            },
+            {
+              "id": "eval-02-D1-T3",
+              "question": "Now include candidate 3",
+              "eligible_generation": true,
+              "expected": {
+                "participants": [
+                  "eval-02-CV1",
+                  "eval-02-CV2",
+                  "eval-02-CV3"
+                ],
+                "criterion": "EXPERIENCE",
+                "intent": "comparison",
+                "clarification": false,
+                "uncertainty": false,
+                "required_facts": [
+                  {
+                    "owner": "eval-02-CV1",
+                    "quote": "Migrated PostgreSQL databases between servers.",
+                    "start": 0,
+                    "end": 46
+                  },
+                  {
+                    "owner": "eval-02-CV1",
+                    "quote": "Database certification expired in 2023.",
+                    "start": 47,
+                    "end": 86
+                  },
+                  {
+                    "owner": "eval-02-CV2",
+                    "quote": "Administered MySQL servers.",
+                    "start": 0,
+                    "end": 27
+                  },
+                  {
+                    "owner": "eval-02-CV2",
+                    "quote": "PostgreSQL migration experience is not described.",
+                    "start": 28,
+                    "end": 77
+                  },
+                  {
+                    "owner": "eval-02-CV3",
+                    "quote": "Supported PostgreSQL backups.",
+                    "start": 0,
+                    "end": 29
+                  },
+                  {
+                    "owner": "eval-02-CV3",
+                    "quote": "Migration responsibilities are not stated.",
+                    "start": 30,
+                    "end": 72
+                  }
+                ],
+                "mandatory_caveats": [
+                  "Retain the experience criterion while adding the third participant."
+                ],
+                "prohibited_inferences": [
+                  "Do not invent ranks, scores, Fit decisions or independently verified credentials."
+                ],
+                "completion_criteria": [
+                  "Answer the question directly using the listed owner-specific facts and preserve source qualifications."
+                ]
+              }
+            },
+            {
+              "id": "eval-02-D1-T4",
+              "question": "Remove candidate 2",
+              "eligible_generation": true,
+              "expected": {
+                "participants": [
+                  "eval-02-CV1",
+                  "eval-02-CV3"
+                ],
+                "criterion": "EXPERIENCE",
+                "intent": "comparison",
+                "clarification": false,
+                "uncertainty": false,
+                "required_facts": [
+                  {
+                    "owner": "eval-02-CV1",
+                    "quote": "Migrated PostgreSQL databases between servers.",
+                    "start": 0,
+                    "end": 46
+                  },
+                  {
+                    "owner": "eval-02-CV1",
+                    "quote": "Database certification expired in 2023.",
+                    "start": 47,
+                    "end": 86
+                  },
+                  {
+                    "owner": "eval-02-CV3",
+                    "quote": "Supported PostgreSQL backups.",
+                    "start": 0,
+                    "end": 29
+                  },
+                  {
+                    "owner": "eval-02-CV3",
+                    "quote": "Migration responsibilities are not stated.",
+                    "start": 30,
+                    "end": 72
+                  }
+                ],
+                "mandatory_caveats": [
+                  "Do not retain candidate 2 as an active comparison participant."
+                ],
+                "prohibited_inferences": [
+                  "Do not invent ranks, scores, Fit decisions or independently verified credentials."
+                ],
+                "completion_criteria": [
+                  "Answer the question directly using the listed owner-specific facts and preserve source qualifications."
+                ]
+              }
+            },
+            {
+              "id": "eval-02-D1-T5",
+              "question": "Why is candidate 1 better than candidate 3?",
+              "eligible_generation": true,
+              "expected": {
+                "participants": [
+                  "eval-02-CV1",
+                  "eval-02-CV3"
+                ],
+                "criterion": "EXPERIENCE",
+                "intent": "comparison_explanation",
+                "clarification": false,
+                "uncertainty": false,
+                "required_facts": [
+                  {
+                    "owner": "eval-02-JD",
+                    "quote": "PostgreSQL migration experience is required.",
+                    "start": 0,
+                    "end": 44
+                  },
+                  {
+                    "owner": "eval-02-JD",
+                    "quote": "Database certification is preferred.",
+                    "start": 45,
+                    "end": 81
+                  },
+                  {
+                    "owner": "eval-02-CV1",
+                    "quote": "Migrated PostgreSQL databases between servers.",
+                    "start": 0,
+                    "end": 46
+                  },
+                  {
+                    "owner": "eval-02-CV1",
+                    "quote": "Database certification expired in 2023.",
+                    "start": 47,
+                    "end": 86
+                  },
+                  {
+                    "owner": "eval-02-CV3",
+                    "quote": "Supported PostgreSQL backups.",
+                    "start": 0,
+                    "end": 29
+                  },
+                  {
+                    "owner": "eval-02-CV3",
+                    "quote": "Migration responsibilities are not stated.",
+                    "start": 30,
+                    "end": 72
+                  }
+                ],
+                "mandatory_caveats": [
+                  "Discuss only documented differences; overall superiority is not established."
+                ],
+                "prohibited_inferences": [
+                  "Do not invent ranks, scores, Fit decisions or independently verified credentials."
+                ],
+                "completion_criteria": [
+                  "Answer the question directly using the listed owner-specific facts and preserve source qualifications."
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "coverage_tags": [
+        "explicit_skill",
+        "missing_evidence",
+        "owner_attribution",
+        "comparison",
+        "expired_certification",
+        "followup",
+        "participant_change",
+        "criterion_change"
+      ]
+    },
+    {
+      "id": "eval-03",
+      "split": "eval",
+      "lineage": "mobile-accessibility",
+      "jd": {
+        "id": "eval-03-JD",
+        "title": "Mobile developer (synthetic)",
+        "text": "Flutter application development and accessibility testing are required."
+      },
+      "candidates": [
+        {
+          "id": "eval-03-CV1",
+          "text": "Built Flutter applications for ticket booking. No commercial accessibility testing experience."
+        },
+        {
+          "id": "eval-03-CV2",
+          "text": "Tested keyboard accessibility for web applications. Completed a Flutter tutorial."
+        },
+        {
+          "id": "eval-03-CV3",
+          "text": "Developed Flutter plugins and performed accessibility testing for mobile screens."
+        }
+      ],
+      "questions": [
+        {
+          "id": "eval-03-Q1",
+          "question": "Does candidate 1 have commercial accessibility testing experience?",
+          "eligible_generation": true,
+          "expected": {
+            "participants": [
+              "eval-03-CV1"
+            ],
+            "criterion": "EXPERIENCE",
+            "intent": "candidate_qa",
+            "clarification": false,
+            "uncertainty": false,
+            "required_facts": [
+              {
+                "owner": "eval-03-CV1",
+                "quote": "No commercial accessibility testing experience.",
+                "start": 47,
+                "end": 94
+              }
+            ],
+            "mandatory_caveats": [
+              "The denial is specifically commercial accessibility testing."
+            ],
+            "prohibited_inferences": [
+              "Do not broaden the denial to all accessibility knowledge or all commercial work."
+            ],
+            "completion_criteria": [
+              "Answer the question directly using the listed owner-specific facts and preserve source qualifications."
+            ]
+          }
+        },
+        {
+          "id": "eval-03-Q2",
+          "question": "Compare candidates 1 and 2 on Flutter",
+          "eligible_generation": true,
+          "expected": {
+            "participants": [
+              "eval-03-CV1",
+              "eval-03-CV2"
+            ],
+            "criterion": "SKILL",
+            "intent": "comparison",
+            "clarification": false,
+            "uncertainty": false,
+            "required_facts": [
+              {
+                "owner": "eval-03-CV1",
+                "quote": "Built Flutter applications for ticket booking.",
+                "start": 0,
+                "end": 46
+              },
+              {
+                "owner": "eval-03-CV2",
+                "quote": "Tested keyboard accessibility for web applications.",
+                "start": 0,
+                "end": 51
+              }
+            ],
+            "mandatory_caveats": [
+              "Retain missing, negative or qualified evidence for each participant."
+            ],
+            "prohibited_inferences": [
+              "Do not equate a course or mention with professional proficiency.",
+              "Do not claim one candidate is better overall."
+            ],
+            "completion_criteria": [
+              "Answer the question directly using the listed owner-specific facts and preserve source qualifications."
+            ]
+          }
+        },
+        {
+          "id": "eval-03-Q3",
+          "question": "Does candidate 3 hold a current aviation licence?",
+          "eligible_generation": true,
+          "expected": {
+            "participants": [
+              "eval-03-CV3"
+            ],
+            "criterion": "CERTIFICATION",
+            "intent": "candidate_qa",
+            "clarification": false,
+            "uncertainty": true,
+            "required_facts": [],
+            "mandatory_caveats": [
+              "No aviation licence is established in the reviewed source."
+            ],
+            "prohibited_inferences": [
+              "Do not assert that the candidate has no licence merely because it is unmentioned."
+            ],
+            "completion_criteria": [
+              "State that a current aviation licence cannot be established from the supplied CV."
+            ]
+          }
+        }
+      ],
+      "dialogues": [
+        {
+          "id": "eval-03-D1",
+          "turns": [
+            {
+              "id": "eval-03-D1-T1",
+              "question": "Compare candidates 1 and 2 on Flutter",
+              "eligible_generation": true,
+              "expected": {
+                "participants": [
+                  "eval-03-CV1",
+                  "eval-03-CV2"
+                ],
+                "criterion": "SKILL",
+                "intent": "comparison",
+                "clarification": false,
+                "uncertainty": false,
+                "required_facts": [
+                  {
+                    "owner": "eval-03-CV1",
+                    "quote": "Built Flutter applications for ticket booking.",
+                    "start": 0,
+                    "end": 46
+                  },
+                  {
+                    "owner": "eval-03-CV1",
+                    "quote": "No commercial accessibility testing experience.",
+                    "start": 47,
+                    "end": 94
+                  },
+                  {
+                    "owner": "eval-03-CV2",
+                    "quote": "Tested keyboard accessibility for web applications.",
+                    "start": 0,
+                    "end": 51
+                  },
+                  {
+                    "owner": "eval-03-CV2",
+                    "quote": "Completed a Flutter tutorial.",
+                    "start": 52,
+                    "end": 81
+                  }
+                ],
+                "mandatory_caveats": [],
+                "prohibited_inferences": [
+                  "Do not invent ranks, scores, Fit decisions or independently verified credentials."
+                ],
+                "completion_criteria": [
+                  "Answer the question directly using the listed owner-specific facts and preserve source qualifications."
+                ]
+              }
+            },
+            {
+              "id": "eval-03-D1-T2",
+              "question": "What about their relevant experience?",
+              "eligible_generation": true,
+              "expected": {
+                "participants": [
+                  "eval-03-CV1",
+                  "eval-03-CV2"
+                ],
+                "criterion": "EXPERIENCE",
+                "intent": "comparison",
+                "clarification": false,
+                "uncertainty": false,
+                "required_facts": [
+                  {
+                    "owner": "eval-03-CV1",
+                    "quote": "Built Flutter applications for ticket booking.",
+                    "start": 0,
+                    "end": 46
+                  },
+                  {
+                    "owner": "eval-03-CV1",
+                    "quote": "No commercial accessibility testing experience.",
+                    "start": 47,
+                    "end": 94
+                  },
+                  {
+                    "owner": "eval-03-CV2",
+                    "quote": "Tested keyboard accessibility for web applications.",
+                    "start": 0,
+                    "end": 51
+                  },
+                  {
+                    "owner": "eval-03-CV2",
+                    "quote": "Completed a Flutter tutorial.",
+                    "start": 52,
+                    "end": 81
+                  }
+                ],
+                "mandatory_caveats": [
+                  "Keep the selected pair and change only the criterion."
+                ],
+                "prohibited_inferences": [
+                  "Do not invent ranks, scores, Fit decisions or independently verified credentials."
+                ],
+                "completion_criteria": [
+                  "Answer the question directly using the listed owner-specific facts and preserve source qualifications."
+                ]
+              }
+            },
+            {
+              "id": "eval-03-D1-T3",
+              "question": "Does that candidate have the required experience?",
+              "eligible_generation": false,
+              "expected": {
+                "participants": [
+                  "eval-03-CV1",
+                  "eval-03-CV2"
+                ],
+                "criterion": "EXPERIENCE",
+                "intent": "clarification",
+                "clarification": true,
+                "uncertainty": false,
+                "required_facts": [],
+                "mandatory_caveats": [],
+                "prohibited_inferences": [
+                  "Do not invent ranks, scores, Fit decisions or independently verified credentials."
+                ],
+                "completion_criteria": [
+                  "Ask which of the two active candidates the user means; do not guess a singular referent."
+                ]
+              }
+            },
+            {
+              "id": "eval-03-D1-T4",
+              "question": "I mean candidate 1",
+              "eligible_generation": true,
+              "expected": {
+                "participants": [
+                  "eval-03-CV1"
+                ],
+                "criterion": "EXPERIENCE",
+                "intent": "candidate_qa",
+                "clarification": false,
+                "uncertainty": false,
+                "required_facts": [
+                  {
+                    "owner": "eval-03-CV1",
+                    "quote": "Built Flutter applications for ticket booking.",
+                    "start": 0,
+                    "end": 46
+                  },
+                  {
+                    "owner": "eval-03-CV1",
+                    "quote": "No commercial accessibility testing experience.",
+                    "start": 47,
+                    "end": 94
+                  }
+                ],
+                "mandatory_caveats": [
+                  "Preserve the commercial accessibility testing denial."
+                ],
+                "prohibited_inferences": [
+                  "Do not invent ranks, scores, Fit decisions or independently verified credentials."
+                ],
+                "completion_criteria": [
+                  "Answer the question directly using the listed owner-specific facts and preserve source qualifications."
+                ]
+              }
+            },
+            {
+              "id": "eval-03-D1-T5",
+              "question": "So they have no Flutter experience?",
+              "eligible_generation": true,
+              "expected": {
+                "participants": [
+                  "eval-03-CV1"
+                ],
+                "criterion": "SKILL",
+                "intent": "candidate_qa",
+                "clarification": false,
+                "uncertainty": false,
+                "required_facts": [
+                  {
+                    "owner": "eval-03-CV1",
+                    "quote": "Built Flutter applications for ticket booking.",
+                    "start": 0,
+                    "end": 46
+                  },
+                  {
+                    "owner": "eval-03-CV1",
+                    "quote": "No commercial accessibility testing experience.",
+                    "start": 47,
+                    "end": 94
+                  }
+                ],
+                "mandatory_caveats": [
+                  "Correct the premise: candidate 1 built Flutter applications."
+                ],
+                "prohibited_inferences": [
+                  "Do not accept the unsupported user assertion as evidence."
+                ],
+                "completion_criteria": [
+                  "Answer the question directly using the listed owner-specific facts and preserve source qualifications."
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "coverage_tags": [
+        "explicit_skill",
+        "missing_evidence",
+        "owner_attribution",
+        "comparison",
+        "negation",
+        "followup",
+        "participant_change",
+        "criterion_change"
+      ]
+    },
+    {
+      "id": "eval-04",
+      "split": "eval",
+      "lineage": "etl-orchestration",
+      "jd": {
+        "id": "eval-04-JD",
+        "title": "Data engineer (synthetic)",
+        "text": "Python ETL development and Airflow orchestration are required."
+      },
+      "candidates": [
+        {
+          "id": "eval-04-CV1",
+          "text": "Seven years in software teams. Python is listed among tools used; Python duration is not specified."
+        },
+        {
+          "id": "eval-04-CV2",
+          "text": "Three years developing Python ETL pipelines. Operated Airflow workflows."
+        },
+        {
+          "id": "eval-04-CV3",
+          "text": "Maintained SQL reports. No Python work is documented."
+        }
+      ],
+      "questions": [
+        {
+          "id": "eval-04-Q1",
+          "question": "Does candidate 1 have seven years of Python experience?",
+          "eligible_generation": true,
+          "expected": {
+            "participants": [
+              "eval-04-CV1"
+            ],
+            "criterion": "EXPERIENCE_YEARS",
+            "intent": "candidate_qa",
+            "clarification": false,
+            "uncertainty": true,
+            "required_facts": [
+              {
+                "owner": "eval-04-CV1",
+                "quote": "Seven years in software teams.",
+                "start": 0,
+                "end": 30
+              },
+              {
+                "owner": "eval-04-CV1",
+                "quote": "Python is listed among tools used; Python duration is not specified.",
+                "start": 31,
+                "end": 99
+              }
+            ],
+            "mandatory_caveats": [
+              "Seven years describes software work in total; Python duration is not specified."
+            ],
+            "prohibited_inferences": [
+              "Do not convert seven total years into seven Python years."
+            ],
+            "completion_criteria": [
+              "Answer the question directly using the listed owner-specific facts and preserve source qualifications."
+            ]
+          }
+        },
+        {
+          "id": "eval-04-Q2",
+          "question": "Compare candidates 1 and 2 on Python",
+          "eligible_generation": true,
+          "expected": {
+            "participants": [
+              "eval-04-CV1",
+              "eval-04-CV2"
+            ],
+            "criterion": "SKILL",
+            "intent": "comparison",
+            "clarification": false,
+            "uncertainty": false,
+            "required_facts": [
+              {
+                "owner": "eval-04-CV1",
+                "quote": "Seven years in software teams.",
+                "start": 0,
+                "end": 30
+              },
+              {
+                "owner": "eval-04-CV2",
+                "quote": "Three years developing Python ETL pipelines.",
+                "start": 0,
+                "end": 44
+              }
+            ],
+            "mandatory_caveats": [
+              "Retain missing, negative or qualified evidence for each participant."
+            ],
+            "prohibited_inferences": [
+              "Do not equate a course or mention with professional proficiency.",
+              "Do not claim one candidate is better overall."
+            ],
+            "completion_criteria": [
+              "Answer the question directly using the listed owner-specific facts and preserve source qualifications."
+            ]
+          }
+        },
+        {
+          "id": "eval-04-Q3",
+          "question": "Does candidate 3 hold a current aviation licence?",
+          "eligible_generation": true,
+          "expected": {
+            "participants": [
+              "eval-04-CV3"
+            ],
+            "criterion": "CERTIFICATION",
+            "intent": "candidate_qa",
+            "clarification": false,
+            "uncertainty": true,
+            "required_facts": [],
+            "mandatory_caveats": [
+              "No aviation licence is established in the reviewed source."
+            ],
+            "prohibited_inferences": [
+              "Do not assert that the candidate has no licence merely because it is unmentioned."
+            ],
+            "completion_criteria": [
+              "State that a current aviation licence cannot be established from the supplied CV."
+            ]
+          }
+        }
+      ],
+      "dialogues": [
+        {
+          "id": "eval-04-D1",
+          "turns": [
+            {
+              "id": "eval-04-D1-T1",
+              "question": "Compare candidates 1 and 2 on Python",
+              "eligible_generation": true,
+              "expected": {
+                "participants": [
+                  "eval-04-CV1",
+                  "eval-04-CV2"
+                ],
+                "criterion": "SKILL",
+                "intent": "comparison",
+                "clarification": false,
+                "uncertainty": false,
+                "required_facts": [
+                  {
+                    "owner": "eval-04-CV1",
+                    "quote": "Seven years in software teams.",
+                    "start": 0,
+                    "end": 30
+                  },
+                  {
+                    "owner": "eval-04-CV1",
+                    "quote": "Python is listed among tools used; Python duration is not specified.",
+                    "start": 31,
+                    "end": 99
+                  },
+                  {
+                    "owner": "eval-04-CV2",
+                    "quote": "Three years developing Python ETL pipelines.",
+                    "start": 0,
+                    "end": 44
+                  },
+                  {
+                    "owner": "eval-04-CV2",
+                    "quote": "Operated Airflow workflows.",
+                    "start": 45,
+                    "end": 72
+                  }
+                ],
+                "mandatory_caveats": [],
+                "prohibited_inferences": [
+                  "Do not invent ranks, scores, Fit decisions or independently verified credentials."
+                ],
+                "completion_criteria": [
+                  "Answer the question directly using the listed owner-specific facts and preserve source qualifications."
+                ]
+              }
+            },
+            {
+              "id": "eval-04-D1-T2",
+              "question": "What about their relevant experience?",
+              "eligible_generation": true,
+              "expected": {
+                "participants": [
+                  "eval-04-CV1",
+                  "eval-04-CV2"
+                ],
+                "criterion": "EXPERIENCE",
+                "intent": "comparison",
+                "clarification": false,
+                "uncertainty": false,
+                "required_facts": [
+                  {
+                    "owner": "eval-04-CV1",
+                    "quote": "Seven years in software teams.",
+                    "start": 0,
+                    "end": 30
+                  },
+                  {
+                    "owner": "eval-04-CV1",
+                    "quote": "Python is listed among tools used; Python duration is not specified.",
+                    "start": 31,
+                    "end": 99
+                  },
+                  {
+                    "owner": "eval-04-CV2",
+                    "quote": "Three years developing Python ETL pipelines.",
+                    "start": 0,
+                    "end": 44
+                  },
+                  {
+                    "owner": "eval-04-CV2",
+                    "quote": "Operated Airflow workflows.",
+                    "start": 45,
+                    "end": 72
+                  }
+                ],
+                "mandatory_caveats": [
+                  "Keep the selected pair and change only the criterion."
+                ],
+                "prohibited_inferences": [
+                  "Do not invent ranks, scores, Fit decisions or independently verified credentials."
+                ],
+                "completion_criteria": [
+                  "Answer the question directly using the listed owner-specific facts and preserve source qualifications."
+                ]
+              }
+            },
+            {
+              "id": "eval-04-D1-T3",
+              "question": "Now include candidate 3",
+              "eligible_generation": true,
+              "expected": {
+                "participants": [
+                  "eval-04-CV1",
+                  "eval-04-CV2",
+                  "eval-04-CV3"
+                ],
+                "criterion": "EXPERIENCE",
+                "intent": "comparison",
+                "clarification": false,
+                "uncertainty": false,
+                "required_facts": [
+                  {
+                    "owner": "eval-04-CV1",
+                    "quote": "Seven years in software teams.",
+                    "start": 0,
+                    "end": 30
+                  },
+                  {
+                    "owner": "eval-04-CV1",
+                    "quote": "Python is listed among tools used; Python duration is not specified.",
+                    "start": 31,
+                    "end": 99
+                  },
+                  {
+                    "owner": "eval-04-CV2",
+                    "quote": "Three years developing Python ETL pipelines.",
+                    "start": 0,
+                    "end": 44
+                  },
+                  {
+                    "owner": "eval-04-CV2",
+                    "quote": "Operated Airflow workflows.",
+                    "start": 45,
+                    "end": 72
+                  },
+                  {
+                    "owner": "eval-04-CV3",
+                    "quote": "Maintained SQL reports.",
+                    "start": 0,
+                    "end": 23
+                  },
+                  {
+                    "owner": "eval-04-CV3",
+                    "quote": "No Python work is documented.",
+                    "start": 24,
+                    "end": 53
+                  }
+                ],
+                "mandatory_caveats": [
+                  "Retain the experience criterion while adding the third participant."
+                ],
+                "prohibited_inferences": [
+                  "Do not invent ranks, scores, Fit decisions or independently verified credentials."
+                ],
+                "completion_criteria": [
+                  "Answer the question directly using the listed owner-specific facts and preserve source qualifications."
+                ]
+              }
+            },
+            {
+              "id": "eval-04-D1-T4",
+              "question": "Remove candidate 2",
+              "eligible_generation": true,
+              "expected": {
+                "participants": [
+                  "eval-04-CV1",
+                  "eval-04-CV3"
+                ],
+                "criterion": "EXPERIENCE",
+                "intent": "comparison",
+                "clarification": false,
+                "uncertainty": false,
+                "required_facts": [
+                  {
+                    "owner": "eval-04-CV1",
+                    "quote": "Seven years in software teams.",
+                    "start": 0,
+                    "end": 30
+                  },
+                  {
+                    "owner": "eval-04-CV1",
+                    "quote": "Python is listed among tools used; Python duration is not specified.",
+                    "start": 31,
+                    "end": 99
+                  },
+                  {
+                    "owner": "eval-04-CV3",
+                    "quote": "Maintained SQL reports.",
+                    "start": 0,
+                    "end": 23
+                  },
+                  {
+                    "owner": "eval-04-CV3",
+                    "quote": "No Python work is documented.",
+                    "start": 24,
+                    "end": 53
+                  }
+                ],
+                "mandatory_caveats": [
+                  "Do not retain candidate 2 as an active comparison participant."
+                ],
+                "prohibited_inferences": [
+                  "Do not invent ranks, scores, Fit decisions or independently verified credentials."
+                ],
+                "completion_criteria": [
+                  "Answer the question directly using the listed owner-specific facts and preserve source qualifications."
+                ]
+              }
+            },
+            {
+              "id": "eval-04-D1-T5",
+              "question": "Why is candidate 1 better than candidate 3?",
+              "eligible_generation": true,
+              "expected": {
+                "participants": [
+                  "eval-04-CV1",
+                  "eval-04-CV3"
+                ],
+                "criterion": "EXPERIENCE",
+                "intent": "comparison_explanation",
+                "clarification": false,
+                "uncertainty": false,
+                "required_facts": [
+                  {
+                    "owner": "eval-04-JD",
+                    "quote": "Python ETL development and Airflow orchestration are required.",
+                    "start": 0,
+                    "end": 62
+                  },
+                  {
+                    "owner": "eval-04-CV1",
+                    "quote": "Seven years in software teams.",
+                    "start": 0,
+                    "end": 30
+                  },
+                  {
+                    "owner": "eval-04-CV1",
+                    "quote": "Python is listed among tools used; Python duration is not specified.",
+                    "start": 31,
+                    "end": 99
+                  },
+                  {
+                    "owner": "eval-04-CV3",
+                    "quote": "Maintained SQL reports.",
+                    "start": 0,
+                    "end": 23
+                  },
+                  {
+                    "owner": "eval-04-CV3",
+                    "quote": "No Python work is documented.",
+                    "start": 24,
+                    "end": 53
+                  }
+                ],
+                "mandatory_caveats": [
+                  "Discuss only documented differences; overall superiority is not established."
+                ],
+                "prohibited_inferences": [
+                  "Do not invent ranks, scores, Fit decisions or independently verified credentials."
+                ],
+                "completion_criteria": [
+                  "Answer the question directly using the listed owner-specific facts and preserve source qualifications."
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "coverage_tags": [
+        "explicit_skill",
+        "missing_evidence",
+        "owner_attribution",
+        "comparison",
+        "total_vs_skill_tenure",
+        "followup",
+        "participant_change",
+        "criterion_change"
+      ]
+    },
+    {
+      "id": "eval-05",
+      "split": "eval",
+      "lineage": "incident-response",
+      "jd": {
+        "id": "eval-05-JD",
+        "title": "Security analyst (synthetic)",
+        "text": "Incident response and network monitoring are required. Current security certification is preferred."
+      },
+      "candidates": [
+        {
+          "id": "eval-05-CV1",
+          "text": "Investigated network alerts and wrote incident response reports. Security certificate expires in 2028."
+        },
+        {
+          "id": "eval-05-CV2",
+          "text": "Monitored network traffic. Security certification exam is planned; certification is not yet awarded."
+        },
+        {
+          "id": "eval-05-CV3",
+          "text": "Conducted incident response exercises in a training lab. No production response responsibility."
+        }
+      ],
+      "questions": [
+        {
+          "id": "eval-05-Q1",
+          "question": "What incident response experience does candidate 1 describe?",
+          "eligible_generation": true,
+          "expected": {
+            "participants": [
+              "eval-05-CV1"
+            ],
+            "criterion": "EXPERIENCE",
+            "intent": "candidate_qa",
+            "clarification": false,
+            "uncertainty": false,
+            "required_facts": [
+              {
+                "owner": "eval-05-CV1",
+                "quote": "Investigated network alerts and wrote incident response reports.",
+                "start": 0,
+                "end": 64
+              }
+            ],
+            "mandatory_caveats": [
+              "Do not infer skill-specific duration unless explicitly linked to that skill."
+            ],
+            "prohibited_inferences": [
+              "Do not invent ranks, scores, Fit decisions or independently verified credentials."
+            ],
+            "completion_criteria": [
+              "Answer the question directly using the listed owner-specific facts and preserve source qualifications."
+            ]
+          }
+        },
+        {
+          "id": "eval-05-Q2",
+          "question": "Compare candidates 1 and 2 on incident response",
+          "eligible_generation": true,
+          "expected": {
+            "participants": [
+              "eval-05-CV1",
+              "eval-05-CV2"
+            ],
+            "criterion": "SKILL",
+            "intent": "comparison",
+            "clarification": false,
+            "uncertainty": false,
+            "required_facts": [
+              {
+                "owner": "eval-05-CV1",
+                "quote": "Investigated network alerts and wrote incident response reports.",
+                "start": 0,
+                "end": 64
+              },
+              {
+                "owner": "eval-05-CV2",
+                "quote": "Monitored network traffic.",
+                "start": 0,
+                "end": 26
+              }
+            ],
+            "mandatory_caveats": [
+              "Retain missing, negative or qualified evidence for each participant."
+            ],
+            "prohibited_inferences": [
+              "Do not equate a course or mention with professional proficiency.",
+              "Do not claim one candidate is better overall."
+            ],
+            "completion_criteria": [
+              "Answer the question directly using the listed owner-specific facts and preserve source qualifications."
+            ]
+          }
+        },
+        {
+          "id": "eval-05-Q3",
+          "question": "Is candidate 2 already security certified?",
+          "eligible_generation": true,
+          "expected": {
+            "participants": [
+              "eval-05-CV2"
+            ],
+            "criterion": "CERTIFICATION",
+            "intent": "candidate_qa",
+            "clarification": false,
+            "uncertainty": false,
+            "required_facts": [
+              {
+                "owner": "eval-05-CV2",
+                "quote": "Security certification exam is planned; certification is not yet awarded.",
+                "start": 27,
+                "end": 100
+              }
+            ],
+            "mandatory_caveats": [
+              "The exam is planned and the certification is not yet awarded."
+            ],
+            "prohibited_inferences": [
+              "Do not treat a planned exam as an awarded credential."
+            ],
+            "completion_criteria": [
+              "Answer the question directly using the listed owner-specific facts and preserve source qualifications."
+            ]
+          }
+        }
+      ],
+      "dialogues": [
+        {
+          "id": "eval-05-D1",
+          "turns": [
+            {
+              "id": "eval-05-D1-T1",
+              "question": "Compare candidates 1 and 2 on incident response",
+              "eligible_generation": true,
+              "expected": {
+                "participants": [
+                  "eval-05-CV1",
+                  "eval-05-CV2"
+                ],
+                "criterion": "SKILL",
+                "intent": "comparison",
+                "clarification": false,
+                "uncertainty": false,
+                "required_facts": [
+                  {
+                    "owner": "eval-05-CV1",
+                    "quote": "Investigated network alerts and wrote incident response reports.",
+                    "start": 0,
+                    "end": 64
+                  },
+                  {
+                    "owner": "eval-05-CV1",
+                    "quote": "Security certificate expires in 2028.",
+                    "start": 65,
+                    "end": 102
+                  },
+                  {
+                    "owner": "eval-05-CV2",
+                    "quote": "Monitored network traffic.",
+                    "start": 0,
+                    "end": 26
+                  },
+                  {
+                    "owner": "eval-05-CV2",
+                    "quote": "Security certification exam is planned; certification is not yet awarded.",
+                    "start": 27,
+                    "end": 100
+                  }
+                ],
+                "mandatory_caveats": [],
+                "prohibited_inferences": [
+                  "Do not invent ranks, scores, Fit decisions or independently verified credentials."
+                ],
+                "completion_criteria": [
+                  "Answer the question directly using the listed owner-specific facts and preserve source qualifications."
+                ]
+              }
+            },
+            {
+              "id": "eval-05-D1-T2",
+              "question": "What about their relevant experience?",
+              "eligible_generation": true,
+              "expected": {
+                "participants": [
+                  "eval-05-CV1",
+                  "eval-05-CV2"
+                ],
+                "criterion": "EXPERIENCE",
+                "intent": "comparison",
+                "clarification": false,
+                "uncertainty": false,
+                "required_facts": [
+                  {
+                    "owner": "eval-05-CV1",
+                    "quote": "Investigated network alerts and wrote incident response reports.",
+                    "start": 0,
+                    "end": 64
+                  },
+                  {
+                    "owner": "eval-05-CV1",
+                    "quote": "Security certificate expires in 2028.",
+                    "start": 65,
+                    "end": 102
+                  },
+                  {
+                    "owner": "eval-05-CV2",
+                    "quote": "Monitored network traffic.",
+                    "start": 0,
+                    "end": 26
+                  },
+                  {
+                    "owner": "eval-05-CV2",
+                    "quote": "Security certification exam is planned; certification is not yet awarded.",
+                    "start": 27,
+                    "end": 100
+                  }
+                ],
+                "mandatory_caveats": [
+                  "Keep the selected pair and change only the criterion."
+                ],
+                "prohibited_inferences": [
+                  "Do not invent ranks, scores, Fit decisions or independently verified credentials."
+                ],
+                "completion_criteria": [
+                  "Answer the question directly using the listed owner-specific facts and preserve source qualifications."
+                ]
+              }
+            },
+            {
+              "id": "eval-05-D1-T3",
+              "question": "Now include candidate 3",
+              "eligible_generation": true,
+              "expected": {
+                "participants": [
+                  "eval-05-CV1",
+                  "eval-05-CV2",
+                  "eval-05-CV3"
+                ],
+                "criterion": "EXPERIENCE",
+                "intent": "comparison",
+                "clarification": false,
+                "uncertainty": false,
+                "required_facts": [
+                  {
+                    "owner": "eval-05-CV1",
+                    "quote": "Investigated network alerts and wrote incident response reports.",
+                    "start": 0,
+                    "end": 64
+                  },
+                  {
+                    "owner": "eval-05-CV1",
+                    "quote": "Security certificate expires in 2028.",
+                    "start": 65,
+                    "end": 102
+                  },
+                  {
+                    "owner": "eval-05-CV2",
+                    "quote": "Monitored network traffic.",
+                    "start": 0,
+                    "end": 26
+                  },
+                  {
+                    "owner": "eval-05-CV2",
+                    "quote": "Security certification exam is planned; certification is not yet awarded.",
+                    "start": 27,
+                    "end": 100
+                  },
+                  {
+                    "owner": "eval-05-CV3",
+                    "quote": "Conducted incident response exercises in a training lab.",
+                    "start": 0,
+                    "end": 56
+                  },
+                  {
+                    "owner": "eval-05-CV3",
+                    "quote": "No production response responsibility.",
+                    "start": 57,
+                    "end": 95
+                  }
+                ],
+                "mandatory_caveats": [
+                  "Retain the experience criterion while adding the third participant."
+                ],
+                "prohibited_inferences": [
+                  "Do not invent ranks, scores, Fit decisions or independently verified credentials."
+                ],
+                "completion_criteria": [
+                  "Answer the question directly using the listed owner-specific facts and preserve source qualifications."
+                ]
+              }
+            },
+            {
+              "id": "eval-05-D1-T4",
+              "question": "Remove candidate 2",
+              "eligible_generation": true,
+              "expected": {
+                "participants": [
+                  "eval-05-CV1",
+                  "eval-05-CV3"
+                ],
+                "criterion": "EXPERIENCE",
+                "intent": "comparison",
+                "clarification": false,
+                "uncertainty": false,
+                "required_facts": [
+                  {
+                    "owner": "eval-05-CV1",
+                    "quote": "Investigated network alerts and wrote incident response reports.",
+                    "start": 0,
+                    "end": 64
+                  },
+                  {
+                    "owner": "eval-05-CV1",
+                    "quote": "Security certificate expires in 2028.",
+                    "start": 65,
+                    "end": 102
+                  },
+                  {
+                    "owner": "eval-05-CV3",
+                    "quote": "Conducted incident response exercises in a training lab.",
+                    "start": 0,
+                    "end": 56
+                  },
+                  {
+                    "owner": "eval-05-CV3",
+                    "quote": "No production response responsibility.",
+                    "start": 57,
+                    "end": 95
+                  }
+                ],
+                "mandatory_caveats": [
+                  "Do not retain candidate 2 as an active comparison participant."
+                ],
+                "prohibited_inferences": [
+                  "Do not invent ranks, scores, Fit decisions or independently verified credentials."
+                ],
+                "completion_criteria": [
+                  "Answer the question directly using the listed owner-specific facts and preserve source qualifications."
+                ]
+              }
+            },
+            {
+              "id": "eval-05-D1-T5",
+              "question": "Why is candidate 1 better than candidate 3?",
+              "eligible_generation": true,
+              "expected": {
+                "participants": [
+                  "eval-05-CV1",
+                  "eval-05-CV3"
+                ],
+                "criterion": "EXPERIENCE",
+                "intent": "comparison_explanation",
+                "clarification": false,
+                "uncertainty": false,
+                "required_facts": [
+                  {
+                    "owner": "eval-05-JD",
+                    "quote": "Incident response and network monitoring are required.",
+                    "start": 0,
+                    "end": 54
+                  },
+                  {
+                    "owner": "eval-05-JD",
+                    "quote": "Current security certification is preferred.",
+                    "start": 55,
+                    "end": 99
+                  },
+                  {
+                    "owner": "eval-05-CV1",
+                    "quote": "Investigated network alerts and wrote incident response reports.",
+                    "start": 0,
+                    "end": 64
+                  },
+                  {
+                    "owner": "eval-05-CV1",
+                    "quote": "Security certificate expires in 2028.",
+                    "start": 65,
+                    "end": 102
+                  },
+                  {
+                    "owner": "eval-05-CV3",
+                    "quote": "Conducted incident response exercises in a training lab.",
+                    "start": 0,
+                    "end": 56
+                  },
+                  {
+                    "owner": "eval-05-CV3",
+                    "quote": "No production response responsibility.",
+                    "start": 57,
+                    "end": 95
+                  }
+                ],
+                "mandatory_caveats": [
+                  "Discuss only documented differences; overall superiority is not established."
+                ],
+                "prohibited_inferences": [
+                  "Do not invent ranks, scores, Fit decisions or independently verified credentials."
+                ],
+                "completion_criteria": [
+                  "Answer the question directly using the listed owner-specific facts and preserve source qualifications."
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "coverage_tags": [
+        "explicit_skill",
+        "missing_evidence",
+        "owner_attribution",
+        "comparison",
+        "pending_credential",
+        "followup",
+        "participant_change",
+        "criterion_change"
+      ]
+    },
+    {
+      "id": "eval-06",
+      "split": "eval",
+      "lineage": "service-orchestration",
+      "jd": {
+        "id": "eval-06-JD",
+        "title": "Platform engineer (synthetic)",
+        "text": "Kubernetes operations are required. Team leadership is preferred."
+      },
+      "candidates": [
+        {
+          "id": "eval-06-CV1",
+          "text": "Operated Kubernetes clusters for a retail platform. Individual contributor; no team leadership role."
+        },
+        {
+          "id": "eval-06-CV2",
+          "text": "Led four engineers maintaining virtual machines. Kubernetes coursework is ongoing."
+        },
+        {
+          "id": "eval-06-CV3",
+          "text": "Supported Kubernetes deployments and mentored two interns."
+        }
+      ],
+      "questions": [
+        {
+          "id": "eval-06-Q1",
+          "question": "What Kubernetes experience does candidate 1 describe?",
+          "eligible_generation": true,
+          "expected": {
+            "participants": [
+              "eval-06-CV1"
+            ],
+            "criterion": "EXPERIENCE",
+            "intent": "candidate_qa",
+            "clarification": false,
+            "uncertainty": false,
+            "required_facts": [
+              {
+                "owner": "eval-06-CV1",
+                "quote": "Operated Kubernetes clusters for a retail platform.",
+                "start": 0,
+                "end": 51
+              }
+            ],
+            "mandatory_caveats": [
+              "Do not infer skill-specific duration unless explicitly linked to that skill."
+            ],
+            "prohibited_inferences": [
+              "Do not invent ranks, scores, Fit decisions or independently verified credentials."
+            ],
+            "completion_criteria": [
+              "Answer the question directly using the listed owner-specific facts and preserve source qualifications."
+            ]
+          }
+        },
+        {
+          "id": "eval-06-Q2",
+          "question": "Why is candidate 1 better than candidate 2 for this role?",
+          "eligible_generation": true,
+          "expected": {
+            "participants": [
+              "eval-06-CV1",
+              "eval-06-CV2"
+            ],
+            "criterion": "GENERAL",
+            "intent": "comparison_explanation",
+            "clarification": false,
+            "uncertainty": false,
+            "required_facts": [
+              {
+                "owner": "eval-06-JD",
+                "quote": "Kubernetes operations are required.",
+                "start": 0,
+                "end": 35
+              },
+              {
+                "owner": "eval-06-JD",
+                "quote": "Team leadership is preferred.",
+                "start": 36,
+                "end": 65
+              },
+              {
+                "owner": "eval-06-CV1",
+                "quote": "Operated Kubernetes clusters for a retail platform.",
+                "start": 0,
+                "end": 51
+              },
+              {
+                "owner": "eval-06-CV1",
+                "quote": "Individual contributor; no team leadership role.",
+                "start": 52,
+                "end": 100
+              },
+              {
+                "owner": "eval-06-CV2",
+                "quote": "Led four engineers maintaining virtual machines.",
+                "start": 0,
+                "end": 48
+              },
+              {
+                "owner": "eval-06-CV2",
+                "quote": "Kubernetes coursework is ongoing.",
+                "start": 49,
+                "end": 82
+              }
+            ],
+            "mandatory_caveats": [
+              "Candidate 1 has documented Kubernetes operations; candidate 2 has documented team leadership."
+            ],
+            "prohibited_inferences": [
+              "Do not infer an overall winner from one stronger criterion.",
+              "Do not call ongoing coursework operational Kubernetes experience."
+            ],
+            "completion_criteria": [
+              "Answer the question directly using the listed owner-specific facts and preserve source qualifications."
+            ]
+          }
+        },
+        {
+          "id": "eval-06-Q3",
+          "question": "Does candidate 3 hold a current aviation licence?",
+          "eligible_generation": true,
+          "expected": {
+            "participants": [
+              "eval-06-CV3"
+            ],
+            "criterion": "CERTIFICATION",
+            "intent": "candidate_qa",
+            "clarification": false,
+            "uncertainty": true,
+            "required_facts": [],
+            "mandatory_caveats": [
+              "No aviation licence is established in the reviewed source."
+            ],
+            "prohibited_inferences": [
+              "Do not assert that the candidate has no licence merely because it is unmentioned."
+            ],
+            "completion_criteria": [
+              "State that a current aviation licence cannot be established from the supplied CV."
+            ]
+          }
+        }
+      ],
+      "dialogues": [
+        {
+          "id": "eval-06-D1",
+          "turns": [
+            {
+              "id": "eval-06-D1-T1",
+              "question": "Compare candidates 1 and 2 on Kubernetes",
+              "eligible_generation": true,
+              "expected": {
+                "participants": [
+                  "eval-06-CV1",
+                  "eval-06-CV2"
+                ],
+                "criterion": "SKILL",
+                "intent": "comparison",
+                "clarification": false,
+                "uncertainty": false,
+                "required_facts": [
+                  {
+                    "owner": "eval-06-CV1",
+                    "quote": "Operated Kubernetes clusters for a retail platform.",
+                    "start": 0,
+                    "end": 51
+                  },
+                  {
+                    "owner": "eval-06-CV1",
+                    "quote": "Individual contributor; no team leadership role.",
+                    "start": 52,
+                    "end": 100
+                  },
+                  {
+                    "owner": "eval-06-CV2",
+                    "quote": "Led four engineers maintaining virtual machines.",
+                    "start": 0,
+                    "end": 48
+                  },
+                  {
+                    "owner": "eval-06-CV2",
+                    "quote": "Kubernetes coursework is ongoing.",
+                    "start": 49,
+                    "end": 82
+                  }
+                ],
+                "mandatory_caveats": [],
+                "prohibited_inferences": [
+                  "Do not invent ranks, scores, Fit decisions or independently verified credentials."
+                ],
+                "completion_criteria": [
+                  "Answer the question directly using the listed owner-specific facts and preserve source qualifications."
+                ]
+              }
+            },
+            {
+              "id": "eval-06-D1-T2",
+              "question": "What about their relevant experience?",
+              "eligible_generation": true,
+              "expected": {
+                "participants": [
+                  "eval-06-CV1",
+                  "eval-06-CV2"
+                ],
+                "criterion": "EXPERIENCE",
+                "intent": "comparison",
+                "clarification": false,
+                "uncertainty": false,
+                "required_facts": [
+                  {
+                    "owner": "eval-06-CV1",
+                    "quote": "Operated Kubernetes clusters for a retail platform.",
+                    "start": 0,
+                    "end": 51
+                  },
+                  {
+                    "owner": "eval-06-CV1",
+                    "quote": "Individual contributor; no team leadership role.",
+                    "start": 52,
+                    "end": 100
+                  },
+                  {
+                    "owner": "eval-06-CV2",
+                    "quote": "Led four engineers maintaining virtual machines.",
+                    "start": 0,
+                    "end": 48
+                  },
+                  {
+                    "owner": "eval-06-CV2",
+                    "quote": "Kubernetes coursework is ongoing.",
+                    "start": 49,
+                    "end": 82
+                  }
+                ],
+                "mandatory_caveats": [
+                  "Keep the selected pair and change only the criterion."
+                ],
+                "prohibited_inferences": [
+                  "Do not invent ranks, scores, Fit decisions or independently verified credentials."
+                ],
+                "completion_criteria": [
+                  "Answer the question directly using the listed owner-specific facts and preserve source qualifications."
+                ]
+              }
+            },
+            {
+              "id": "eval-06-D1-T3",
+              "question": "Now include candidate 3",
+              "eligible_generation": true,
+              "expected": {
+                "participants": [
+                  "eval-06-CV1",
+                  "eval-06-CV2",
+                  "eval-06-CV3"
+                ],
+                "criterion": "EXPERIENCE",
+                "intent": "comparison",
+                "clarification": false,
+                "uncertainty": false,
+                "required_facts": [
+                  {
+                    "owner": "eval-06-CV1",
+                    "quote": "Operated Kubernetes clusters for a retail platform.",
+                    "start": 0,
+                    "end": 51
+                  },
+                  {
+                    "owner": "eval-06-CV1",
+                    "quote": "Individual contributor; no team leadership role.",
+                    "start": 52,
+                    "end": 100
+                  },
+                  {
+                    "owner": "eval-06-CV2",
+                    "quote": "Led four engineers maintaining virtual machines.",
+                    "start": 0,
+                    "end": 48
+                  },
+                  {
+                    "owner": "eval-06-CV2",
+                    "quote": "Kubernetes coursework is ongoing.",
+                    "start": 49,
+                    "end": 82
+                  },
+                  {
+                    "owner": "eval-06-CV3",
+                    "quote": "Supported Kubernetes deployments and mentored two interns.",
+                    "start": 0,
+                    "end": 58
+                  }
+                ],
+                "mandatory_caveats": [
+                  "Retain the experience criterion while adding the third participant."
+                ],
+                "prohibited_inferences": [
+                  "Do not invent ranks, scores, Fit decisions or independently verified credentials."
+                ],
+                "completion_criteria": [
+                  "Answer the question directly using the listed owner-specific facts and preserve source qualifications."
+                ]
+              }
+            },
+            {
+              "id": "eval-06-D1-T4",
+              "question": "Remove candidate 2",
+              "eligible_generation": true,
+              "expected": {
+                "participants": [
+                  "eval-06-CV1",
+                  "eval-06-CV3"
+                ],
+                "criterion": "EXPERIENCE",
+                "intent": "comparison",
+                "clarification": false,
+                "uncertainty": false,
+                "required_facts": [
+                  {
+                    "owner": "eval-06-CV1",
+                    "quote": "Operated Kubernetes clusters for a retail platform.",
+                    "start": 0,
+                    "end": 51
+                  },
+                  {
+                    "owner": "eval-06-CV1",
+                    "quote": "Individual contributor; no team leadership role.",
+                    "start": 52,
+                    "end": 100
+                  },
+                  {
+                    "owner": "eval-06-CV3",
+                    "quote": "Supported Kubernetes deployments and mentored two interns.",
+                    "start": 0,
+                    "end": 58
+                  }
+                ],
+                "mandatory_caveats": [
+                  "Do not retain candidate 2 as an active comparison participant."
+                ],
+                "prohibited_inferences": [
+                  "Do not invent ranks, scores, Fit decisions or independently verified credentials."
+                ],
+                "completion_criteria": [
+                  "Answer the question directly using the listed owner-specific facts and preserve source qualifications."
+                ]
+              }
+            },
+            {
+              "id": "eval-06-D1-T5",
+              "question": "Why is candidate 1 better than candidate 3?",
+              "eligible_generation": true,
+              "expected": {
+                "participants": [
+                  "eval-06-CV1",
+                  "eval-06-CV3"
+                ],
+                "criterion": "EXPERIENCE",
+                "intent": "comparison_explanation",
+                "clarification": false,
+                "uncertainty": false,
+                "required_facts": [
+                  {
+                    "owner": "eval-06-JD",
+                    "quote": "Kubernetes operations are required.",
+                    "start": 0,
+                    "end": 35
+                  },
+                  {
+                    "owner": "eval-06-JD",
+                    "quote": "Team leadership is preferred.",
+                    "start": 36,
+                    "end": 65
+                  },
+                  {
+                    "owner": "eval-06-CV1",
+                    "quote": "Operated Kubernetes clusters for a retail platform.",
+                    "start": 0,
+                    "end": 51
+                  },
+                  {
+                    "owner": "eval-06-CV1",
+                    "quote": "Individual contributor; no team leadership role.",
+                    "start": 52,
+                    "end": 100
+                  },
+                  {
+                    "owner": "eval-06-CV3",
+                    "quote": "Supported Kubernetes deployments and mentored two interns.",
+                    "start": 0,
+                    "end": 58
+                  }
+                ],
+                "mandatory_caveats": [
+                  "Discuss only documented differences; overall superiority is not established."
+                ],
+                "prohibited_inferences": [
+                  "Do not invent ranks, scores, Fit decisions or independently verified credentials."
+                ],
+                "completion_criteria": [
+                  "Answer the question directly using the listed owner-specific facts and preserve source qualifications."
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "coverage_tags": [
+        "explicit_skill",
+        "missing_evidence",
+        "owner_attribution",
+        "comparison",
+        "balanced_comparison",
+        "unsupported_superiority",
+        "followup",
+        "participant_change",
+        "criterion_change"
+      ]
+    },
+    {
+      "id": "eval-07",
+      "split": "eval",
+      "lineage": "test-automation",
+      "jd": {
+        "id": "eval-07-JD",
+        "title": "Quality engineer (synthetic)",
+        "text": "Java test automation is required. Completed testing certification is preferred."
+      },
+      "candidates": [
+        {
+          "id": "eval-07-CV1",
+          "text": "Wrote Java test suites for payment services. Testing certification completed in 2024."
+        },
+        {
+          "id": "eval-07-CV2",
+          "text": "Executed manual test cases. Java automation was observed but not performed."
+        },
+        {
+          "id": "eval-07-CV3",
+          "text": "Created Java integration tests. Testing certification assessment is pending."
+        }
+      ],
+      "questions": [
+        {
+          "id": "eval-07-Q1",
+          "question": "What Java experience does candidate 1 describe?",
+          "eligible_generation": true,
+          "expected": {
+            "participants": [
+              "eval-07-CV1"
+            ],
+            "criterion": "EXPERIENCE",
+            "intent": "candidate_qa",
+            "clarification": false,
+            "uncertainty": false,
+            "required_facts": [
+              {
+                "owner": "eval-07-CV1",
+                "quote": "Wrote Java test suites for payment services.",
+                "start": 0,
+                "end": 44
+              }
+            ],
+            "mandatory_caveats": [
+              "Do not infer skill-specific duration unless explicitly linked to that skill."
+            ],
+            "prohibited_inferences": [
+              "Do not invent ranks, scores, Fit decisions or independently verified credentials."
+            ],
+            "completion_criteria": [
+              "Answer the question directly using the listed owner-specific facts and preserve source qualifications."
+            ]
+          }
+        },
+        {
+          "id": "eval-07-Q2",
+          "question": "Compare candidates 1 and 2 on Java",
+          "eligible_generation": true,
+          "expected": {
+            "participants": [
+              "eval-07-CV1",
+              "eval-07-CV2"
+            ],
+            "criterion": "SKILL",
+            "intent": "comparison",
+            "clarification": false,
+            "uncertainty": false,
+            "required_facts": [
+              {
+                "owner": "eval-07-CV1",
+                "quote": "Wrote Java test suites for payment services.",
+                "start": 0,
+                "end": 44
+              },
+              {
+                "owner": "eval-07-CV2",
+                "quote": "Executed manual test cases.",
+                "start": 0,
+                "end": 27
+              }
+            ],
+            "mandatory_caveats": [
+              "Retain missing, negative or qualified evidence for each participant."
+            ],
+            "prohibited_inferences": [
+              "Do not equate a course or mention with professional proficiency.",
+              "Do not claim one candidate is better overall."
+            ],
+            "completion_criteria": [
+              "Answer the question directly using the listed owner-specific facts and preserve source qualifications."
+            ]
+          }
+        },
+        {
+          "id": "eval-07-Q3",
+          "question": "Is candidate 3 testing certified?",
+          "eligible_generation": true,
+          "expected": {
+            "participants": [
+              "eval-07-CV3"
+            ],
+            "criterion": "CERTIFICATION",
+            "intent": "candidate_qa",
+            "clarification": false,
+            "uncertainty": false,
+            "required_facts": [
+              {
+                "owner": "eval-07-CV3",
+                "quote": "Testing certification assessment is pending.",
+                "start": 32,
+                "end": 76
+              }
+            ],
+            "mandatory_caveats": [
+              "The certification assessment is pending."
+            ],
+            "prohibited_inferences": [
+              "Do not upgrade pending assessment to awarded certification."
+            ],
+            "completion_criteria": [
+              "Answer the question directly using the listed owner-specific facts and preserve source qualifications."
+            ]
+          }
+        }
+      ],
+      "dialogues": [
+        {
+          "id": "eval-07-D1",
+          "turns": [
+            {
+              "id": "eval-07-D1-T1",
+              "question": "Compare candidates 1 and 2 on Java",
+              "eligible_generation": true,
+              "expected": {
+                "participants": [
+                  "eval-07-CV1",
+                  "eval-07-CV2"
+                ],
+                "criterion": "SKILL",
+                "intent": "comparison",
+                "clarification": false,
+                "uncertainty": false,
+                "required_facts": [
+                  {
+                    "owner": "eval-07-CV1",
+                    "quote": "Wrote Java test suites for payment services.",
+                    "start": 0,
+                    "end": 44
+                  },
+                  {
+                    "owner": "eval-07-CV1",
+                    "quote": "Testing certification completed in 2024.",
+                    "start": 45,
+                    "end": 85
+                  },
+                  {
+                    "owner": "eval-07-CV2",
+                    "quote": "Executed manual test cases.",
+                    "start": 0,
+                    "end": 27
+                  },
+                  {
+                    "owner": "eval-07-CV2",
+                    "quote": "Java automation was observed but not performed.",
+                    "start": 28,
+                    "end": 75
+                  }
+                ],
+                "mandatory_caveats": [],
+                "prohibited_inferences": [
+                  "Do not invent ranks, scores, Fit decisions or independently verified credentials."
+                ],
+                "completion_criteria": [
+                  "Answer the question directly using the listed owner-specific facts and preserve source qualifications."
+                ]
+              }
+            },
+            {
+              "id": "eval-07-D1-T2",
+              "question": "What about their relevant experience?",
+              "eligible_generation": true,
+              "expected": {
+                "participants": [
+                  "eval-07-CV1",
+                  "eval-07-CV2"
+                ],
+                "criterion": "EXPERIENCE",
+                "intent": "comparison",
+                "clarification": false,
+                "uncertainty": false,
+                "required_facts": [
+                  {
+                    "owner": "eval-07-CV1",
+                    "quote": "Wrote Java test suites for payment services.",
+                    "start": 0,
+                    "end": 44
+                  },
+                  {
+                    "owner": "eval-07-CV1",
+                    "quote": "Testing certification completed in 2024.",
+                    "start": 45,
+                    "end": 85
+                  },
+                  {
+                    "owner": "eval-07-CV2",
+                    "quote": "Executed manual test cases.",
+                    "start": 0,
+                    "end": 27
+                  },
+                  {
+                    "owner": "eval-07-CV2",
+                    "quote": "Java automation was observed but not performed.",
+                    "start": 28,
+                    "end": 75
+                  }
+                ],
+                "mandatory_caveats": [
+                  "Keep the selected pair and change only the criterion."
+                ],
+                "prohibited_inferences": [
+                  "Do not invent ranks, scores, Fit decisions or independently verified credentials."
+                ],
+                "completion_criteria": [
+                  "Answer the question directly using the listed owner-specific facts and preserve source qualifications."
+                ]
+              }
+            },
+            {
+              "id": "eval-07-D1-T3",
+              "question": "Now include candidate 3",
+              "eligible_generation": true,
+              "expected": {
+                "participants": [
+                  "eval-07-CV1",
+                  "eval-07-CV2",
+                  "eval-07-CV3"
+                ],
+                "criterion": "EXPERIENCE",
+                "intent": "comparison",
+                "clarification": false,
+                "uncertainty": false,
+                "required_facts": [
+                  {
+                    "owner": "eval-07-CV1",
+                    "quote": "Wrote Java test suites for payment services.",
+                    "start": 0,
+                    "end": 44
+                  },
+                  {
+                    "owner": "eval-07-CV1",
+                    "quote": "Testing certification completed in 2024.",
+                    "start": 45,
+                    "end": 85
+                  },
+                  {
+                    "owner": "eval-07-CV2",
+                    "quote": "Executed manual test cases.",
+                    "start": 0,
+                    "end": 27
+                  },
+                  {
+                    "owner": "eval-07-CV2",
+                    "quote": "Java automation was observed but not performed.",
+                    "start": 28,
+                    "end": 75
+                  },
+                  {
+                    "owner": "eval-07-CV3",
+                    "quote": "Created Java integration tests.",
+                    "start": 0,
+                    "end": 31
+                  },
+                  {
+                    "owner": "eval-07-CV3",
+                    "quote": "Testing certification assessment is pending.",
+                    "start": 32,
+                    "end": 76
+                  }
+                ],
+                "mandatory_caveats": [
+                  "Retain the experience criterion while adding the third participant."
+                ],
+                "prohibited_inferences": [
+                  "Do not invent ranks, scores, Fit decisions or independently verified credentials."
+                ],
+                "completion_criteria": [
+                  "Answer the question directly using the listed owner-specific facts and preserve source qualifications."
+                ]
+              }
+            },
+            {
+              "id": "eval-07-D1-T4",
+              "question": "Remove candidate 2",
+              "eligible_generation": true,
+              "expected": {
+                "participants": [
+                  "eval-07-CV1",
+                  "eval-07-CV3"
+                ],
+                "criterion": "EXPERIENCE",
+                "intent": "comparison",
+                "clarification": false,
+                "uncertainty": false,
+                "required_facts": [
+                  {
+                    "owner": "eval-07-CV1",
+                    "quote": "Wrote Java test suites for payment services.",
+                    "start": 0,
+                    "end": 44
+                  },
+                  {
+                    "owner": "eval-07-CV1",
+                    "quote": "Testing certification completed in 2024.",
+                    "start": 45,
+                    "end": 85
+                  },
+                  {
+                    "owner": "eval-07-CV3",
+                    "quote": "Created Java integration tests.",
+                    "start": 0,
+                    "end": 31
+                  },
+                  {
+                    "owner": "eval-07-CV3",
+                    "quote": "Testing certification assessment is pending.",
+                    "start": 32,
+                    "end": 76
+                  }
+                ],
+                "mandatory_caveats": [
+                  "Do not retain candidate 2 as an active comparison participant."
+                ],
+                "prohibited_inferences": [
+                  "Do not invent ranks, scores, Fit decisions or independently verified credentials."
+                ],
+                "completion_criteria": [
+                  "Answer the question directly using the listed owner-specific facts and preserve source qualifications."
+                ]
+              }
+            },
+            {
+              "id": "eval-07-D1-T5",
+              "question": "Why is candidate 1 better than candidate 3?",
+              "eligible_generation": true,
+              "expected": {
+                "participants": [
+                  "eval-07-CV1",
+                  "eval-07-CV3"
+                ],
+                "criterion": "EXPERIENCE",
+                "intent": "comparison_explanation",
+                "clarification": false,
+                "uncertainty": false,
+                "required_facts": [
+                  {
+                    "owner": "eval-07-JD",
+                    "quote": "Java test automation is required.",
+                    "start": 0,
+                    "end": 33
+                  },
+                  {
+                    "owner": "eval-07-JD",
+                    "quote": "Completed testing certification is preferred.",
+                    "start": 34,
+                    "end": 79
+                  },
+                  {
+                    "owner": "eval-07-CV1",
+                    "quote": "Wrote Java test suites for payment services.",
+                    "start": 0,
+                    "end": 44
+                  },
+                  {
+                    "owner": "eval-07-CV1",
+                    "quote": "Testing certification completed in 2024.",
+                    "start": 45,
+                    "end": 85
+                  },
+                  {
+                    "owner": "eval-07-CV3",
+                    "quote": "Created Java integration tests.",
+                    "start": 0,
+                    "end": 31
+                  },
+                  {
+                    "owner": "eval-07-CV3",
+                    "quote": "Testing certification assessment is pending.",
+                    "start": 32,
+                    "end": 76
+                  }
+                ],
+                "mandatory_caveats": [
+                  "Discuss only documented differences; overall superiority is not established."
+                ],
+                "prohibited_inferences": [
+                  "Do not invent ranks, scores, Fit decisions or independently verified credentials."
+                ],
+                "completion_criteria": [
+                  "Answer the question directly using the listed owner-specific facts and preserve source qualifications."
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "coverage_tags": [
+        "explicit_skill",
+        "missing_evidence",
+        "owner_attribution",
+        "comparison",
+        "pending_credential",
+        "followup",
+        "participant_change",
+        "criterion_change"
+      ]
+    },
+    {
+      "id": "eval-08",
+      "split": "eval",
+      "lineage": "analytics-experimentation",
+      "jd": {
+        "id": "eval-08-JD",
+        "title": "Product analyst (synthetic)",
+        "text": "SQL analysis and experiment design are required."
+      },
+      "candidates": [
+        {
+          "id": "eval-08-CV1",
+          "text": "Analyzed product funnels with SQL. Designed controlled experiments."
+        },
+        {
+          "id": "eval-08-CV2",
+          "text": "Prepared SQL dashboards. Experiment design experience is not described."
+        },
+        {
+          "id": "eval-08-CV3",
+          "text": "Interviewed customers and summarized survey findings. SQL is not listed."
+        }
+      ],
+      "questions": [
+        {
+          "id": "eval-08-Q1",
+          "question": "What SQL experience does candidate 1 describe?",
+          "eligible_generation": true,
+          "expected": {
+            "participants": [
+              "eval-08-CV1"
+            ],
+            "criterion": "EXPERIENCE",
+            "intent": "candidate_qa",
+            "clarification": false,
+            "uncertainty": false,
+            "required_facts": [
+              {
+                "owner": "eval-08-CV1",
+                "quote": "Analyzed product funnels with SQL.",
+                "start": 0,
+                "end": 34
+              }
+            ],
+            "mandatory_caveats": [
+              "Do not infer skill-specific duration unless explicitly linked to that skill."
+            ],
+            "prohibited_inferences": [
+              "Do not invent ranks, scores, Fit decisions or independently verified credentials."
+            ],
+            "completion_criteria": [
+              "Answer the question directly using the listed owner-specific facts and preserve source qualifications."
+            ]
+          }
+        },
+        {
+          "id": "eval-08-Q2",
+          "question": "Compare candidates 1 and 2 on SQL",
+          "eligible_generation": true,
+          "expected": {
+            "participants": [
+              "eval-08-CV1",
+              "eval-08-CV2"
+            ],
+            "criterion": "SKILL",
+            "intent": "comparison",
+            "clarification": false,
+            "uncertainty": false,
+            "required_facts": [
+              {
+                "owner": "eval-08-CV1",
+                "quote": "Analyzed product funnels with SQL.",
+                "start": 0,
+                "end": 34
+              },
+              {
+                "owner": "eval-08-CV2",
+                "quote": "Prepared SQL dashboards.",
+                "start": 0,
+                "end": 24
+              }
+            ],
+            "mandatory_caveats": [
+              "Retain missing, negative or qualified evidence for each participant."
+            ],
+            "prohibited_inferences": [
+              "Do not equate a course or mention with professional proficiency.",
+              "Do not claim one candidate is better overall."
+            ],
+            "completion_criteria": [
+              "Answer the question directly using the listed owner-specific facts and preserve source qualifications."
+            ]
+          }
+        },
+        {
+          "id": "eval-08-Q3",
+          "question": "Does candidate 3 hold a current aviation licence?",
+          "eligible_generation": true,
+          "expected": {
+            "participants": [
+              "eval-08-CV3"
+            ],
+            "criterion": "CERTIFICATION",
+            "intent": "candidate_qa",
+            "clarification": false,
+            "uncertainty": true,
+            "required_facts": [],
+            "mandatory_caveats": [
+              "No aviation licence is established in the reviewed source."
+            ],
+            "prohibited_inferences": [
+              "Do not assert that the candidate has no licence merely because it is unmentioned."
+            ],
+            "completion_criteria": [
+              "State that a current aviation licence cannot be established from the supplied CV."
+            ]
+          }
+        }
+      ],
+      "dialogues": [
+        {
+          "id": "eval-08-D1",
+          "turns": [
+            {
+              "id": "eval-08-D1-T1",
+              "question": "Compare candidates 1 and 2 on SQL",
+              "eligible_generation": true,
+              "expected": {
+                "participants": [
+                  "eval-08-CV1",
+                  "eval-08-CV2"
+                ],
+                "criterion": "SKILL",
+                "intent": "comparison",
+                "clarification": false,
+                "uncertainty": false,
+                "required_facts": [
+                  {
+                    "owner": "eval-08-CV1",
+                    "quote": "Analyzed product funnels with SQL.",
+                    "start": 0,
+                    "end": 34
+                  },
+                  {
+                    "owner": "eval-08-CV1",
+                    "quote": "Designed controlled experiments.",
+                    "start": 35,
+                    "end": 67
+                  },
+                  {
+                    "owner": "eval-08-CV2",
+                    "quote": "Prepared SQL dashboards.",
+                    "start": 0,
+                    "end": 24
+                  },
+                  {
+                    "owner": "eval-08-CV2",
+                    "quote": "Experiment design experience is not described.",
+                    "start": 25,
+                    "end": 71
+                  }
+                ],
+                "mandatory_caveats": [],
+                "prohibited_inferences": [
+                  "Do not invent ranks, scores, Fit decisions or independently verified credentials."
+                ],
+                "completion_criteria": [
+                  "Answer the question directly using the listed owner-specific facts and preserve source qualifications."
+                ]
+              }
+            },
+            {
+              "id": "eval-08-D1-T2",
+              "question": "What about their relevant experience?",
+              "eligible_generation": true,
+              "expected": {
+                "participants": [
+                  "eval-08-CV1",
+                  "eval-08-CV2"
+                ],
+                "criterion": "EXPERIENCE",
+                "intent": "comparison",
+                "clarification": false,
+                "uncertainty": false,
+                "required_facts": [
+                  {
+                    "owner": "eval-08-CV1",
+                    "quote": "Analyzed product funnels with SQL.",
+                    "start": 0,
+                    "end": 34
+                  },
+                  {
+                    "owner": "eval-08-CV1",
+                    "quote": "Designed controlled experiments.",
+                    "start": 35,
+                    "end": 67
+                  },
+                  {
+                    "owner": "eval-08-CV2",
+                    "quote": "Prepared SQL dashboards.",
+                    "start": 0,
+                    "end": 24
+                  },
+                  {
+                    "owner": "eval-08-CV2",
+                    "quote": "Experiment design experience is not described.",
+                    "start": 25,
+                    "end": 71
+                  }
+                ],
+                "mandatory_caveats": [
+                  "Keep the selected pair and change only the criterion."
+                ],
+                "prohibited_inferences": [
+                  "Do not invent ranks, scores, Fit decisions or independently verified credentials."
+                ],
+                "completion_criteria": [
+                  "Answer the question directly using the listed owner-specific facts and preserve source qualifications."
+                ]
+              }
+            },
+            {
+              "id": "eval-08-secondary-D1-T3",
+              "question": "What experience does candidate 1 have for this role?",
+              "eligible_generation": true,
+              "expected": {
+                "participants": [
+                  "eval-08-secondary-CV1"
+                ],
+                "criterion": "EXPERIENCE",
+                "intent": "candidate_qa",
+                "clarification": false,
+                "uncertainty": false,
+                "required_facts": [
+                  {
+                    "owner": "eval-08-secondary-CV1",
+                    "quote": "Scheduled warehouse dispatch shifts.",
+                    "start": 0,
+                    "end": 36
+                  },
+                  {
+                    "owner": "eval-08-secondary-CV1",
+                    "quote": "Used spreadsheets for staffing forecasts.",
+                    "start": 37,
+                    "end": 78
+                  }
+                ],
+                "mandatory_caveats": [
+                  "Use only the newly selected logistics job and its candidate sources."
+                ],
+                "prohibited_inferences": [
+                  "Do not invent ranks, scores, Fit decisions or independently verified credentials."
+                ],
+                "completion_criteria": [
+                  "Answer the question directly using the listed owner-specific facts and preserve source qualifications."
+                ]
+              },
+              "scope_event": {
+                "kind": "switch_scope",
+                "scope_id": "eval-08-secondary"
+              }
+            },
+            {
+              "id": "eval-08-secondary-D1-T4",
+              "question": "Do they design product experiments?",
+              "eligible_generation": true,
+              "expected": {
+                "participants": [
+                  "eval-08-secondary-CV1"
+                ],
+                "criterion": "EXPERIENCE",
+                "intent": "candidate_qa",
+                "clarification": false,
+                "uncertainty": true,
+                "required_facts": [],
+                "mandatory_caveats": [],
+                "prohibited_inferences": [
+                  "Do not reuse the prior product analyst candidate facts."
+                ],
+                "completion_criteria": [
+                  "State product experiment design is not established for this new candidate."
+                ]
+              }
+            },
+            {
+              "id": "eval-08-secondary-D1-T5",
+              "question": "Compare candidates 1 and 2 on warehouse scheduling",
+              "eligible_generation": true,
+              "expected": {
+                "participants": [
+                  "eval-08-secondary-CV1",
+                  "eval-08-secondary-CV2"
+                ],
+                "criterion": "EXPERIENCE",
+                "intent": "comparison",
+                "clarification": false,
+                "uncertainty": false,
+                "required_facts": [
+                  {
+                    "owner": "eval-08-secondary-CV1",
+                    "quote": "Scheduled warehouse dispatch shifts.",
+                    "start": 0,
+                    "end": 36
+                  },
+                  {
+                    "owner": "eval-08-secondary-CV1",
+                    "quote": "Used spreadsheets for staffing forecasts.",
+                    "start": 37,
+                    "end": 78
+                  },
+                  {
+                    "owner": "eval-08-secondary-CV2",
+                    "quote": "Recorded parcel arrivals.",
+                    "start": 0,
+                    "end": 25
+                  },
+                  {
+                    "owner": "eval-08-secondary-CV2",
+                    "quote": "No warehouse scheduling responsibility.",
+                    "start": 26,
+                    "end": 65
+                  }
+                ],
+                "mandatory_caveats": [
+                  "Preserve candidate 2 explicit denial of scheduling responsibility."
+                ],
+                "prohibited_inferences": [
+                  "Do not invent ranks, scores, Fit decisions or independently verified credentials."
+                ],
+                "completion_criteria": [
+                  "Answer the question directly using the listed owner-specific facts and preserve source qualifications."
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "coverage_tags": [
+        "explicit_skill",
+        "missing_evidence",
+        "owner_attribution",
+        "comparison",
+        "job_switch",
+        "source_isolation",
+        "followup",
+        "participant_change",
+        "criterion_change"
+      ],
+      "scopes": [
+        {
+          "id": "eval-08-secondary",
+          "jd": {
+            "id": "eval-08-secondary-JD",
+            "title": "Synthetic logistics analyst",
+            "text": "Warehouse scheduling and spreadsheet analysis are required."
+          },
+          "candidates": [
+            {
+              "id": "eval-08-secondary-CV1",
+              "text": "Scheduled warehouse dispatch shifts. Used spreadsheets for staffing forecasts."
+            },
+            {
+              "id": "eval-08-secondary-CV2",
+              "text": "Recorded parcel arrivals. No warehouse scheduling responsibility."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "eval-09",
+      "split": "eval",
+      "lineage": "web-performance",
+      "jd": {
+        "id": "eval-09-JD",
+        "title": "Frontend engineer (synthetic)",
+        "text": "TypeScript and web performance analysis are required."
+      },
+      "candidates": [
+        {
+          "id": "eval-09-CV1",
+          "text": "Developed TypeScript interfaces and measured page load times. Completed computing diploma."
+        },
+        {
+          "id": "eval-09-CV2",
+          "text": "Developed JavaScript interfaces. TypeScript training is scheduled for next term."
+        },
+        {
+          "id": "eval-09-CV3",
+          "text": "Optimized CSS bundles. No TypeScript development experience."
+        }
+      ],
+      "questions": [
+        {
+          "id": "eval-09-Q1",
+          "question": "What completed qualification does candidate 1 list?",
+          "eligible_generation": true,
+          "expected": {
+            "participants": [
+              "eval-09-CV1"
+            ],
+            "criterion": "DEGREE",
+            "intent": "candidate_qa",
+            "clarification": false,
+            "uncertainty": false,
+            "required_facts": [
+              {
+                "owner": "eval-09-CV1",
+                "quote": "Completed computing diploma.",
+                "start": 62,
+                "end": 90
+              }
+            ],
+            "mandatory_caveats": [
+              "The qualification is a computing diploma."
+            ],
+            "prohibited_inferences": [
+              "Do not upgrade a diploma to a Bachelor degree."
+            ],
+            "completion_criteria": [
+              "Answer the question directly using the listed owner-specific facts and preserve source qualifications."
+            ]
+          }
+        },
+        {
+          "id": "eval-09-Q2",
+          "question": "Compare candidates 1 and 2 on TypeScript",
+          "eligible_generation": true,
+          "expected": {
+            "participants": [
+              "eval-09-CV1",
+              "eval-09-CV2"
+            ],
+            "criterion": "SKILL",
+            "intent": "comparison",
+            "clarification": false,
+            "uncertainty": false,
+            "required_facts": [
+              {
+                "owner": "eval-09-CV1",
+                "quote": "Developed TypeScript interfaces and measured page load times.",
+                "start": 0,
+                "end": 61
+              },
+              {
+                "owner": "eval-09-CV2",
+                "quote": "Developed JavaScript interfaces.",
+                "start": 0,
+                "end": 32
+              }
+            ],
+            "mandatory_caveats": [
+              "Retain missing, negative or qualified evidence for each participant."
+            ],
+            "prohibited_inferences": [
+              "Do not equate a course or mention with professional proficiency.",
+              "Do not claim one candidate is better overall."
+            ],
+            "completion_criteria": [
+              "Answer the question directly using the listed owner-specific facts and preserve source qualifications."
+            ]
+          }
+        },
+        {
+          "id": "eval-09-Q3",
+          "question": "Does candidate 3 hold a current aviation licence?",
+          "eligible_generation": true,
+          "expected": {
+            "participants": [
+              "eval-09-CV3"
+            ],
+            "criterion": "CERTIFICATION",
+            "intent": "candidate_qa",
+            "clarification": false,
+            "uncertainty": true,
+            "required_facts": [],
+            "mandatory_caveats": [
+              "No aviation licence is established in the reviewed source."
+            ],
+            "prohibited_inferences": [
+              "Do not assert that the candidate has no licence merely because it is unmentioned."
+            ],
+            "completion_criteria": [
+              "State that a current aviation licence cannot be established from the supplied CV."
+            ]
+          }
+        }
+      ],
+      "dialogues": [],
+      "coverage_tags": [
+        "explicit_skill",
+        "missing_evidence",
+        "owner_attribution",
+        "comparison",
+        "qualification_level"
+      ]
+    },
+    {
+      "id": "eval-10",
+      "split": "eval",
+      "lineage": "geospatial-processing",
+      "jd": {
+        "id": "eval-10-JD",
+        "title": "Geospatial analyst (synthetic)",
+        "text": "GIS mapping is required. Raster processing is preferred."
+      },
+      "candidates": [
+        {
+          "id": "eval-10-CV1",
+          "text": "Created GIS maps for drainage planning. Raster processing is not mentioned."
+        },
+        {
+          "id": "eval-10-CV2",
+          "text": "Processed satellite raster images and produced GIS maps. Completed geography Bachelor degree."
+        },
+        {
+          "id": "eval-10-CV3",
+          "text": "Reviewed paper survey maps. Digital GIS work is not documented."
+        }
+      ],
+      "questions": [
+        {
+          "id": "eval-10-Q1",
+          "question": "What GIS experience does candidate 1 describe?",
+          "eligible_generation": true,
+          "expected": {
+            "participants": [
+              "eval-10-CV1"
+            ],
+            "criterion": "EXPERIENCE",
+            "intent": "candidate_qa",
+            "clarification": false,
+            "uncertainty": false,
+            "required_facts": [
+              {
+                "owner": "eval-10-CV1",
+                "quote": "Created GIS maps for drainage planning.",
+                "start": 0,
+                "end": 39
+              }
+            ],
+            "mandatory_caveats": [
+              "Do not infer skill-specific duration unless explicitly linked to that skill."
+            ],
+            "prohibited_inferences": [
+              "Do not invent ranks, scores, Fit decisions or independently verified credentials."
+            ],
+            "completion_criteria": [
+              "Answer the question directly using the listed owner-specific facts and preserve source qualifications."
+            ]
+          }
+        },
+        {
+          "id": "eval-10-Q2",
+          "question": "Compare candidates 1 and 2 on GIS",
+          "eligible_generation": true,
+          "expected": {
+            "participants": [
+              "eval-10-CV1",
+              "eval-10-CV2"
+            ],
+            "criterion": "SKILL",
+            "intent": "comparison",
+            "clarification": false,
+            "uncertainty": false,
+            "required_facts": [
+              {
+                "owner": "eval-10-CV1",
+                "quote": "Created GIS maps for drainage planning.",
+                "start": 0,
+                "end": 39
+              },
+              {
+                "owner": "eval-10-CV2",
+                "quote": "Processed satellite raster images and produced GIS maps.",
+                "start": 0,
+                "end": 56
+              }
+            ],
+            "mandatory_caveats": [
+              "Retain missing, negative or qualified evidence for each participant."
+            ],
+            "prohibited_inferences": [
+              "Do not equate a course or mention with professional proficiency.",
+              "Do not claim one candidate is better overall."
+            ],
+            "completion_criteria": [
+              "Answer the question directly using the listed owner-specific facts and preserve source qualifications."
+            ]
+          }
+        },
+        {
+          "id": "eval-10-Q3",
+          "question": "What does this job require?",
+          "eligible_generation": true,
+          "expected": {
+            "participants": [],
+            "criterion": "GENERAL",
+            "intent": "jd_qa",
+            "clarification": false,
+            "uncertainty": false,
+            "required_facts": [
+              {
+                "owner": "eval-10-JD",
+                "quote": "GIS mapping is required.",
+                "start": 0,
+                "end": 24
+              },
+              {
+                "owner": "eval-10-JD",
+                "quote": "Raster processing is preferred.",
+                "start": 25,
+                "end": 56
+              }
+            ],
+            "mandatory_caveats": [
+              "GIS mapping is required; raster processing is preferred."
+            ],
+            "prohibited_inferences": [
+              "Do not turn a preferred requirement into a mandatory one."
+            ],
+            "completion_criteria": [
+              "Answer the question directly using the listed owner-specific facts and preserve source qualifications."
+            ]
+          }
+        }
+      ],
+      "dialogues": [],
+      "coverage_tags": [
+        "explicit_skill",
+        "missing_evidence",
+        "owner_attribution",
+        "comparison",
+        "jd_requirement_strength"
+      ]
+    }
+  ]
+}
