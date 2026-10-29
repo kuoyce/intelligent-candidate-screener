@@ -526,7 +526,7 @@ def _switch_job(controller, jd_id, *, session_id=None):
     """Resume only this owner's compatible snapshot; discard pending cross-job work."""
     controller._guard(fresh=True)
     st.session_state.portal_selected_job = jd_id
-    st.session_state.portal_browse_only = Falsete
+    st.session_state.portal_browse_only = False
     for key in list(st.session_state):
         if key.startswith(("portal_pending_chat_", "portal_explanation")) or key in {"portal_last_action", "portal_mail_preview"}:
             del st.session_state[key]
@@ -764,7 +764,8 @@ def main():
             navigation = st.radio("Navigation", ["Review jobs", "Create new JD", "Alerts", "Saved reviews"], key="portal_navigation")
             st.caption(f"{unread} unread alert{'s' if unread != 1 else ''}")
             with st.expander("Service details"):
-                st.caption("Local authentication · CSV review works independently of live modeling.")
+                st.caption("Local authentication · old JD and resume review works independently of live modeling.")
+                st.caption("Newly created JD review will be done in live modeling.")
                 st.caption("Email demonstration captures messages locally. Original PDFs are unavailable.")
             with st.container(key="portal_logout_footer"):
                 logout = st.button("Log out", key="portal_logout", use_container_width=True)

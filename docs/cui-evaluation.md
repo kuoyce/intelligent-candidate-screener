@@ -56,7 +56,7 @@ Retain the two original rating sets. If adjudicating, add explicit `adjudicated`
 
 - This is a service-level study; asynchronous GLiNER preparation and browser/UI timings are excluded.
 - Standalone paired QA outputs are cached to isolate generation. First-arm/replay timings are not comparable production latencies.
-- Dialogue arms retain separate histories. Related turns remain together in family-level bootstrap samples.
+- Dialogue arms retain separate histories. Related turns remain together in family-level bootstrap samples. The harness resets history on a job switch; this tests the service after a correct caller reset, not whether the UI/controller initiates that reset. Separate recovery probes exercise controller authorization and source freshness.
 - Reports without reviews contain operational metrics only, not factual correctness or human usefulness.
 - Accepted generation, fallback and execution failures remain separate. Synthetic provider acceptance is never live-model acceptance.
 - Ten evaluation families are preliminary evidence. They do not satisfy the earlier v3 promotion study or establish real recruiter productivity.
