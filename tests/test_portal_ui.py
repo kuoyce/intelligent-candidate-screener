@@ -183,6 +183,7 @@ def test_chat_provenance_reports_model_fallback(monkeypatch):
 
 
 def test_primary_extractive_chat_does_not_instantiate_configured_qwen(monkeypatch):
+    monkeypatch.setenv("HR_PORTAL_CHAT_VERSION", "v1")  # v1 behaviour; v3 is the default
     from candidate_screener.llm.base import ProviderUnavailable
     from candidate_screener.llm import qwen, qwen_assets
     at = open_demo(app())
@@ -213,6 +214,7 @@ def test_empty_evidence_does_not_claim_quoted_extractive_answer(monkeypatch):
 
 
 def test_local_qwen_settings_do_not_control_extractive_chat(monkeypatch):
+    monkeypatch.setenv("HR_PORTAL_CHAT_VERSION", "v1")  # v1 behaviour; v3 is the default
     from candidate_screener.llm import qwen, qwen_assets
     at = open_demo(app())
     settings = {"SCREENER_QWEN_BASE_URL": "http://127.0.0.1:8000/v1",
@@ -306,6 +308,7 @@ def test_chat_source_identifiers_survive_display_redaction(monkeypatch):
 
 
 def test_chat_answers_question_before_collapsed_supporting_sources(monkeypatch):
+    monkeypatch.setenv("HR_PORTAL_CHAT_VERSION", "v1")  # v1 behaviour; v3 is the default
     monkeypatch.setenv("SCREENER_QWEN_DISABLED", "true")
     at = open_demo(app())
     at.chat_input[0].set_value("What Python skills does candidate 1 have?").run()

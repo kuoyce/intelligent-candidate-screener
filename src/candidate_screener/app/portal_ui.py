@@ -25,6 +25,7 @@ from .portal_controller import PortalController, StaleReview
 from .portal_data import CATEGORIES, PortalDataset
 from .portal_store import PortalStore, RevisionConflict, _opaque_identity
 from .portal_presentation import STYLES, evidence_text, source_label, source_summary
+from .portal_workspace import chat_version
 
 
 DATA = PROCESSED / "phase2-rerank-output"
@@ -316,7 +317,7 @@ def _chat(controller, session_id, snapshot):
 
 def _chat_content(controller, session_id, snapshot):
     st.subheader("Ask Hiring Desk")
-    version = os.environ.get("HR_PORTAL_CHAT_VERSION", "v1").lower()
+    version = chat_version()
     v2 = version in {"v2", "v3"}
     st.caption("Hiring Desk v3 · evidence-backed conversation · experimental" if version == "v3" else
                "Hiring Desk v2 · conversational comparisons with source evidence" if v2 else
@@ -556,7 +557,7 @@ def _render_hero_metrics(controller, jobs):
 
 def _job_browser(controller):
     st.subheader("Find your next review")
-    if os.environ.get("HR_PORTAL_CHAT_VERSION", "v1").lower() == "v3":
+    if chat_version() == "v3":
         with st.expander("Find jobs by requirement", expanded=False):
             with st.form("portal_jd_requirement_search"):
                 requirement_question = st.text_input("Ask about job requirements", max_chars=2000,
@@ -730,7 +731,7 @@ def _capture_history(controller, session_id):
 def _operational_review(controller, jd_id):
     from .portal_authoring_ui import render_published_job
     render_published_job(controller, jd_id)
-    if os.environ.get("HR_PORTAL_CHAT_VERSION", "v1").lower() == "v3":
+    if chat_version() == "v3":
         with st.expander("Ask about this job description", expanded=False):
             st.caption("Ask a standalone question about the JD. Candidate discussion becomes available after ranking.")
             with st.form("portal_jd_only_" + jd_id):
