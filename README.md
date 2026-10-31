@@ -515,11 +515,11 @@ and expandable citations. Unsupported facts remain insufficient evidence;
 missing or failed models show their availability and labelled source excerpts.
 The assistant cannot change ranks or execute report, package or delivery actions.
 
-Both **Compare candidates** and chat requests such as **Compare 1 and 2** use an
-application-built table of JD requirements and candidate evidence. GLiNER medium
-extracts technology, skills, titles, degrees and experience mentions in the
-background and caches them privately by source/model/configuration. Use
-**Refresh extraction** while work is queued. General comparison does not wait for
+Comparison is a chat request, such as **Compare 1 and 2**; the Review action
+dropdown no longer offers it. The answer uses an application-built table of JD
+requirements and candidate evidence. GLiNER medium extracts technology, skills,
+titles, degrees and experience mentions in the background and caches them
+privately by source/model/configuration. General comparison does not wait for
 QA inference; focused questions such as **Compare 1 and 2 on Python** extract
 answers independently from each requested document. Entity mentions do not
 establish proficiency, completed credentials or skill-specific years of experience.

@@ -204,8 +204,7 @@ def _visible(cell):
     text, context = cell["text"], cell["context"]
     # Preserve status wording regardless of how the source expresses it.
     if context and context not in text:
-        # text += "\nSource context: " + context
-        text += ""
+        text += "\nSource context: " + context
     return text
 
 
@@ -403,7 +402,7 @@ class PortalExtractiveService:
                          qa_status="partial" if response.get("incomplete") is True or len(accepted) > 4 else "supported")
         fallback = self._source_cell(snapshot, document, relevant, citations, claims)
         fallback.update(status="source_only", qa_status=qa_status)
-        label = ("" if qa_status == "not_found"
+        label = ("QA found no answer. Source excerpt: " if qa_status == "not_found"
                  else "QA found insufficient evidence for skill-specific tenure. Source excerpt: "
                  if qa_status == "insufficient_evidence" else "QA unavailable or rejected. Source excerpt: ")
         fallback["text"] = label + fallback["context"]

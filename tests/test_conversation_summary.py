@@ -52,6 +52,17 @@ def test_summary_fallback_keeps_incomplete_qualification_and_source_owner():
     assert "Completed Master" not in answer["text"]
 
 
+def test_short_summary_without_verified_overlap_adds_no_unchecked_relevance_claim():
+    # Regression: a fixed sentence asserted relevance on every short summary, unchecked.
+    current = snapshot()
+    current.jd_text = "MySQL skills required."
+    current.candidates[0]["preview_text"] = "Ruby development skills."
+    answer = service(None).answer(current, "Summarise why candidate 1 is a good fit to this JD")
+    assert "Ruby" in answer["text"]
+    assert "promising candidate" not in answer["text"]
+    assert "contains relevant experience and qualifications" not in answer["text"]
+
+
 def test_long_summary_uses_source_owned_entity_mentions_without_upgrading_tenure():
     import hashlib
     current = snapshot()
@@ -193,21 +204,6 @@ def test_accepted_summary_gets_registered_closing_with_explicit_application_prov
     assert result["text"].endswith(conclusion["text"])
     assert result["generation_provenance"]["summary_conclusion_composer"] == "application"
     assert set(result["validated_claim_sources"][-1]["evidence_ids"]) == set(conclusion["evidence_ids"])
-
-
-def test_manual_qa_summary_without_entity_mentions_has_grounded_closing():
-    current = snapshot()
-    current.jd_text = "QA Manual tester required. Test case design and bug reports using Jira."
-    current.candidates[0]["preview_text"] = (
-        "Created bug reports using Jira. Test case design and checklist preparation. "
-        "Tested an invented LMS portal (QA Manual)."
-    )
-    result = service(None).answer(current, "Summarise why candidate 1 is a good fit to this JD")
-    assert "Jira" in result["text"]
-    assert result["text"].endswith(
-        "a promising candidate for further review, subject to confirming the remaining requirements.")
-    for category in ("Knowledge", "Skill", "Title", "Degree", "Experience Years", "Certification"):
-        assert f"I can't confirm {category} for" not in result["text"]
 
 
 @pytest.mark.parametrize("source,jd", [

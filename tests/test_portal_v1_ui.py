@@ -46,15 +46,13 @@ def test_production_shell_has_no_demo_switch_and_keeps_csv_review(workspace):
 
 
 def test_compare_action_uses_extractive_table_and_never_qwen(workspace, monkeypatch):
+    # Comparison is a chat request only; the Review action dropdown no longer offers it.
     from candidate_screener.app import portal_ui as ui
+    monkeypatch.setenv("HR_PORTAL_CHAT_VERSION", "v1")  # v1 behaviour; v3 is the default
     monkeypatch.setattr(ui, "_optional_provider", lambda: pytest.fail("Primary review must not invoke Qwen"))
     at = app()
-    next(item for item in at.selectbox if item.label == "Review action").select("Compare candidates").run()
+    at.chat_input[0].set_value("Compare candidates 1 and 2").run()
     assert not at.exception and at.dataframe
-    assert any(item.label == "Refresh extraction" for item in at.button)
-    assert any("GLiNER medium" in item.value for item in at.caption)
-    at.chat_input[0].set_value("Compare 1 and 2").run()
-    assert not at.exception
     result = workspace.chat_history(at.session_state["portal_session_id"])[-1]["answer"]
     assert result["mode"] == "comparison" and result["comparison"]
     assert len(result["context"]["selected_candidates"]) == 2

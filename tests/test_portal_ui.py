@@ -69,7 +69,11 @@ def test_chat_and_dropdown_share_saved_review_context(monkeypatch):
     assert len(at.chat_input) == 1
     assert any(s.label == "Review action" for s in at.selectbox)
     assert any("Compare candidates 1 and 2" in message.value for message in at.markdown)
-    select(at, "Review action", "Compare candidates")
+    # The dropdown context changes through Open CV, which records the selected applicant.
+    select(at, "Review action", "Open CV")
+    preview = next(s for s in at.selectbox if s.label == "Which CV would you like to open?")
+    preview.select_index(2).run()
+    assert not at.exception
     at.chat_input[0].set_value("What about candidate 2?").run()
     assert not at.exception
     assert any("What about candidate 2?" in message.value for message in at.markdown)
@@ -246,14 +250,14 @@ def test_dropdown_selection_is_used_by_chat_followup(monkeypatch):
     monkeypatch.setenv("SCREENER_QWEN_DISABLED", "true")
     monkeypatch.setattr(PortalController, "chat", capture)
     at = open_demo(app())
-    select(at, "Review action", "Compare candidates")
-    first = next(s for s in at.selectbox if s.label == "First applicant")
-    first.select_index(3).run()
-    selected = next(s for s in at.selectbox if s.label == "First applicant").value
-    second = next(s for s in at.selectbox if s.label == "Second applicant").value
-    at.chat_input[0].set_value("Compare them on skills").run()
+    select(at, "Review action", "Open CV")
+    preview = next(s for s in at.selectbox if s.label == "Which CV would you like to open?")
+    preview.select_index(3).run()
+    selected = next(s for s in at.selectbox if s.label == "Which CV would you like to open?").value
+    assert selected is not None
+    at.chat_input[0].set_value("What are their skills?").run()
     assert not at.exception
-    assert captured[-1]["context"]["selected_candidates"] == [selected, second]
+    assert captured[-1]["context"]["selected_candidates"] == [selected]
 
 
 def test_pending_followup_is_not_rebound_after_dropdown_change(monkeypatch):
@@ -267,7 +271,10 @@ def test_pending_followup_is_not_rebound_after_dropdown_change(monkeypatch):
     at = open_demo(app())
     at.chat_input[0].set_value("What about their skills?").run()
     assert any(b.label == "Retry question" for b in at.button)
-    select(at, "Review action", "Compare candidates")
+    select(at, "Review action", "Open CV")
+    preview = next(s for s in at.selectbox if s.label == "Which CV would you like to open?")
+    preview.select_index(2).run()
+    assert not at.exception
     assert len(calls) == 1
     assert not any(b.label == "Retry question" for b in at.button)
     assert any("context changed" in warning.value for warning in at.warning)

@@ -22,7 +22,7 @@ from candidate_screener.config import PROCESSED
 from .portal_auth import (DEFAULT_ACCOUNT_HOURS, DEFAULT_ACCOUNTS, MAX_TOKEN_CHARS, AccountsExist, TokenAuthenticator,
                           has_accounts, submit_first_account)
 from .portal_controller import PortalController, StaleReview
-from .portal_data import CATEGORIES, PortalDataset
+from .portal_data import PortalDataset
 from .portal_store import PortalStore, RevisionConflict, _opaque_identity
 from .portal_presentation import STYLES, evidence_text, source_label, source_summary
 from .portal_workspace import chat_version
@@ -281,8 +281,7 @@ def _comparison_table(result, *, labels=None):
         answer = cell.get("answer", cell.get("text")) or "Not found in reviewed text"
         context = cell.get("context") or ""
         if context and context not in answer:
-            # answer += "
-            answer += ""
+            answer += "\nSource context: " + context
         return answer
     display = []
     for row in rows:
@@ -425,15 +424,12 @@ def _review(controller, session_id):
         st.write(snapshot.candidates[0].get("score_semantics", "Backend ordering score") if snapshot.candidates else "No candidates returned by the ranking service.")
     actions = ["Top10 ranked CVs", "Open CV",
                "Generate session report", "Send to hiring department", "Review another job"]
-    # not required these actions -  "Requirement evidence", "Compare candidates", "Prepare top10 package", "Save session"
-    if len(snapshot.candidates) < 2 and "Compare candidates" in actions:
-        actions.remove("Compare candidates")
     if not snapshot.candidates:
         actions = ["Generate session report", "Save session", "Review another job"]
     saved_menu = controller.load_session(session_id)["state"].get("menu")
     action = st.selectbox("Review action", actions, index=actions.index(saved_menu) if saved_menu in actions else 0,
                          key="portal_review_action_" + session_id)
-    if action not in {"Save session", "Review another job", "Send to hiring department", "Requirement evidence", "Open CV", "Compare candidates"}:
+    if action not in {"Save session", "Review another job", "Send to hiring department", "Open CV"}:
         _history_once(controller, session_id, action, "Opened the selected review action for the current ranking snapshot.")
     candidates = snapshot.candidates
     by_id = {c["cv_id"]: c for c in candidates}
@@ -443,21 +439,6 @@ def _review(controller, session_id):
         st.dataframe(pd.DataFrame([{"Rank": c["rank"], "Applicant": c["cv_id"], "Ranking score": c["score"],
                                    "CV preview": "Available" if c["preview_status"] != "unavailable" else "Unavailable"} for c in candidates]), hide_index=True)
         st.caption("See Ranking details for their meaning; inspect source evidence for context.")
-    elif action == "Requirement evidence":
-        category = st.selectbox("Which requirement category?", CATEGORIES, key="portal_category_" + session_id)
-        st.write("**JD mentions:** " + evidence_text(snapshot.jd_entities[category]))
-        selected = st.selectbox("Which applicant?", ids, format_func=label, key="portal_candidate_" + session_id)
-        _history_once(controller, session_id, f"Requirement evidence: {category} / {selected}",
-                      "Displayed unverified table mentions; source preview is available for manual context review.",
-                      menu=action, extra={"selected_category": category, "selected_candidates": [selected]})
-        st.write("**Applicant mentions:** " + evidence_text(by_id[selected]["entities"][category]))
-        _say("These extraction-table mentions have no verified source spans. Use the CV preview to check the context; missing evidence is not a confirmed gap.")
-        if controller.qa_service is not None:
-            query = {"KNOWLEDGE": "What technologies are mentioned", "SKILL": "What professional skills are mentioned",
-                     "TITLE": "What job titles are mentioned", "DEGREE": "What degree is mentioned",
-                     "EXPERIENCE_YEARS": "How many years of experience are stated"}[category]
-            evidence = controller.extractive_evidence(session_id, f"{query} for candidate {by_id[selected]['rank']}?")
-            _chat_answer(evidence)
     elif action == "Open CV":
         selected = st.selectbox("Which CV would you like to open?", [None] + ids,
                                 format_func=lambda value: "Select an applicant" if value is None else label(value), key="portal_preview_" + session_id)
@@ -465,32 +446,11 @@ def _review(controller, session_id):
             _history_once(controller, session_id, "Open CV: " + selected, "Opened the authorized redacted text preview.",
                           menu=action, extra={"selected_candidates": [selected]})
             _preview(controller, session_id, selected)
-    elif action == "Compare candidates":
-        first = st.selectbox("First applicant", ids, format_func=label, key="portal_first_" + session_id)
-        second = st.selectbox("Second applicant", [identity for identity in ids if identity != first], format_func=label, key="portal_second_" + session_id)
-        _history_once(controller, session_id, f"Compare: {first} / {second}", "Requested a source-linked candidate comparison.",
-                      menu=action, extra={"selected_candidates": [first, second]})
-        comparison = controller.compare(session_id, [first, second])
-        _comparison_table(comparison, labels={identity: label(identity) for identity in (first, second)})
-        st.caption("GLiNER medium extracts source mentions once per document. Missing mentions do not prove absence; source context remains available.")
-        if st.button("Refresh extraction", key="portal_refresh_entities_" + session_id):
-            st.rerun()
-        with st.expander("Comparison source evidence"):
-            _chat_answer(comparison)
     elif action == "Generate session report":
         report = controller.report(session_id)
         st.text(report["text"])
         _artifact_download("Download redacted comparison report", report["text"], "comparison-report.txt")
         st.success("The report is saved for this session.")
-    elif action == "Prepare top10 package":
-        try:
-            report, package = controller.package(session_id)
-        except ValueError:
-            st.warning("The complete package requires ten ranked applicants with all ten source CVs available.")
-        else:
-            st.write(f"{len(report['candidate_ids'])} ranked applicants in the comparison.")
-            st.caption("Ten redacted CV text files, ten profiles and the comparison report. Original PDFs are unavailable.")
-            _artifact_download("Download reviewed package", package, "shortlist-package.zip")
     elif action == "Send to hiring department":
         _handoff(controller, session_id, snapshot)
     elif action == "Save session":

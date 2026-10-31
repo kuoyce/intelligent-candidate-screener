@@ -139,7 +139,7 @@ def summary_fallback(bundle):
     conclusion = summary_conclusion(bundle)
     if not parts:
         return "I could not establish a summary from the reviewed CV evidence; this does not establish absence."
-    body = " ".join(parts) + (" This shows that candidate's CV contains relevant experience and qualifications." if len(parts) < 3 else "  ")
+    body = " ".join(parts)
     text = body + ("\n\n" + conclusion["text"] if conclusion else "")
     if len(text) > 2400:
         return "The source evidence is too large for a concise summary. Review the supporting sources for complete statements and qualification context."
