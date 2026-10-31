@@ -6,10 +6,10 @@
 #
 #   docker compose build                                      # app and llm4b; the first build downloads the 4B
 #   docker compose up -d                                      # app and llm4b: http://localhost:8503
-#   docker compose up -d app                                  # app alone: with HR_PORTAL_CHAT_VERSION=v1 in `.env`
+#   docker compose build app && docker compose up -d app      # app alone: with HR_PORTAL_CHAT_VERSION=v1 in `.env`
 #   docker compose --profile tools run --rm tools <command>   # the data folder commands
 #   docker compose --profile test run --rm test               # the test suite: no network, no data
-#   docker compose --profile llm up -d                        # also Qwen2.5-0.5B, for chat v2
+#   docker compose --profile llm up -d app qwen               # Qwen2.5-0.5B for chat v2 (without llm4b)
 #
 # qwen and llm4b share the app container's network namespace (both insist on loopback; no
 # published port). `docker compose restart app` restarts qwen with it (S9). After app restarts any

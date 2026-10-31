@@ -2,7 +2,7 @@
 # day-to-day development stays native. The host's src/ and .streamlit/ replace the image's copies,
 # read-only, and Streamlit reruns the page on save, polling for changes through the bind mount:
 #
-#   docker compose -f compose.yaml -f compose.dev.yaml up
+#   docker compose -f compose.yaml -f compose.dev.yaml up       # also starts llm4b; add `app` for the app alone
 #
 # A lock, pin or environment change still needs `docker compose build`.
 

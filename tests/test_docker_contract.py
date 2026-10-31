@@ -478,6 +478,16 @@ def data_folder_problems(compose: str, services=("app", "tools")) -> list[str]:
     return problems
 
 
+LOGS_FOLDER = ("./logs", "/app/logs")
+
+
+def logs_folder_problems(compose: str, services=("app",)) -> list[str]:
+    """`./logs` reaches the host from `services`: app lists its own volumes since llm4b's manifest
+    mount (plan 2026-10-31-v3-default), so the anchor's logs mount no longer covers it."""
+    return [f"the {service} service does not mount ./logs at /app/logs" for service in services
+            if not any(split_mount(item)[:2] == LOGS_FOLDER for item in service_volumes(compose, service))]
+
+
 def service_environment(compose: str, service: str) -> dict[str, str]:
     """A service's own `environment:`: a block mapping, a `- KEY=value` list or a flow mapping."""
     lines = (_service_block(compose, service) or "").splitlines()
@@ -733,6 +743,13 @@ def test_c2_download_matches_the_code_pin():
 def test_compose_mounts_the_data_folder_read_write():
     assert data_folder_problems(read("compose.yaml")) == []
     assert data_folder_problems(read("compose.dev.yaml"), services=()) == []
+
+
+def test_app_mounts_the_logs_folder():
+    compose = read("compose.yaml")
+    assert logs_folder_problems(compose) == []
+    without = compose.replace("      - ./logs:/app/logs\n      - qwen35-manifest", "      - qwen35-manifest", 1)
+    assert without != compose and logs_folder_problems(without), "the check must catch a dropped logs mount"
 
 
 def test_tools_service_points_datapack_at_its_mounts():

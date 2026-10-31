@@ -1,6 +1,6 @@
 # Chat v3 with Qwen3.5-4B as the default, natively and in Docker
 
-Status: **approved by the owner (31 Oct 2026), "approve as recommended"**: Q1-Q5 take the
+Status: **complete (31 Oct 2026)**; approved by the owner (31 Oct 2026), "approve as recommended": Q1-Q5 take the
 recommended answers. Branch `feat/v3-default` off `release/integration` (`0f83030`).
 
 ## Request (owner, 31 Oct 2026)
@@ -237,3 +237,26 @@ The teammate's Intel Mac is not re-tested here. The guide states its memory need
   - The V3 figures above replace the guide's placeholders. The free-disk guidance rises to about
     30 GB, or 35 GB with the test image; the `llm4b` download cache was not measured.
   - Renamed anchors: `#chat-v3-with-qwen35-4b-the-default` and `#chat-v2-the-llm-profile`.
+- **V6** (independent review, read-only): no code bugs. Fixed:
+  1. **Doc error:** v2's start command. Since `llm4b` has no profile, `--profile llm up -d` also
+     starts the 4B, which v2 does not use, and the v2 memory row understated the need. The guide,
+     `.env.example` and `compose.yaml` now say `docker compose --profile llm up -d app qwen`.
+  2. The v1 setup now names `docker compose build app` in `.env.example` and in `compose.yaml`'s
+     header.
+  3. **New contract check:** `app` mounts `./logs` (it lists its own volumes now). It is shown to
+     catch a dropped mount.
+  4. The call-site test scans all of `src/candidate_screener` for `HR_PORTAL_CHAT_VERSION`. It
+     failed with a stray reader added (`logs/v3-default/v6-callsite-before.log`).
+  5. The update checklist's app smoke sets `v1` for its v1 question.
+  6. `compose.dev.yaml` and the guide say that the dev override also starts `llm4b`.
+  7. The configuration table says what an empty value does.
+- **Full suite** (`logs/v3-default/v6-pytest-final.log`): only the 18 failures that were already
+  there before this branch (`logs/v3-default/pytest-baseline.log`).
+- **Checks:** `checks --affected 0f83030 --explain` selects no records, so no warm or cold run
+  applies (D58 (research), D55).
+- **Open, not gates:**
+  - The owner's `.env` still has the `COMPOSE_FILE=…compose.llm4b.yaml` line, for the owner to
+    delete.
+  - The slower 4B turns of 31 Oct.
+  - A browser session on the default.
+  - The teammate's Intel Mac memory for the default.

@@ -20,11 +20,12 @@ def test_chat_version_defaults_to_v3_and_unknown_values_behave_as_v1(monkeypatch
 
 
 def test_call_sites_read_the_version_only_through_chat_version():
-    root = Path(__file__).resolve().parents[1] / "src/candidate_screener/app"
+    src = Path(__file__).resolve().parents[1] / "src/candidate_screener"
+    readers = {path.relative_to(src).as_posix() for path in src.rglob("*.py")
+               if "HR_PORTAL_CHAT_VERSION" in path.read_text()}
+    assert readers == {"app/portal_workspace.py"}, readers
     for name in ("portal_ui.py", "portal_workspace.py"):
-        text = (root / name).read_text()
-        assert "chat_version()" in text, name
-        assert text.count('"HR_PORTAL_CHAT_VERSION"') == (1 if name == "portal_workspace.py" else 0), name
+        assert "chat_version()" in (src / "app" / name).read_text(), name
 
 
 @pytest.mark.parametrize("value,service", [(None, "ConversationV3Service"), ("v1", "PortalExtractiveService"),
