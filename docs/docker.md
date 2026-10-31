@@ -600,7 +600,7 @@ change: no" means that only the default is built, tested and verified.
 | Name | Docker default | Effect | Safe to change |
 |---|---|---|---|
 | `HIRING_DESK_PORT` | `8503` | The host port, published on 127.0.0.1 only. The app's log still prints `http://localhost:8503` (the container's port) | Yes: any free port; then open `http://localhost:<port>` |
-| `HR_PORTAL_CHAT_VERSION` | `v1` | Passed to the app. `v1`: extractive answers (RoBERTa-SQuAD2) and entity comparisons (GLiNER-medium). `v2`: Qwen orders checked comparison relations (D65). `v3`: experimental Qwen prose and JD requirement search (D66). Any other value behaves as `v1`. `v2` and `v3` need the `llm` profile (`docker compose --profile llm up -d`); `v3` can use Qwen3.5-4B through `compose.llm4b.yaml` instead | `v1`: yes. `v2`/`v3`: yes, with the `llm` profile running ([§6](#chat-v2v3-the-llm-profile)), or `v3` with `compose.llm4b.yaml` ([§6](#chat-v3-with-qwen35-4b-composellm4byaml)); v3 is experimental |
+| `HR_PORTAL_CHAT_VERSION` | `v3` | Passed to the app. `v3`, the default (owner, 31 Oct 2026): experimental Qwen prose and JD requirement search (D66), with Qwen3.5-4B in the `llm4b` service that plain `docker compose up -d` starts; while it is not running, v3 answers through its marked fallback. `v1`: extractive answers (RoBERTa-SQuAD2) and entity comparisons (GLiNER-medium), the rollback and the lighter setup (`docker compose up -d app`, which starts `app` alone). `v2`: Qwen orders checked comparison relations (D65); it needs the `llm` profile (`docker compose --profile llm up -d`). Any other value behaves as `v1` | `v3`: yes; give Docker about 15 GB; v3 is experimental. `v1`: yes, with `docker compose up -d app`. `v2`: yes, with the `llm` profile running ([§6](#chat-v2v3-the-llm-profile)) |
 | `HOST_UID` | `1000` | Linux: the user id the containers run as, so files written into `data/datapack/` and `logs/` stay yours. Docker Desktop on macOS and Windows maps owners itself | Yes: set it to `id -u` |
 | `HOST_GID` | `1000` | Linux: the group id the containers run as | Yes: set it to `id -g` |
 | `SCREENER_DATA_SOURCE` | `./data` | `tools` service only: the host folder mounted read-only at `/source`, which `create` copies from. Set it to a received copy, or to a full `data/` without symbolic links that point outside it | Yes |
@@ -619,7 +619,7 @@ the reranker"). No setting switches between them.
 | `HR_PORTAL_RANKING_ADAPTER` | unset; the entry point defaults it to `candidate_screener.app.portal_inference:adapter` | The ranking adapter for new JDs (`module:function`). An empty value leaves ranking unconfigured | No |
 | `HR_PORTAL_CANDIDATE_POOL` | unset; the entry point defaults it to `a2-final-cvs` | The candidate pool new JDs are ranked against: the 600 A2 final-set CVs, the only pool the adapter serves | No |
 | `HR_PORTAL_EMBEDDING_BACKEND` | unset: `torch` | The SBERT embedding back end. `onnx` needs `processed/inference/sbert-onnx/`, which the data folder does not hold, and disables D64 in the UI | No: keep `torch` |
-| `HR_PORTAL_CHAT_VERSION` | `v1` | See the compose settings above | See above |
+| `HR_PORTAL_CHAT_VERSION` | `v3` | See the compose settings above | See above |
 
 ### Models and the data folder (`SCREENER_*`)
 

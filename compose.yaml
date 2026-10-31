@@ -1,18 +1,22 @@
 # The Hiring Desk in Docker (plan 2026-10-27-docker, 01-design-spec.md §5 and §6). Settings come
-# from `.env` (git-ignored; every one is listed in `.env.example`). App's healthcheck is in the
-# Dockerfile; qwen has its own below; tools disables it. Contract checks: tests/test_docker_contract.py.
+# from `.env` (git-ignored; every one is listed in `.env.example`). App's and llm4b's healthchecks
+# are in the Dockerfile; qwen has its own below; tools disables it. Contract checks:
+# tests/test_docker_contract.py. Chat v3 with Qwen3.5-4B (llm4b) is the default (plan
+# 2026-10-31-v3-default); v1 is the rollback and the lighter setup.
 #
-#   docker compose build                                      # the app image, weights included
-#   docker compose up -d                                      # http://localhost:8503
+#   docker compose build                                      # app and llm4b; the first build downloads the 4B
+#   docker compose up -d                                      # app and llm4b: http://localhost:8503
+#   docker compose up -d app                                  # app alone: with HR_PORTAL_CHAT_VERSION=v1 in `.env`
 #   docker compose --profile tools run --rm tools <command>   # the data folder commands
 #   docker compose --profile test run --rm test               # the test suite: no network, no data
-#   docker compose --profile llm up -d                        # phase 2: Qwen2.5-0.5B for chat v2/v3
+#   docker compose --profile llm up -d                        # also Qwen2.5-0.5B, for chat v2
 #
-# The qwen service shares the app container's network namespace (both insist on loopback).
-# `docker compose restart app` restarts qwen with it (S9). After app restarts any other way (its
-# restart policy, a Docker restart, a recreate; untested), run `docker compose --profile llm restart qwen`.
+# qwen and llm4b share the app container's network namespace (both insist on loopback; no
+# published port). `docker compose restart app` restarts qwen with it (S9). After app restarts any
+# other way (its restart policy, a Docker restart, a recreate; untested), run
+# `docker compose --profile llm restart qwen` (or `restart llm4b`; not tested for llm4b).
 # app depends on nothing: it starts alone, and v2/v3 answer through their marked fallbacks while
-# qwen is not running.
+# their model service is not running.
 
 x-run: &run
   image: candidate-screener/hiring-desk:local
@@ -36,10 +40,19 @@ services:
     ports:
       - "127.0.0.1:${HIRING_DESK_PORT:-8503}:8503"
     environment:
-      HR_PORTAL_CHAT_VERSION: "${HR_PORTAL_CHAT_VERSION:-v1}"
+      HR_PORTAL_CHAT_VERSION: "${HR_PORTAL_CHAT_VERSION:-v3}"
+      # The 4B's manifest, for v3 (D67). app reads only its identity fields, from a copy that Docker
+      # fills from the llm4b image into the named volume below.
+      SCREENER_QWEN_MANIFEST: /opt/qwen35-manifest/manifest.json
+    # Its own list replaces the anchor's, so the anchor's two mounts are repeated here.
+    volumes:
+      - ./data/datapack:/app/data
+      - ./logs:/app/logs
+      - qwen35-manifest:/opt/qwen35-manifest:ro
     stop_grace_period: 30s
     restart: unless-stopped
 
+  # Qwen2.5-0.5B, for chat v2 only (v3 uses llm4b).
   qwen:
     <<: *run
     profiles: [llm]
@@ -69,6 +82,27 @@ services:
       retries: 3
     stop_grace_period: 30s
 
+  # Chat v3's model (plan 2026-10-28-gguf-cross-platform, 02 §3): its own image, target llm4b of
+  # the Dockerfile (Ubuntu 24.04, the published llama.cpp b11896 build for this machine, the
+  # 2.74 GB model). No profile: plain `docker compose up -d` starts it. The facade listens on
+  # 127.0.0.1:8001 and llama-server on 127.0.0.1:8002, in app's network namespace. While llm4b is
+  # not running, v3 answers through its marked fallback.
+  llm4b:
+    image: candidate-screener/hiring-desk-llm4b:local
+    build:
+      context: .
+      target: llm4b
+    network_mode: "service:app"
+    # Like the other services; the image's files are world-readable and it writes only /tmp.
+    user: "${HOST_UID:-1000}:${HOST_GID:-1000}"
+    init: true
+    # No data folder and no logs: the model service reads only its own image.
+    volumes:
+      - qwen35-manifest:/opt/qwen35-manifest
+    # The image's healthcheck asks the facade (127.0.0.1:8001/v1/models), not Streamlit.
+    # SIGTERM stops the facade and its llama-server child together.
+    stop_grace_period: 30s
+
   tools:
     <<: *run
     profiles: [tools]
@@ -94,3 +128,9 @@ services:
     profiles: [test]
     # The suite needs no network and no data.
     network_mode: none
+
+volumes:
+  # Filled from the llm4b image on first use. The name carries the pins (model revision, llama.cpp
+  # release), so a pin change gets a fresh copy.
+  qwen35-manifest:
+    name: qwen35-manifest-e87f176-b11896

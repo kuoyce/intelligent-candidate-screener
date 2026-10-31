@@ -1112,9 +1112,9 @@ def test_settings_check_fails_on_broken_texts(case):
     assert undocumented_settings(sources, guide), case
 
 
-# ------------------------------------------- the optional Qwen3.5-4B image and compose override
-# Plan 2026-10-28-gguf-cross-platform, 02 §3 (owner: a separate image, compose.llm4b.yaml and
-# snapshot-pinned Ubuntu packages).
+# --------------------------------------------- the Qwen3.5-4B image and its compose service
+# Plan 2026-10-28-gguf-cross-platform, 02 §3 (owner: a separate image and snapshot-pinned Ubuntu
+# packages); since plan 2026-10-31-v3-default §3 the service is part of compose.yaml, with no profile.
 
 from candidate_screener.llm import gguf_assets  # noqa: E402  (standard library and config only)
 
@@ -1296,42 +1296,79 @@ def _named_volume(compose: str, key: str) -> str | None:
     return None
 
 
-def llm4b_compose_problems(override: str, compose: str) -> list[str]:
-    """compose.llm4b.yaml: llm4b in app's network namespace, no port, its image's own healthcheck,
-    no data folder; app gets SCREENER_QWEN_MANIFEST and the manifest volume read-only, named after
-    the pins. compose.yaml has no part of it, and still builds app by default."""
+def guide_chat_defaults(guide: str) -> list[str]:
+    """The Docker-default cell of every `HR_PORTAL_CHAT_VERSION` row in the guide's configuration
+    reference section (same section rules as configuration_names)."""
+    level, defaults, fenced = None, [], False
+    for line in guide.splitlines():
+        stripped = line.strip()
+        if stripped.startswith(("```", "~~~")):
+            fenced = not fenced
+            continue
+        if fenced:
+            continue
+        heading = re.match(r"^ {0,3}(#{1,6})\s+(.*)$", line)
+        if heading:
+            depth = len(heading.group(1))
+            if level is not None and depth <= level:
+                break
+            if level is None and CONFIGURATION_SECTION in heading.group(2).lower():
+                level = depth
+            continue
+        if level is not None and stripped.startswith("|"):
+            cells = [cell.strip() for cell in stripped.strip("|").split("|")]
+            if "HR_PORTAL_CHAT_VERSION" in re.findall(r"`([^`]+)`", cells[0]) and len(cells) > 1:
+                defaults.append(cells[1])
+    return defaults
+
+
+#: compose.yaml's chat-version default (plan 2026-10-31-v3-default §3).
+CHAT_DEFAULT = "${HR_PORTAL_CHAT_VERSION:-v3}"
+
+
+def llm4b_compose_problems(compose: str) -> list[str]:
+    """compose.yaml (plan 2026-10-31-v3-default §3): llm4b with no profile, so plain `up -d` starts
+    it; in app's network namespace, no port, its image's own healthcheck, no data folder. app gets
+    SCREENER_QWEN_MANIFEST and the manifest volume read-only, named after the pins, defaults to chat
+    v3 and is still built from the app target; the 0.5B qwen stays in the `llm` profile (v2)."""
     problems = []
-    block = _service_block(override, "llm4b")
+    block = _service_block(compose, "llm4b")
     if block is None:
-        return ["compose.llm4b.yaml has no llm4b service"]
+        return ["compose.yaml has no llm4b service"]
+    if re.search(r"^\s*profiles:", block, re.MULTILINE):
+        problems.append("llm4b has a profile, so plain `docker compose up -d` does not start it")
     if not re.search(r"^\s*network_mode:\s*[\"']?service:app[\"']?\s*(#.*)?$", block, re.MULTILINE):
         problems.append("llm4b does not use network_mode: service:app")
-    if sequences(override, "ports") or re.search(r"^\s*ports:", override, re.MULTILINE):
-        problems.append("compose.llm4b.yaml publishes a port")
+    if sequences(block, "ports") or re.search(r"^\s*ports:", block, re.MULTILINE):
+        problems.append("llm4b publishes a port")
     if not re.search(r"^\s*target:\s*llm4b\s*$", block, re.MULTILINE):
         problems.append("llm4b is not built from the Dockerfile's llm4b target")
-    if healthcheck_disabled(override, "llm4b"):
+    if healthcheck_disabled(compose, "llm4b"):
         problems.append("llm4b disables its image's healthcheck")
-    test = healthcheck_test(override, "llm4b")
+    test = healthcheck_test(compose, "llm4b")
     if test and LLM4B_PROBE not in " ".join(test):
         problems.append(f"llm4b's own healthcheck does not ask {LLM4B_PROBE}")
     if not re.search(r"^\s*init:\s*true\s*$", block, re.MULTILINE):
         problems.append("llm4b does not run under init")
-    volumes = [split_mount(item) for item in service_volumes(override, "llm4b")]
+    volumes = [split_mount(item) for item in service_volumes(compose, "llm4b")]
     if any(host.startswith((".", "/", "$")) for host, _, _ in volumes):
         problems.append("llm4b mounts a host folder (it needs no data)")
     if ("qwen35-manifest", "/opt/qwen35-manifest") not in [(host, container) for host, container, _ in volumes]:
         problems.append("llm4b does not mount the manifest volume at /opt/qwen35-manifest")
-    if service_environment(override, "app").get("SCREENER_QWEN_MANIFEST") != LLM4B_MANIFEST_COPY:
+    app_env = service_environment(compose, "app")
+    if app_env.get("SCREENER_QWEN_MANIFEST") != LLM4B_MANIFEST_COPY:
         problems.append(f"app does not set SCREENER_QWEN_MANIFEST={LLM4B_MANIFEST_COPY}")
-    app_volumes = [split_mount(item) for item in service_volumes(override, "app")]
+    if app_env.get("HR_PORTAL_CHAT_VERSION") != CHAT_DEFAULT:
+        problems.append(f"app's HR_PORTAL_CHAT_VERSION is {app_env.get('HR_PORTAL_CHAT_VERSION')!r}, "
+                        f"not {CHAT_DEFAULT}")
+    app_volumes = [split_mount(item) for item in service_volumes(compose, "app")]
     if ("qwen35-manifest", "/opt/qwen35-manifest", "ro") not in app_volumes:
         problems.append("app does not mount the manifest volume read-only at /opt/qwen35-manifest")
-    if _named_volume(override, "qwen35-manifest") != LLM4B_VOLUME:
+    if _named_volume(compose, "qwen35-manifest") != LLM4B_VOLUME:
         problems.append(f"the manifest volume is not named {LLM4B_VOLUME} (the pins)")
-    for word in ("SCREENER_QWEN_MANIFEST", "llm4b", "qwen35", "Qwen3.5"):
-        if word in compose:
-            problems.append(f"compose.yaml mentions {word}; the 4B belongs in compose.llm4b.yaml only")
+    qwen = _service_block(compose, "qwen")
+    if qwen is None or sequences(qwen, "profiles") != [["llm"]]:
+        problems.append("the 0.5B qwen service is not in the `llm` profile (v2 only) alone")
     if not re.search(r"^\s*target:\s*app\s*$", _service_block(compose, "app") or "", re.MULTILINE):
         problems.append("compose.yaml's app is no longer built from the app target")
     return problems
@@ -1349,9 +1386,17 @@ def test_llm4b_facade_dependencies_equal_the_lock():
                                                               "idna", "urllib3"}
 
 
-def test_llm4b_compose_override_follows_the_design():
-    assert llm4b_compose_problems(read("compose.llm4b.yaml"), read("compose.yaml")) == []
-    assert published_port_problems(read("compose.llm4b.yaml")) == []
+def test_llm4b_is_part_of_compose_yaml_and_v3_is_the_default():
+    compose = read("compose.yaml")
+    assert llm4b_compose_problems(compose) == []
+    assert published_port_problems(compose) == []
+    # One way to run (plan 2026-10-31-v3-default, Q4): the override file and its COMPOSE_FILE line are gone.
+    assert not (ROOT / "compose.llm4b.yaml").exists()
+    assert not re.search(r"^\s*#?\s*COMPOSE_FILE=", read(".env.example"), re.MULTILINE)
+    # .env.example shows compose.yaml's default.
+    assert re.findall(r"^HR_PORTAL_CHAT_VERSION=(\S+)$", read(".env.example"), re.MULTILINE) == ["v3"]
+    defaults = guide_chat_defaults(read(GUIDE))
+    assert defaults and set(defaults) == {"`v3`"}, defaults
 
 
 GOOD_LLM4B = """\
@@ -1401,12 +1446,28 @@ name = "torch"
 version = "2.2.2"
 """
 GOOD_LLM4B_COMPOSE = f"""\
+x-run: &run
+  image: example
+  volumes:
+    - ./data/datapack:/app/data
 services:
   app:
+    <<: *run
+    build:
+      context: .
+      target: app
+    ports:
+      - "127.0.0.1:8503:8503"
     environment:
+      HR_PORTAL_CHAT_VERSION: "{CHAT_DEFAULT}"
       SCREENER_QWEN_MANIFEST: /opt/qwen35-manifest/manifest.json
     volumes:
+      - ./data/datapack:/app/data
       - qwen35-manifest:/opt/qwen35-manifest:ro
+  qwen:
+    <<: *run
+    profiles: [llm]
+    network_mode: "service:app"
   llm4b:
     image: candidate-screener/hiring-desk-llm4b:local
     build:
@@ -1420,7 +1481,7 @@ volumes:
   qwen35-manifest:
     name: {LLM4B_VOLUME}
 """
-GOOD_BASE_COMPOSE = "services:\n  app:\n    build:\n      context: .\n      target: app\n    ports:\n      - \"127.0.0.1:8503:8503\"\n"
+CHAT_ROW_V3 = "| `HR_PORTAL_CHAT_VERSION` | `v3` | The chat version | Yes |\n"
 ARM_ARM = "        arm64) key=linux-arm64 ;; \\\n"
 LLM4B_HEALTH = "HEALTHCHECK --interval=30s --start-period=300s \\\n"
 
@@ -1428,7 +1489,9 @@ LLM4B_HEALTH = "HEALTHCHECK --interval=30s --start-period=300s \\\n"
 def test_llm4b_checks_pass_on_the_good_texts():
     assert llm4b_stage_problems(GOOD_LLM4B) == []
     assert facade_dependency_problems(GOOD_LLM4B, GOOD_LOCK) == []
-    assert llm4b_compose_problems(GOOD_LLM4B_COMPOSE, GOOD_BASE_COMPOSE) == []
+    assert llm4b_compose_problems(GOOD_LLM4B_COMPOSE) == []
+    assert data_folder_problems(GOOD_LLM4B_COMPOSE, services=("app",)) == []
+    assert guide_chat_defaults(broken(GOOD_GUIDE, (CHAT_ROW, CHAT_ROW_V3))) == ["`v3`"]
     assert app_stage_problems(GOOD_LLM4B + "ENV HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 UV_OFFLINE=1 "
                               "ORT_DISABLE_TELEMETRY=1 SCREENER_MODELS_ROOT=/opt\nUSER 1000\n") == []
 
@@ -1482,23 +1545,35 @@ BROKEN_LLM4B = {
     "lock-moved-on": (lambda text: facade_dependency_problems(GOOD_LLM4B, text), broken(GOOD_LOCK, ('version = "3.19"', 'version = "3.20"'))),
 }
 BROKEN_LLM4B_COMPOSE = {
-    "not-in-app-namespace": (broken(GOOD_LLM4B_COMPOSE, ('    network_mode: "service:app"\n', "")), GOOD_BASE_COMPOSE),
-    "own-network": (broken(GOOD_LLM4B_COMPOSE, ('"service:app"', "bridge")), GOOD_BASE_COMPOSE),
-    "publishes-8001": (broken(GOOD_LLM4B_COMPOSE, ("    init: true\n", '    init: true\n    ports:\n      - "127.0.0.1:8001:8001"\n')), GOOD_BASE_COMPOSE),
-    "healthcheck-disabled": (GOOD_LLM4B_COMPOSE.replace("    init: true\n", "    init: true\n    healthcheck: {disable: true}\n"), GOOD_BASE_COMPOSE),
-    "healthcheck-other-port": (GOOD_LLM4B_COMPOSE.replace("    init: true\n", "    init: true\n    healthcheck:\n      test: [CMD, python, 'http://127.0.0.1:8000/v1/models']\n"), GOOD_BASE_COMPOSE),
-    "without-init": (broken(GOOD_LLM4B_COMPOSE, ("    init: true\n", "")), GOOD_BASE_COMPOSE),
-    "default-target": (broken(GOOD_LLM4B_COMPOSE, ("target: llm4b", "target: app")), GOOD_BASE_COMPOSE),
-    "mounts-the-data-folder": (broken(GOOD_LLM4B_COMPOSE, ("      - qwen35-manifest:/opt/qwen35-manifest\nvolumes",
-                                                           "      - qwen35-manifest:/opt/qwen35-manifest\n      - ./data/datapack:/app/data\nvolumes")), GOOD_BASE_COMPOSE),
-    "app-without-the-manifest-setting": (broken(GOOD_LLM4B_COMPOSE, ("    environment:\n      SCREENER_QWEN_MANIFEST: /opt/qwen35-manifest/manifest.json\n", "")), GOOD_BASE_COMPOSE),
-    "app-manifest-elsewhere": (broken(GOOD_LLM4B_COMPOSE, ("SCREENER_QWEN_MANIFEST: /opt/qwen35-manifest/manifest.json", "SCREENER_QWEN_MANIFEST: /opt/models/chatbot/qwen35/manifest.json")), GOOD_BASE_COMPOSE),
-    "app-volume-read-write": (broken(GOOD_LLM4B_COMPOSE, (":/opt/qwen35-manifest:ro", ":/opt/qwen35-manifest")), GOOD_BASE_COMPOSE),
-    "volume-name-without-pins": (broken(GOOD_LLM4B_COMPOSE, (f"name: {LLM4B_VOLUME}", "name: qwen35-manifest")), GOOD_BASE_COMPOSE),
-    "no-llm4b-service": (broken(GOOD_LLM4B_COMPOSE, ("  llm4b:\n", "  other:\n")), GOOD_BASE_COMPOSE),
-    "base-sets-the-manifest": (GOOD_LLM4B_COMPOSE, GOOD_BASE_COMPOSE + "    environment:\n      SCREENER_QWEN_MANIFEST: /x\n"),
-    "base-has-the-service": (GOOD_LLM4B_COMPOSE, GOOD_BASE_COMPOSE + "  llm4b:\n    image: x\n"),
-    "base-default-target-changed": (GOOD_LLM4B_COMPOSE, broken(GOOD_BASE_COMPOSE, ("target: app", "target: llm4b"))),
+    "not-in-app-namespace": broken(GOOD_LLM4B_COMPOSE, ('    network_mode: "service:app"\n    init', "    init")),
+    "own-network": broken(GOOD_LLM4B_COMPOSE, ('"service:app"\n    init', "bridge\n    init")),
+    "publishes-8001": broken(GOOD_LLM4B_COMPOSE, ("    init: true\n", '    init: true\n    ports:\n      - "127.0.0.1:8001:8001"\n')),
+    "healthcheck-disabled": broken(GOOD_LLM4B_COMPOSE, ("    init: true\n", "    init: true\n    healthcheck: {disable: true}\n")),
+    "healthcheck-other-port": broken(GOOD_LLM4B_COMPOSE, ("    init: true\n", "    init: true\n    healthcheck:\n      test: [CMD, python, 'http://127.0.0.1:8000/v1/models']\n")),
+    "without-init": broken(GOOD_LLM4B_COMPOSE, ("    init: true\n", "")),
+    "default-target": broken(GOOD_LLM4B_COMPOSE, ("target: llm4b", "target: app")),
+    "mounts-the-data-folder": broken(GOOD_LLM4B_COMPOSE, ("      - qwen35-manifest:/opt/qwen35-manifest\nvolumes",
+                                                          "      - qwen35-manifest:/opt/qwen35-manifest\n      - ./data/datapack:/app/data\nvolumes")),
+    "llm4b-without-the-manifest-volume": broken(GOOD_LLM4B_COMPOSE, ("    volumes:\n      - qwen35-manifest:/opt/qwen35-manifest\nvolumes", "volumes")),
+    "app-without-the-manifest-setting": broken(GOOD_LLM4B_COMPOSE, ("      SCREENER_QWEN_MANIFEST: /opt/qwen35-manifest/manifest.json\n", "")),
+    "app-manifest-elsewhere": broken(GOOD_LLM4B_COMPOSE, ("SCREENER_QWEN_MANIFEST: /opt/qwen35-manifest/manifest.json", "SCREENER_QWEN_MANIFEST: /opt/models/chatbot/qwen35/manifest.json")),
+    "app-without-the-manifest-volume": broken(GOOD_LLM4B_COMPOSE, ("      - qwen35-manifest:/opt/qwen35-manifest:ro\n", "")),
+    "app-volume-read-write": broken(GOOD_LLM4B_COMPOSE, (":/opt/qwen35-manifest:ro", ":/opt/qwen35-manifest")),
+    "app-default-v1": broken(GOOD_LLM4B_COMPOSE, (CHAT_DEFAULT, "${HR_PORTAL_CHAT_VERSION:-v1}")),
+    "app-chat-version-unset": broken(GOOD_LLM4B_COMPOSE, (f'      HR_PORTAL_CHAT_VERSION: "{CHAT_DEFAULT}"\n', "")),
+    "volume-name-without-pins": broken(GOOD_LLM4B_COMPOSE, (f"name: {LLM4B_VOLUME}", "name: qwen35-manifest")),
+    "no-top-level-volume": broken(GOOD_LLM4B_COMPOSE, (f"volumes:\n  qwen35-manifest:\n    name: {LLM4B_VOLUME}\n", "")),
+    "no-llm4b-service": broken(GOOD_LLM4B_COMPOSE, ("  llm4b:\n", "  other:\n")),
+    "llm4b-with-a-profile": broken(GOOD_LLM4B_COMPOSE, ("    init: true\n", "    init: true\n    profiles: [llm]\n")),
+    "llm4b-with-a-block-profile": broken(GOOD_LLM4B_COMPOSE, ("    init: true\n", "    init: true\n    profiles:\n      - llm4b\n")),
+    "qwen-without-its-profile": broken(GOOD_LLM4B_COMPOSE, ("    profiles: [llm]\n", "")),
+    "qwen-in-another-profile": broken(GOOD_LLM4B_COMPOSE, ("profiles: [llm]", "profiles: [v2]")),
+    "app-default-target-changed": broken(GOOD_LLM4B_COMPOSE, ("      target: app\n", "      target: llm4b\n")),
+}
+BROKEN_GUIDE_CHAT_DEFAULT = {
+    "guide-default-v1": GOOD_GUIDE,
+    "guide-default-v3-in-one-row-only": broken(GOOD_GUIDE, (CHAT_ROW, CHAT_ROW_V3 + CHAT_ROW)),
+    "guide-row-missing": broken(GOOD_GUIDE, (CHAT_ROW, "")),
 }
 
 
@@ -1510,5 +1585,10 @@ def test_llm4b_dockerfile_checks_fail_on_broken_texts(case):
 
 @pytest.mark.parametrize("case", sorted(BROKEN_LLM4B_COMPOSE))
 def test_llm4b_compose_checks_fail_on_broken_texts(case):
-    override, compose = BROKEN_LLM4B_COMPOSE[case]
-    assert llm4b_compose_problems(override, compose), case
+    assert llm4b_compose_problems(BROKEN_LLM4B_COMPOSE[case]), case
+
+
+@pytest.mark.parametrize("case", sorted(BROKEN_GUIDE_CHAT_DEFAULT))
+def test_guide_chat_default_check_fails_on_broken_texts(case):
+    defaults = guide_chat_defaults(BROKEN_GUIDE_CHAT_DEFAULT[case])
+    assert not (defaults and set(defaults) == {"`v3`"}), case
