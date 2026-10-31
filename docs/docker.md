@@ -5,7 +5,10 @@ It does not describe the system itself (what it ranks, how, and how well): for t
 [`project-overview.md`](project-overview.md), [`ownership/`](ownership/01_project_map.md) and
 [`AGENTS.md`](../AGENTS.md). The plan behind this set-up is
 [`plan/2026-10-27-docker/`](../plan/2026-10-27-docker/README.md), decision D68 in
-[`decisions.md`](decisions.md).
+[`decisions.md`](decisions.md). Since 31 Oct 2026 chat v3 with Qwen3.5-4B is the default, and plain
+`docker compose up -d` starts the model service with the app (D69,
+[`plan/2026-10-31-v3-default/`](../plan/2026-10-31-v3-default/README.md)); v1 is the rollback and
+the lighter setup.
 
 | Reader | Who | Sections |
 |---|---|---|
@@ -22,7 +25,7 @@ the S6 verification results (`logs/docker/s6-results.md` on that machine; `logs/
 git-ignored). Figures without a date are from 27 Oct 2026 (stages S3-S6, named by their
 verification row, such as V8); figures marked "28 Oct 2026" were taken while this guide was
 written or in its fresh-clone walkthrough (S8). The figures for chat v3 with Qwen3.5-4B
-([§6](#chat-v3-with-qwen35-4b-composellm4byaml)) come from a second plan,
+([§6](#chat-v3-with-qwen35-4b-the-default)) come from a second plan,
 [`plan/2026-10-28-gguf-cross-platform/`](../plan/2026-10-28-gguf-cross-platform/README.md) (its
 implementation record, stages G2b-G3, 28 Oct 2026, the same machine). Your machine and network
 will give other times. GB means 10^9 bytes.
@@ -30,9 +33,10 @@ will give other times. GB means 10^9 bytes.
 **Not verified yet:** Docker Desktop on Windows or macOS; any arm64 machine (Apple Silicon); the
 PowerShell forms of the commands (every command here was run in bash). Chat v2/v3 with the `llm`
 profile was verified on Linux on 28 Oct 2026 by a scripted session, not yet in a browser
-([§6](#chat-v2v3-the-llm-profile)). Chat v3 with Qwen3.5-4B (`compose.llm4b.yaml`) was measured on
-Linux amd64 on 28 Oct 2026 by scripted sessions, not in a browser, and its arm64 image only under
-emulation ([§6](#chat-v3-with-qwen35-4b-composellm4byaml), [§15](#15-known-limitations)).
+([§6](#chat-v2-the-llm-profile)). Chat v3 with Qwen3.5-4B (the `llm4b` service, then started
+through a separate override file) was measured on Linux amd64 on 28 Oct 2026 by scripted sessions,
+not in a browser, and its arm64 image only under
+emulation ([§6](#chat-v3-with-qwen35-4b-the-default), [§15](#15-known-limitations)).
 
 Contents: [1 What this is](#1-what-this-is) ·
 [2 Why Docker](#2-why-docker) ·
@@ -59,8 +63,10 @@ The Docker set-up is one image plus one folder.
   [`Dockerfile`](../Dockerfile). It holds the code, the three Python environments (the main one
   and the two model runtimes, `runtime/transformer` and `runtime/gliner-medium`) and four
   pretrained models, downloaded at pinned revisions when the image is built: RoBERTa-SQuAD2 (v1
-  chat answers), GLiNER-medium (entity comparisons), Qwen2.5-0.5B (chat v2/v3) and
-  Qwen3-Reranker-0.6B, called C2 (used by D64).
+  chat answers), GLiNER-medium (entity comparisons), Qwen2.5-0.5B (chat v2) and
+  Qwen3-Reranker-0.6B, called C2 (used by D64). Chat v3, the default, composes with Qwen3.5-4B,
+  which runs from its own image, `candidate-screener/hiring-desk-llm4b:local`, in the `llm4b`
+  service ([§6](#chat-v3-with-qwen35-4b-the-default)).
 - **The data folder**, `data/datapack/`, is mounted into the container at `/app/data`. It holds
   the project's own files that the app reads (the A2 texts, the CSV-backed reviews, the
   role-family model and SBERT weak that the project trained, the fitted inference parts, the
@@ -69,7 +75,7 @@ The Docker set-up is one image plus one folder.
 
 ```
 host browser ── 127.0.0.1:8503 ──► app container (runs as the host user; /app is the project root)
-                                     ├─ Streamlit Hiring Desk, v1 chat by default
+                                     ├─ Streamlit Hiring Desk, v3 chat by default (v1 the rollback)
                                      ├─ ranking adapter thread ─► inference.Screener (D63; D64 adds C2)
                                      ├─ QA worker      uv run --project runtime/transformer   (RoBERTa-SQuAD2)
                                      └─ entity worker  uv run --project runtime/gliner-medium (GLiNER-medium)
@@ -79,9 +85,9 @@ host browser ── 127.0.0.1:8503 ──► app container (runs as the host use
   /opt/models    ◄── in the image: RoBERTa-SQuAD2, GLiNER-medium, Qwen2.5-0.5B (SCREENER_MODELS_ROOT)
   /opt/hf        ◄── in the image: C2, in the Hugging Face cache layout (HF_HOME)
 
-[profile llm]    qwen container in app's network namespace ─► 127.0.0.1:8000 (Qwen2.5-0.5B; phase 2)
-[compose.llm4b.yaml] llm4b container (its own image) in app's network namespace
+llm4b            llm4b container (its own image; no profile) in app's network namespace
                  ─► 127.0.0.1:8001 facade ─► 127.0.0.1:8002 llama-server (Qwen3.5-4B GGUF; v3 only)
+[profile llm]    qwen container in app's network namespace ─► 127.0.0.1:8000 (Qwen2.5-0.5B; v2 only)
 [profile tools]  the same image, for the data folder commands (create, verify, handover, purge)
 [profile test]   the test image: the test suite, with no data and no network
 ```
@@ -124,8 +130,11 @@ measured here). With WSL2, Docker's memory is the WSL2 virtual machine's. Set it
 
 ```ini
 [wsl2]
-memory=10GB
+memory=15GB
 ```
+
+(15 GB for the default, chat v3 with Qwen3.5-4B; `memory=10GB` is enough for the v1 setup,
+[§3](#memory-disk-network-and-time).)
 
 Then run `wsl --shutdown` in PowerShell and start Docker again. Create accounts from a terminal that
 can hide what you type ([§7](#7-accounts)): with Docker Engine inside WSL2, a WSL2 terminal; with
@@ -148,12 +157,12 @@ root and the app cannot write there.
 |---|---|---|
 | Memory, building | The cold build peaked at 1.26 GB of anonymous memory; page cache filled the rest of the 10.3 GB the builder touched, and is reclaimable | Any machine that can run the app can build it. A build under a Docker Desktop memory limit was not measured |
 | Memory, D63 only (sign-in, CSV reviews, ranking new JDs) | Ranking through the inference API in the container (`inference --check`, V2): 2.36 GB at peak | Give Docker **at least 4 GB**: the measured peak plus room for Streamlit, whose process holds the same ranking parts. The app with D63 alone was not measured |
-| Memory, all of phase 1 (D63, D64, v1 chat with both model workers) | A scripted session in the container (V3): the app process 5.26 GB, the whole container 7.56 GB including page cache. One native process ranking two JDs with D63 and D64: 7.38 GB | Give Docker **at least 10 GB**: the container's 7.6 GB peak plus about a third, because one process alone reached 7.4 GB without the chat workers |
-| Memory, chat v2/v3 (Qwen, `llm` profile) | The `qwen` container (S9): the model server peaked at 3.26-3.36 GB resident; the container at 2.66-3.82 GB including page cache. The app container in chat-only sessions (no ranking): 2.66-4.26 GB | Give Docker **about 3.5 GB more** than for phase 1 when the `llm` profile runs: the server's measured peak, rounded up. A session with D64 and Qwen together was not measured |
-| Memory, chat v3 with Qwen3.5-4B (`compose.llm4b.yaml`) | 28 Oct 2026 (plan 2026-10-28-gguf-cross-platform, G2b-G2c): the `llm4b` container 4.42 GB at rest and 4.66 GB at peak (`llama-server` 4.55 GB resident); the app container 51 MB at rest and 6.85 GB at peak while D64 ran beside v3 turns. Together about 11.5 GB | Give Docker **at least 15 GB** when the 4B runs: phase 1's 10 GB plus the `llm4b` container's 4.7 GB peak, rounded up. With D63 only and no ranking during chat, less suffices, but that was not measured |
-| Disk | Image 7.98 GB. The optional Qwen3.5-4B image (`hiring-desk-llm4b`) 2.94 GB, plus its download cache mount (not measured) (28 Oct 2026). Build cache after a cold build 14.74 GB (the layers, plus a second copy of the weights and wheels in the cache mounts). Test image 4.59 GB. Data folder: 256.8 MB of inputs, plus the workspace (2.6 MB on the owner's machine) and caches (1.1 MB after the owner's browser session), both measured 28 Oct 2026 | **About 25 GB free** for the first build, **30 GB** if you also build the test image: the sum of the measured sizes, rounded up. It is an upper bound, because the image's layers can also appear in the build cache. Afterwards `docker builder prune` returns most of the build cache, at the price of downloading again at the next build |
+| Memory, the v1 setup: all of phase 1 (D63, D64, v1 chat with both model workers; `docker compose up -d app`) | A scripted session in the container (V3): the app process 5.26 GB, the whole container 7.56 GB including page cache. One native process ranking two JDs with D63 and D64: 7.38 GB | Give Docker **at least 10 GB**: the container's 7.6 GB peak plus about a third, because one process alone reached 7.4 GB without the chat workers |
+| Memory, chat v2 (Qwen2.5-0.5B, `llm` profile) | The `qwen` container (S9): the model server peaked at 3.26-3.36 GB resident; the container at 2.66-3.82 GB including page cache. The app container in chat-only sessions (no ranking): 2.66-4.26 GB | Give Docker **about 3.5 GB more** than for phase 1 when the `llm` profile runs: the server's measured peak, rounded up. A session with D64 and Qwen together was not measured |
+| Memory, the default: chat v3 with Qwen3.5-4B (`app` and `llm4b`, plain `docker compose up -d`) | 28 Oct 2026 (plan 2026-10-28-gguf-cross-platform, G2b-G2c): the `llm4b` container 4.42 GB at rest and 4.66 GB at peak (`llama-server` 4.55 GB resident); the app container 51 MB at rest and 6.85 GB at peak while D64 ran beside v3 turns. Together about 11.5 GB. 31 Oct 2026 (plan 2026-10-31-v3-default, V3: plain `up -d`, four v3 turns, no ranking): peaks of 0.22 GB for `app` and 2.44 GB for `llm4b`, lower than the 4.66 GB of 28 Oct; the difference was not investigated, so the guidance keeps the higher figure | Give Docker **at least 15 GB** for the default: phase 1's 10 GB plus the `llm4b` container's 4.7 GB peak, rounded up. A machine that cannot give Docker 15 GB (for example one with 16 GB in total) uses the v1 setup instead, which needs about 10 GB ([§4](#4-quick-start-operator)). With D63 only and no ranking during chat, less suffices, but that was not measured |
+| Disk | Image 7.98 GB. The Qwen3.5-4B image (`hiring-desk-llm4b`, built by default since 31 Oct 2026; not built in the v1 setup) 2.94 GB, plus its download cache mount (not measured) (28 Oct 2026). Build cache after a cold build 14.74 GB (the layers, plus a second copy of the weights and wheels in the cache mounts). Test image 4.59 GB. Data folder: 256.8 MB of inputs, plus the workspace (2.6 MB on the owner's machine) and caches (1.1 MB after the owner's browser session), both measured 28 Oct 2026 | **About 30 GB free** for the first build (`app` and `llm4b`), **35 GB** if you also build the test image: the sum of the measured sizes, rounded up (the `llm4b` download cache was not measured). It is an upper bound, because the image's layers can also appear in the build cache. Afterwards `docker builder prune` returns most of the build cache, at the price of downloading again at the next build |
 | Network | The cold build downloaded 4,382 MiB (4.60 GB): base images, Debian packages, Python wheels and model weights | Needed **only to build**. The app ran every step of the smoke test with the container's network disabled (V6) |
-| Time | Cold build: 3 min 23 s (V8, the measured run), and 5 min 28 s in an earlier run. The model downloads took 156 s of the measured run and 280 s of the earlier one. The optional `llm4b` image (amd64, 28 Oct 2026): 3 min 30 s, of which 157 s for Ubuntu packages from the dated snapshot (about 450 kB/s) and 39 s for the runtime and model download | Your download speed decides it |
+| Time | Cold build: 3 min 23 s (V8, the measured run), and 5 min 28 s in an earlier run. The model downloads took 156 s of the measured run and 280 s of the earlier one. The `llm4b` image (amd64, 28 Oct 2026, built separately then): 3 min 30 s, of which 157 s for Ubuntu packages from the dated snapshot (about 450 kB/s) and 39 s for the runtime and model download | Your download speed decides it |
 
 Docker versions used: Engine 27.5.1, Compose 2.32.4, buildx 0.20.0 (BuildKit 0.18.2 in the
 default builder). The Dockerfile needs BuildKit features (`COPY --exclude`, symbolic `--chmod`,
@@ -196,7 +205,12 @@ bash, zsh and PowerShell.
 
    On Linux, set `HOST_UID` and `HOST_GID` if `id -u` and `id -g` are not 1000. Change
    `HIRING_DESK_PORT` if port 8503 is taken. Without a `.env`, the defaults shown in `.env.example`
-   apply.
+   apply: chat v3 with Qwen3.5-4B, which needs about 15 GB of Docker memory ([§3](#3-requirements)).
+
+   **The lighter v1 setup** (about 10 GB, for a machine that cannot give Docker 15 GB): set
+   `HR_PORTAL_CHAT_VERSION=v1` in `.env`, then use `docker compose build app` in step 4 and
+   `docker compose up -d app` in step 7. Only `app` is built and started; `llm4b` and its 2.74 GB
+   model are not. v1 answers with the extractive model and entity comparisons.
 
 4. **Build the image.**
 
@@ -204,8 +218,12 @@ bash, zsh and PowerShell.
    docker compose build
    ```
 
-   The output ends with `✔ app  Built`. From an empty cache this took 3 min 23 s (5 min 28 s in an
-   earlier run) and downloaded 4.60 GB; the image is 7.98 GB. With nothing changed, a rebuild takes
+   It builds two images: `app`, and `llm4b` with Qwen3.5-4B for chat v3. The first build downloads
+   the 2.74 GB model and the llama.cpp runtime for `llm4b`. The output ends with `app  Built` and
+   `llm4b  Built` (31 Oct 2026, V3: 81 s for both with a warm cache).
+   Measured separately before they were built together: `app` from an empty cache took 3 min 23 s
+   (5 min 28 s in an earlier run) and downloaded 4.60 GB, image 7.98 GB; `llm4b` took 3 min 30 s,
+   image 2.94 GB (28 Oct 2026). With nothing changed, a rebuild takes
    a few seconds (5.5 s). Build in the clone you run the app from: the image's name is shared by
    every clone on the machine ([§10](#10-releasing-an-update-developer)).
 
@@ -239,17 +257,21 @@ bash, zsh and PowerShell.
    set-up), a WSL2 terminal, for example in Windows Terminal; with Docker Desktop, any terminal
    where `docker` works (PowerShell or a WSL2 terminal). Not Git Bash.
 
-7. **Start the app.**
+7. **Start the app.** One command starts both services, `app` and `llm4b`:
 
    ```
-   docker compose up -d
+   docker compose up -d --wait
    docker compose ps
    ```
 
-   Right after `up -d`, `docker compose ps` shows the app as `Up … (health: starting)`. Run it again
-   after a few seconds: it shows `Up … (healthy)` after about 7 s (7.6 s on 27 Oct 2026, 6.8 s on
-   28 Oct 2026). Alternatively, `docker compose up -d --wait` returns only once the app is healthy
-   (6.2 s, 28 Oct 2026). If `up` fails with `address already in use` or `port is already
+   `--wait` returns once both are healthy. On 31 Oct 2026 (V3) plain `docker compose up -d --wait` reported both healthy after 18.8 s.
+   Earlier measurements: `app` alone was healthy after about 7 s (7.6 s on 27 Oct 2026, 6.8 s and,
+   with `--wait`, 6.2 s on 28 Oct 2026); with `llm4b` started beside it, both were healthy 7.5-12.7 s
+   after `up -d` (28 Oct 2026). Without `--wait`, `docker compose ps` shows `Up … (health:
+   starting)` for the first seconds and then `Up … (healthy)` for each. Wait for `llm4b` to be
+   healthy before signing in: a v3 session started earlier answers through the marked fallback
+   ([§6](#chat-v3-with-qwen35-4b-the-default)). In the v1 setup the command is
+   `docker compose up -d app`. If `up` fails with `address already in use` or `port is already
    allocated`, something else holds the port: see [§12](#12-troubleshooting).
 
 8. **Open http://localhost:8503 and sign in** with your login ID and token, on the page headed
@@ -366,15 +388,15 @@ and `logs/` ([§12](#12-troubleshooting)).
 
 | Task | Command |
 |---|---|
-| Start (in the background) | `docker compose up -d` |
+| Start (in the background) | `docker compose up -d` (`app` and `llm4b`; `--wait` to return once both are healthy). The v1 setup: `docker compose up -d app` |
 | Stop, keeping the container | `docker compose stop` |
 | Stop and remove the container and its network (the data folder and the image stay) | `docker compose down` |
 | Restart | `docker compose restart app` |
-| Status and health | `docker compose ps` (`Up … (healthy)` when Streamlit answers, `(health: starting)` for the first seconds after a start). It lists running containers only: a stopped app appears in `docker compose ps -a` |
+| Status and health | `docker compose ps` (for `app`, `Up … (healthy)` when Streamlit answers; for `llm4b`, once the 4B can answer; `(health: starting)` for the first seconds after a start). It lists running containers only: a stopped app appears in `docker compose ps -a` |
 | The app's output | `docker compose logs app`, or `docker compose logs -f --tail 100 app` to follow it (Ctrl+C stops following; the app keeps running) |
 
 The app's healthcheck asks Streamlit's `/_stcore/health` every 30 s and verifies nothing else. The
-`qwen` service has its own (below); `tools`, which runs no server, disables it. Nothing is
+`llm4b` and `qwen` services have their own (below); `tools`, which runs no server, disables it. Nothing is
 checked when the container starts. The container has `restart: unless-stopped`: it comes back when
 Docker starts again, unless you stopped it.
 
@@ -393,21 +415,26 @@ What survives what:
 | `create` (an update) | kept (replaced only with `--with-workspace --replace-workspace`) | emptied | replaced | — |
 | `purge --yes` | **deleted** | deleted | deleted | — |
 
-### Chat v2/v3: the `llm` profile
+### Chat v2: the `llm` profile
 
-Chat v2 (Qwen orders checked comparison relations, D65) and v3 (experimental Qwen prose, D66) need
-the `qwen` service, Qwen2.5-0.5B on the CPU, whose weights are already in the image. Verified on
-28 Oct 2026 (S9, a scripted session in the container, invented documents): v2 and v3 answers
-composed by Qwen were saved and returned through the Hiring Desk's chat path, and with `qwen`
-stopped both answered through their fallback. Not yet tried by hand in a browser. v1 stays the
-default.
+Chat v2 (Qwen orders checked comparison relations, D65) needs the `qwen` service, Qwen2.5-0.5B on
+the CPU, whose weights are already in the image. Since 31 Oct 2026 the profile serves v2 only: v3,
+the default, uses Qwen3.5-4B in `llm4b` ([below](#chat-v3-with-qwen35-4b-the-default)), because
+`compose.yaml` sets `SCREENER_QWEN_MANIFEST` on `app` and a selected 4B manifest never falls back
+to the 0.5B model. Verified on 28 Oct 2026 (S9, a scripted session in the container, invented
+documents), when v3 could still use the 0.5B: v2 and v3 answers composed by Qwen were saved and
+returned through the Hiring Desk's chat path, and with `qwen` stopped both answered through their
+fallback. The v3 figures below are from that run. Not yet tried by hand in a browser. The profile
+also starts `app` and `llm4b`.
 
 | Task | Command |
 |---|---|
-| Start (set `HR_PORTAL_CHAT_VERSION=v2` or `v3` in `.env` first) | `docker compose --profile llm up -d` (`--wait` to return once both are healthy) |
+| Start (set `HR_PORTAL_CHAT_VERSION=v2` in `.env` first) | `docker compose --profile llm up -d` (`--wait` to return once all three services are healthy) |
 | Status | `docker compose --profile llm ps`: `qwen` shows `(healthy)` once the model has loaded |
 | Stop only Qwen | `docker compose --profile llm stop qwen` |
 | Stop everything | `docker compose --profile llm down` (name the profile so `qwen` is included) |
+
+The figures below for v3 with the 0.5B are historical (S9, 28 Oct 2026).
 
 - **Healthcheck.** `qwen` asks its own server, `GET http://127.0.0.1:8000/v1/models`, every 30 s,
   with 120 s allowed for the model to load. The server answers only after loading, so `(healthy)`
@@ -425,38 +452,36 @@ default.
 - **The app does not wait for Qwen.** It starts alone; while `qwen` is stopped or loading, v2 and
   v3 answer through their fallback (S9: every turn answered, in under 4 s).
 - **Qwen or fallback?** Open **Answer details** under a v3 answer: `mode` is `qwen_prose` and
-  `model` is `Qwen/Qwen2.5-0.5B-Instruct` when Qwen wrote it; `qwen_fallback`, with
+  `model` is the model that wrote it (`Qwen/Qwen3.5-4B` for the default; `Qwen/Qwen2.5-0.5B-Instruct`
+  in the S9 run); `qwen_fallback`, with
   `provenance.fallback_reason` (`provider_unavailable` when the service is down), when the
   application did. A v2 answer's caption reads "Qwen selected validated comparison points" when
   Qwen composed it and "Qwen unavailable or rejected · application comparison" for the fallback.
   The fallback is also used when Qwen answers but its output fails the application's checks (S9
   saw `unsupported_paraphrase` and `qualification_omission` in v3): that is expected, not a fault.
 
-### Chat v3 with Qwen3.5-4B: `compose.llm4b.yaml`
+### Chat v3 with Qwen3.5-4B (the default)
 
-Chat v3 can compose its prose with Qwen3.5-4B (the Q4_K_M GGUF of the D67 trial) instead of
-Qwen2.5-0.5B. The 4B runs in its **own image**, `candidate-screener/hiring-desk-llm4b:local`
-(Dockerfile target `llm4b`: Ubuntu 24.04, the published llama.cpp `b11896` build for the machine's
-architecture and the 2.74 GB model), started through the override file
-[`compose.llm4b.yaml`](../compose.llm4b.yaml) (owner, 28 Oct 2026, plan
-[`2026-10-28-gguf-cross-platform`](../plan/2026-10-28-gguf-cross-platform/README.md), Q2). **The
-default image and `compose.yaml` are unchanged**: without the override file nothing of the 4B is
-built or started, and the `app` image was not rebuilt for it (G2b). Measured on 28 Oct 2026 on
-Linux amd64 by scripted sessions with invented documents (G2b-G3), not in a browser. v3 stays
-experimental and v1 the default.
+Chat v3 composes its prose with Qwen3.5-4B (the Q4_K_M GGUF of the D67 trial). It is the default
+since 31 Oct 2026 (owner, D69, plan
+[`2026-10-31-v3-default`](../plan/2026-10-31-v3-default/README.md)): the `llm4b` service is part of
+`compose.yaml` with no profile, so `docker compose build` and `docker compose up -d` include it.
+Being the default is not quality acceptance: v3 stays experimental, and v1
+(`HR_PORTAL_CHAT_VERSION=v1`, `docker compose up -d app`) is the rollback. The 4B runs in its
+**own image**, `candidate-screener/hiring-desk-llm4b:local` (Dockerfile target `llm4b`: Ubuntu
+24.04, the published llama.cpp `b11896` build for the machine's architecture and the 2.74 GB model;
+plan [`2026-10-28-gguf-cross-platform`](../plan/2026-10-28-gguf-cross-platform/README.md)); the
+`app` image is unchanged by it. The figures below were measured on 28 Oct 2026 on Linux amd64 by
+scripted sessions with invented documents (G2b-G3), not in a browser, when the service was still
+started through a separate override file; its contents moved into `compose.yaml` unchanged.
 
 | Task | Command |
 |---|---|
-| Build (once; downloads the 2.74 GB model and the runtime; 3 min 30 s on 28 Oct 2026) | `docker compose -f compose.yaml -f compose.llm4b.yaml build llm4b` |
-| Start (set `HR_PORTAL_CHAT_VERSION=v3` in `.env` first) | `docker compose -f compose.yaml -f compose.llm4b.yaml up -d` (`--wait` to return once both are healthy) |
-| Status | `docker compose -f compose.yaml -f compose.llm4b.yaml ps`: `llm4b` shows `(healthy)` once the model has loaded |
-| Stop only the 4B | `docker compose -f compose.yaml -f compose.llm4b.yaml stop llm4b` |
-| Stop everything | `docker compose -f compose.yaml -f compose.llm4b.yaml down` |
-
-To avoid repeating `-f`, uncomment `COMPOSE_FILE=compose.yaml:compose.llm4b.yaml` in `.env` (`;` as
-the separator on Windows; [§8](#compose-settings-env)); plain `docker compose …` commands then use
-both files. Compose then no longer reads `compose.override.yaml` by itself: add it to the list if
-you use one (Compose's documented behaviour; not exercised here).
+| Build (part of `docker compose build`; the first build downloads the 2.74 GB model and the runtime; 3 min 30 s on its own on 28 Oct 2026) | `docker compose build llm4b` (only this image) |
+| Start | `docker compose up -d` (`--wait` to return once both are healthy) |
+| Status | `docker compose ps`: `llm4b` shows `(healthy)` once the model has loaded |
+| Stop only the 4B | `docker compose stop llm4b` |
+| Stop everything | `docker compose down` |
 
 - **What it adds.** The `llm4b` service shares the app container's network (the facade insists on
   loopback): the facade on 127.0.0.1:8001 and `llama-server` on 127.0.0.1:8002, no published port,
@@ -489,7 +514,7 @@ you use one (Compose's documented behaviour; not exercised here).
   fallback.
 - **The restart caveat.** As with `qwen`, `llm4b` uses the app container's network and has no
   restart policy of its own. After the app restarts or is recreated, restart the 4B:
-  `docker compose -f compose.yaml -f compose.llm4b.yaml restart llm4b` (not tested for `llm4b`).
+  `docker compose restart llm4b` (not tested for `llm4b`).
 - **The 4B or the fallback?** Open **Answer details** under a v3 answer: `mode` is `qwen_prose` and
   `model` is `Qwen/Qwen3.5-4B` when the 4B wrote it; `qwen_fallback`, with
   `provenance.fallback_reason`, when the application did (`deadline_exceeded` when the 60 s budget
@@ -501,8 +526,8 @@ you use one (Compose's documented behaviour; not exercised here).
   completions. With both services running (31 s in the container on 28 Oct 2026, G3):
 
   ```
-  docker compose -f compose.yaml -f compose.llm4b.yaml exec llm4b python -m candidate_screener.llm.gguf_probe --manifest /opt/models/chatbot/qwen35/manifest.json --out /tmp/probe.json
-  docker compose -f compose.yaml -f compose.llm4b.yaml cp llm4b:/tmp/probe.json logs/probe-docker.json
+  docker compose exec llm4b python -m candidate_screener.llm.gguf_probe --manifest /opt/models/chatbot/qwen35/manifest.json --out /tmp/probe.json
+  docker compose cp llm4b:/tmp/probe.json logs/probe-docker.json
   uv run python -m candidate_screener.llm.gguf_probe --compare REFERENCE.json logs/probe-docker.json --rule identical
   ```
 
@@ -579,8 +604,8 @@ settings worth knowing. `tests/test_docker_contract.py` fails when the code read
 
 **How settings reach the app.** Compose reads `.env` (copy it from
 [`.env.example`](../.env.example); it is git-ignored) for the settings in the first table, and
-passes only `HR_PORTAL_CHAT_VERSION` into the app container (plus `SCREENER_QWEN_MANIFEST`, set by
-[`compose.llm4b.yaml`](../compose.llm4b.yaml) when that file is used). To pass another setting, add a
+passes only `HR_PORTAL_CHAT_VERSION` into the app container (plus `SCREENER_QWEN_MANIFEST`, which
+[`compose.yaml`](../compose.yaml) sets on `app` for v3's Qwen3.5-4B). To pass another setting, add a
 `compose.override.yaml` (or `.yml`) beside `compose.yaml`. Compose reads it automatically unless
 you name files with `-f` or `COMPOSE_FILE`. Like `.env`, it is git-ignored and docker-ignored, so it stays out of
 commits and images and can hold this machine's secrets. For example:
@@ -600,11 +625,10 @@ change: no" means that only the default is built, tested and verified.
 | Name | Docker default | Effect | Safe to change |
 |---|---|---|---|
 | `HIRING_DESK_PORT` | `8503` | The host port, published on 127.0.0.1 only. The app's log still prints `http://localhost:8503` (the container's port) | Yes: any free port; then open `http://localhost:<port>` |
-| `HR_PORTAL_CHAT_VERSION` | `v3` | Passed to the app. `v3`, the default (owner, 31 Oct 2026): experimental Qwen prose and JD requirement search (D66), with Qwen3.5-4B in the `llm4b` service that plain `docker compose up -d` starts; while it is not running, v3 answers through its marked fallback. `v1`: extractive answers (RoBERTa-SQuAD2) and entity comparisons (GLiNER-medium), the rollback and the lighter setup (`docker compose up -d app`, which starts `app` alone). `v2`: Qwen orders checked comparison relations (D65); it needs the `llm` profile (`docker compose --profile llm up -d`). Any other value behaves as `v1` | `v3`: yes; give Docker about 15 GB; v3 is experimental. `v1`: yes, with `docker compose up -d app`. `v2`: yes, with the `llm` profile running ([§6](#chat-v2v3-the-llm-profile)) |
+| `HR_PORTAL_CHAT_VERSION` | `v3` | Passed to the app. `v3`, the default (owner, 31 Oct 2026): experimental Qwen prose and JD requirement search (D66), with Qwen3.5-4B in the `llm4b` service that plain `docker compose up -d` starts; while it is not running, v3 answers through its marked fallback. `v1`: extractive answers (RoBERTa-SQuAD2) and entity comparisons (GLiNER-medium), the rollback and the lighter setup (`docker compose up -d app`, which starts `app` alone). `v2`: Qwen orders checked comparison relations (D65); it needs the `llm` profile (`docker compose --profile llm up -d`). Any other value behaves as `v1` | `v3`: yes; give Docker about 15 GB; v3 is experimental. `v1`: yes, with `docker compose up -d app`. `v2`: yes, with the `llm` profile running ([§6](#chat-v2-the-llm-profile)) |
 | `HOST_UID` | `1000` | Linux: the user id the containers run as, so files written into `data/datapack/` and `logs/` stay yours. Docker Desktop on macOS and Windows maps owners itself | Yes: set it to `id -u` |
 | `HOST_GID` | `1000` | Linux: the group id the containers run as | Yes: set it to `id -g` |
 | `SCREENER_DATA_SOURCE` | `./data` | `tools` service only: the host folder mounted read-only at `/source`, which `create` copies from. Set it to a received copy, or to a full `data/` without symbolic links that point outside it | Yes |
-| `COMPOSE_FILE` | unset (Compose reads `compose.yaml`, and `compose.override.yaml` if present) | Compose's own setting: the files every `docker compose` command uses. `compose.yaml:compose.llm4b.yaml` (`;` on Windows) adds the Qwen3.5-4B service for chat v3; [`.env.example`](../.env.example) holds the line, commented out. Once set, `compose.override.yaml` is read only if listed | Yes: for the 4B ([§6](#chat-v3-with-qwen35-4b-composellm4byaml)); list `compose.override.yaml` too if you use one |
 | `GIT_COMMIT` | `unknown` | A build argument: the commit recorded in the image label `org.opencontainers.image.revision`. Set it per build ([§10](#10-releasing-an-update-developer)) | Yes |
 
 ### Read by the Hiring Desk (`HR_PORTAL_*`)
@@ -631,9 +655,12 @@ the reranker"). No setting switches between them.
 
 ### Qwen for chat v2/v3 (`SCREENER_QWEN_*`)
 
-With none of these set, chat v2/v3 take their settings from the image's Qwen manifest
-(`/opt/models/chatbot/qwen/manifest.json`) and talk to the `qwen` service of the `llm` profile at
-`http://127.0.0.1:8000/v1`. Setting `SCREENER_QWEN_BASE_URL` or `SCREENER_QWEN_MODEL` switches to
+In Docker, `compose.yaml` sets `SCREENER_QWEN_MANIFEST` on `app`, so v3 talks to the Qwen3.5-4B
+service in `llm4b` (127.0.0.1:8001). With none of the others set, chat v2 takes its settings from
+the image's Qwen manifest (`/opt/models/chatbot/qwen/manifest.json`) and talks to the `qwen`
+service of the `llm` profile at `http://127.0.0.1:8000/v1`. Natively, with no `SCREENER_QWEN_*`
+set, v3 uses the provisioned 4B manifest (`models/chatbot/qwen35/manifest.json`, written by
+`gguf_assets`) when it exists, and the 0.5B settings otherwise. Setting `SCREENER_QWEN_BASE_URL` or `SCREENER_QWEN_MODEL` switches to
 an explicitly configured service, which must then be described completely: nothing is filled in
 from the local manifest. Both v2 and v3 cap the context at 4,096 tokens and force temperature 0;
 v2 caps the output at 512 tokens and the timeout at 30 s, v3 the output at 256 tokens and the
@@ -658,7 +685,7 @@ names too.
 | `SCREENER_QWEN_ENABLE_THINKING` | unset | Qwen's thinking mode, when a service supports it (the Qwen3.5-4B service sets `false`) | No |
 | `SCREENER_QWEN_ALLOW_REMOTE` | unset (`false`) | Allows a non-loopback HTTPS service: document text would leave the machine | No: it changes the data boundary; an owner decision |
 | `SCREENER_QWEN_API_KEY` | unset | A bearer token for an explicitly configured service | Only with a remote service; never put it in the image or a committed file |
-| `SCREENER_QWEN_MANIFEST` | unset; `/opt/qwen35-manifest/manifest.json` when [`compose.llm4b.yaml`](../compose.llm4b.yaml) is used (set on `app` there only) | Selects the Qwen3.5-4B GGUF service's manifest for v3 (D67); v2 does not read it. The `llm4b` image holds the service and the model; `app` reads a copy of the manifest from a read-only named volume ([§6](#chat-v3-with-qwen35-4b-composellm4byaml)). A missing selected manifest is unavailable and never selects the 0.5B model | No: use the override file |
+| `SCREENER_QWEN_MANIFEST` | `/opt/qwen35-manifest/manifest.json`, set on `app` by [`compose.yaml`](../compose.yaml) | Selects the Qwen3.5-4B GGUF service's manifest for v3 (D67); v2 does not read it. The `llm4b` image holds the service and the model; `app` reads a copy of the manifest from a read-only named volume ([§6](#chat-v3-with-qwen35-4b-the-default)). A missing selected manifest is unavailable and never selects the 0.5B model. Natively, unset means: the provisioned 4B manifest if present, else the 0.5B settings | No |
 
 ### Read only by tools outside the Hiring Desk
 
@@ -852,8 +879,9 @@ machine (AGENTS testing rules 3-6).
 
 **Memory: the container exits with code 137, or restarts during D64.** It ran out of memory.
 `docker compose ps -a` shows `Exited (137)` (the restart policy may already have restarted it, and
-a D64 in progress is lost). Give Docker more memory ([§3](#3-requirements)): 10 GB for D64 with
-chat. D64 is the heaviest step; run one at a time.
+a D64 in progress is lost). Give Docker more memory ([§3](#3-requirements)): 15 GB for the default
+(chat v3 with Qwen3.5-4B), 10 GB for D64 with chat in the v1 setup. D64 is the heaviest step; run
+one at a time. If Docker cannot be given 15 GB, use the v1 setup ([§4](#4-quick-start-operator)).
 
 **Disk full.** `docker system df` shows what uses the space. `docker builder prune` removes the
 build cache (up to 14.7 GB after a cold build; the next build downloads again);
@@ -938,12 +966,28 @@ is memory. `SCREENER_MODELS_ROOT` must stay `/opt/models`.
 does this role require?" gets an answer where "What degree is required in the JD?" does not (S6;
 the same natively). Rephrase the question.
 
-**Qwen does not answer (chat v2/v3).** v2 and v3 need the `qwen` service: `docker compose --profile
+**`stat …/compose.llm4b.yaml: no such file or directory`.** The override file was removed on
+31 Oct 2026: its service is now part of `compose.yaml`. Your `.env` still names it. Delete the
+`COMPOSE_FILE=compose.yaml:compose.llm4b.yaml` line (`;` as the separator on Windows) from `.env`,
+then run the command again without `-f compose.llm4b.yaml`.
+
+**Every v3 answer is a fallback** (`mode` `qwen_fallback` under **Answer details**, with
+`provenance.fallback_reason` `provider_unavailable`). The 4B service is not answering. Check that
+`docker compose ps` lists `llm4b` as `(healthy)`; if it is missing, start it with
+`docker compose up -d` (the v1 setup's `docker compose up -d app` does not start it). After `up`,
+wait for `(healthy)` (or use `--wait`) before signing in: a session started earlier keeps the
+fallback until its next session ([§6](#chat-v3-with-qwen35-4b-the-default)). If `llm4b` exits or
+restarts, it is usually memory: give Docker at least 15 GB ([§3](#3-requirements)). Fallbacks with
+`deadline_exceeded` while `llm4b` is healthy mean the 60 s budget ran out, typically while a
+ranking runs; `unsupported_paraphrase` or `qualification_omission` mean the application's checks
+rejected the wording. Both are expected, not a fault.
+
+**Qwen does not answer (chat v2).** v2 needs the `qwen` service: `docker compose --profile
 llm up -d`, then `docker compose --profile llm ps` should show `qwen` `(healthy)`. It shares the app
 container's network namespace (both insist on loopback), so after the app restarts other than by
 `docker compose restart app`, restart it too: `docker compose --profile llm restart qwen`. A
 fallback answer while `qwen` is healthy usually means Qwen's output failed the application's checks
-([§6](#chat-v2v3-the-llm-profile), "Qwen or fallback?").
+([§6](#chat-v2-the-llm-profile), "Qwen or fallback?").
 
 **The account command cannot hide the token** (Git Bash on Windows, or no terminal). With Docker
 Engine inside WSL2, run it in a WSL2 terminal (for example in Windows Terminal); with Docker Desktop,
@@ -981,7 +1025,7 @@ Apple Silicon (S2, unchanged by the Docker work). Use Docker there: the image is
 ghcr.io/astral-sh/uv:0.12.7 ──► uv ─────────┐
 python:3.12-slim-bookworm ──────────────────► base ──► deps ──┬──► test     (dev group + repository; pytest)
                                                               └──► models ──► app   (the default target)
-ubuntu:24.04 ───────────────────────────────► llm4b   (optional, Qwen3.5-4B; borrows uv and base's CA bundle)
+ubuntu:24.04 ───────────────────────────────► llm4b   (Qwen3.5-4B for chat v3; borrows uv and base's CA bundle)
 ```
 
 | Stage | Adds | Rebuilt when |
@@ -991,7 +1035,7 @@ ubuntu:24.04 ──────────────────────�
 | `deps` | the three locked environments: `/app/.venv` (groups `app` and `ml`), `runtime/transformer/.venv`, `runtime/gliner-medium/.venv` (`uv sync --frozen`; wheels kept in a cache mount) | a lock or a `pyproject.toml` changes (24.2 s with cached wheels, V7) |
 | `test` | the `dev` group and the repository | any source or test change |
 | `models` | the four pretrained models, downloaded into a cache mount (one folder per pin, so a rerun copies instead of downloading), copied to `/opt/models` and `/opt/hf`, then verified offline | a pin, a lock, or one of the five files it copies changes (`__init__.py`, `config.py`, `llm/qa_assets.py`, `llm/qwen_assets.py`, `extraction/medium_assets.py`); **never a frontend change** |
-| `llm4b` (optional; built only through `compose.llm4b.yaml`, image `candidate-screener/hiring-desk-llm4b:local`, 2.94 GB) | Ubuntu packages pinned by version (`python3`, `ca-certificates`, `libgomp1`; on amd64 from a dated snapshot); the facade's venv `/opt/gguf-venv`; the llama.cpp runtime and the Qwen3.5-4B GGUF, fetched, verified and start-checked by `gguf_assets.py --platform` (`TARGETARCH` amd64 → `linux-x64`, arm64 → `linux-arm64`, anything else fails the build) into `/opt/models/chatbot/qwen35`, with the manifest copy in `/opt/qwen35-manifest/`; last, `gguf_server.py` and `gguf_probe.py` | a pin in `gguf_assets.py`, the snapshot or a package pin, or one of its copied files changes (`__init__.py`, `config.py`, `llm/__init__.py`, `llm/gguf_assets.py`; the last layer for `llm/gguf_server.py` and `llm/gguf_probe.py`). It uses `uv` and `base` only through build-time mounts and never rebuilds `deps`, `models` or `app` |
+| `llm4b` (its own image, built by `docker compose build` for the `llm4b` service since 31 Oct 2026; image `candidate-screener/hiring-desk-llm4b:local`, 2.94 GB) | Ubuntu packages pinned by version (`python3`, `ca-certificates`, `libgomp1`; on amd64 from a dated snapshot); the facade's venv `/opt/gguf-venv`; the llama.cpp runtime and the Qwen3.5-4B GGUF, fetched, verified and start-checked by `gguf_assets.py --platform` (`TARGETARCH` amd64 → `linux-x64`, arm64 → `linux-arm64`, anything else fails the build) into `/opt/models/chatbot/qwen35`, with the manifest copy in `/opt/qwen35-manifest/`; last, `gguf_server.py` and `gguf_probe.py` | a pin in `gguf_assets.py`, the snapshot or a package pin, or one of its copied files changes (`__init__.py`, `config.py`, `llm/__init__.py`, `llm/gguf_assets.py`; the last layer for `llm/gguf_server.py` and `llm/gguf_probe.py`). It uses `uv` and `base` only through build-time mounts and never rebuilds `deps`, `models` or `app` |
 | `app` | `output/` and `docs/data/` (committed records), the backend `src/` without `app/`, the editable install, GLiNER-medium's `runtime-versions.json`, compiled bytecode; last, `src/candidate_screener/app/` and `.streamlit/` | a backend change reruns from the `src/` copy; a frontend change only the last two layers (0.70 s, V7) |
 
 `/app` equals the code's `config.PROJECT_ROOT` (an editable install), and everything under `/app`
@@ -1021,7 +1065,7 @@ time (S4); Qwen2.5-0.5B 954 MB. The model runtimes take torch's CPU build from t
 on Linux (`2.2.2+cpu` on x86_64), without the CUDA packages; the macOS and Windows lock entries are
 unchanged.
 
-**The optional `llm4b` image** (plan
+**The `llm4b` image** (plan
 [`2026-10-28-gguf-cross-platform`](../plan/2026-10-28-gguf-cross-platform/README.md), 02 §3 and
 G2b). Its licences were not read for this guide.
 
@@ -1092,13 +1136,15 @@ expects and the folder lacks.
 - **The frontend is work in progress**: 17 frontend tests fail ([§11](#11-tests)), and two app
   behaviours stand (the report and mail failure for 53 CSV candidates, and C2's thread count;
   [§12](#12-troubleshooting)).
-- **Chat v3 is experimental.** Chat v2/v3 with the `llm` profile were verified by a scripted
-  session, not yet by hand in a browser ([§6](#chat-v2v3-the-llm-profile)).
+- **Chat v3 is experimental**, though it is the default since 31 Oct 2026 (D69): being the default
+  is not quality acceptance, and v1 is the rollback. Chat v3 with Qwen3.5-4B and chat v2 with the
+  `llm` profile were verified by scripted sessions, not yet by hand in a browser
+  ([§6](#chat-v3-with-qwen35-4b-the-default), [§6](#chat-v2-the-llm-profile)).
 - **Only the first account can be created in the browser**; further accounts use the command, and
   there is no renew, disable or reset command and no administrator role ([§7](#7-accounts)).
 - **Parts not built**: a research workbench image and the ONNX embedding back end; see
-  [`docker-optional-parts.md`](docker-optional-parts.md). Qwen3.5-4B is built only on request, as
-  its own image through `compose.llm4b.yaml` ([§6](#chat-v3-with-qwen35-4b-composellm4byaml)).
+  [`docker-optional-parts.md`](docker-optional-parts.md). Qwen3.5-4B is built by default since
+  31 Oct 2026, as its own image for the `llm4b` service ([§6](#chat-v3-with-qwen35-4b-the-default)).
 - **Qwen3.5-4B (chat v3), its limits** (plan
   [`2026-10-28-gguf-cross-platform`](../plan/2026-10-28-gguf-cross-platform/README.md)):
   - *The 60 s budget under load.* On the owner's machine a 4B turn fits the 60 s budget only when

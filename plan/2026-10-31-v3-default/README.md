@@ -183,4 +183,57 @@ The teammate's Intel Mac is not re-tested here. The guide states its memory need
 
 ## Implementation record
 
-(Filled in as stages finish.)
+- **V0** `3d5dba5`: the plan, on `feat/v3-default`.
+- **V1** `18af9bb` (sub-agent; reviewed by the parent):
+  - `chat_version()` is in `app/portal_workspace.py` (`portal_ui` already imported that module,
+    so there is no cycle).
+  - `configured_prose_composer` looks the default 4B manifest up at call time.
+  - 16 new tests failed on the old code (`logs/v3-default/v1-tests-before.log`); 57 pass after.
+  - Edge cases, recorded:
+    - an empty `HR_PORTAL_CHAT_VERSION=""` stays v1 as before; only a truly unset variable gives
+      v3 (in Docker, compose's `:-v3` turns an empty value into v3);
+    - a malformed default 4B manifest gives v3's marked fallback, as a bad explicit one does; it
+      does not drop back to the 0.5B.
+  - `app/conversation_v3_smoke.py --real-model` now picks the 4B natively when it is provisioned.
+- **V2** `7e4ca4e` (sub-agent; reviewed):
+  - `app` repeats the anchor's two mounts, because its own `volumes:` list replaces the anchor's.
+  - `docker compose config --services`:
+    - plain: `app llm4b`;
+    - `--profile llm`: adds `qwen`;
+    - `run --rm tools` and `run --rm test` start only their own service.
+  - The real-file contract test failed before (`v2-tests-before.log`); 188 pass after.
+  - **Found:** an `.env` with `COMPOSE_FILE=compose.yaml:compose.llm4b.yaml` (the old optional
+    line, which the owner's `.env` has) makes every `docker compose` command fail with
+    `stat …/compose.llm4b.yaml: no such file or directory`. The guide's §12 covers it. The
+    owner's `.env` was not edited.
+- **V3** (`logs/v3-default/v3-docker.log`; project `hd-v3`, scratch image tags and data, the
+  owner's stack untouched; `--env-file` without a chat setting, so the true default was tested):
+  - **Build:** plain `docker compose build` built `app` and `llm4b` in 81 s with a warm cache.
+  - **The v1 setup:** with the manifest volume removed first, `up -d app` started `app` alone
+    (`chat_version v1`), and the volume stayed empty.
+  - **The default:** plain `up -d --wait` started `app` and `llm4b`, both healthy after 18.8 s.
+    - `HR_PORTAL_CHAT_VERSION=v3`, and `chat_version v3`;
+    - `llm4b` filled the manifest volume after the app-only run.
+  - **Smoke** (`conversation_v3_smoke --real-model`, invented documents):
+    - turn 1 `qwen_prose` in 58.0 s;
+    - turns 2-4 `deadline_exceeded` at 60.1 s, marked fallbacks;
+    - peaks: `app` 0.22 GB, `llm4b` 2.44 GB.
+- **V4** (`logs/v3-default/v4-native.log`, `v4-native.json`): native, with every chat and
+  `SCREENER_QWEN_*` setting unset.
+  - `gguf_server --launch-backend` was ready, and `chat_version v3`. The composer is
+    `IsolatedProseComposer` for `Qwen/Qwen3.5-4B` at `127.0.0.1:8001/v1`.
+  - Smoke: turn 1 `qwen_prose` in 51.3 s; turns 2-4 `deadline_exceeded`.
+- **Slower turns than on 28 Oct (observed, not investigated):**
+  - Both V3 and V4 were slower: idle native turns took 34-53 s on 28 Oct.
+  - Turn 1's prompt was the same 1,285 tokens.
+  - During these runs, the WSL VM had all of its 4 GB of swap in use and 2.1 GB of memory free; the
+    owner's 0.5B `qwen` container was running.
+  - This change does not touch generation, prompts or the budget, so the machine's state is the
+    likely factor. It is not tuned here. On a loaded 15.7 GB machine, most 4B turns fall back.
+- **V5** (sub-agent; reviewed): AGENTS.md, D69 (D66 and D67 point to it), `docs/docker.md`,
+  `docs/docker-optional-parts.md`, README and the two plan pointers.
+  - **Deviation:** `docker-optional-parts.md` keeps its old dated rows; that file says never edit
+    an old row, so a new 31 Oct row supersedes them.
+  - The V3 figures above replace the guide's placeholders. The free-disk guidance rises to about
+    30 GB, or 35 GB with the test image; the `llm4b` download cache was not measured.
+  - Renamed anchors: `#chat-v3-with-qwen35-4b-the-default` and `#chat-v2-the-llm-profile`.

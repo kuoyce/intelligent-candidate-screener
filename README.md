@@ -81,11 +81,15 @@ accounts and reviews, and is passed on privately. Native development is unchange
 
 ```bash
 mkdir logs                                             # put the data folder you were given at data/datapack/ first
-docker compose build                                   # cold: ~3.5-5.5 min, 4.6 GB downloaded (27 Oct 2026)
+docker compose build                                   # app + llm4b (Qwen3.5-4B, 2.74 GB model); app alone cold: ~3.5-5.5 min, 4.6 GB (27 Oct 2026)
 docker compose --profile tools run --rm tools verify   # checks data/datapack/
 docker compose run --rm app python -m candidate_screener.app.portal_auth --create-local-user reviewer --department benchmark
-docker compose up -d                                   # http://localhost:8503
+docker compose up -d                                   # http://localhost:8503, chat v3 with Qwen3.5-4B (give Docker ~15 GB)
 ```
+
+Chat v3 with Qwen3.5-4B is the default (D69). On a machine that cannot give Docker about 15 GB, use
+the lighter v1 setup: `HR_PORTAL_CHAT_VERSION=v1` in `.env`, then `docker compose build app` and
+`docker compose up -d app` (about 10 GB; the 4B is neither built nor started).
 
 Requirements per OS, the data folder, accounts, backups, updates and troubleshooting:
 [`docs/docker.md`](docs/docker.md).
@@ -427,7 +431,7 @@ All review dropdowns remain available, including CV previews and reports.
 Failed submissions offer **Retry question** and **Discard question**. A pending
 question is discarded with an explanation if its review or candidate context changes.
 
-Experimental **Hiring Desk v3** (`HR_PORTAL_CHAT_VERSION=v3`) adds an inference-only
+Experimental **Hiring Desk v3** (`HR_PORTAL_CHAT_VERSION=v3`, the default since 31 Oct 2026, D69) adds an inference-only
 plain-prose Qwen path, bounded conversation history, explicit comparison tables,
 expandable tables for “why” explanations, and supporting sources on demand.
 “Find jobs by requirement” searches authorized JD text without requiring rankings;
@@ -455,26 +459,29 @@ is rejected or unavailable; the reply retains its fallback provenance. This
 conservative validator does not establish general semantic entailment. V3 remains
 experimental pending the [quality gates](plan/2026-10-25-hiring-desk-v3/02-implementation-and-evaluation.md).
 Its system prompt is `src/candidate_screener/llm/hr_system_prompt_v3.txt`.
-The optional Qwen3.5-4B CPU trial uses a separate pinned GGUF runtime:
+V3's default model is Qwen3.5-4B (owner, 31 Oct 2026, D69), on a separate pinned GGUF CPU runtime:
 `uv run python -m candidate_screener.llm.gguf_assets` provisions the assets, then
 `uv run python -m candidate_screener.llm.gguf_server --manifest data/processed/chatbot/qwen35/manifest.json --launch-backend`
-serves the model on loopback 8001. Set
-`SCREENER_QWEN_MANIFEST=data/processed/chatbot/qwen35/manifest.json` together with
-`HR_PORTAL_CHAT_VERSION=v3` when starting the portal to select it. A missing selected
-manifest is unavailable and never silently selects the old model. Unset the manifest
-variable to return to the existing Qwen service on 8000. No Torch upgrade is needed.
+serves the model on loopback 8001 (run it in its own terminal; the portal never starts it).
+With no `SCREENER_QWEN_*` setting, v3 selects the provisioned manifest
+`data/processed/chatbot/qwen35/manifest.json` by itself; without it, v3 uses the
+existing 0.5B settings (the Qwen service on 8000). An explicit
+`SCREENER_QWEN_MANIFEST` still selects a manifest, and a missing selected
+manifest is unavailable and never silently selects the old model. If the 4B service
+is not running, v3 answers through its marked fallback. No Torch upgrade is needed.
 The commands are the same on every supported host: `gguf_assets` picks the pinned
 llama.cpp b11896 runtime for macOS (x64, arm64) or Linux (x64, arm64) by itself,
 and `--platform KEY` chooses one explicitly (for example, to prepare a folder for
 another machine; the start check is then skipped and recorded). On the host's own
 platform it first starts `llama-server --version`, before the 2.74 GB model is
 fetched or a manifest written; on Linux that needs glibc 2.34 or later (x64), 2.38 or later (arm64),
-and `libgomp1`. In Docker the trial runs as its own image through
-`compose.llm4b.yaml` ([`docs/docker.md`](docs/docker.md) §6; plan
+and `libgomp1`. In Docker the 4B runs as its own image, the `llm4b` service that plain
+`docker compose up -d` starts ([`docs/docker.md`](docs/docker.md) §6; plans
+[`2026-10-31-v3-default`](plan/2026-10-31-v3-default/README.md) and
 [`2026-10-28-gguf-cross-platform`](plan/2026-10-28-gguf-cross-platform/README.md)).
 The Qwen3.5 trial allows up to 60 seconds per turn; extraction and
 the existing 0.5B model retain their 30-second limits.
-The entry point leaves `HR_PORTAL_CHAT_VERSION` at `v1`; export `v3` to try it. **When v3 is completed (its quality gates pass), make `v3` the default in `streamlit_app.py` and update this section and AGENTS.md.** Set the version back to `v2` or `v1` to roll back; no running service is migrated
+`HR_PORTAL_CHAT_VERSION` defaults to `v3` (owner, 31 Oct 2026, D69). Being the default is not quality acceptance: v3 stays experimental pending its quality gates. Set the version to `v1` (or `v2`) to roll back; no running service is migrated
 automatically. An invented-source development smoke is available as
 `uv run python -m candidate_screener.app.conversation_v3_smoke --real-model --output logs/v3-smoke.json`.
 
@@ -491,7 +498,7 @@ Qwen may choose/order checked comparison points; the application writes factual
 clauses. Without Qwen, the same evidence supports an explicitly labelled
 application comparison. No weights are downloaded or trained on startup.
 `SCREENER_QWEN_DISABLED=true` disables composition; `HR_PORTAL_CHAT_VERSION=v1`
-restores the default experience. The [v2 record](plan/2026-10-24-hiring-desk-v2/04-implementation-record.md)
+restores the v1 experience (the rollback). The [v2 record](plan/2026-10-24-hiring-desk-v2/04-implementation-record.md)
 tracks validation and remaining independent quality review; this is an opt-in
 implementation, not a claim that the proposed human quality gates have passed.
 
