@@ -94,6 +94,84 @@ the lighter v1 setup: `HR_PORTAL_CHAT_VERSION=v1` in `.env`, then `docker compos
 Requirements per OS, the data folder, accounts, backups, updates and troubleshooting:
 [`docs/docker.md`](docs/docker.md).
 
+## Set up a fresh clone with only the data folder
+
+Tested end to end on 31 Oct 2026 in a new clone that held only the handed-over data folder
+(plan [2026-10-31-tests-and-fresh-setup](plan/2026-10-31-tests-and-fresh-setup/README.md)). The
+times below are from that machine with warm uv and Docker caches; a new machine also downloads the
+packages, images and models.
+
+**1. Code and data.** The owner hands over the data folder: the inputs only, never the accounts,
+reviews or caches.
+
+```bash
+git clone --branch <branch> https://github.com/kuoyce/intelligent-candidate-screener.git intelligent-candidate-screener-clone
+# owner, in their own checkout:
+uv run python -m candidate_screener.datapack handover <path to the clone>/data/datapack
+# in the clone:
+mkdir logs
+cp .env.example .env        # optional; set HOST_UID/HOST_GID if `id -u`/`id -g` are not 1000
+```
+
+`handover` verifies the copy. The last line reads `OK: 24 inputs (256.8 MB) match the manifest
+and what the code expects`.
+
+**2a. Run it in Docker** (the operator path; give Docker about 15 GB):
+
+```bash
+docker compose build                                   # app + llm4b; 8 s here with a warm cache
+docker compose --profile tools run --rm tools verify   # OK, 4 s
+docker compose up -d --wait                            # app and llm4b healthy after ~20 s
+```
+
+Then open http://localhost:8503. With no account yet, the page is **Create the first account**;
+fill it in, then sign in. If an old `.env` still has
+`COMPOSE_FILE=compose.yaml:compose.llm4b.yaml`, delete that line: the file no longer exists.
+
+**2b. Run it natively** (the developer path). The data folder's layout mirrors `data/`, so link
+its folders in. Keep the models in their own folder with `SCREENER_MODELS_ROOT`, so the data
+folder stays exactly as handed over:
+
+```bash
+uv sync --all-groups
+uv sync --project runtime/transformer
+uv sync --project runtime/gliner-medium
+mkdir -p data/processed
+for d in data/datapack/processed/*/; do ln -s "../datapack/processed/$(basename "$d")" "data/processed/$(basename "$d")"; done
+ln -s datapack/vocab data/vocab
+export SCREENER_MODELS_ROOT=data/models     # every command below, and the app, need this
+# the pretrained models, at the Docker image's pins (about 6 GB; 102 s here)
+uv run python -m candidate_screener.llm.qa_assets --revision adc3b06f79f797d1c575d5479d6f5efe54a9e3b4
+uv run python -m candidate_screener.extraction.medium_assets --encoder-revision 8ccc9b6f36199bec6961081d44eb72fb3f7353f3
+PYTHONPATH=src uv run --project runtime/gliner-medium --no-sync python -c 'import json; from candidate_screener.extraction.medium_model import runtime_versions; from candidate_screener.extraction.medium_assets import MODEL_DIR; (MODEL_DIR/"runtime-versions.json").write_text(json.dumps(runtime_versions(),indent=2,sort_keys=True)+"\n")'
+uv run python -m candidate_screener.llm.qwen_assets --revision 7ae557604adf67be50417f59c2c2f167def9a775
+uv run python -c 'from huggingface_hub import snapshot_download; snapshot_download("Qwen/Qwen3-Reranker-0.6B", revision="e61197ed45024b0ed8a2d74b80b4d909f1255473")'   # C2 (D64) loads offline only
+uv run python -m candidate_screener.llm.gguf_assets          # Qwen3.5-4B for chat v3 (2.74 GB)
+```
+
+Then start the app, with the 4B service in a second terminal (same `SCREENER_MODELS_ROOT`):
+
+```bash
+uv run python -m candidate_screener.llm.gguf_server --manifest data/models/chatbot/qwen35/manifest.json --launch-backend   # ready in ~20 s
+uv run streamlit run src/candidate_screener/app/streamlit_app.py --server.address 127.0.0.1 --server.port 8503
+```
+
+Notes:
+
+- **No cache step is needed.** `inference --cache-parts` is not needed, because the data folder
+  already holds `processed/inference/parts/`.
+- **Ranking works offline.** With `HF_HUB_OFFLINE=1`, loading the Screener took 22.9 s, D63
+  ranked an invented JD in 47 s, and D64 in 149 s.
+- **Native and Docker share one workspace.** The linked `data/processed/hr-portal` is the same
+  folder Docker uses, so they share accounts and reviews. Native shows the first-account form
+  only if Docker has not created one.
+- **Do not run both at once.** Docker and native both use port 8503 and the 4B's ports, and
+  together they exceed the memory of a 16 GB machine.
+- **Expect fallbacks.** On a loaded 16 GB machine, the 4B often exceeds its 60 s budget on real
+  JDs, so a v3 answer may be the app's marked fallback (`deadline_exceeded` or
+  `unsupported_paraphrase` under **Answer details**). That is the designed behaviour, not a
+  setup fault.
+
 ## Screen candidates (the reset's pipeline)
 
 ```bash
