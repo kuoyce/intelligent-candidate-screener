@@ -148,5 +148,5 @@ docker compose up -d --wait
 Accounts and reviews persist in `data/datapack/processed/hr-portal/`. To remove the containers,
 run `docker compose down`.
 
-More detail: [`docs/hiring-desk.md`](hiring-desk.md) (every screen and setting) and
-[`docs/docker.md`](docker.md) (requirements, backups, troubleshooting).
+More detail: [`docs/hiring-desk.md`](docs/hiring-desk.md) (every screen and setting) and
+[`docs/docker.md`](docs/docker.md) (requirements, backups, troubleshooting).
