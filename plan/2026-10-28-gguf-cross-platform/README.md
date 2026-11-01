@@ -395,3 +395,5 @@ stays on amd64.
   - E4: the teammate's Intel Mac run (Q3).
   - E6: an Apple Silicon Mac.
   - On a real arm64 host, the probe's CPU back-end reading.
+
+31 Oct 2026: made the default (chat v3 with Qwen3.5-4B, natively and in Docker, D69); see [`plan/2026-10-31-v3-default/`](../2026-10-31-v3-default/README.md).

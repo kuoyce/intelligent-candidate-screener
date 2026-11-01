@@ -56,12 +56,11 @@ uv run python -m candidate_screener.checks --warm --all         # every live rec
 uv run python -m candidate_screener.checks --cold --all         # every record from scratch (D55)
 uv run jupyter nbconvert --to notebook --execute --inplace notebooks/NN-*.ipynb
 uv run python -m candidate_screener.datapack create --with-workspace   # data/ -> data/datapack/ (owner; also verify, handover DEST, purge)
-docker compose build                                            # the Hiring Desk image: environments + pinned pretrained weights (D68)
+docker compose build                                            # the Hiring Desk image (pinned weights, D68) + the llm4b image (Qwen3.5-4B, 2.74 GB on first build)
 docker compose --profile tools run --rm tools verify            # the data folder commands, in Docker
-docker compose up -d                                            # the Hiring Desk at http://localhost:8503 (docs/docker.md)
+docker compose up -d                                            # the Hiring Desk at http://localhost:8503 with chat v3 + llm4b (docs/docker.md)
+docker compose up -d app                                        # lighter setup: app alone, with HR_PORTAL_CHAT_VERSION=v1 in .env
 docker compose --profile test run --rm test                     # the suite in the test image: no data, no network (~2 min)
-docker compose -f compose.yaml -f compose.llm4b.yaml build llm4b  # optional Qwen3.5-4B image for chat v3 (2.74 GB model)
-docker compose -f compose.yaml -f compose.llm4b.yaml up -d        # with HR_PORTAL_CHAT_VERSION=v3 (docs/docker.md §6)
 ```
 
 Every `--check` above is registered in `candidate_screener.checks`, which runs them for you
@@ -117,7 +116,7 @@ answers in seconds; D64 is opt-in and runs on the adapter's worker thread (a few
 each CV's id and text (D53, D54), reads no labels, and logs failures to
 `logs/hiring-desk-adapter.log`. The 60 benchmark JDs stay on the CSV export.
 
-Primary v1 chat uses the existing RoBERTa-SQuAD2 span extractor and private
+V1 chat (`HR_PORTAL_CHAT_VERSION=v1`) uses the existing RoBERTa-SQuAD2 span extractor and private
 GLiNER-medium entity caches. Comparisons are assembled from validated source
 evidence; Qwen generation and Qwen fine-tuning are outside this flow (D61 (entity/app)).
 Preserve qualification context, explicit no-answer/partial states and source
@@ -127,25 +126,30 @@ Experimental Hiring Desk v3 (`HR_PORTAL_CHAT_VERSION=v3`, D66) uses frozen Qwen
 for plain prose over current source-owned evidence and bounded scoped history.
 History is discourse context, never factual evidence. Keep source reauthorization,
 qualification context and explicit fallback provenance. Registered paraphrase
-checks are conservative grammar checks, not general semantic entailment. Keep v3
-opt-in until quality acceptance; no training or model downloads at startup.
+checks are conservative grammar checks, not general semantic entailment. V3 with
+Qwen3.5-4B is the default (owner, 31 Oct 2026, D69); v1 is the rollback. Being the
+default is not quality acceptance: v3 stays experimental. No training or model
+downloads at startup.
 
 The owner-approved Qwen3.5-4B trial uses a pinned local GGUF model and isolated
 llama.cpp service (`plan/2026-10-25-hiring-desk-v3/04-qwen35-trial.md`). Explicit
-`SCREENER_QWEN_MANIFEST` selects it. Its shared turn budget is at most 60 seconds;
+`SCREENER_QWEN_MANIFEST` selects it; with no `SCREENER_QWEN_*` setting, native v3
+selects the provisioned 4B manifest (`gguf_assets.DESTINATION/manifest.json`), else
+the 0.5B settings. Its shared turn budget is at most 60 seconds;
 the extraction reader and existing 0.5B runtime retain 30-second limits. Preserve
 model identity, tokenizer/generation equivalence and source checks on fallback.
 Native commands are unchanged: `gguf_assets` selects the pinned b11896 runtime for
 macOS or Linux, x64 or arm64; `--platform` overrides it and skips the start check
-(`llama-server --version` before the model download or manifest). Docker runs it only
-as the separate `llm4b` image via `compose.llm4b.yaml`; `compose.yaml` and the default
-image stay unchanged (`plan/2026-10-28-gguf-cross-platform/`).
+(`llama-server --version` before the model download or manifest). Docker runs it as the
+`llm4b` service in `compose.yaml` (its own image, no profile; there is no separate
+override file); the default Hiring Desk image is unchanged
+(`plan/2026-10-28-gguf-cross-platform/`, `plan/2026-10-31-v3-default/`).
 
 Optional Hiring Desk v2 (`HR_PORTAL_CHAT_VERSION=v2`, D65) adds snapshot-scoped
 dialogue state and checked criterion comparisons. Qwen can select/order validated
 comparison relations; application code writes the factual clauses. Preserve full
 qualification context, participant coverage, explicit fallback provenance and
-per-turn inference deadlines. V1 remains the default/rollback. V2 authorization
+per-turn inference deadlines. V1 remains the rollback. V2 authorization
 does not authorize model training, downloads or changes to the research ranking.
 
 The Hiring Desk runs on other machines through Docker plus the data folder `data/datapack/`

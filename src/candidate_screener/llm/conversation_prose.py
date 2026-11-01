@@ -53,6 +53,12 @@ def configured_prose_composer(values=None):
     try:
         if not values.get("SCREENER_QWEN_BASE_URL") and not values.get("SCREENER_QWEN_MODEL"):
             selected_manifest = values.get("SCREENER_QWEN_MANIFEST")
+            if not selected_manifest:
+                # Default v3 model (plan 2026-10-31-v3-default): the provisioned Qwen3.5-4B manifest, if present.
+                # Resolved at call time; only reads the file, never provisions or starts it.
+                from . import gguf_assets
+                default_manifest = gguf_assets.DESTINATION / "manifest.json"
+                selected_manifest = str(default_manifest) if default_manifest.is_file() else None
             if selected_manifest:
                 from .gguf_server import local_settings as gguf_settings
                 values = {**gguf_settings(selected_manifest), **values}

@@ -6,6 +6,14 @@ import os
 from .portal_jobs import JobService
 from .portal_ranking import RankingService
 
+CHAT_VERSIONS = ("v1", "v2", "v3")
+
+
+def chat_version():
+    """The one reader of `HR_PORTAL_CHAT_VERSION`: v3 when unset (plan 2026-10-31-v3-default), v1 for an unknown value."""
+    version = os.environ.get("HR_PORTAL_CHAT_VERSION", "v3").lower()
+    return version if version in CHAT_VERSIONS else "v1"
+
 
 class ReviewDataset:
     def __init__(self, exports, jobs, ranking):
@@ -58,7 +66,7 @@ def attach_services(controller):
         controller.entity_service = PortalEntityService(controller.store.path.parent / "entity-cache",
                                                         controller.principal, guard=controller._guard)
         controller.qa_service = PortalExtractiveService(controller.entity_service, shared_qa_client())
-        version = os.environ.get("HR_PORTAL_CHAT_VERSION", "v1").lower()
+        version = chat_version()
         if version == "v3":
             from .conversation_v3 import ConversationV3Service
             from candidate_screener.llm.conversation_prose import configured_prose_composer

@@ -69,7 +69,11 @@ def test_chat_and_dropdown_share_saved_review_context(monkeypatch):
     assert len(at.chat_input) == 1
     assert any(s.label == "Review action" for s in at.selectbox)
     assert any("Compare candidates 1 and 2" in message.value for message in at.markdown)
-    select(at, "Review action", "Compare candidates")
+    # The dropdown context changes through Open CV, which records the selected applicant.
+    select(at, "Review action", "Open CV")
+    preview = next(s for s in at.selectbox if s.label == "Which CV would you like to open?")
+    preview.select_index(2).run()
+    assert not at.exception
     at.chat_input[0].set_value("What about candidate 2?").run()
     assert not at.exception
     assert any("What about candidate 2?" in message.value for message in at.markdown)
@@ -183,6 +187,7 @@ def test_chat_provenance_reports_model_fallback(monkeypatch):
 
 
 def test_primary_extractive_chat_does_not_instantiate_configured_qwen(monkeypatch):
+    monkeypatch.setenv("HR_PORTAL_CHAT_VERSION", "v1")  # v1 behaviour; v3 is the default
     from candidate_screener.llm.base import ProviderUnavailable
     from candidate_screener.llm import qwen, qwen_assets
     at = open_demo(app())
@@ -213,6 +218,7 @@ def test_empty_evidence_does_not_claim_quoted_extractive_answer(monkeypatch):
 
 
 def test_local_qwen_settings_do_not_control_extractive_chat(monkeypatch):
+    monkeypatch.setenv("HR_PORTAL_CHAT_VERSION", "v1")  # v1 behaviour; v3 is the default
     from candidate_screener.llm import qwen, qwen_assets
     at = open_demo(app())
     settings = {"SCREENER_QWEN_BASE_URL": "http://127.0.0.1:8000/v1",
@@ -244,14 +250,14 @@ def test_dropdown_selection_is_used_by_chat_followup(monkeypatch):
     monkeypatch.setenv("SCREENER_QWEN_DISABLED", "true")
     monkeypatch.setattr(PortalController, "chat", capture)
     at = open_demo(app())
-    select(at, "Review action", "Compare candidates")
-    first = next(s for s in at.selectbox if s.label == "First applicant")
-    first.select_index(3).run()
-    selected = next(s for s in at.selectbox if s.label == "First applicant").value
-    second = next(s for s in at.selectbox if s.label == "Second applicant").value
-    at.chat_input[0].set_value("Compare them on skills").run()
+    select(at, "Review action", "Open CV")
+    preview = next(s for s in at.selectbox if s.label == "Which CV would you like to open?")
+    preview.select_index(3).run()
+    selected = next(s for s in at.selectbox if s.label == "Which CV would you like to open?").value
+    assert selected is not None
+    at.chat_input[0].set_value("What are their skills?").run()
     assert not at.exception
-    assert captured[-1]["context"]["selected_candidates"] == [selected, second]
+    assert captured[-1]["context"]["selected_candidates"] == [selected]
 
 
 def test_pending_followup_is_not_rebound_after_dropdown_change(monkeypatch):
@@ -265,7 +271,10 @@ def test_pending_followup_is_not_rebound_after_dropdown_change(monkeypatch):
     at = open_demo(app())
     at.chat_input[0].set_value("What about their skills?").run()
     assert any(b.label == "Retry question" for b in at.button)
-    select(at, "Review action", "Compare candidates")
+    select(at, "Review action", "Open CV")
+    preview = next(s for s in at.selectbox if s.label == "Which CV would you like to open?")
+    preview.select_index(2).run()
+    assert not at.exception
     assert len(calls) == 1
     assert not any(b.label == "Retry question" for b in at.button)
     assert any("context changed" in warning.value for warning in at.warning)
@@ -306,6 +315,7 @@ def test_chat_source_identifiers_survive_display_redaction(monkeypatch):
 
 
 def test_chat_answers_question_before_collapsed_supporting_sources(monkeypatch):
+    monkeypatch.setenv("HR_PORTAL_CHAT_VERSION", "v1")  # v1 behaviour; v3 is the default
     monkeypatch.setenv("SCREENER_QWEN_DISABLED", "true")
     at = open_demo(app())
     at.chat_input[0].set_value("What Python skills does candidate 1 have?").run()

@@ -103,3 +103,5 @@ freeform comparison quality remain open; activation does not close those gates.
 
 28 Oct 2026: the trial was extended to macOS and Linux (x64, arm64) and to a separate Docker
 image; see [`plan/2026-10-28-gguf-cross-platform/`](../2026-10-28-gguf-cross-platform/README.md).
+
+31 Oct 2026: made the default (chat v3 with Qwen3.5-4B, natively and in Docker, D69); see [`plan/2026-10-31-v3-default/`](../2026-10-31-v3-default/README.md).
