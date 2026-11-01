@@ -172,7 +172,8 @@ Notes:
 
 ## Using the Hiring Desk
 
-Open http://localhost:8503, in Docker or natively.
+Open http://localhost:8503, in Docker or natively. A step-by-step walkthrough, from the build to a
+first chat answer, is in [`docs/user-guide.md`](docs/user-guide.md).
 
 - **Accounts.**
   - The first visit with no accounts shows **Create the first account**: a login ID, departments
@@ -364,6 +365,7 @@ Dockerfile, compose.yaml    the Docker images and services (D68)
 | Topic | Where |
 |---|---|
 | Every decision and why | [`docs/decisions.md`](docs/decisions.md) |
+| **User guide: start it and use it, click by click** | [`docs/user-guide.md`](docs/user-guide.md) |
 | Running in Docker: requirements, the data folder, accounts, backups, troubleshooting | [`docs/docker.md`](docs/docker.md) |
 | The Hiring Desk in detail | [`docs/hiring-desk.md`](docs/hiring-desk.md) |
 | The inference API in detail | [`docs/inference-api.md`](docs/inference-api.md) |
